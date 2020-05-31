@@ -66,7 +66,7 @@ export function selectSources(sids: number[], menuKey: string, title: string) {
 
 export class PageState {
     feedId = ALL
-    sourceGroups = new Array<SourceGroup>()
+    sourceGroups = SourceGroup.load()
 }
 
 
@@ -75,14 +75,6 @@ export function pageReducer(
     action: PageActionTypes | SourceActionTypes
 ): PageState {
     switch(action.type) {
-        case INIT_SOURCES:
-            switch (action.status) {
-                case ActionStatus.Success: return {
-                    ...state,
-                    sourceGroups: [new SourceGroup(action.sources, "中文")]
-                }
-                default: return state
-            }
         case ADD_SOURCE:
             switch (action.status) {
                 case ActionStatus.Success: return {

@@ -5,7 +5,8 @@ import { SourceState, RSSSource } from "../../scripts/models/source"
 import { urlTest } from "../../scripts/utils"
 
 type SourcesTabProps = SourcesTabReduxProps & {
-    sources: SourceState
+    sources: SourceState,
+    addSource: (url: string) => void
 }
 
 type SourcesTabState = {
@@ -79,7 +80,10 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                         onChange={this.handleInputChange} />
                 </Stack.Item>
                 <Stack.Item>
-                    <PrimaryButton disabled={!urlTest(this.state.newUrl)} text="添加" />
+                    <PrimaryButton 
+                        disabled={!urlTest(this.state.newUrl)} 
+                        onClick={() => this.props.addSource(this.state.newUrl)}
+                        text="添加" />
                 </Stack.Item>
             </Stack>
 

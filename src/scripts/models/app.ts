@@ -1,4 +1,4 @@
-import { RSSSource, INIT_SOURCES, SourceActionTypes } from "./source"
+import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
@@ -117,11 +117,9 @@ export function exitSettings(): AppThunk {
             if (getState().app.settings.changed) {
                 dispatch(saveSettings())
                 dispatch(selectAllArticles(true))
-                dispatch(fetchItems())
-                .then(() =>{
+                dispatch(initFeeds(true)).then(() =>
                     dispatch(toggleSettings())
-                    dispatch(initFeeds(true))
-                })
+                )
             } else {
                 dispatch(toggleSettings())
             }
@@ -142,6 +140,26 @@ export function appReducer(
                     sourceInit: true
                 }
                 default: return state
+            }
+        case ADD_SOURCE: 
+            switch (action.status) {
+                case ActionStatus.Request: return {
+                    ...state,
+                    fetchingItems: true,
+                    settings: {
+                        ...state.settings,
+                        changed: true,
+                        saving: true
+                    }
+                }
+                default: return {
+                    ...state,
+                    fetchingItems: false,
+                    settings: {
+                        ...state.settings,
+                        saving: false
+                    }
+                }
             }
         case INIT_FEEDS:
             switch (action.status) {

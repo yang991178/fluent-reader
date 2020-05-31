@@ -96,6 +96,25 @@ export function fetchItemsFailure(source: RSSSource, err): ItemActionTypes {
     }
 }
 
+export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
+    return new Promise<RSSItem[]>((resolve, reject) => {
+        db.idb.count({}, (err, count) => {
+            if (err) {
+                reject(err)
+            }
+            items.sort((a, b) => a.date.getTime() - b.date.getTime())
+            for (let i of items) i.id = count++
+            db.idb.insert(items, (err) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(items)
+                }
+            })
+        })
+    })
+}
+
 export function fetchItems(): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
         let p = new Array<Promise<RSSItem[]>>()
@@ -105,30 +124,22 @@ export function fetchItems(): AppThunk<Promise<void>> {
             }
             dispatch(fetchItemsRequest())
             return Promise.allSettled(p).then(results => new Promise<void>((resolve, reject) => { 
-                db.idb.count({}, (err, count) => {
-                    if (err) {
-                        console.log(err)
-                        reject(err)
+                let items = new Array<RSSItem>()
+                results.map((r, i) => {
+                    if (r.status === "fulfilled") items.push(...r.value)
+                    else {
+                        console.log(r.reason)
+                        dispatch(fetchItemsFailure(getState().sources[i], r.reason))
                     }
-                    let items = new Array<RSSItem>()
-                    results.map((r, i) => {
-                        if (r.status === "fulfilled") items.push(...r.value)
-                        else {
-                            console.log(r.reason)
-                            dispatch(fetchItemsFailure(getState().sources[i], r.reason))
-                        }
-                    })
-                    items.sort((a, b) => a.date.getTime() - b.date.getTime())
-                    for (let i of items) i.id = count++
-                    db.idb.insert(items, (err) => {
-                        if (err) {
-                            console.log(err)
-                            reject(err)
-                        } else {
-                            dispatch(fetchItemsSuccess(items.reverse()))
-                            resolve()
-                        }
-                    })
+                })
+                insertItems(items)
+                .then(() => {
+                    dispatch(fetchItemsSuccess(items.reverse()))
+                    resolve()
+                })
+                .catch(err => {
+                    console.log(err)
+                    reject(err)
                 })
             }))
         }

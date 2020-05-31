@@ -1,7 +1,8 @@
 import Parser = require("rss-parser")
 import * as db from "../db"
 import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
-import { RSSItem } from "./item"
+import { RSSItem, fetchItemsSuccess, insertItems } from "./item"
+import { SourceGroup } from "./page"
 
 export class RSSSource {
     sid: number
@@ -25,11 +26,15 @@ export class RSSSource {
         if (this.iconurl === null) {
             let f = domain + "/favicon.ico"
             let result = await fetch(f)
-            if (result.status == 200) this.iconurl = f
+            if (result.status == 200 && result.headers.has("Content-Type") 
+                && result.headers.get("Content-Type") === "image/x-icon") {
+                this.iconurl = f
+            }
         }
+        return feed
     }
 
-    private static checkItem(source:RSSSource, item: Parser.Item, db: Nedb<RSSItem>): Promise<RSSItem> {
+    private static checkItem(source: RSSSource, item: Parser.Item, db: Nedb<RSSItem>): Promise<RSSItem> {
         return new Promise<RSSItem>((resolve, reject) => {
             let i = new RSSItem(item, source)
             db.findOne({
@@ -49,20 +54,21 @@ export class RSSSource {
         })
     }
 
-    static fetchItems(source:RSSSource, parser: Parser, db: Nedb<RSSItem>): Promise<RSSItem[]> {
+    static checkItems(source: RSSSource, items: Parser.Item[], db: Nedb<RSSItem>): Promise<RSSItem[]> {
         return new Promise<RSSItem[]>((resolve, reject) => {
-            parser.parseURL(source.url)
-                .then(feed => {
-                    let p = new Array<Promise<RSSItem>>()
-                    for (let item of feed.items) {
-                        p.push(this.checkItem(source, item, db))
-                    }
-                    Promise.all(p).then(values => {
-                        resolve(values.filter(v => v != null))
-                    }).catch(e => { reject(e) })
-                })
-                .catch(e => { reject(e) })
+            let p = new Array<Promise<RSSItem>>()
+            for (let item of items) {
+                p.push(this.checkItem(source, item, db))
+            }
+            Promise.all(p).then(values => {
+                resolve(values.filter(v => v != null))
+            }).catch(e => { reject(e) })
         })
+    }
+
+    static async fetchItems(source: RSSSource, parser: Parser, db: Nedb<RSSItem>) {
+        let feed = await parser.parseURL(source.url)
+        return await this.checkItems(source, feed.items, db)
     }
 }
 
@@ -70,9 +76,10 @@ export type SourceState = {
     [sid: number]: RSSSource
 }
 
-export const INIT_SOURCES = 'INIT_SOURCES'
-export const ADD_SOURCE = 'ADD_SOURCE'
-export const UPDATE_SOURCE = 'UPDATE_SOURCE'
+export const INIT_SOURCES = "INIT_SOURCES"
+export const ADD_SOURCE = "ADD_SOURCE"
+export const UPDATE_SOURCE = "UPDATE_SOURCE"
+export const DELETE_SOURCE = "DELETE_SOURCE"
 
 interface InitSourcesAction {
     type: typeof INIT_SOURCES
@@ -162,11 +169,12 @@ export function addSourceFailure(err): SourceActionTypes {
 
 export function addSource(url: string): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
-        if (getState().app.sourceInit) {
+        let app = getState().app
+        if (app.sourceInit && !app.fetchingItems) {
             dispatch(addSourceRequest())
             let source = new RSSSource(url)
             return source.fetchMetaData(rssParser)
-                .then(() => {
+                .then(feed => {
                     let sids = Object.values(getState().sources).map(s=>s.sid)
                     source.sid = Math.max(...sids, -1) + 1
                     return new Promise<void>((resolve, reject) => { 
@@ -177,10 +185,17 @@ export function addSource(url: string): AppThunk<Promise<void>> {
                                 reject(err)
                             } else {
                                 dispatch(addSourceSuccess(source))
-                                /* dispatch(fetchItems()).then(() => {
-                                    dispatch(initFeeds())
-                                }) */
-                                resolve()
+                                RSSSource.checkItems(source, feed.items, db.idb)
+                                    .then(items => insertItems(items))
+                                    .then(items => {
+                                        dispatch(fetchItemsSuccess(items))
+                                        SourceGroup.save(getState().page.sourceGroups)
+                                        resolve()
+                                    })
+                                    .catch(err => {
+                                        console.log(err)
+                                        reject(err)
+                                    })
                             }
                         })
                     })
@@ -190,7 +205,7 @@ export function addSource(url: string): AppThunk<Promise<void>> {
                     dispatch(addSourceFailure(e))
                 })
         }
-        return new Promise((_, reject) => { reject("Need to init sources before adding.") })
+        return new Promise((_, reject) => { reject("Sources not initialized or fetching items.") })
     }
 }
 
