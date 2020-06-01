@@ -25,6 +25,19 @@ html, body {
     background-color: transparent;
     color: #323130;
 }
+.ms-Button--primary.danger {
+    background: #d13438;
+    border-color: #d13438;
+}
+.ms-Button--primary.danger:hover {
+    background: #ba2d32;
+    border-color: #ba2d32;
+}
+.ms-Button--primary.danger:active {
+    background: #a4262c;
+    border-color: #a4262c;
+}
+
 i.ms-Nav-chevron {
     line-height: 32px;
     height: 32px;
@@ -186,6 +199,9 @@ div[role="tabpanel"] {
 }
 .settings .loading .ms-Spinner {
     margin-top: 180px;
+}
+.tab-body {
+    margin-bottom: 24px;
 }
 .tab-body .ms-StackItem {
     margin-right: 6px;

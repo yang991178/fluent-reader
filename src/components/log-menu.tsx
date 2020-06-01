@@ -2,7 +2,7 @@ import * as React from "react"
 import { Callout, ActivityItem, Icon, DirectionalHint } from "@fluentui/react"
 import { AppLog, AppLogType } from "../scripts/models/app"
 import { LogsReduxProps } from "../containers/log-menu-container"
-import Time from "./time"
+import Time from "./utils/time"
 
 type LogMenuProps = LogsReduxProps & {
     display: boolean,

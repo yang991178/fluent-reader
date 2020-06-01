@@ -45,7 +45,7 @@ export class Menu extends React.Component<MenuProps> {
                 return {
                     name: g.name,
                     key: "g-" + i,
-                    url: "#",
+                    url: null,
                     isExpanded: true,
                     onClick: () => this.props.selectSourceGroup(g, "g-" + i),
                     links: g.sids.map(sid => this.props.sources[sid]).map(this.getSource)
@@ -61,7 +61,7 @@ export class Menu extends React.Component<MenuProps> {
         key: "s-" + s.sid,
         onClick: () => this.props.selectSource(s),
         iconProps: s.iconurl ? this.getIconStyle(s.iconurl) : null,
-        url: "#"    
+        url: null    
     })
          
 

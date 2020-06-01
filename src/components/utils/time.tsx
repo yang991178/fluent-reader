@@ -16,7 +16,7 @@ class Time extends React.Component<TimeProps> {
       }
     
     componentWillUnmount() {
-        clearInterval(this.timerID);
+        clearInterval(this.timerID)
     }
 
     tick() {

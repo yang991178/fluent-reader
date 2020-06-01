@@ -10,6 +10,7 @@ export const sdb = new Datastore<RSSSource>({
     }
 })
 sdb.ensureIndex({ fieldName: "sid", unique: true })
+sdb.ensureIndex({ fieldName: "url", unique: true })
 //sdb.remove({}, { multi: true })
 
 export const idb = new Datastore<RSSItem>({

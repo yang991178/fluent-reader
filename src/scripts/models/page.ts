@@ -1,4 +1,4 @@
-import { RSSSource, SourceActionTypes, INIT_SOURCES, ADD_SOURCE } from "./source"
+import { RSSSource, SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
 import { ALL, SOURCE } from "./feed"
 import { ActionStatus } from "../utils"
 
@@ -85,7 +85,16 @@ export function pageReducer(
                     ]
                 }
                 default: return state
-            } 
+            }
+        case DELETE_SOURCE: return {
+            ...state,
+            sourceGroups: [
+                ...state.sourceGroups.map(group => ({
+                    ...group,
+                    sids: group.sids.filter(sid => sid != action.source.sid)
+                })).filter(g => g.isMultiple || g.sids.length == 1)
+            ]
+        }
         case SELECT_PAGE:
             switch (action.pageType) {
                 case PageType.AllArticles: return {

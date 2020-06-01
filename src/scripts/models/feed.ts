@@ -1,5 +1,5 @@
 import * as db from "../db"
-import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE } from "./source"
+import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
 import { ItemActionTypes, FETCH_ITEMS, RSSItem } from "./item"
 import { ActionStatus, AppThunk } from "../utils"
 import { PageActionTypes, SELECT_PAGE, PageType } from "./page"
@@ -187,6 +187,13 @@ export function feedReducer(
                 }
                 default: return state
             }
+        case DELETE_SOURCE: {
+            let nextState = {}
+            for (let [id, feed] of Object.entries(state)) {
+                nextState[id] = new RSSFeed(id, feed.sids.filter(sid => sid != action.source.sid))
+            }
+            return nextState
+        }
         case FETCH_ITEMS:
             switch (action.status) {
                 case ActionStatus.Success: {

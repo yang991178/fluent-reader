@@ -3,6 +3,8 @@ import * as db from "../db"
 import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
 import { RSSItem, fetchItemsSuccess, insertItems } from "./item"
 import { SourceGroup } from "./page"
+import { initFeeds } from "./feed"
+import { saveSettings } from "./app"
 
 export class RSSSource {
     sid: number
@@ -19,17 +21,15 @@ export class RSSSource {
 
     async fetchMetaData(parser: Parser) {
         let feed = await parser.parseURL(this.url)
-        this.name = feed.title
+        this.name = feed.title.trim()
         this.description = feed.description
         let domain = this.url.split("/").slice(0, 3).join("/")
-        this.iconurl = await faviconPromise(domain)
-        if (this.iconurl === null) {
-            let f = domain + "/favicon.ico"
-            let result = await fetch(f)
-            if (result.status == 200 && result.headers.has("Content-Type") 
-                && result.headers.get("Content-Type") === "image/x-icon") {
-                this.iconurl = f
-            }
+        let f = await faviconPromise(domain)
+        if (f === null) f = domain + "/favicon.ico"
+        let result = await fetch(f)
+        if (result.status == 200 && result.headers.has("Content-Type") 
+            && result.headers.get("Content-Type").startsWith("image")) {
+            this.iconurl = f
         }
         return feed
     }
@@ -97,12 +97,15 @@ interface AddSourceAction {
 
 interface UpdateSourceAction {
     type: typeof UPDATE_SOURCE
-    status: ActionStatus
-    source?: RSSSource
-    err?
+    source: RSSSource
 }
 
-export type SourceActionTypes = InitSourcesAction | AddSourceAction | UpdateSourceAction
+interface DeleteSourceAction {
+    type: typeof DELETE_SOURCE,
+    source: RSSSource
+}
+
+export type SourceActionTypes = InitSourcesAction | AddSourceAction | UpdateSourceAction | DeleteSourceAction
 
 export function initSourcesRequest(): SourceActionTypes {
     return {
@@ -175,26 +178,20 @@ export function addSource(url: string): AppThunk<Promise<void>> {
             let source = new RSSSource(url)
             return source.fetchMetaData(rssParser)
                 .then(feed => {
-                    let sids = Object.values(getState().sources).map(s=>s.sid)
+                    let sids = Object.values(getState().sources).map(s => s.sid)
                     source.sid = Math.max(...sids, -1) + 1
-                    return new Promise<void>((resolve, reject) => { 
+                    return new Promise<void>((resolve, reject) => {
                         db.sdb.insert(source, (err) => {
                             if (err) {
-                                console.log(err)
-                                dispatch(addSourceFailure(err))
                                 reject(err)
                             } else {
                                 dispatch(addSourceSuccess(source))
                                 RSSSource.checkItems(source, feed.items, db.idb)
                                     .then(items => insertItems(items))
                                     .then(items => {
-                                        dispatch(fetchItemsSuccess(items))
+                                        //dispatch(fetchItemsSuccess(items))
                                         SourceGroup.save(getState().page.sourceGroups)
                                         resolve()
-                                    })
-                                    .catch(err => {
-                                        console.log(err)
-                                        reject(err)
                                     })
                             }
                         })
@@ -206,6 +203,53 @@ export function addSource(url: string): AppThunk<Promise<void>> {
                 })
         }
         return new Promise((_, reject) => { reject("Sources not initialized or fetching items.") })
+    }
+}
+
+export function updateSourceDone(source: RSSSource): SourceActionTypes {
+    return {
+        type: UPDATE_SOURCE,
+        source: source
+    }
+}
+
+export function updateSource(source: RSSSource): AppThunk {
+    return (dispatch) => {
+        db.sdb.update({ sid: source.sid }, { $set: { ...source }}, {}, err => {
+            if (!err) {
+                dispatch(updateSourceDone(source))
+            }
+        })
+    }
+}
+
+export function deleteSourceDone(source: RSSSource): SourceActionTypes {
+    return {
+        type: DELETE_SOURCE,
+        source: source
+    }
+}
+
+export function deleteSource(source: RSSSource): AppThunk {
+    return (dispatch, getState) => {
+        dispatch(saveSettings())
+        db.idb.remove({ source: source.sid }, { multi: true }, (err) => {
+            if (err) {
+                console.log(err)
+                dispatch(saveSettings())
+            } else {
+                db.sdb.remove({ sid: source.sid }, {}, (err) => {
+                    if (err) {
+                        console.log(err)
+                        dispatch(saveSettings())
+                    } else {
+                        dispatch(deleteSourceDone(source))
+                        SourceGroup.save(getState().page.sourceGroups)
+                        dispatch(saveSettings())
+                    }
+                })
+            }
+        })
     }
 }
 
@@ -233,6 +277,14 @@ export function sourceReducer(
                 }
                 default: return state
             }
+        case UPDATE_SOURCE: return {
+            ...state,
+            [action.source.sid]: action.source
+        }
+        case DELETE_SOURCE: {
+            delete state[action.source.sid]
+            return { ...state }
+        }
         default: return state
     }
 }

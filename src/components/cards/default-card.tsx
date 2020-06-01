@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Card } from "./card"
-import Time from "../time"
+import Time from "../utils/time"
 
 class DefaultCard extends Card {
     render() {

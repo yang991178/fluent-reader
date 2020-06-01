@@ -98,10 +98,11 @@ export function fetchItemsFailure(source: RSSSource, err): ItemActionTypes {
 
 export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     return new Promise<RSSItem[]>((resolve, reject) => {
-        db.idb.count({}, (err, count) => {
+        db.idb.find({}).projection({ id: 1 }).sort({ id: -1 }).limit(1).exec((err, docs) => {
             if (err) {
                 reject(err)
             }
+            let count = (docs.length == 0) ? 0 : (docs[0].id + 1)
             items.sort((a, b) => a.date.getTime() - b.date.getTime())
             for (let i of items) i.id = count++
             db.idb.insert(items, (err) => {

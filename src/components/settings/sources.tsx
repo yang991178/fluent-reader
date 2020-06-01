@@ -1,16 +1,22 @@
 import * as React from "react"
-import { Label, DefaultButton, TextField, Stack, PrimaryButton, DetailsList, Spinner, IColumn, SelectionMode, IRefObject, ITextField } from "@fluentui/react"
+import { Label, DefaultButton, TextField, Stack, PrimaryButton, DetailsList, 
+    IColumn, SelectionMode, Selection } from "@fluentui/react"
 import { SourcesTabReduxProps } from "../../containers/settings/sources-container"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { urlTest } from "../../scripts/utils"
+import DangerButton from "../utils/danger-button"
 
 type SourcesTabProps = SourcesTabReduxProps & {
     sources: SourceState,
-    addSource: (url: string) => void
+    addSource: (url: string) => void,
+    updateSourceName: (source: RSSSource, name: string) => void,
+    deleteSource: (source: RSSSource) => void
 }
 
 type SourcesTabState = {
     [formName: string]: string
+} & {
+    selectedSource: RSSSource
 }
 
 const columns: IColumn[] = [
@@ -44,16 +50,30 @@ const columns: IColumn[] = [
 ]
 
 class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
+    selection: Selection
+
     constructor(props) {
         super(props)
         this.state = {
-            newUrl: ""
+            newUrl: "",
+            newSourceName: "",
+            selectedSource: null
         }
+        this.selection = new Selection({
+            getKey: s => (s as RSSSource).sid,
+            onSelectionChanged: () => {
+                let source = this.selection.getSelectedCount() ? this.selection.getSelection()[0] as RSSSource : null
+                this.setState({
+                    selectedSource: source,
+                    newSourceName: source ? source.name : ""
+                })
+            }
+        })
     }
 
     handleInputChange = (event) => {
         const name: string = event.target.name
-        this.setState({[name]: event.target.value})
+        this.setState({[name]: event.target.value.trim()})
     }
 
     render = () => (
@@ -72,7 +92,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
             <Stack horizontal>
                 <Stack.Item grow>
                     <TextField 
-                        onGetErrorMessage={v => urlTest(v) ? "" : "请正确输入URL"} 
+                        onGetErrorMessage={v => urlTest(v.trim()) ? "" : "请正确输入URL"} 
                         validateOnLoad={false} 
                         placeholder="输入URL"
                         value={this.state.newUrl}
@@ -87,13 +107,40 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                 </Stack.Item>
             </Stack>
 
-            <Label>订阅源列表</Label>
             <DetailsList
                 items={Object.values(this.props.sources)} 
                 columns={columns}
+                getKey={s => s.sid}
+                setKey="selected"
+                selection={this.selection}
                 selectionMode={SelectionMode.single} />
 
-            <Label>选中订阅源</Label>
+            {this.state.selectedSource && (<>
+                <Label>选中订阅源</Label>
+                <Stack horizontal>
+                    <Stack.Item grow>
+                        <TextField
+                            onGetErrorMessage={v => v.trim().length == 0 ? "名称不得为空" : ""}
+                            validateOnLoad={false}
+                            placeholder="订阅源名称"
+                            value={this.state.newSourceName}
+                            name="newSourceName"
+                            onChange={this.handleInputChange} />
+                    </Stack.Item>
+                    <Stack.Item>
+                        <DefaultButton
+                            disabled={this.state.newSourceName.length == 0}
+                            onClick={() => this.props.updateSourceName(this.state.selectedSource, this.state.newSourceName)}
+                            text="修改名称" />
+                    </Stack.Item>
+                    <Stack.Item>
+                        <DangerButton
+                            onClick={() => this.props.deleteSource(this.state.selectedSource)}
+                            key={this.state.selectedSource.sid}
+                            text={`删除订阅源`} />
+                    </Stack.Item>
+                </Stack>
+            </>)}
         </div>
     )
 }

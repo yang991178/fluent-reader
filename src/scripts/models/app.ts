@@ -1,4 +1,4 @@
-import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE } from "./source"
+import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
@@ -161,6 +161,14 @@ export function appReducer(
                     }
                 }
             }
+        case UPDATE_SOURCE:
+        case DELETE_SOURCE: return {
+            ...state,
+            settings: {
+                ...state.settings,
+                changed: true
+            }
+        }
         case INIT_FEEDS:
             switch (action.status) {
                 case ActionStatus.Request: return {
@@ -243,7 +251,7 @@ export function appReducer(
             ...state,
             settings: {
                 ...state.settings,
-                saving: true
+                saving: !state.settings.saving
             }
         }
         case TOGGLE_SETTINGS: return {
