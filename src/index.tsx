@@ -10,13 +10,14 @@ import { initSources, addSource } from "./scripts/models/source"
 import { fetchItems } from "./scripts/models/item"
 import Root from "./components/root"
 import { initFeeds } from "./scripts/models/feed"
+import { AppDispatch } from "./scripts/utils"
 
 loadTheme({ defaultFontStyle: { fontFamily: '"Source Han Sans", sans-serif' } })
 initializeIcons("icons/")
 
 const store = createStore(
     rootReducer,
-    applyMiddleware<ThunkDispatch<RootState, undefined, AnyAction>, RootState>(thunkMiddleware)
+    applyMiddleware<AppDispatch, RootState>(thunkMiddleware)
 )
 
 store.dispatch(initSources()).then(() => store.dispatch(initFeeds())).then(() => store.dispatch(fetchItems()))

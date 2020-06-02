@@ -2,7 +2,7 @@ import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, 
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
-import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
+import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP } from "./page"
 
 export enum ContextMenuType {
     Hidden, Item
@@ -130,7 +130,7 @@ export function exitSettings(): AppThunk {
 export function appReducer(
     state = new AppState(),
     action: SourceActionTypes | ItemActionTypes | ContextMenuActionTypes | SettingsActionTypes
-        | MenuActionTypes | LogMenuActionType | FeedActionTypes | PageActionTypes
+        | MenuActionTypes | LogMenuActionType | FeedActionTypes | PageActionTypes | SourceGroupActionTypes
 ): AppState {
     switch (action.type) {
         case INIT_SOURCES:
@@ -162,7 +162,11 @@ export function appReducer(
                 }
             }
         case UPDATE_SOURCE:
-        case DELETE_SOURCE: return {
+        case DELETE_SOURCE:
+        case UPDATE_SOURCE_GROUP:
+        case ADD_SOURCE_TO_GROUP:
+        case REMOVE_SOURCE_FROM_GROUP:
+        case DELETE_SOURCE_GROUP: return {
             ...state,
             settings: {
                 ...state.settings,

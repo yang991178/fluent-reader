@@ -1,5 +1,5 @@
 import { shell } from "electron"
-import { ThunkAction } from "redux-thunk"
+import { ThunkAction, ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
 import { RootState } from "./reducer"
 
@@ -13,6 +13,8 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   AnyAction
 >
+
+export type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>
 
 import Parser = require("rss-parser")
 const customFields = {

@@ -14,14 +14,15 @@ export class RSSSource {
     description: string
     useProxy: boolean
 
-    constructor(url: string, useProxy=false) {
+    constructor(url: string, name: string = null) {
         this.url = url
-        this.useProxy = useProxy
+        this.name = name
+        this.useProxy = false
     }
 
     async fetchMetaData(parser: Parser) {
         let feed = await parser.parseURL(this.url)
-        this.name = feed.title.trim()
+        if (!this.name) this.name = feed.title.trim()
         this.description = feed.description
         let domain = this.url.split("/").slice(0, 3).join("/")
         let f = await faviconPromise(domain)
@@ -170,17 +171,17 @@ export function addSourceFailure(err): SourceActionTypes {
     }
 }
 
-export function addSource(url: string): AppThunk<Promise<void>> {
+export function addSource(url: string, name: string = null): AppThunk<Promise<void|number>> {
     return (dispatch, getState) => {
         let app = getState().app
         if (app.sourceInit && !app.fetchingItems) {
             dispatch(addSourceRequest())
-            let source = new RSSSource(url)
+            let source = new RSSSource(url, name)
             return source.fetchMetaData(rssParser)
                 .then(feed => {
                     let sids = Object.values(getState().sources).map(s => s.sid)
                     source.sid = Math.max(...sids, -1) + 1
-                    return new Promise<void>((resolve, reject) => {
+                    return new Promise<number>((resolve, reject) => {
                         db.sdb.insert(source, (err) => {
                             if (err) {
                                 reject(err)
@@ -191,7 +192,7 @@ export function addSource(url: string): AppThunk<Promise<void>> {
                                     .then(items => {
                                         //dispatch(fetchItemsSuccess(items))
                                         SourceGroup.save(getState().page.sourceGroups)
-                                        resolve()
+                                        resolve(source.sid)
                                     })
                             }
                         })

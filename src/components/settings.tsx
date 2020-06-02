@@ -4,8 +4,8 @@ import { AnimationClassNames } from "@fluentui/react/lib/Styling"
 import { SettingsReduxProps } from "../containers/settings-container"
 import AboutTab from "./settings/about"
 import { Pivot, PivotItem, Spinner } from "@fluentui/react"
-import { SourcesTabContainer } from "../containers/settings/sources-container"
-import GroupsTab from "./settings/groups"
+import SourcesTabContainer from "../containers/settings/sources-container"
+import GroupsTabContainer from "../containers/settings/groups-container"
 import ProxyTab from "./settings/proxy"
 
 type SettingsProps = SettingsReduxProps & {
@@ -36,7 +36,7 @@ class Settings extends React.Component<SettingsProps> {
                         <SourcesTabContainer />
                     </PivotItem>
                     <PivotItem headerText="分组与排序" itemIcon="GroupList">
-                        <GroupsTab />
+                        <GroupsTabContainer />
                     </PivotItem>
                     <PivotItem headerText="代理" itemIcon="Globe">
                         <ProxyTab />

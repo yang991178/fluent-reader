@@ -1,16 +1,16 @@
 import * as React from "react"
 import { Label, DefaultButton, TextField, Stack, PrimaryButton, DetailsList, 
     IColumn, SelectionMode, Selection } from "@fluentui/react"
-import { SourcesTabReduxProps } from "../../containers/settings/sources-container"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { urlTest } from "../../scripts/utils"
 import DangerButton from "../utils/danger-button"
 
-type SourcesTabProps = SourcesTabReduxProps & {
+type SourcesTabProps = {
     sources: SourceState,
     addSource: (url: string) => void,
     updateSourceName: (source: RSSSource, name: string) => void,
-    deleteSource: (source: RSSSource) => void
+    deleteSource: (source: RSSSource) => void,
+    importOPML: () => void
 }
 
 type SourcesTabState = {
@@ -81,7 +81,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
             <Label>OPML文件</Label>
             <Stack horizontal>
                 <Stack.Item>
-                    <PrimaryButton text="导入文件" />
+                    <PrimaryButton onClick={this.props.importOPML} text="导入文件" />
                 </Stack.Item>
                 <Stack.Item>
                     <DefaultButton text="导出文件" />
@@ -115,7 +115,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                 selection={this.selection}
                 selectionMode={SelectionMode.single} />
 
-            {this.state.selectedSource && (<>
+            {this.state.selectedSource && <>
                 <Label>选中订阅源</Label>
                 <Stack horizontal>
                     <Stack.Item grow>
@@ -140,7 +140,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                             text={`删除订阅源`} />
                     </Stack.Item>
                 </Stack>
-            </>)}
+            </>}
         </div>
     )
 }
