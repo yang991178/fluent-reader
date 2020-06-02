@@ -76,6 +76,11 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
         this.setState({[name]: event.target.value.trim()})
     }
 
+    addSource = (event: React.FormEvent) => {
+        event.preventDefault()
+        if (urlTest(this.state.newUrl)) this.props.addSource(this.state.newUrl)
+    }
+
     render = () => (
         <div className="tab-body">
             <Label>OPML文件</Label>
@@ -88,24 +93,27 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                 </Stack.Item>
             </Stack>
 
-            <Label>添加订阅源</Label>
-            <Stack horizontal>
-                <Stack.Item grow>
-                    <TextField 
-                        onGetErrorMessage={v => urlTest(v.trim()) ? "" : "请正确输入URL"} 
-                        validateOnLoad={false} 
-                        placeholder="输入URL"
-                        value={this.state.newUrl}
-                        name="newUrl"
-                        onChange={this.handleInputChange} />
-                </Stack.Item>
-                <Stack.Item>
-                    <PrimaryButton 
-                        disabled={!urlTest(this.state.newUrl)} 
-                        onClick={() => this.props.addSource(this.state.newUrl)}
-                        text="添加" />
-                </Stack.Item>
-            </Stack>
+            <form onSubmit={this.addSource}>
+                <Label htmlFor="newUrl">添加订阅源</Label>
+                <Stack horizontal>
+                    <Stack.Item grow>
+                        <TextField 
+                            onGetErrorMessage={v => urlTest(v.trim()) ? "" : "请正确输入URL"} 
+                            validateOnLoad={false} 
+                            placeholder="输入URL"
+                            value={this.state.newUrl}
+                            id="newUrl"
+                            name="newUrl"
+                            onChange={this.handleInputChange} />
+                    </Stack.Item>
+                    <Stack.Item>
+                        <PrimaryButton 
+                            disabled={!urlTest(this.state.newUrl)}
+                            type="submit"
+                            text="添加" />
+                    </Stack.Item>
+                </Stack>
+            </form>
 
             <DetailsList
                 items={Object.values(this.props.sources)} 

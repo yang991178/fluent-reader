@@ -189,6 +189,20 @@ export function updateSourceGroup(group: SourceGroup): AppThunk {
     }
 }
 
+function reorderSourceGroupsDone(groups: SourceGroup[]): SourceGroupActionTypes {
+    return {
+        type: REORDER_SOURCE_GROUPS,
+        groups: groups
+    }
+}
+
+export function reorderSourceGroups(groups: SourceGroup[]): AppThunk {
+    return (dispatch, getState) => {
+        dispatch(reorderSourceGroupsDone(groups))
+        SourceGroup.save(getState().page.sourceGroups)
+    }
+}
+
 async function outlineToSource(dispatch: AppDispatch, outline: Element): Promise<number> {
     let url = outline.getAttribute("xmlUrl").trim()
     let name = outline.getAttribute("text") || outline.getAttribute("name")
@@ -302,6 +316,10 @@ export function pageReducer(
                 action.group,
                 ...state.sourceGroups.slice(action.groupIndex + 1)
             ]
+        }
+        case REORDER_SOURCE_GROUPS: return {
+            ...state,
+            sourceGroups: action.groups
         }
         case DELETE_SOURCE_GROUP: return {
             ...state,

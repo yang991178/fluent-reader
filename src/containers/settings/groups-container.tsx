@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import GroupsTab from "../../components/settings/groups"
-import { createSourceGroup, SourceGroup, updateSourceGroup, addSourceToGroup, deleteSourceGroup, removeSourceFromGroup } from "../../scripts/models/page"
+import { createSourceGroup, SourceGroup, updateSourceGroup, addSourceToGroup, deleteSourceGroup, removeSourceFromGroup, reorderSourceGroups } from "../../scripts/models/page"
 
 const getSources = (state: RootState) => state.sources
 const getGroups = (state: RootState) => state.page.sourceGroups
@@ -22,7 +22,8 @@ const mapDispatchToProps = dispatch => ({
     updateGroup: (group: SourceGroup) => dispatch(updateSourceGroup(group)),
     addToGroup: (groupIndex: number, sid: number) => dispatch(addSourceToGroup(groupIndex, sid)),
     deleteGroup: (groupIndex: number) => dispatch(deleteSourceGroup(groupIndex)),
-    removeFromGroup: (groupIndex: number, sids: number[]) => dispatch(removeSourceFromGroup(groupIndex, sids))
+    removeFromGroup: (groupIndex: number, sids: number[]) => dispatch(removeSourceFromGroup(groupIndex, sids)),
+    reorderGroups: (groups: SourceGroup[]) => dispatch(reorderSourceGroups(groups))
 })
 
 const GroupsTabContainer = connect(mapStateToProps, mapDispatchToProps)(GroupsTab)

@@ -2,7 +2,7 @@ import * as React from "react"
 import { SourceGroup } from "../../scripts/models/page"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
-     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton } from "@fluentui/react"
+     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, IDragDropContext } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
 
 type GroupsTabProps = {
@@ -12,7 +12,8 @@ type GroupsTabProps = {
     updateGroup: (group: SourceGroup) => void,
     addToGroup: (groupIndex: number, sid: number) => void,
     deleteGroup: (groupIndex: number) => void,
-    removeFromGroup: (groupIndex: number, sids: number[]) => void
+    removeFromGroup: (groupIndex: number, sids: number[]) => void,
+    reorderGroups: (groups: SourceGroup[]) => void
 }
 
 type GroupsTabState = {
@@ -25,7 +26,13 @@ type GroupsTabState = {
 
 class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
     groupSelection: Selection
+    groupDragDropEvents: IDragDropEvents
+    groupDraggedItem: SourceGroup
+    groupDraggedIndex = -1
     sourcesSelection: Selection
+    sourcesDragDropEvents: IDragDropEvents
+    sourcesDraggedItem: RSSSource
+    sourcesDraggedIndex = -1
 
     constructor(props) {
         super(props)
@@ -37,6 +44,8 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
             dropdownIndex: null,
             manageGroup: false
         }
+        this.groupDragDropEvents = this.getGroupDragDropEvents()
+        this.sourcesDragDropEvents = this.getSourcesDragDropEvents()
         this.groupSelection = new Selection({
             getKey: g => (g as SourceGroup).index,
             onSelectionChanged: () => {
@@ -123,6 +132,70 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         }
     ]
 
+    getGroupDragDropEvents = (): IDragDropEvents => ({
+        canDrop: () => true,
+        canDrag: () => true,
+        onDrop: (item?: SourceGroup) => {
+            if (this.groupDraggedItem) {
+                this.reorderGroups(item)
+            }
+        },
+        onDragStart: (item?: SourceGroup, itemIndex?: number) => {
+            this.groupDraggedItem = item
+            this.groupDraggedIndex = itemIndex!
+        },
+        onDragEnd: () => {
+            this.groupDraggedItem = undefined
+            this.groupDraggedIndex = -1
+        },
+    })
+
+    reorderGroups = (item: SourceGroup) => {
+        let draggedItem = this.groupSelection.isIndexSelected(this.groupDraggedIndex)
+        ? this.groupSelection.getSelection()[0] as SourceGroup
+        : this.groupDraggedItem!
+  
+        let insertIndex = item.index
+        let groups = this.props.groups.filter(g => g.index != draggedItem.index)
+  
+        groups.splice(insertIndex, 0, draggedItem)
+  
+        this.props.reorderGroups(groups)
+    }
+
+    getSourcesDragDropEvents = (): IDragDropEvents => ({
+        canDrop: () => true,
+        canDrag: () => true,
+        onDrop: (item?: RSSSource) => {
+            if (this.sourcesDraggedItem) {
+                this.reorderSources(item)
+            }
+        },
+        onDragStart: (item?: RSSSource, itemIndex?: number) => {
+            this.sourcesDraggedItem = item
+            this.sourcesDraggedIndex = itemIndex!
+        },
+        onDragEnd: () => {
+            this.sourcesDraggedItem = undefined
+            this.sourcesDraggedIndex = -1
+        },
+    })
+
+    reorderSources = (item: RSSSource) => {
+        let draggedItems = this.sourcesSelection.isIndexSelected(this.sourcesDraggedIndex)
+        ? (this.sourcesSelection.getSelection() as RSSSource[]).map(s => s.sid)
+        : [this.sourcesDraggedItem!.sid]
+  
+        let insertIndex = this.state.selectedGroup.sids.indexOf(item.sid)
+        let items = this.state.selectedGroup.sids.filter(sid => !draggedItems.includes(sid))
+  
+        items.splice(insertIndex, 0, ...draggedItems)
+  
+        let group = { ...this.state.selectedGroup, sids: items }
+        this.props.updateGroup(group)
+        this.setState({ selectedGroup: group })
+    }
+
     manageGroup = (g: SourceGroup) => {
         if (g.isMultiple) {
             this.setState({
@@ -143,8 +216,9 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         this.setState({[name]: event.target.value.trim()})
     }
 
-    createGroup = () => {
-        this.props.createGroup(this.state.newGroupName)
+    createGroup = (event: React.FormEvent) => {
+        event.preventDefault()
+        if (this.state.newGroupName.length > 0) this.props.createGroup(this.state.newGroupName)
     }
 
     addToGroup = () => {
@@ -174,9 +248,9 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
 
     render = () => (
         <div className="tab-body">
-            {this.state.manageGroup
-            ?<>
-                <Stack horizontal horizontalAlign="space-between" style={{height: 44}}>
+            {this.state.manageGroup && this.state.selectedGroup &&
+            <>
+                <Stack horizontal horizontalAlign="space-between" style={{height: 40}}>
                     <CommandBarButton 
                         text="退出分组" 
                         iconProps={{iconName: "BackToWindow"}}
@@ -187,41 +261,49 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         iconProps={{iconName: "RemoveFromShoppingList", style: {color: "#d13438"}}} />}
                 </Stack>
 
-                <DetailsList
-                    compact={true}
-                    items={this.state.selectedGroup.sids.map(sid => this.props.sources[sid])} 
-                    columns={this.sourceColumns}
-                    setKey="multiple"
-                    selection={this.sourcesSelection}
-                    selectionMode={SelectionMode.multiple} />
+                <MarqueeSelection selection={this.sourcesSelection}>
+                    <DetailsList
+                        compact={true}
+                        items={this.state.selectedGroup.sids.map(sid => this.props.sources[sid])} 
+                        columns={this.sourceColumns}
+                        dragDropEvents={this.sourcesDragDropEvents}
+                        setKey="multiple"
+                        selection={this.sourcesSelection}
+                        selectionMode={SelectionMode.multiple} />
+                </MarqueeSelection>
                 
-            </>
-            :<>
-                <Label>新建分组</Label>
-                <Stack horizontal>
-                    <Stack.Item grow>
-                        <TextField 
-                            onGetErrorMessage={v => v.trim().length == 0 ? "名称不得为空" : ""} 
-                            validateOnLoad={false} 
-                            placeholder="输入名称"
-                            value={this.state.newGroupName}
-                            name="newGroupName"
-                            onChange={this.handleInputChange} />
-                    </Stack.Item>
-                    <Stack.Item>
-                        <PrimaryButton 
-                            disabled={this.state.newGroupName.length == 0}
-                            onClick={this.createGroup}
-                            text="新建" />
-                    </Stack.Item>
-                </Stack>
+            </>}
+            {(!this.state.manageGroup || !this.state.selectedGroup) 
+            ?<>
+                <form onSubmit={this.createGroup}>
+                    <Label htmlFor="newGroupName">新建分组</Label>
+                    <Stack horizontal>
+                        <Stack.Item grow>
+                            <TextField 
+                                onGetErrorMessage={v => v.trim().length == 0 ? "名称不得为空" : ""} 
+                                validateOnLoad={false} 
+                                placeholder="输入名称"
+                                value={this.state.newGroupName}
+                                id="newGroupName"
+                                name="newGroupName"
+                                onChange={this.handleInputChange} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <PrimaryButton 
+                                disabled={this.state.newGroupName.length == 0}
+                                type="sumbit"
+                                text="新建" />
+                        </Stack.Item>
+                    </Stack>
+                </form>
 
                 <DetailsList
                     compact={true}
-                    items={Object.values(this.props.groups)} 
+                    items={this.props.groups} 
                     columns={this.groupColumns}
                     setKey="selected"
                     onItemInvoked={this.manageGroup}
+                    dragDropEvents={this.groupDragDropEvents}
                     selection={this.groupSelection}
                     selectionMode={SelectionMode.single} />
 
@@ -272,8 +354,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         </Stack>
                     </>
                 )}
-            </>}
-
+            </> : null}
         </div>
     )
 }
