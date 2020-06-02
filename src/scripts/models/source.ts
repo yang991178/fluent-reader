@@ -22,17 +22,21 @@ export class RSSSource {
 
     async fetchMetaData(parser: Parser) {
         let feed = await parser.parseURL(this.url)
-        if (!this.name) this.name = feed.title.trim()
+        if (!this.name && feed.title) this.name = feed.title.trim()
         this.description = feed.description
         let domain = this.url.split("/").slice(0, 3).join("/")
-        let f = await faviconPromise(domain)
-        if (f === null) f = domain + "/favicon.ico"
-        let result = await fetch(f)
-        if (result.status == 200 && result.headers.has("Content-Type") 
-            && result.headers.get("Content-Type").startsWith("image")) {
-            this.iconurl = f
+        let f: string = null
+        try {
+            f = await faviconPromise(domain)
+        } finally {
+            if (f === null) f = domain + "/favicon.ico"
+            let result = await fetch(f)
+            if (result.status == 200 && result.headers.has("Content-Type")
+                && result.headers.get("Content-Type").startsWith("image")) {
+                this.iconurl = f
+            }
+            return feed
         }
-        return feed
     }
 
     private static checkItem(source: RSSSource, item: Parser.Item, db: Nedb<RSSItem>): Promise<RSSItem> {
@@ -92,6 +96,7 @@ interface InitSourcesAction {
 interface AddSourceAction {
     type: typeof ADD_SOURCE
     status: ActionStatus
+    batch: boolean
     source?: RSSSource
     err?
 }
@@ -148,34 +153,37 @@ export function initSources(): AppThunk<Promise<void>> {
     }
 }
 
-export function addSourceRequest(): SourceActionTypes {
+export function addSourceRequest(batch: boolean): SourceActionTypes {
     return {
         type: ADD_SOURCE,
+        batch: batch,
         status: ActionStatus.Request
     }
 }
 
-export function addSourceSuccess(source: RSSSource): SourceActionTypes {
+export function addSourceSuccess(source: RSSSource, batch: boolean): SourceActionTypes {
     return {
         type: ADD_SOURCE,
+        batch: batch,
         status: ActionStatus.Success,
         source: source
     }
 }
 
-export function addSourceFailure(err): SourceActionTypes {
+export function addSourceFailure(err, batch: boolean): SourceActionTypes {
     return {
         type: ADD_SOURCE,
+        batch: batch,
         status: ActionStatus.Failure,
         err: err
     }
 }
 
-export function addSource(url: string, name: string = null): AppThunk<Promise<void|number>> {
+export function addSource(url: string, name: string = null, batch = false): AppThunk<Promise<number>> {
     return (dispatch, getState) => {
         let app = getState().app
         if (app.sourceInit && !app.fetchingItems) {
-            dispatch(addSourceRequest())
+            dispatch(addSourceRequest(batch))
             let source = new RSSSource(url, name)
             return source.fetchMetaData(rssParser)
                 .then(feed => {
@@ -186,7 +194,7 @@ export function addSource(url: string, name: string = null): AppThunk<Promise<vo
                             if (err) {
                                 reject(err)
                             } else {
-                                dispatch(addSourceSuccess(source))
+                                dispatch(addSourceSuccess(source, batch))
                                 RSSSource.checkItems(source, feed.items, db.idb)
                                     .then(items => insertItems(items))
                                     .then(items => {
@@ -200,7 +208,8 @@ export function addSource(url: string, name: string = null): AppThunk<Promise<vo
                 })
                 .catch(e => {
                     console.log(e)
-                    dispatch(addSourceFailure(e))
+                    dispatch(addSourceFailure(e, batch))
+                    return new Promise((_, reject) => { reject(e) })
                 })
         }
         return new Promise((_, reject) => { reject("Sources not initialized or fetching items.") })

@@ -1,7 +1,7 @@
-import { RSSSource, SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE, addSource } from "./source"
+import fs = require("fs")
+import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource } from "./source"
 import { ALL, SOURCE } from "./feed"
 import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
-import fs = require("fs")
 import { saveSettings } from "./app"
 
 const GROUPS_STORE_KEY = "sourceGroups"
@@ -204,11 +204,14 @@ export function reorderSourceGroups(groups: SourceGroup[]): AppThunk {
 }
 
 async function outlineToSource(dispatch: AppDispatch, outline: Element): Promise<number> {
-    let url = outline.getAttribute("xmlUrl").trim()
+    let url = outline.getAttribute("xmlUrl")
     let name = outline.getAttribute("text") || outline.getAttribute("name")
     if (url) {
-        let sid = await dispatch(addSource(url, name))
-        return sid || null
+        try {
+            return await dispatch(addSource(url.trim(), name, true))
+        } catch (e) {
+            return null
+        }
     } else {
         return null
     }
@@ -221,9 +224,13 @@ export function importOPML(path: string): AppThunk {
                 console.log(err)
             } else {
                 dispatch(saveSettings())
-                let successes: number, failures: number
-                let doc = domParser.parseFromString(data, "text/xml")
-                for (let el of doc.body.children) {
+                let successes: number = 0, failures: number = 0
+                let doc = domParser.parseFromString(data, "text/xml").getElementsByTagName("body")
+                if (doc.length == 0) {
+                    dispatch(saveSettings())
+                    return
+                }
+                for (let el of doc[0].children) {
                     if (el.getAttribute("type") === "rss") {
                         let sid = await outlineToSource(dispatch, el)
                         if (sid === null) failures += 1
@@ -231,14 +238,19 @@ export function importOPML(path: string): AppThunk {
                     } else if (el.hasAttribute("text") || el.hasAttribute("title")) {
                         let groupName = el.getAttribute("text") || el.getAttribute("title")
                         let gid = dispatch(createSourceGroup(groupName))
-                        let sid = await outlineToSource(dispatch, el)
-                        if (sid === null) failures += 1
-                        else {
-                            successes += 1
-                            dispatch(addSourceToGroup(gid, sid))
+                        for (let child of el.children) {
+                            let sid = await outlineToSource(dispatch, child)
+                            if (sid === null) {
+                                failures += 1
+                            } else {
+                                successes += 1
+                                dispatch(addSourceToGroup(gid, sid))
+                            }
                         }
                     }
                 }
+                console.log(failures, successes)
+                dispatch(saveSettings())
             }
         })
     }

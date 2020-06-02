@@ -157,7 +157,7 @@ export function appReducer(
                     fetchingItems: false,
                     settings: {
                         ...state.settings,
-                        saving: false
+                        saving: action.batch
                     }
                 }
             }

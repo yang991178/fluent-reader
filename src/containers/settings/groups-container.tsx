@@ -3,7 +3,8 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import GroupsTab from "../../components/settings/groups"
-import { createSourceGroup, SourceGroup, updateSourceGroup, addSourceToGroup, deleteSourceGroup, removeSourceFromGroup, reorderSourceGroups } from "../../scripts/models/page"
+import { createSourceGroup, SourceGroup, updateSourceGroup, addSourceToGroup,
+    deleteSourceGroup, removeSourceFromGroup, reorderSourceGroups } from "../../scripts/models/page"
 
 const getSources = (state: RootState) => state.sources
 const getGroups = (state: RootState) => state.page.sourceGroups
