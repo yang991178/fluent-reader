@@ -1,4 +1,4 @@
-import { shell } from "electron"
+import { shell, remote } from "electron"
 import { ThunkAction, ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
 import { RootState } from "./reducer"
@@ -20,13 +20,34 @@ import Parser = require("rss-parser")
 const customFields = {
     item: ["thumb", "image", ["content:encoded", "fullContent"]] as Parser.CustomFieldItem[]
 }
+
+const PAC_STORE_KEY = "PAC"
+const PAC_STATUS_KEY = "PAC_ON"
+export function getProxyStatus() {
+    return Boolean(localStorage.getItem(PAC_STATUS_KEY))
+}
+export function toggleProxyStatus() {
+    localStorage.setItem(PAC_STATUS_KEY, getProxyStatus() ? "" : "on")
+    setProxy()
+}
+export function getProxy() {
+    return localStorage.getItem(PAC_STORE_KEY)
+}
+export function setProxy(address = null) {
+    if (!address) {
+        address = getProxy()
+    } else {
+        localStorage.setItem(PAC_STORE_KEY, address)
+    }
+    remote.getCurrentWebContents().session.setProxy({
+        pacScript: getProxyStatus() ? address : ""
+    })
+}
+
+
+import ElectronProxyAgent = require("@yang991178/electron-proxy-agent")
+let agent = new ElectronProxyAgent(remote.getCurrentWebContents().session)
 export const rssParser = new Parser({
-    customFields: customFields
-})
-import { HttpsProxyAgent } from "https-proxy-agent"
-import url = require("url")
-let agent = new HttpsProxyAgent(url.parse("http://127.0.0.1:1080"))
-export const rssProxyParser = new Parser({
     customFields: customFields,
     requestOptions: {
         agent: agent
@@ -39,7 +60,8 @@ const favicon = require("favicon")
 export function faviconPromise(url: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         favicon(url, (err, icon: string) => {
-            if (err || !icon) reject(err)
+            if (err) reject(err)
+            else if (!icon) resolve(icon)
             else {
                 let parts = icon.split("//")
                 resolve(parts[0] + "//" + parts[parts.length - 1])

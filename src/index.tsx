@@ -10,7 +10,9 @@ import { initSources, addSource } from "./scripts/models/source"
 import { fetchItems } from "./scripts/models/item"
 import Root from "./components/root"
 import { initFeeds } from "./scripts/models/feed"
-import { AppDispatch } from "./scripts/utils"
+import { AppDispatch, setProxy } from "./scripts/utils"
+
+setProxy()
 
 loadTheme({ defaultFontStyle: { fontFamily: '"Source Han Sans", sans-serif' } })
 initializeIcons("icons/")

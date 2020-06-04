@@ -1,5 +1,5 @@
 import * as db from "../db"
-import { rssParser, rssProxyParser, domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
+import { rssParser, domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
 import Parser = require("rss-parser")

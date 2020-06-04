@@ -28,13 +28,13 @@ export class RSSSource {
         let f: string = null
         try {
             f = await faviconPromise(domain)
-        } finally {
             if (f === null) f = domain + "/favicon.ico"
             let result = await fetch(f)
             if (result.status == 200 && result.headers.has("Content-Type")
                 && result.headers.get("Content-Type").startsWith("image")) {
                 this.iconurl = f
             }
+        } finally {
             return feed
         }
     }
