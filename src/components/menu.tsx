@@ -1,18 +1,17 @@
 import * as React from "react"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
-import { MenuStatus } from "../scripts/models/app"
 import { SourceGroup } from "../scripts/models/page"
 import { SourceState, RSSSource } from "../scripts/models/source"
 import { ALL } from "../scripts/models/feed"
 import { AnimationClassNames } from "@fluentui/react"
 
 export type MenuProps = {
-    status: MenuStatus,
+    status: boolean,
     selected: string,
     sources: SourceState,
     groups: SourceGroup[],
-    closeMenu: () => void,
+    toggleMenu: () => void,
     allArticles: () => void,
     selectSourceGroup: (group: SourceGroup, menuKey: string) => void,
     selectSource: (source: RSSSource) => void
@@ -74,11 +73,12 @@ export class Menu extends React.Component<MenuProps> {
     })
 
     render() {
-        return this.props.status == MenuStatus.Hidden ? null : (
-            <div className="menu-container" onClick={this.props.closeMenu}>
+        return this.props.status ? (
+            <div className="menu-container" onClick={this.props.toggleMenu}>
                 <div className="menu" onClick={(e) => e.stopPropagation()}>
                     <div className="btn-group">
-                        <a className="btn" title="关闭菜单" onClick={this.props.closeMenu}><Icon iconName="Back" /></a>
+                        <a className="btn hide-wide" title="关闭菜单" onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
+                        <a className="btn inline-block-wide" title="关闭菜单" onClick={this.props.toggleMenu}><Icon iconName="GlobalNavButton" /></a>
                     </div>
                     <div className="nav-wrapper">
                         <Nav 
@@ -91,6 +91,6 @@ export class Menu extends React.Component<MenuProps> {
                     </div>
                 </div>
             </div>
-        )
+        ) : null
     }
 }

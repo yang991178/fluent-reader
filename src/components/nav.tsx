@@ -1,7 +1,7 @@
 import * as React from "react"
 import { ipcRenderer, remote } from "electron"
 import { Icon } from "@fluentui/react/lib/Icon"
-import { AppState, MenuStatus } from "../scripts/models/app"
+import { AppState } from "../scripts/models/app"
 
 type NavProps = {
     state: AppState,
@@ -49,8 +49,8 @@ class Nav extends React.Component<NavProps, NavState> {
 
     canFetch = () => this.props.state.sourceInit && this.props.state.feedInit && !this.props.state.fetchingItems
     fetching = () => !this.canFetch() ? " fetching" : ""
-    menuOn = () => this.props.state.menu == MenuStatus.Open ? " on" : ""
-    hideButtons = () => (this.props.state.menu == MenuStatus.Open || this.props.state.settings.display) ? "hide-btns" : ""
+    menuOn = () => this.props.state.menu ? " menu-on" : ""
+    hideButtons = () => this.props.state.settings.display ? "hide-btns" : ""
 
     fetch = () => {
         if (this.canFetch()) this.props.fetch()
@@ -58,9 +58,9 @@ class Nav extends React.Component<NavProps, NavState> {
 
     render() {
         return (
-            <nav className={this.hideButtons()}>
+            <nav className={this.hideButtons() + this.menuOn()}>
                 <div className="btn-group">
-                    <a className="btn" title="菜单" onClick={this.props.menu}><Icon iconName="GlobalNavButton" /></a>
+                    <a className="btn hide-wide" title="菜单" onClick={this.props.menu}><Icon iconName="GlobalNavButton" /></a>
                 </div>
                 <span className="title">{this.props.state.title}</span>
                 <div className="btn-group" style={{float:"right"}}>

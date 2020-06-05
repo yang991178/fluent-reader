@@ -1,15 +1,11 @@
 import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE } from "./source"
-import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
-import { ActionStatus, AppThunk } from "../utils"
+import { RSSItem, ItemActionTypes, FETCH_ITEMS } from "./item"
+import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP } from "./page"
 
 export enum ContextMenuType {
     Hidden, Item
-}
-
-export enum MenuStatus {
-    Hidden, Open, Pinned
 }
 
 export enum AppLogType {
@@ -34,7 +30,7 @@ export class AppState {
     sourceInit = false
     feedInit = false
     fetchingItems = false
-    menu = MenuStatus.Hidden
+    menu = getWindowBreakpoint()
     menuKey = ALL
     title = "全部文章"
     settings = {
@@ -79,11 +75,10 @@ export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction
 export const TOGGLE_LOGS = "TOGGLE_LOGS"
 export interface LogMenuActionType { type: typeof TOGGLE_LOGS }
 
-export const OPEN_MENU = "OPEN_MENU"
-export const CLOSE_MENU = "CLOSE_MENU"
+export const TOGGLE_MENU = "TOGGLE_MENU"
 
 export interface MenuActionTypes {
-    type: typeof OPEN_MENU | typeof CLOSE_MENU
+    type: typeof TOGGLE_MENU
 }
 
 export const TOGGLE_SETTINGS = "TOGGLE_SETTINGS"
@@ -105,8 +100,7 @@ export function openItemMenu(item: RSSItem, event: React.MouseEvent): ContextMen
     }
 }
 
-export const openMenu = () => ({ type: OPEN_MENU })
-export const closeMenu = () => ({ type: CLOSE_MENU })
+export const toggleMenu = () => ({ type: TOGGLE_MENU })
 export const toggleLogMenu = () => ({ type: TOGGLE_LOGS })
 export const toggleSettings = () => ({ type: TOGGLE_SETTINGS })
 export const saveSettings = () => ({ type: SAVE_SETTINGS })
@@ -218,13 +212,13 @@ export function appReducer(
             switch (action.pageType) {
                 case PageType.AllArticles: return {
                     ...state,
-                    menu: MenuStatus.Hidden,
+                    menu: state.menu && action.keepMenu,
                     menuKey: ALL,
                     title: "全部文章"
                 }
                 case PageType.Sources: return {
                     ...state,
-                    menu: MenuStatus.Hidden,
+                    menu: state.menu && action.keepMenu,
                     menuKey: action.menuKey,
                     title: action.title
                 }
@@ -243,13 +237,9 @@ export function appReducer(
                 target: action.item
             }
         }
-        case OPEN_MENU: return {
+        case TOGGLE_MENU: return {
             ...state,
-            menu: MenuStatus.Open
-        }
-        case CLOSE_MENU: return {
-            ...state,
-            menu: MenuStatus.Hidden
+            menu: !state.menu
         }
         case SAVE_SETTINGS: return {
             ...state,

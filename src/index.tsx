@@ -14,7 +14,7 @@ import { AppDispatch, setProxy } from "./scripts/utils"
 
 setProxy()
 
-loadTheme({ defaultFontStyle: { fontFamily: '"Source Han Sans", sans-serif' } })
+loadTheme({ defaultFontStyle: { fontFamily: '"Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' } })
 initializeIcons("icons/")
 
 const store = createStore(

@@ -2,12 +2,12 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { Menu } from "../components/menu"
-import { closeMenu } from "../scripts/models/app"
+import { toggleMenu } from "../scripts/models/app"
 import { selectAllArticles, selectSources, SourceGroup } from "../scripts/models/page"
 import { initFeeds } from "../scripts/models/feed"
 import { RSSSource } from "../scripts/models/source"
 
-const getStatus = (state: RootState) => state.app.menu
+const getStatus = (state: RootState) => state.app.menu && state.app.sourceInit
 const getKey = (state: RootState) => state.app.menuKey
 const getSources = (state: RootState) => state.sources
 const getGroups = (state: RootState) => state.page.sourceGroups
@@ -23,7 +23,7 @@ const mapStateToProps = createSelector(
 )
 
 const mapDispatchToProps = dispatch => ({
-    closeMenu: () => dispatch(closeMenu()),
+    toggleMenu: () => dispatch(toggleMenu()),
     allArticles: () => {
         dispatch(selectAllArticles()),
         dispatch(initFeeds())

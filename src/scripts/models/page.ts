@@ -1,7 +1,7 @@
 import fs = require("fs")
 import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource } from "./source"
 import { ALL, SOURCE } from "./feed"
-import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
+import { ActionStatus, AppThunk, domParser, AppDispatch, getWindowBreakpoint } from "../utils"
 import { saveSettings } from "./app"
 
 const GROUPS_STORE_KEY = "sourceGroups"
@@ -43,6 +43,7 @@ interface SelectPageAction {
     type: typeof SELECT_PAGE
     pageType: PageType
     init: boolean
+    keepMenu: boolean
     sids?: number[]
     menuKey?: string
     title?: string
@@ -53,6 +54,7 @@ export type PageActionTypes = SelectPageAction
 export function selectAllArticles(init = false): SelectPageAction {
     return {
         type: SELECT_PAGE,
+        keepMenu: getWindowBreakpoint(),
         pageType: PageType.AllArticles,
         init: init
     }
@@ -62,6 +64,7 @@ export function selectSources(sids: number[], menuKey: string, title: string) {
     return {
         type: SELECT_PAGE,
         pageType: PageType.Sources,
+        keepMenu: getWindowBreakpoint(),
         sids: sids,
         menuKey: menuKey,
         title: title,

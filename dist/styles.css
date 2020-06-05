@@ -1,11 +1,6 @@
-@font-face {
-    font-family: "Source Han Sans";
-    src: url("SourceHanSansSC-Regular.otf");
-  }
-
 html, body {
     background-color: #faf9f8;
-    font-family: "Source Han Sans", sans-serif;
+    font-family: "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
     height: 100%;
     overflow: hidden;
     margin: 0;
@@ -101,11 +96,14 @@ i.ms-Nav-chevron {
     position: relative;
     z-index: 10;
 }
-nav.hide-btns .btn-group .btn {
+nav.menu-on .btn-group .btn, nav.hide-btns .btn-group .btn {
     display: none;
 }
-nav.hide-btns .btn-group .btn.system {
+nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
     display: inline-block;
+}
+.btn-group .btn.system.menu-on {
+    color: #fff;
 }
 .btn-group .btn:hover {
     background-color: #0001;
@@ -132,8 +130,8 @@ nav.hide-btns .btn-group .btn.system {
     background-color: #f1707a;
     color: #fff;
 }
-.btn-group .btn.system.on {
-    color: #fff;
+.btn-group .btn.inline-block-wide { 
+    display: none;
 }
 
 .menu-container {
@@ -240,6 +238,34 @@ img.favicon {
     margin-bottom: -32px;
     background: linear-gradient(#faf9f8ff, #faf9f800);
     z-index: 1;
+}
+
+@media (min-width: 1721px) {
+    #root > nav.menu-on {
+        padding-left: 296px;
+    }
+    nav.menu-on .btn-group .btn {
+        display: inline-block;
+    }
+    .btn-group .btn.system.menu-on {
+        color: #000;
+    }
+    .menu-container {
+        width: 280px;
+    }
+    .menu-container .menu {
+        background-color: #edebe9;
+    }
+    .main.menu-on {
+        padding-left: 280px;
+    }
+
+    nav.menu-on .btn-group .btn.hide-wide, .menu .btn-group .btn.hide-wide {
+        display: none;
+    }
+    .btn-group .btn.inline-block-wide {
+        display: inline-block;
+    }
 }
 
 .cards-feed-container {
