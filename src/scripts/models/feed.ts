@@ -251,6 +251,7 @@ export function feedReducer(
                         loading: false
                     }
                 }
+                default: return state
             }
         case SELECT_PAGE:
             switch (action.pageType) {

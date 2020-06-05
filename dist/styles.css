@@ -53,6 +53,21 @@ i.ms-Nav-chevron {
     user-select: none;
     overflow: hidden;
 }
+nav .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    height: 2px;
+    overflow: hidden;
+}
+.ms-ProgressIndicator-itemProgress {
+    padding: 0;
+}
+.ms-ProgressIndicator-progressTrack {
+    background: none;
+}
 #root > nav span.title {
     font-size: 12px;
     line-height: 32px;
@@ -240,7 +255,7 @@ img.favicon {
     z-index: 1;
 }
 
-@media (min-width: 1721px) {
+@media (min-width: 1441px) {
     #root > nav.menu-on {
         padding-left: 296px;
     }
@@ -255,6 +270,17 @@ img.favicon {
     }
     .menu-container .menu {
         background-color: #edebe9;
+    }
+    .menu-container .menu::after {
+        content: "";
+        display: block;
+        pointer-events: none;
+        position: absolute;
+        top: -10%;
+        right: 0;
+        width: 120%;
+        height: 120%;
+        box-shadow: inset 5px 0 20px #0004;
     }
     .main.menu-on {
         padding-left: 280px;

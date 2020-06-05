@@ -55,6 +55,7 @@ export const MARK_UNREAD = "MARK_UNREAD"
 interface FetchItemsAction {
     type: typeof FETCH_ITEMS
     status: ActionStatus
+    fetchCount?: number
     items?: RSSItem[]
     errSource?: RSSSource
     err?
@@ -72,10 +73,11 @@ interface MarkUnreadAction {
 
 export type ItemActionTypes = FetchItemsAction | MarkReadAction | MarkUnreadAction
 
-export function fetchItemsRequest(): ItemActionTypes {
+export function fetchItemsRequest(fetchCount = 0): ItemActionTypes {
     return {
         type: FETCH_ITEMS,
-        status: ActionStatus.Request
+        status: ActionStatus.Request,
+        fetchCount: fetchCount
     }
 }
 
@@ -93,6 +95,13 @@ export function fetchItemsFailure(source: RSSSource, err): ItemActionTypes {
         status: ActionStatus.Failure,
         errSource: source,
         err: err
+    }
+}
+
+export function fetchItemsIntermediate(): ItemActionTypes {
+    return {
+        type: FETCH_ITEMS,
+        status: ActionStatus.Intermediate
     }
 }
 
@@ -118,13 +127,15 @@ export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
 
 export function fetchItems(): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
-        let p = new Array<Promise<RSSItem[]>>()
+        let promises = new Array<Promise<RSSItem[]>>()
         if (!getState().app.fetchingItems) {
             for (let source of <RSSSource[]>Object.values(getState().sources)) {
-                p.push(RSSSource.fetchItems(source, rssParser, db.idb))
+                let promise = RSSSource.fetchItems(source, rssParser, db.idb)
+                promise.finally(() => dispatch(fetchItemsIntermediate()))
+                promises.push(promise)
             }
-            dispatch(fetchItemsRequest())
-            return Promise.allSettled(p).then(results => new Promise<void>((resolve, reject) => { 
+            dispatch(fetchItemsRequest(promises.length))
+            return Promise.allSettled(promises).then(results => new Promise<void>((resolve, reject) => { 
                 let items = new Array<RSSItem>()
                 results.map((r, i) => {
                     if (r.status === "fulfilled") items.push(...r.value)

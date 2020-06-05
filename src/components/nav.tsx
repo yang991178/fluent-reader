@@ -1,7 +1,8 @@
 import * as React from "react"
-import { ipcRenderer, remote } from "electron"
+import { remote } from "electron"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AppState } from "../scripts/models/app"
+import { ProgressIndicator } from "@fluentui/react"
 
 type NavProps = {
     state: AppState,
@@ -56,6 +57,12 @@ class Nav extends React.Component<NavProps, NavState> {
         if (this.canFetch()) this.props.fetch()
     }
 
+    getProgress = () => {
+        return this.props.state.fetchingTotal > 0 
+            ? this.props.state.fetchingProgress / this.props.state.fetchingTotal
+            : null
+    }
+
     render() {
         return (
             <nav className={this.hideButtons() + this.menuOn()}>
@@ -78,6 +85,11 @@ class Nav extends React.Component<NavProps, NavState> {
                     </a>
                     <a className={"btn system close"+this.menuOn()} title="关闭" onClick={this.close}><Icon iconName="Cancel" /></a>
                 </div>
+                {!this.canFetch() && 
+                    <ProgressIndicator
+                        className="progress"
+                        percentComplete={this.getProgress()} />
+                }
             </nav>
         )
     }

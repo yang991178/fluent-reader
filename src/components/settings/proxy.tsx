@@ -28,7 +28,7 @@ class ProxyTab extends React.Component {
 
     render = () => (
         <div className="tab-body">
-            <Stack horizontal verticalAlign="center">
+            <Stack horizontal verticalAlign="baseline">
                 <Stack.Item grow>
                     <Label>启用代理</Label>
                 </Stack.Item>

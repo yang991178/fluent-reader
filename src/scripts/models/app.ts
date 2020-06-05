@@ -30,6 +30,8 @@ export class AppState {
     sourceInit = false
     feedInit = false
     fetchingItems = false
+    fetchingProgress = 0
+    fetchingTotal = 0
     menu = getWindowBreakpoint()
     menuKey = ALL
     title = "全部文章"
@@ -182,7 +184,9 @@ export function appReducer(
             switch (action.status) {
                 case ActionStatus.Request: return {
                     ...state,
-                    fetchingItems: true
+                    fetchingItems: true,
+                    fetchingProgress: 0,
+                    fetchingTotal: action.fetchCount
                 }
                 case ActionStatus.Failure: return {
                     ...state,
@@ -199,6 +203,7 @@ export function appReducer(
                 case ActionStatus.Success: return {
                     ...state,
                     fetchingItems: false,
+                    fetchingTotal: 0,
                     logMenu: action.items.length == 0 ? state.logMenu : {
                         ...state.logMenu,
                         logs: [...state.logMenu.logs, new AppLog(
@@ -207,6 +212,11 @@ export function appReducer(
                         )]
                     }
                 }
+                case ActionStatus.Intermediate: return {
+                    ...state,
+                    fetchingProgress: state.fetchingProgress + 1
+                }
+                default: return state
             }
         case SELECT_PAGE: 
             switch (action.pageType) {
