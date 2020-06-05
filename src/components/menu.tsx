@@ -23,9 +23,9 @@ export class Menu extends React.Component<MenuProps> {
         {
             links: [
                 {
-                    name: "主页",
-                    key: "home",
-                    icon: "Home",
+                    name: "搜索",
+                    key: "search",
+                    icon: "Search",
                     url: null
                 },
                 {

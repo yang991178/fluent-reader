@@ -2,7 +2,7 @@ import * as db from "../db"
 import { rssParser, domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
-import Parser = require("rss-parser")
+import Parser = require("@yang991178/rss-parser")
 
 export class RSSItem {
     id: number

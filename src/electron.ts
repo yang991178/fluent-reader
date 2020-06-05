@@ -10,6 +10,7 @@ function createWindow() {
     })
     // Create the browser window.
     mainWindow = new BrowserWindow({
+        backgroundColor: "#faf9f8",
         x: mainWindowState.x,
         y: mainWindowState.y,
         width: mainWindowState.width,
@@ -40,13 +41,3 @@ app.on('activate', function () {
         createWindow()
     }
 })
-
-ipcMain.on('minimize', e => mainWindow.minimize())
-ipcMain.on('maximize', e => {
-    if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize()
-    } else {
-        mainWindow.maximize()
-    }
-})
-ipcMain.on('close', e => mainWindow.close())

@@ -98,8 +98,14 @@ i.ms-Nav-chevron {
     vertical-align: top;
 }
 .btn-group .btn.system {
-    position: sticky;
+    position: relative;
     z-index: 10;
+}
+nav.hide-btns .btn-group .btn {
+    display: none;
+}
+nav.hide-btns .btn-group .btn.system {
+    display: inline-block;
 }
 .btn-group .btn:hover {
     background-color: #0001;

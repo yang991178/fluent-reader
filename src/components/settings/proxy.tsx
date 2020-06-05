@@ -49,7 +49,7 @@ class ProxyTab extends React.Component {
                     </Stack.Item>
                     <Stack.Item>
                         <DefaultButton 
-                            disabled={urlTest(this.state.pacUrl)}
+                            disabled={!urlTest(this.state.pacUrl)}
                             type="sumbit" 
                             text="设置" />
                     </Stack.Item>

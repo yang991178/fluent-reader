@@ -1,4 +1,4 @@
-import Parser = require("rss-parser")
+import Parser = require("@yang991178/rss-parser")
 import * as db from "../db"
 import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
 import { RSSItem, fetchItemsSuccess, insertItems } from "./item"
