@@ -12,6 +12,5 @@ const mapDispatchToProps = dispatch => {
     return { close: () => dispatch(toggleLogMenu()) }
 }
 
-const connector = connect(mapStateToProps, mapDispatchToProps)
-export type LogsReduxProps = typeof connector
-export const LogMenuContainer = connector(LogMenu)
+const LogMenuContainer = connect(mapStateToProps, mapDispatchToProps)(LogMenu)
+export default LogMenuContainer

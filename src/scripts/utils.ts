@@ -31,7 +31,7 @@ export function toggleProxyStatus() {
     setProxy()
 }
 export function getProxy() {
-    return localStorage.getItem(PAC_STORE_KEY)
+    return localStorage.getItem(PAC_STORE_KEY) || ""
 }
 export function setProxy(address = null) {
     if (!address) {
@@ -43,7 +43,6 @@ export function setProxy(address = null) {
         pacScript: getProxyStatus() ? address : ""
     })
 }
-
 
 import ElectronProxyAgent = require("@yang991178/electron-proxy-agent")
 let agent = new ElectronProxyAgent(remote.getCurrentWebContents().session)

@@ -162,10 +162,6 @@ nav.hide-btns .btn-group .btn.system {
     font-size: 12px;
     color: #797775;
     margin: 2px 8px;
-    animation-name: css-1;
-    animation-duration: 0.367s;
-    animation-timing-function: cubic-bezier(0.1, 0.25, 0.75, 0.9);
-    animation-fill-mode: both;
 }
 
 .settings-container {

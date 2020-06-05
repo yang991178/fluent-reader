@@ -38,6 +38,5 @@ const mapDispatchToProps = dispatch => ({
     }
 })
 
-const connector = connect(mapStateToProps, mapDispatchToProps)
-export type MenuReduxProps = typeof connector
-export const MenuContainer = connector(Menu)
+const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(Menu)
+export default MenuContainer

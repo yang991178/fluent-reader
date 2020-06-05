@@ -20,6 +20,5 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-const connector = connect(mapStateToProps, mapDispatchToProps)
-export type SettingsReduxProps = typeof connector
-export const SettingsContainer = connector(Settings)
+const SettingsContainer = connect(mapStateToProps, mapDispatchToProps)(Settings)
+export default SettingsContainer

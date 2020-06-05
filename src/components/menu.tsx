@@ -1,13 +1,13 @@
 import * as React from "react"
 import { Icon } from "@fluentui/react/lib/Icon"
-import { Nav, INavLink, INavStyles, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
+import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
 import { MenuStatus } from "../scripts/models/app"
 import { SourceGroup } from "../scripts/models/page"
 import { SourceState, RSSSource } from "../scripts/models/source"
-import { MenuReduxProps } from "../containers/menu-container"
 import { ALL } from "../scripts/models/feed"
+import { AnimationClassNames } from "@fluentui/react"
 
-export type MenuProps = MenuReduxProps & {
+export type MenuProps = {
     status: MenuStatus,
     selected: string,
     sources: SourceState,
@@ -73,10 +73,6 @@ export class Menu extends React.Component<MenuProps> {
         }
     })
 
-    _onRenderGroupHeader(group: INavLinkGroup): JSX.Element {
-        return <p className="subs-header">{group.name}</p>;
-    }
-
     render() {
         return this.props.status == MenuStatus.Hidden ? null : (
             <div className="menu-container" onClick={this.props.closeMenu}>
@@ -87,9 +83,8 @@ export class Menu extends React.Component<MenuProps> {
                     <div className="nav-wrapper">
                         <Nav 
                             groups={this.getItems()} 
-                            selectedKey={this.props.selected}
-                            onRenderGroupHeader={this._onRenderGroupHeader} />
-                        <p className="subs-header">订阅源</p>
+                            selectedKey={this.props.selected} />
+                        <p className={"subs-header " + AnimationClassNames.slideDownIn10}>订阅源</p>
                         <Nav 
                             selectedKey={this.props.selected}
                             groups={this.getGroups()} />

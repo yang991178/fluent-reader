@@ -2,7 +2,7 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import CardsFeed from "../components/feeds/cards-feed"
-import { markRead, markUnread } from "../scripts/models/item"
+import { markRead } from "../scripts/models/item"
 import { openItemMenu } from "../scripts/models/app"
 import { FeedIdType, loadMore } from "../scripts/models/feed"
 
@@ -12,7 +12,7 @@ interface FeedContainerProps {
 
 const getSources = (state: RootState) => state.sources
 const getItems = (state: RootState) => state.items
-const getFeed = (state: RootState) => state.feeds[state.page.feedId]
+const getFeed = (state: RootState, props: FeedContainerProps) => state.feeds[props.feedId]
 
 const makeMapStateToProps = () => {
     return createSelector(

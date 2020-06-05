@@ -2,9 +2,8 @@ import * as React from "react"
 import { ipcRenderer, remote } from "electron"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AppState, MenuStatus } from "../scripts/models/app"
-import { NavReduxProps } from "../containers/nav-container"
 
-type NavProps = NavReduxProps & {
+type NavProps = {
     state: AppState,
     fetch: () => void,
     menu: () => void,

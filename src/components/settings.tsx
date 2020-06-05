@@ -1,14 +1,13 @@
 import * as React from "react"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AnimationClassNames } from "@fluentui/react/lib/Styling"
-import { SettingsReduxProps } from "../containers/settings-container"
 import AboutTab from "./settings/about"
 import { Pivot, PivotItem, Spinner } from "@fluentui/react"
 import SourcesTabContainer from "../containers/settings/sources-container"
 import GroupsTabContainer from "../containers/settings/groups-container"
 import ProxyTab from "./settings/proxy"
 
-type SettingsProps = SettingsReduxProps & {
+type SettingsProps = {
     display: boolean,
     blocked: boolean,
     exitting: boolean,

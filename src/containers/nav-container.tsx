@@ -18,6 +18,5 @@ const mapDispatchToProps = (dispatch) => ({
     settings: () => dispatch(toggleSettings())
 })
 
-const connector = connect(mapStateToProps, mapDispatchToProps)
-export type NavReduxProps = typeof connector
-export const NavContainer = connector(Nav)
+const NavContainer = connect(mapStateToProps, mapDispatchToProps)(Nav)
+export default NavContainer

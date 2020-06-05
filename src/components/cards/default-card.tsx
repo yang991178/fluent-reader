@@ -1,11 +1,12 @@
 import * as React from "react"
 import { Card } from "./card"
 import Time from "../utils/time"
+import { AnimationClassNames } from "@fluentui/react"
 
 class DefaultCard extends Card {
     render() {
         return (
-            <div className={"card"+(this.props.item.snippet&&this.props.item.thumb?" transform":"")} 
+            <div className={"card "+AnimationClassNames.slideUpIn10+(this.props.item.snippet&&this.props.item.thumb?" transform":"")} 
                 onClick={this.onClick} onMouseUp={this.onMouseUp} >
                 {this.props.item.thumb ? (
                     <img className="bg" src={this.props.item.thumb} />
