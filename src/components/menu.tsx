@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
-import { SourceGroup } from "../scripts/models/page"
+import { SourceGroup } from "../scripts/models/group"
 import { SourceState, RSSSource } from "../scripts/models/source"
 import { ALL } from "../scripts/models/feed"
 import { AnimationClassNames } from "@fluentui/react"

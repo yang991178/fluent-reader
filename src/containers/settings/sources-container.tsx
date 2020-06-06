@@ -4,7 +4,7 @@ import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import SourcesTab from "../../components/settings/sources"
 import { addSource, RSSSource, updateSource, deleteSource } from "../../scripts/models/source"
-import { importOPML } from "../../scripts/models/page"
+import { importOPML } from "../../scripts/models/group"
 
 const getSources = (state: RootState) => state.sources
 

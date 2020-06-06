@@ -1,5 +1,5 @@
 import * as React from "react"
-import { SourceGroup } from "../../scripts/models/page"
+import { SourceGroup } from "../../scripts/models/group"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
      TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, IDragDropContext } from "@fluentui/react"
@@ -261,7 +261,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         iconProps={{iconName: "RemoveFromShoppingList", style: {color: "#d13438"}}} />}
                 </Stack>
 
-                <MarqueeSelection selection={this.sourcesSelection}>
+                <MarqueeSelection selection={this.sourcesSelection} isDraggingConstrainedToRoot={true}>
                     <DetailsList
                         compact={true}
                         items={this.state.selectedGroup.sids.map(sid => this.props.sources[sid])} 
@@ -307,8 +307,8 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                     selection={this.groupSelection}
                     selectionMode={SelectionMode.single} />
 
-                {this.state.selectedGroup && (
-                    this.state.selectedGroup.isMultiple 
+                {this.state.selectedGroup 
+                ? ( this.state.selectedGroup.isMultiple 
                     ?<>
                         <Label>选中分组</Label>
                         <Stack horizontal>
@@ -353,7 +353,9 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                             </Stack.Item>
                         </Stack>
                     </>
-                )}
+                )
+                : <p className="settings-hint">双击分组以修改订阅源，可通过拖拽排序</p>
+                }
             </> : null}
         </div>
     )

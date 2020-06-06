@@ -1,9 +1,8 @@
 import Parser = require("@yang991178/rss-parser")
 import * as db from "../db"
 import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
-import { RSSItem, fetchItemsSuccess, insertItems } from "./item"
-import { SourceGroup } from "./page"
-import { initFeeds } from "./feed"
+import { RSSItem, insertItems } from "./item"
+import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
 
 export class RSSSource {
@@ -199,7 +198,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                                     .then(items => insertItems(items))
                                     .then(items => {
                                         //dispatch(fetchItemsSuccess(items))
-                                        SourceGroup.save(getState().page.sourceGroups)
+                                        SourceGroup.save(getState().groups)
                                         resolve(source.sid)
                                     })
                             }
@@ -254,7 +253,7 @@ export function deleteSource(source: RSSSource): AppThunk {
                         dispatch(saveSettings())
                     } else {
                         dispatch(deleteSourceDone(source))
-                        SourceGroup.save(getState().page.sourceGroups)
+                        SourceGroup.save(getState().groups)
                         dispatch(saveSettings())
                     }
                 })

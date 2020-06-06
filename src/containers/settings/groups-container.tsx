@@ -4,10 +4,10 @@ import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import GroupsTab from "../../components/settings/groups"
 import { createSourceGroup, SourceGroup, updateSourceGroup, addSourceToGroup,
-    deleteSourceGroup, removeSourceFromGroup, reorderSourceGroups } from "../../scripts/models/page"
+    deleteSourceGroup, removeSourceFromGroup, reorderSourceGroups } from "../../scripts/models/group"
 
 const getSources = (state: RootState) => state.sources
-const getGroups = (state: RootState) => state.page.sourceGroups
+const getGroups = (state: RootState) => state.groups
 
 const mapStateToProps = createSelector(
     [getSources, getGroups],

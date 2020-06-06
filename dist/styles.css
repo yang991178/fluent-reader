@@ -1,6 +1,6 @@
 html, body {
     background-color: #faf9f8;
-    font-family: "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
+    font-family: "Segoe UI Regular", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
     height: 100%;
     overflow: hidden;
     margin: 0;
@@ -236,6 +236,10 @@ img.favicon {
     overflow-y: auto;
     margin-bottom: 16px;
 }
+.settings-hint {
+    font-size: 12px;
+    color: #605e5c;
+}
 
 .main {
     height: calc(100% - 32px);
@@ -409,7 +413,7 @@ img.favicon {
 .card h3.title {
     font-size: 16px;
     line-height: 22px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 10px 12px;
     position: relative;
     -webkit-line-clamp: 3;
