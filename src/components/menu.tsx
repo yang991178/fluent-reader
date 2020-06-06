@@ -8,6 +8,7 @@ import { AnimationClassNames } from "@fluentui/react"
 
 export type MenuProps = {
     status: boolean,
+    display: boolean,
     selected: string,
     sources: SourceState,
     groups: SourceGroup[],
@@ -73,8 +74,8 @@ export class Menu extends React.Component<MenuProps> {
     })
 
     render() {
-        return this.props.status ? (
-            <div className="menu-container" onClick={this.props.toggleMenu}>
+        return this.props.status && (
+            <div className="menu-container" onClick={this.props.toggleMenu} style={{display: this.props.display ? "block" : "none"}}>
                 <div className="menu" onClick={(e) => e.stopPropagation()}>
                     <div className="btn-group">
                         <a className="btn hide-wide" title="关闭菜单" onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
@@ -91,6 +92,6 @@ export class Menu extends React.Component<MenuProps> {
                     </div>
                 </div>
             </div>
-        ) : null
+        )
     }
 }

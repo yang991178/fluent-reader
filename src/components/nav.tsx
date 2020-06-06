@@ -79,11 +79,11 @@ class Nav extends React.Component<NavProps, NavState> {
                     <a className="btn" title="视图"><Icon iconName="View" /></a>
                     <a className="btn" title="选项" onClick={this.props.settings}><Icon iconName="Settings" /></a>
                     <span className="seperator"></span>
-                    <a className={"btn system"+this.menuOn()} title="最小化" onClick={this.minimize} style={{fontSize: 12}}><Icon iconName="Remove" /></a>
-                    <a className={"btn system"+this.menuOn()} title="最大化" onClick={this.maximize}>
+                    <a className="btn system" title="最小化" onClick={this.minimize} style={{fontSize: 12}}><Icon iconName="Remove" /></a>
+                    <a className="btn system" title="最大化" onClick={this.maximize}>
                         {this.state.maximized ? <Icon iconName="ChromeRestore" style={{fontSize: 11}} /> :<Icon iconName="Checkbox" style={{fontSize: 10}} />}
                     </a>
-                    <a className={"btn system close"+this.menuOn()} title="关闭" onClick={this.close}><Icon iconName="Cancel" /></a>
+                    <a className="btn system close" title="关闭" onClick={this.close}><Icon iconName="Cancel" /></a>
                 </div>
                 {!this.canFetch() && 
                     <ProgressIndicator

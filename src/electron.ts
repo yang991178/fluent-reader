@@ -19,7 +19,8 @@ function createWindow() {
         minHeight: 600,
         frame: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            webviewTag: true
         }
     })
     mainWindowState.manage(mainWindow)

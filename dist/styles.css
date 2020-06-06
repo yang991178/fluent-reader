@@ -117,7 +117,7 @@ nav.menu-on .btn-group .btn, nav.hide-btns .btn-group .btn {
 nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
     display: inline-block;
 }
-.btn-group .btn.system.menu-on {
+nav.menu-on .btn-group .btn.system {
     color: #fff;
 }
 .btn-group .btn:hover {
@@ -139,17 +139,17 @@ nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
 }
 .btn-group .btn.close:hover {
     background-color: #e81123;
-    color: #fff;
+    color: #fff !important;
 }
 .btn-group .btn.close:active {
     background-color: #f1707a;
-    color: #fff;
+    color: #fff !important;
 }
 .btn-group .btn.inline-block-wide { 
     display: none;
 }
 
-.menu-container {
+.menu-container, .article-container {
     position: fixed;
     z-index: 5;
     left: 0;
@@ -158,6 +158,10 @@ nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
     height: 100%;
     background-color: #0008;
     backdrop-filter: saturate(150%) blur(20px);
+}
+.article-container {
+    z-index: 6;
+    background-color: #fff6;
 }
 .menu-container .menu {
     position: absolute;
@@ -266,7 +270,7 @@ img.favicon {
     nav.menu-on .btn-group .btn {
         display: inline-block;
     }
-    .btn-group .btn.system.menu-on {
+    nav.menu-on .btn-group .btn.system {
         color: #000;
     }
     .menu-container {
@@ -298,16 +302,29 @@ img.favicon {
     }
 }
 
+.article-wrapper {
+    margin: 32px auto 0;
+    width: 860px;
+    height: calc(100% - 50px);
+    background-color: #fff;
+    box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,.132), 0 1.2px 3.6px 0 rgba(0,0,0,.108);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.article webview {
+    width: 100%;
+    height: calc(100vh - 50px);
+    border: none;
+}
+
 .cards-feed-container {
     display: inline-flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-around;
     padding: 12px;
 }
-.cards-feed-container > div {
-    flex-grow: 1;
-    display: inline-flex;
-    justify-content: center;
+.cards-feed-container > div.load-more-wrapper, .flex-fix {
+    text-align: center;
 }
 .cards-feed-container > div.load-more-wrapper {
     width: 100%;

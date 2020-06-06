@@ -8,16 +8,16 @@ import { selectAllArticles, selectSources } from "../scripts/models/page"
 import { initFeeds } from "../scripts/models/feed"
 import { RSSSource } from "../scripts/models/source"
 
-const getStatus = (state: RootState) => state.app.menu && state.app.sourceInit
-const getKey = (state: RootState) => state.app.menuKey
+const getApp = (state: RootState) => state.app
 const getSources = (state: RootState) => state.sources
 const getGroups = (state: RootState) => state.groups
 
 const mapStateToProps = createSelector(
-    [getStatus, getKey, getSources, getGroups],
-    (status, key, sources, groups) => ({
-        status: status,
-        selected: key,
+    [getApp, getSources, getGroups],
+    (app, sources, groups) => ({
+        status: app.sourceInit,
+        display: app.menu,
+        selected: app.menuKey,
         sources: sources,
         groups: groups
     })

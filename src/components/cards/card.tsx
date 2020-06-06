@@ -2,12 +2,16 @@ import * as React from "react"
 import { openExternal } from "../../scripts/utils"
 import { RSSSource } from "../../scripts/models/source"
 import { RSSItem } from "../../scripts/models/item"
+import { FeedIdType } from "../../scripts/models/feed"
 
 export interface CardProps {
+    feedId: FeedIdType
+    index: number
     item: RSSItem
     source: RSSSource
-    markRead: Function
-    contextMenu: Function
+    markRead: (item: RSSItem) => void
+    contextMenu: (item: RSSItem, e) => void
+    showItem: (fid: FeedIdType, index: number) => void
 }
 
 export class Card extends React.Component<CardProps> {
@@ -19,7 +23,8 @@ export class Card extends React.Component<CardProps> {
     onClick = (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        this.openInBrowser()
+        this.props.markRead(this.props.item)
+        this.props.showItem(this.props.feedId, this.props.index)
     }
 
     onMouseUp = (e: React.MouseEvent) => {

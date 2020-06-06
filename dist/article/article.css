@@ -1,0 +1,36 @@
+html, body {
+    font-family: "Segoe UI Regular", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
+    margin: 16px 48px;
+    overflow-x: hidden;
+}
+
+a {
+    color: #0078d4;
+    text-decoration: none;
+}
+a:hover, a:active {
+    color: #004578;
+    text-decoration: underline;
+}
+
+#main > p.title {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+}
+
+article {
+    line-height: 1.6;
+}
+article img {
+    max-width: 100%;
+    height: auto;
+}
+article figure {
+    margin: 16px 0;
+    text-align: center;
+}
+article figure figcaption {
+    font-size: .875rem;
+    color: #484644;
+}

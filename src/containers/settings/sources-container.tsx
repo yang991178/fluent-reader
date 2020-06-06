@@ -5,6 +5,7 @@ import { RootState } from "../../scripts/reducer"
 import SourcesTab from "../../components/settings/sources"
 import { addSource, RSSSource, updateSource, deleteSource } from "../../scripts/models/source"
 import { importOPML } from "../../scripts/models/group"
+import { AppDispatch } from "../../scripts/utils"
 
 const getSources = (state: RootState) => state.sources
 
@@ -15,7 +16,7 @@ const mapStateToProps = createSelector(
     })
 )
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: AppDispatch) => {
     return { 
         addSource: (url: string) => dispatch(addSource(url)),
         updateSourceName: (source: RSSSource, name: string) => {
@@ -30,7 +31,7 @@ const mapDispatchToProps = dispatch => {
                     properties: ["openFile"]
                 }
             )
-            if (path.length > 0) dispatch(importOPML(path[0]))
+            if (path && path.length > 0) dispatch(importOPML(path[0]))
         }
     }
 }

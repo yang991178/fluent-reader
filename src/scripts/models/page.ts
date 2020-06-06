@@ -2,6 +2,8 @@ import { ALL, SOURCE, FeedIdType } from "./feed"
 import { getWindowBreakpoint } from "../utils"
 
 export const SELECT_PAGE = "SELECT_PAGE"
+export const SHOW_ITEM = "SHOW_ITEM"
+export const DISMISS_ITEM = "DISMISS_ITEM"
 
 export enum PageType {
     AllArticles, Sources, Page
@@ -17,9 +19,17 @@ interface SelectPageAction {
     title?: string
 }
 
-export type PageActionTypes = SelectPageAction
+interface ShowItemAction {
+    type: typeof SHOW_ITEM
+    feedId: FeedIdType
+    itemIndex: number
+}
 
-export function selectAllArticles(init = false): SelectPageAction {
+interface DismissItemAction { type: typeof DISMISS_ITEM }
+
+export type PageActionTypes = SelectPageAction | ShowItemAction | DismissItemAction
+
+export function selectAllArticles(init = false): PageActionTypes {
     return {
         type: SELECT_PAGE,
         keepMenu: getWindowBreakpoint(),
@@ -28,7 +38,7 @@ export function selectAllArticles(init = false): SelectPageAction {
     }
 }
 
-export function selectSources(sids: number[], menuKey: string, title: string) {
+export function selectSources(sids: number[], menuKey: string, title: string): PageActionTypes {
     return {
         type: SELECT_PAGE,
         pageType: PageType.Sources,
@@ -40,8 +50,19 @@ export function selectSources(sids: number[], menuKey: string, title: string) {
     }
 }
 
+export function showItem(feedId: FeedIdType, itemIndex: number): PageActionTypes {
+    return {
+        type: SHOW_ITEM,
+        feedId: feedId,
+        itemIndex: itemIndex
+    }
+}
+
+export const dismissItem = (): PageActionTypes => ({ type: DISMISS_ITEM })
+
 export class PageState {
-    feedId = ALL
+    feedId = ALL as FeedIdType
+    itemIndex = -1
 }
 
 export function pageReducer(
@@ -61,6 +82,14 @@ export function pageReducer(
                 }
                 default: return state
             }
+        case SHOW_ITEM: return {
+            ...state,
+            itemIndex: action.itemIndex
+        }
+        case DISMISS_ITEM: return {
+            ...state,
+            itemIndex: -1
+        }
         default: return state
     }
 }

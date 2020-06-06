@@ -2,9 +2,10 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import CardsFeed from "../components/feeds/cards-feed"
-import { markRead } from "../scripts/models/item"
+import { markRead, RSSItem } from "../scripts/models/item"
 import { openItemMenu } from "../scripts/models/app"
-import { FeedIdType, loadMore } from "../scripts/models/feed"
+import { FeedIdType, loadMore, RSSFeed } from "../scripts/models/feed"
+import { showItem } from "../scripts/models/page"
 
 interface FeedContainerProps {
     feedId: FeedIdType
@@ -26,9 +27,10 @@ const makeMapStateToProps = () => {
 }
 const mapDispatchToProps = dispatch => {
     return {
-        markRead: item => dispatch(markRead(item)),
-        contextMenu: (item, e) => dispatch(openItemMenu(item, e)),
-        loadMore: feed => dispatch(loadMore(feed))
+        markRead: (item: RSSItem) => dispatch(markRead(item)),
+        contextMenu: (item: RSSItem, e) => dispatch(openItemMenu(item, e)),
+        loadMore: (feed: RSSFeed) => dispatch(loadMore(feed)),
+        showItem: (fid: FeedIdType, index: number) => dispatch(showItem(fid, index))
     }
 }
 
