@@ -13,10 +13,12 @@ type ArticleProps = {
     source: RSSSource
     dismiss: () => void
     toggleHasRead: (item: RSSItem) => void
+    textMenu: (text: string, position: [number, number]) => void
 }
 
 type ArticleState = {
     fontSize: number
+    loadWebpage: boolean
 }
 
 class Article extends React.Component<ArticleProps, ArticleState> {
@@ -25,7 +27,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     constructor(props) {
         super(props)
         this.state = {
-            fontSize: this.getFontSize()
+            fontSize: this.getFontSize(),
+            loadWebpage: false
         }
     }
 
@@ -49,33 +52,55 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     })
 
     ipcHandler = event => {
-        if (event.channel === "request-navigation") {
-            openExternal(event.args[0])
+        switch (event.channel) {
+            case "request-navigation": {
+                openExternal(event.args[0])
+                break
+            }
+            case "context-menu": {
+                let articlePos = document.getElementById("article").getBoundingClientRect()
+                let [x, y] = event.args[0]
+                this.props.textMenu(event.args[1], [x + articlePos.x, y + articlePos.y])
+                break
+            }
         }
     }
     popUpHandler = event => {
         openExternal(event.url)
+    }
+    navigationHandler = event => {
+        openExternal(event.url)
+        this.props.dismiss()
     }
 
     componentDidMount = () => {
         this.webview = document.getElementById("article")
         this.webview.addEventListener("ipc-message", this.ipcHandler)
         this.webview.addEventListener("new-window", this.popUpHandler)
-        this.webview.addEventListener("will-navigate", this.props.dismiss)
+        this.webview.addEventListener("will-navigate", this.navigationHandler)
     }
 
     componentWillUnmount = () => {
         this.webview.removeEventListener("ipc-message", this.ipcHandler)
         this.webview.removeEventListener("new-window", this.popUpHandler)
-        this.webview.removeEventListener("will-navigate", this.props.dismiss)
+        this.webview.removeEventListener("will-navigate", this.navigationHandler)
     }
 
     openInBrowser = () => {
         openExternal(this.props.item.link)
     }
 
+    toggleWebpage = () => {
+        if (this.state.loadWebpage) {
+            this.setState({loadWebpage: false})
+        } else if (this.props.item.link.startsWith("https://") || this.props.item.link.startsWith("http://")) {
+            this.setState({loadWebpage: true})
+        }
+    }
+
     articleView = () => "article/article.html?h=" + window.btoa(encodeURIComponent(renderToString(<>
         <p className="title">{this.props.item.title}</p>
+        <p className="date">{this.props.item.date.toLocaleString("zh-cn", {hour12: false})}</p>
         <article dangerouslySetInnerHTML={{__html: this.props.item.content}}></article>
     </>))) + "&s=" + this.state.fontSize
     
@@ -98,9 +123,15 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         iconProps={{iconName: "FavoriteStar"}} />
                     <CommandBarButton
                         title="字体大小"
+                        disabled={this.state.loadWebpage}
                         iconProps={{iconName: "FontSize"}}
                         menuIconProps={{style: {display: "none"}}}
                         menuProps={this.fontMenuProps()} />
+                    <CommandBarButton
+                        title="加载网页"
+                        className={this.state.loadWebpage ? "active" : ""}
+                        iconProps={{iconName: "Globe"}} 
+                        onClick={this.toggleWebpage} />
                     <CommandBarButton
                         title="在浏览器中打开"
                         iconProps={{iconName: "NavigateExternalInline", style: {marginTop: -4}}}
@@ -114,9 +145,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 </Stack>  
             </Stack>
             <webview 
-                id="article" 
-                src={this.articleView()}
-                preload="article/preload.js"
+                id="article"
+                src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
+                preload={this.state.loadWebpage ? null : "article/preload.js"}
                 partition="sandbox" />
         </div>
     )

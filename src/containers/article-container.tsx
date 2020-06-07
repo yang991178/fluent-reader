@@ -5,6 +5,7 @@ import { RSSItem, markUnread, markRead } from "../scripts/models/item"
 import { AppDispatch } from "../scripts/utils"
 import { dismissItem } from "../scripts/models/page"
 import Article from "../components/article"
+import { openTextMenu } from "../scripts/models/app"
 
 type ArticleContainerProps = {
     itemId: number
@@ -26,7 +27,8 @@ const makeMapStateToProps = () => {
 const mapDispatchToProps = (dispatch: AppDispatch) => {
     return {
         dismiss: () => dispatch(dismissItem()),
-        toggleHasRead: (item: RSSItem) => dispatch(item.hasRead ? markUnread(item) : markRead(item))
+        toggleHasRead: (item: RSSItem) => dispatch(item.hasRead ? markUnread(item) : markRead(item)),
+        textMenu: (text: string, position: [number, number]) => dispatch(openTextMenu(text, position))
     }
 }
 

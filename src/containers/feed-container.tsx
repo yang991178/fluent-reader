@@ -28,7 +28,7 @@ const makeMapStateToProps = () => {
 const mapDispatchToProps = dispatch => {
     return {
         markRead: (item: RSSItem) => dispatch(markRead(item)),
-        contextMenu: (item: RSSItem, e) => dispatch(openItemMenu(item, e)),
+        contextMenu: (feedId: FeedIdType, item: RSSItem, e) => dispatch(openItemMenu(item, feedId, e)),
         loadMore: (feed: RSSFeed) => dispatch(loadMore(feed)),
         showItem: (fid: FeedIdType, item: RSSItem) => dispatch(showItem(fid, item))
     }

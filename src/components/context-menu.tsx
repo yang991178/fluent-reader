@@ -1,24 +1,38 @@
 import * as React from "react"
 import { clipboard } from "electron"
-import { openExternal } from "../scripts/utils"
-import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType } from "office-ui-fabric-react/lib/ContextualMenu"
+import { openExternal, cutText, googleSearch } from "../scripts/utils"
+import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, DirectionalHint } from "office-ui-fabric-react/lib/ContextualMenu"
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
+import { FeedIdType } from "../scripts/models/feed"
 
 export type ContextMenuProps = ContextReduxProps & {
     type: ContextMenuType
     event?: MouseEvent
+    position?: [number, number]
     item?: RSSItem
-    markRead: Function
-    markUnread: Function
-    close: Function
+    feedId?: FeedIdType
+    text?: string
+    showItem: (feedId: FeedIdType, item: RSSItem) => void
+    markRead: (item: RSSItem) => void
+    markUnread: (item: RSSItem) => void
+    close: () => void
 }
 
 export class ContextMenu extends React.Component<ContextMenuProps> {
     getItems = (): IContextualMenuItem[] => {
         switch (this.props.type) {
             case ContextMenuType.Item: return [
+                {
+                    key: "showItem",
+                    text: "阅读",
+                    iconProps: { iconName: "TextDocument" },
+                    onClick: () => {
+                        this.props.markRead(this.props.item)
+                        this.props.showItem(this.props.feedId, this.props.item)
+                    }
+                },
                 {
                     key: "openInBrowser",
                     text: "在浏览器中打开",
@@ -32,7 +46,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 ? {
                     key: "markAsUnread",
                     text: "标为未读",
-                    iconProps: { iconName: "StatusCircleInner", style: { fontSize: 12, textAlign: "center" } },
+                    iconProps: { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } },
                     onClick: () => { this.props.markUnread(this.props.item) }
                 }
                 : {
@@ -60,6 +74,20 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     onClick: () => { clipboard.writeText(this.props.item.link) }
                 }
             ]
+            case ContextMenuType.Text: return [
+                {
+                    key: "copyText",
+                    text: "复制",
+                    iconProps: { iconName: "Copy" },
+                    onClick: () => { clipboard.writeText(this.props.text) }
+                },
+                {
+                    key: "searchText",
+                    text: `使用Google搜索“${cutText(this.props.text, 15)}”`,
+                    iconProps: { iconName: "Search" },
+                    onClick: () => { googleSearch(this.props.text) }
+                }
+            ]
             default: return []
         }
     }
@@ -67,9 +95,10 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
     render() {
         return this.props.type == ContextMenuType.Hidden ? null : (
             <ContextualMenu 
+                directionalHint={DirectionalHint.bottomLeftEdge}
                 items={this.getItems()} 
-                target={this.props.event}
-                onDismiss={() => this.props.close()} />
+                target={this.props.event || this.props.position && {left: this.props.position[0], top: this.props.position[1]}}
+                onDismiss={this.props.close} />
         )
     }
 }

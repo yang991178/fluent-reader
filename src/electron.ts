@@ -1,4 +1,4 @@
-import { app, ipcMain, BrowserWindow } from "electron"
+import { app, ipcMain, BrowserWindow, Menu } from "electron"
 import windowStateKeeper = require("electron-window-state")
 
 let mainWindow: BrowserWindow
@@ -28,6 +28,8 @@ function createWindow() {
     mainWindow.loadFile('index.html')
     mainWindow.webContents.openDevTools()
 }
+
+Menu.setApplicationMenu(null)
 
 app.on('ready', createWindow)
 

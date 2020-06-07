@@ -8,7 +8,7 @@ type FeedProps = FeedReduxProps & {
     items: RSSItem[]
     sourceMap: Object
     markRead: (item: RSSItem) => void
-    contextMenu: (item: RSSItem, e) => void
+    contextMenu: (feedId: FeedIdType, item: RSSItem, e) => void
     loadMore: (feed: RSSFeed) => void
     showItem: (fid: FeedIdType, item: RSSItem) => void
 }

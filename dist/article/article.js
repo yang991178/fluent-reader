@@ -9,3 +9,7 @@ document.addEventListener("click", event => {
     event.preventDefault()
     if (event.target.href) post("request-navigation", event.target.href)
 })
+document.addEventListener("contextmenu", event => {
+    let text = document.getSelection().toString()
+    if (text) post("context-menu", [event.clientX, event.clientY], text)
+})

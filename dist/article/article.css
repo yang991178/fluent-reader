@@ -21,12 +21,17 @@ a:hover, a:active {
     font-size: 1.25rem;
     line-height: 1.75rem;
     font-weight: 600;
+    margin-block-end: 0;
+}
+#main > p.date {
+    color: #484644;
+    font-size: .875rem;
 }
 
 article {
     line-height: 1.6;
 }
-article > * {
+article * {
     max-width: 100%;
 }
 article img {
@@ -39,4 +44,5 @@ article figure {
 article figure figcaption {
     font-size: .875rem;
     color: #484644;
+    -webkit-user-modify: read-only;
 }

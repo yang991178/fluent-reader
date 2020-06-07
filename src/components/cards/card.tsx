@@ -9,7 +9,7 @@ export interface CardProps {
     item: RSSItem
     source: RSSSource
     markRead: (item: RSSItem) => void
-    contextMenu: (item: RSSItem, e) => void
+    contextMenu: (feedId: FeedIdType, item: RSSItem, e) => void
     showItem: (fid: FeedIdType, item: RSSItem) => void
 }
 
@@ -34,7 +34,7 @@ export class Card extends React.Component<CardProps> {
                 this.openInBrowser()
                 break
             case 2:
-                this.props.contextMenu(this.props.item, e)
+                this.props.contextMenu(this.props.feedId, this.props.item, e)
         }
     }
 }
