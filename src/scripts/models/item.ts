@@ -199,18 +199,12 @@ export function itemReducer(
                 }
                 default: return state
             }
+        case MARK_UNREAD:
         case MARK_READ: return {
             ...state,
             [action.item.id] : {
                 ...action.item,
-                hasRead: true
-            }
-        }
-        case MARK_UNREAD: return {
-            ...state,
-            [action.item.id] : {
-                ...action.item,
-                hasRead: false
+                hasRead: action.type === MARK_READ
             }
         }
         case LOAD_MORE:

@@ -32,10 +32,9 @@ class CardsFeed extends Feed {
         return this.props.feed.loaded && (
             <div className="cards-feed-container">
                 {
-                    this.props.items.map((item, index) => (
+                    this.props.items.map((item) => (
                         <DefaultCard 
                             feedId={this.props.feed.id}
-                            index={index}
                             key={item.id}
                             item={item} 
                             source={this.props.sourceMap[item.source]} 

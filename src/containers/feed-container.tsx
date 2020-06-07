@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => {
         markRead: (item: RSSItem) => dispatch(markRead(item)),
         contextMenu: (item: RSSItem, e) => dispatch(openItemMenu(item, e)),
         loadMore: (feed: RSSFeed) => dispatch(loadMore(feed)),
-        showItem: (fid: FeedIdType, index: number) => dispatch(showItem(fid, index))
+        showItem: (fid: FeedIdType, item: RSSItem) => dispatch(showItem(fid, item))
     }
 }
 

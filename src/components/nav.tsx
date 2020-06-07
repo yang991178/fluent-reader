@@ -6,6 +6,7 @@ import { ProgressIndicator } from "@fluentui/react"
 
 type NavProps = {
     state: AppState,
+    itemShown: boolean,
     fetch: () => void,
     menu: () => void,
     logs: () => void,
@@ -51,6 +52,7 @@ class Nav extends React.Component<NavProps, NavState> {
     canFetch = () => this.props.state.sourceInit && this.props.state.feedInit && !this.props.state.fetchingItems
     fetching = () => !this.canFetch() ? " fetching" : ""
     menuOn = () => this.props.state.menu ? " menu-on" : ""
+    itemOn = () => this.props.itemShown ? " item-on" : ""
     hideButtons = () => this.props.state.settings.display ? "hide-btns" : ""
 
     fetch = () => {
@@ -65,7 +67,7 @@ class Nav extends React.Component<NavProps, NavState> {
 
     render() {
         return (
-            <nav className={this.hideButtons() + this.menuOn()}>
+            <nav className={this.hideButtons() + this.menuOn() + this.itemOn()}>
                 <div className="btn-group">
                     <a className="btn hide-wide" title="菜单" onClick={this.props.menu}><Icon iconName="GlobalNavButton" /></a>
                 </div>

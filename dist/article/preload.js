@@ -1,1 +1,1 @@
-global.ipcRenderer = require("electron").ipcRenderer
+global.post = require("electron").ipcRenderer.sendToHost

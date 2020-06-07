@@ -6,12 +6,11 @@ import { FeedIdType } from "../../scripts/models/feed"
 
 export interface CardProps {
     feedId: FeedIdType
-    index: number
     item: RSSItem
     source: RSSSource
     markRead: (item: RSSItem) => void
     contextMenu: (item: RSSItem, e) => void
-    showItem: (fid: FeedIdType, index: number) => void
+    showItem: (fid: FeedIdType, item: RSSItem) => void
 }
 
 export class Card extends React.Component<CardProps> {
@@ -24,7 +23,7 @@ export class Card extends React.Component<CardProps> {
         e.preventDefault()
         e.stopPropagation()
         this.props.markRead(this.props.item)
-        this.props.showItem(this.props.feedId, this.props.index)
+        this.props.showItem(this.props.feedId, this.props.item)
     }
 
     onMouseUp = (e: React.MouseEvent) => {

@@ -8,18 +8,14 @@ import { dismissItem } from "../scripts/models/page"
 const getPage = (state: RootState) => state.page
 const getSettings = (state: RootState) => state.app.settings.display
 const getMenu = (state: RootState) => state.app.menu
-const getItems = (state: RootState) => state.items
-const getFeeds = (state: RootState) => state.feeds
 
 const mapStateToProps = createSelector(
-    [getPage, getSettings, getMenu, getItems, getFeeds],
-    (page, settingsOn, menuOn, items, feeds) => ({
+    [getPage, getSettings, getMenu],
+    (page, settingsOn, menuOn) => ({
         feeds: [page.feedId],
         settingsOn: settingsOn,
         menuOn: menuOn,
-        item: page.itemIndex >= 0 // && page.itemIndex < feeds[page.feedId].iids.length 
-            ? items[feeds[page.feedId].iids[page.itemIndex]]
-            : null
+        itemId: page.itemId
     })
 )
 

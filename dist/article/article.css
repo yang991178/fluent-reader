@@ -1,7 +1,11 @@
 html, body {
     font-family: "Segoe UI Regular", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
-    margin: 16px 48px;
-    overflow-x: hidden;
+}
+html {
+    overflow: hidden scroll;
+}
+body {
+    margin: 12px 96px 32px;
 }
 
 a {
@@ -22,8 +26,10 @@ a:hover, a:active {
 article {
     line-height: 1.6;
 }
-article img {
+article > * {
     max-width: 100%;
+}
+article img {
     height: auto;
 }
 article figure {

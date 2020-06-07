@@ -6,10 +6,15 @@ import { toggleMenu, toggleLogMenu, toggleSettings } from "../scripts/models/app
 import Nav from "../components/nav"
 
 const getState = (state: RootState) => state.app
+const getItemShown = (state: RootState) => state.page.itemId >= 0
 
-const mapStateToProps = createSelector(getState, (state) => ({
-    state: state
-}))
+const mapStateToProps = createSelector(
+    [getState, getItemShown], 
+    (state, itemShown) => ({
+        state: state,
+        itemShown: itemShown
+    }
+))
 
 const mapDispatchToProps = (dispatch) => ({
     fetch: () => dispatch(fetchItems()),

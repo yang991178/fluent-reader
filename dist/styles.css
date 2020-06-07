@@ -117,7 +117,7 @@ nav.menu-on .btn-group .btn, nav.hide-btns .btn-group .btn {
 nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
     display: inline-block;
 }
-nav.menu-on .btn-group .btn.system {
+nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
     color: #fff;
 }
 .btn-group .btn:hover {
@@ -161,7 +161,6 @@ nav.menu-on .btn-group .btn.system {
 }
 .article-container {
     z-index: 6;
-    background-color: #fff6;
 }
 .menu-container .menu {
     position: absolute;
@@ -273,6 +272,9 @@ img.favicon {
     nav.menu-on .btn-group .btn.system {
         color: #000;
     }
+    nav.item-on .btn-group .btn.system {
+        color: #fff;
+    }
     .menu-container {
         width: 280px;
     }
@@ -313,8 +315,20 @@ img.favicon {
 }
 .article webview {
     width: 100%;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 86px);
     border: none;
+}
+.article i.ms-Icon {
+    color: #161514;
+}
+.article .actions {
+    border-bottom: 1px solid #e1dfdd;
+}
+.article .actions .favicon {
+    margin-right: 8px;
+}
+.article .actions .source-name {
+    line-height: 35px;
 }
 
 .cards-feed-container {

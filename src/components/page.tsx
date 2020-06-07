@@ -5,12 +5,13 @@ import { RSSItem } from "../scripts/models/item"
 import Article from "./article"
 import { dismissItem } from "../scripts/models/page"
 import { AnimationClassNames } from "@fluentui/react"
+import ArticleContainer from "../containers/article-container"
 
 type PageProps = {
     menuOn: boolean
     settingsOn: boolean
     feeds: FeedIdType[]
-    item: RSSItem
+    itemId: number
     dismissItem: () => void
 }
 
@@ -23,10 +24,10 @@ class Page extends React.Component<PageProps> {
                     <FeedContainer feedId={fid} key={fid} />
                 ))}
             </div>}
-            {this.props.item && (
+            {this.props.itemId >= 0 && (
                 <div className="article-container" onClick={this.props.dismissItem}>
                     <div className={"article-wrapper " + AnimationClassNames.slideUpIn20} onClick={e => e.stopPropagation()}>
-                        <Article item={this.props.item} dismiss={dismissItem} />
+                        <ArticleContainer itemId={this.props.itemId} />
                     </div>
                 </div>
             )}

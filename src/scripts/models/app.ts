@@ -193,7 +193,7 @@ export function appReducer(
                     ...state,
                     logMenu: {
                         ...state.logMenu,
-                        notify: true,
+                        notify: !state.logMenu.display,
                         logs: [...state.logMenu.logs, new AppLog(
                             AppLogType.Failure,
                             `无法加载订阅源“${action.errSource.name}”`,

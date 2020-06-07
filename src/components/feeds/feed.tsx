@@ -10,7 +10,7 @@ type FeedProps = FeedReduxProps & {
     markRead: (item: RSSItem) => void
     contextMenu: (item: RSSItem, e) => void
     loadMore: (feed: RSSFeed) => void
-    showItem: (fid: FeedIdType, index: number) => void
+    showItem: (fid: FeedIdType, item: RSSItem) => void
 }
 
 export class Feed extends React.Component<FeedProps> { }

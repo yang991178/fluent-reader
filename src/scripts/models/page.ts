@@ -1,5 +1,6 @@
 import { ALL, SOURCE, FeedIdType } from "./feed"
 import { getWindowBreakpoint } from "../utils"
+import { RSSItem, ItemActionTypes, MARK_READ, MARK_UNREAD } from "./item"
 
 export const SELECT_PAGE = "SELECT_PAGE"
 export const SHOW_ITEM = "SHOW_ITEM"
@@ -22,7 +23,7 @@ interface SelectPageAction {
 interface ShowItemAction {
     type: typeof SHOW_ITEM
     feedId: FeedIdType
-    itemIndex: number
+    item: RSSItem
 }
 
 interface DismissItemAction { type: typeof DISMISS_ITEM }
@@ -50,11 +51,11 @@ export function selectSources(sids: number[], menuKey: string, title: string): P
     }
 }
 
-export function showItem(feedId: FeedIdType, itemIndex: number): PageActionTypes {
+export function showItem(feedId: FeedIdType, item: RSSItem): PageActionTypes {
     return {
         type: SHOW_ITEM,
         feedId: feedId,
-        itemIndex: itemIndex
+        item: item
     }
 }
 
@@ -62,7 +63,7 @@ export const dismissItem = (): PageActionTypes => ({ type: DISMISS_ITEM })
 
 export class PageState {
     feedId = ALL as FeedIdType
-    itemIndex = -1
+    itemId = -1
 }
 
 export function pageReducer(
@@ -84,11 +85,11 @@ export function pageReducer(
             }
         case SHOW_ITEM: return {
             ...state,
-            itemIndex: action.itemIndex
+            itemId: action.item.id
         }
         case DISMISS_ITEM: return {
             ...state,
-            itemIndex: -1
+            itemId: -1
         }
         default: return state
     }
