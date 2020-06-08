@@ -17,6 +17,10 @@ a:hover, a:active {
     text-decoration: underline;
 }
 
+#main {
+    max-width: 700px;
+    margin: 0 auto;
+}
 #main > p.title {
     font-size: 1.25rem;
     line-height: 1.75rem;

@@ -6,17 +6,20 @@ import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
 import { FeedIdType } from "../scripts/models/feed"
+import { ViewType } from "../scripts/models/page"
 
 export type ContextMenuProps = ContextReduxProps & {
     type: ContextMenuType
-    event?: MouseEvent
+    event?: MouseEvent | string
     position?: [number, number]
     item?: RSSItem
     feedId?: FeedIdType
     text?: string
+    viewType: ViewType
     showItem: (feedId: FeedIdType, item: RSSItem) => void
     markRead: (item: RSSItem) => void
     markUnread: (item: RSSItem) => void
+    switchView: (viewType: ViewType) => void
     close: () => void
 }
 
@@ -86,6 +89,24 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     text: `使用Google搜索“${cutText(this.props.text, 15)}”`,
                     iconProps: { iconName: "Search" },
                     onClick: () => { googleSearch(this.props.text) }
+                }
+            ]
+            case ContextMenuType.View: return [
+                {
+                    key: "cardView",
+                    text: "卡片视图",
+                    iconProps: { iconName: "GridViewMedium" },
+                    canCheck: true,
+                    checked: this.props.viewType === ViewType.Cards,
+                    onClick: () => this.props.switchView(ViewType.Cards)
+                },
+                {
+                    key: "listView",
+                    text: "列表视图",
+                    iconProps: { iconName: "BacklogList" },
+                    canCheck: true,
+                    checked: this.props.viewType === ViewType.List,
+                    onClick: () => this.props.switchView(ViewType.List)
                 }
             ]
             default: return []

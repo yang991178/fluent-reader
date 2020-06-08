@@ -152,7 +152,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 <Stack horizontal horizontalAlign="end" style={{width: 112}}>
                     <CommandBarButton
                         title="关闭"
-                        iconProps={{iconName: "Cancel"}}
+                        iconProps={{iconName: "BackToWindow"}}
                         onClick={this.props.dismiss} />
                 </Stack>  
             </Stack>

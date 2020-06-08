@@ -6,7 +6,7 @@ import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELET
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
 
 export enum ContextMenuType {
-    Hidden, Item, Text
+    Hidden, Item, Text, View
 }
 
 export enum AppLogType {
@@ -64,6 +64,7 @@ export class AppState {
 export const CLOSE_CONTEXT_MENU = "CLOSE_CONTEXT_MENU"
 export const OPEN_ITEM_MENU = "OPEN_ITEM_MENU"
 export const OPEN_TEXT_MENU = "OPEN_TEXT_MENU"
+export const OPEN_VIEW_MENU = "OPEN_VIEW_MENU"
 
 interface CloseContextMenuAction {
     type: typeof CLOSE_CONTEXT_MENU
@@ -82,7 +83,11 @@ interface OpenTextMenuAction {
     item: string
 }
 
-export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction | OpenTextMenuAction
+interface OpenViewMenuAction {
+    type: typeof OPEN_VIEW_MENU
+}
+
+export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction | OpenTextMenuAction | OpenViewMenuAction
 
 export const TOGGLE_LOGS = "TOGGLE_LOGS"
 export interface LogMenuActionType { type: typeof TOGGLE_LOGS }
@@ -120,6 +125,8 @@ export function openTextMenu(text: string, position: [number, number]): ContextM
         item: text
     }
 }
+
+export const openViewMenu = (): ContextMenuActionTypes => ({ type: OPEN_VIEW_MENU })
 
 export const toggleMenu = () => ({ type: TOGGLE_MENU })
 export const toggleLogMenu = () => ({ type: TOGGLE_LOGS })
@@ -272,6 +279,13 @@ export function appReducer(
                 type: ContextMenuType.Text,
                 position: action.position,
                 target: action.item
+            }
+        }
+        case OPEN_VIEW_MENU: return {
+            ...state,
+            contextMenu: {
+                type: ContextMenuType.View,
+                event: "#view-toggle"
             }
         }
         case TOGGLE_MENU: return {

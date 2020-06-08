@@ -36,6 +36,7 @@
     "redux-devtools": "^3.5.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
+    "simplebar-react": "^2.2.0",
     "ts-loader": "^7.0.4",
     "typescript": "^3.9.2",
     "webpack": "^4.43.0",

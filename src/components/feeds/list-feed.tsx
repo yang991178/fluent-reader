@@ -1,39 +1,15 @@
 import * as React from "react"
-import { Feed, FeedProps } from "./feed"
-import DefaultCard from "../cards/default-card"
+import { FeedProps } from "./feed"
 import { PrimaryButton } from 'office-ui-fabric-react';
+import ListCard from "../cards/list-card";
 
-class CardsFeed extends React.Component<FeedProps> {
-    state = { width: window.innerWidth - 12 }
-
-    updateWidth = () => {
-        this.setState({ width: window.innerWidth - 12 });
-    };
-
-    componentDidMount() {
-        window.addEventListener('resize', this.updateWidth);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.updateWidth);
-    }
-
-    flexFix = () => {
-        let elemPerRow = Math.floor(this.state.width / 280)
-        //let elemLastRow = this.props.items.length % elemPerRow
-        let fixes = new Array<JSX.Element>()
-        for (let i = 0; i < elemPerRow; i += 1) {
-            fixes.push(<div className="flex-fix" key={"f-"+i}></div>)
-        }
-        return fixes
-    }
-
+class ListFeed extends React.Component<FeedProps> {
     render() {
         return this.props.feed.loaded && (
-            <div className="cards-feed-container">
+            <div className="list-feed">
                 {
                     this.props.items.map((item) => (
-                        <DefaultCard 
+                        <ListCard 
                             feedId={this.props.feed.id}
                             key={item.id}
                             item={item} 
@@ -43,7 +19,6 @@ class CardsFeed extends React.Component<FeedProps> {
                             showItem={this.props.showItem} />
                     ))
                 }
-                { this.flexFix() }
                 {
                     (this.props.feed.loaded && !this.props.feed.allLoaded)
                     ? <div className="load-more-wrapper"><PrimaryButton 
@@ -57,4 +32,4 @@ class CardsFeed extends React.Component<FeedProps> {
     }
 }
 
-export default CardsFeed
+export default ListFeed

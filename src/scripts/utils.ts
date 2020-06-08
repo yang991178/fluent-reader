@@ -48,6 +48,7 @@ export function setProxy(address = null) {
 }
 
 import ElectronProxyAgent = require("@yang991178/electron-proxy-agent")
+import { ViewType } from "./models/page"
 let agent = new ElectronProxyAgent(remote.getCurrentWebContents().session)
 export const rssParser = new Parser({
     customFields: customFields,
@@ -92,3 +93,12 @@ export const cutText = (s: string, length: number) => {
 }
 
 export const googleSearch = (text: string) => openExternal("https://www.google.com/search?q=" + encodeURIComponent(text))
+
+const VIEW_STORE_KEY = "view"
+export const getDefaultView = () => {
+    let view = localStorage.getItem(VIEW_STORE_KEY)
+    return view ? parseInt(view) as ViewType : ViewType.Cards
+}
+export const setDefaultView = (viewType: ViewType) => {
+    localStorage.setItem(VIEW_STORE_KEY, String(viewType))
+}

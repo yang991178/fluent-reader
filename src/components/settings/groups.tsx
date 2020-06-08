@@ -272,6 +272,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         selectionMode={SelectionMode.multiple} />
                 </MarqueeSelection>
                 
+                <span className="settings-hint">拖拽订阅源以排序</span>
             </>}
             {(!this.state.manageGroup || !this.state.selectedGroup) 
             ?<>

@@ -59,6 +59,10 @@ i.ms-Nav-chevron {
     user-select: none;
     overflow: hidden;
 }
+#root > nav .btn, #root > nav span {
+    z-index: 1;
+    position: relative;
+}
 nav .progress {
     position: fixed;
     top: 0;
@@ -113,7 +117,7 @@ nav .progress {
     font-size: 14px;
     vertical-align: top;
 }
-.btn-group .btn.system {
+#root > nav .btn-group .btn.system {
     position: relative;
     z-index: 10;
 }
@@ -301,11 +305,11 @@ img.favicon {
         height: 120%;
         box-shadow: inset 5px 0 20px #0004;
     }
-    .main.menu-on {
+    .main.menu-on, .list-main.menu-on {
         padding-left: 280px;
     }
 
-    nav.menu-on .btn-group .btn.hide-wide, .menu .btn-group .btn.hide-wide {
+    nav.hide-btns .btn-group .btn, nav.menu-on .btn-group .btn.hide-wide, .menu .btn-group .btn.hide-wide {
         display: none;
     }
     .btn-group .btn.inline-block-wide {
@@ -335,9 +339,12 @@ img.favicon {
 .article-container .btn-group.next {
     right: calc(50% - 486px);
 }
+.article {
+    height: 100%;
+}
 .article webview {
     width: 100%;
-    height: calc(100vh - 86px);
+    height: calc(100% - 36px);
     border: none;
 }
 .article i.ms-Icon {
@@ -357,6 +364,63 @@ img.favicon {
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
+}
+.side-article-wrapper {
+    flex-grow: 1;
+    padding-top: 32px;
+    height: calc(100% - 32px);
+    background: #fff;
+}
+.side-article-wrapper .article {
+    display: flex;
+    flex-direction: column-reverse;
+}
+.side-article-wrapper .article .actions {
+    border-bottom: none;
+}
+.side-article-wrapper .article > .ms-Stack {
+    border-top: 1px solid #e1dfdd;
+}
+.list-feed-container::before, .side-article-wrapper::before {
+    content: "";
+    display: block;
+    width: 100%;
+    border-bottom: 1px solid #e1dfdd;
+    position: absolute;
+    top: 31px;
+}
+
+.list-main {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+    position: relative;
+    top: -32px;
+    overflow: hidden;
+    background: #fff;
+}
+.list-feed-container {
+    width: 350px;
+    background-color: #faf9f8;
+    height: 100%;
+    position: relative;
+}
+.list-feed-container::after {
+    content: "";
+    display: block;
+    pointer-events: none;
+    position: absolute;
+    top: -10%;
+    right: 0;
+    width: 120%;
+    height: 120%;
+    box-shadow: inset 5px 0 20px #0004;
+}
+.list-feed {
+    margin-top: 32px;
+    height: calc(100% - 32px);
+    overflow: hidden scroll;
+    position: relative;
 }
 
 .cards-feed-container {
@@ -496,4 +560,51 @@ img.favicon {
 }
 .card p.snippet.show {
     transform: none;
+}
+
+.list-card {
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    color: #161514;
+    user-select: none;
+    transition: box-shadow linear .08s;
+    border-bottom: 1px solid #e1dfdd;
+    transform: scale(1);
+    cursor: pointer;
+    box-shadow: #0000 0px 5px 15px;
+}
+.list-card:hover {
+    box-shadow: #0004 0px 5px 15px;
+}
+.list-card:active {
+    box-shadow: #0000 0px 5px 15px, inset #0004 0px 0px 15px;
+}
+.list-card div.head {
+    width: 80px;
+    height: 80px;
+    margin: 8px 0 8px 10px;
+}
+.list-card div.head img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    -webkit-user-drag: none;
+}
+.list-card .data {
+    flex-grow: 1;
+}
+.list-card .info {
+    margin: 8px 10px;
+}
+.list-card h3.title {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    margin: 8px 10px;
+    position: relative;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
 }

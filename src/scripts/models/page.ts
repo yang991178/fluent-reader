@@ -1,14 +1,20 @@
 import { ALL, SOURCE, FeedIdType, loadMore } from "./feed"
-import { getWindowBreakpoint, AppThunk } from "../utils"
-import { RSSItem, ItemActionTypes, MARK_READ, MARK_UNREAD, markRead } from "./item"
+import { getWindowBreakpoint, AppThunk, getDefaultView } from "../utils"
+import { RSSItem, markRead } from "./item"
+import { SourceActionTypes, DELETE_SOURCE } from "./source"
 
 export const SELECT_PAGE = "SELECT_PAGE"
+export const SWITCH_VIEW = "SWITCH_VIEW"
 export const SHOW_ITEM = "SHOW_ITEM"
 export const SHOW_OFFSET_ITEM = "SHOW_OFFSET_ITEM"
 export const DISMISS_ITEM = "DISMISS_ITEM"
 
 export enum PageType {
     AllArticles, Sources, Page
+}
+
+export enum ViewType {
+    Cards, List, Customized
 }
 
 interface SelectPageAction {
@@ -21,6 +27,11 @@ interface SelectPageAction {
     title?: string
 }
 
+interface SwitchViewAction {
+    type: typeof SWITCH_VIEW
+    viewType: ViewType
+}
+
 interface ShowItemAction {
     type: typeof SHOW_ITEM
     feedId: FeedIdType
@@ -29,7 +40,7 @@ interface ShowItemAction {
 
 interface DismissItemAction { type: typeof DISMISS_ITEM }
 
-export type PageActionTypes = SelectPageAction | ShowItemAction | DismissItemAction
+export type PageActionTypes = SelectPageAction | SwitchViewAction | ShowItemAction | DismissItemAction
 
 export function selectAllArticles(init = false): PageActionTypes {
     return {
@@ -49,6 +60,13 @@ export function selectSources(sids: number[], menuKey: string, title: string): P
         menuKey: menuKey,
         title: title,
         init: true
+    }
+}
+
+export function switchView(viewType: ViewType): PageActionTypes {
+    return {
+        type: SWITCH_VIEW,
+        viewType: viewType
     }
 }
 
@@ -90,13 +108,14 @@ export function showOffsetItem(offset: number): AppThunk {
 }
 
 export class PageState {
+    viewType = getDefaultView()
     feedId = ALL as FeedIdType
     itemId = -1
 }
 
 export function pageReducer(
     state = new PageState(),
-    action: PageActionTypes
+    action: PageActionTypes | SourceActionTypes
 ): PageState {
     switch (action.type) {
         case SELECT_PAGE:
@@ -111,10 +130,16 @@ export function pageReducer(
                 }
                 default: return state
             }
+        case SWITCH_VIEW: return {
+            ...state,
+            viewType: action.viewType,
+            itemId: action.viewType === ViewType.List ? state.itemId : -1
+        }
         case SHOW_ITEM: return {
             ...state,
             itemId: action.item.id
         }
+        case DELETE_SOURCE:
         case DISMISS_ITEM: return {
             ...state,
             itemId: -1

@@ -3,12 +3,14 @@ import { FeedIdType } from "../scripts/models/feed"
 import { FeedContainer } from "../containers/feed-container"
 import { AnimationClassNames, Icon } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
+import { ViewType } from "../scripts/models/page"
 
 type PageProps = {
     menuOn: boolean
     settingsOn: boolean
     feeds: FeedIdType[]
     itemId: number
+    viewType: ViewType
     dismissItem: () => void
     offsetItem: (offset: number) => void
 }
@@ -23,12 +25,13 @@ class Page extends React.Component<PageProps> {
         this.props.offsetItem(1)
     }
 
-    render = () => (
+    render = () => this.props.viewType == ViewType.Cards 
+    ? (
         <>
             {this.props.settingsOn ? null :
             <div className={"main" + (this.props.menuOn ? " menu-on" : "")}>
                 {this.props.feeds.map(fid => (
-                    <FeedContainer feedId={fid} key={fid} />
+                    <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid} />
                 ))}
             </div>}
             {this.props.itemId >= 0 && (
@@ -40,6 +43,23 @@ class Page extends React.Component<PageProps> {
                     <div className="btn-group next"><a className="btn" onClick={this.nextItem}><Icon iconName="Forward" /></a></div>
                 </div>
             )}
+        </>
+    )
+    : (
+        <>
+            {this.props.settingsOn ? null :
+            <div className={"list-main" + (this.props.menuOn ? " menu-on" : "")}>
+                <div className="list-feed-container">
+                    {this.props.feeds.map(fid => (
+                        <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid} />
+                    ))}
+                </div>
+                {this.props.itemId >= 0 && (
+                    <div className="side-article-wrapper">
+                        <ArticleContainer itemId={this.props.itemId} />
+                    </div>
+                )}
+            </div>}
         </>
     )
 }

@@ -10,6 +10,7 @@ type NavProps = {
     fetch: () => void,
     menu: () => void,
     logs: () => void,
+    views: () => void,
     settings: () => void
 }
 
@@ -59,6 +60,12 @@ class Nav extends React.Component<NavProps, NavState> {
         if (this.canFetch()) this.props.fetch()
     }
 
+    views = () => {
+        if (this.props.state.contextMenu.event !== "#view-toggle") {
+            this.props.views()
+        }
+    }
+
     getProgress = () => {
         return this.props.state.fetchingTotal > 0 
             ? this.props.state.fetchingProgress / this.props.state.fetchingTotal
@@ -78,7 +85,9 @@ class Nav extends React.Component<NavProps, NavState> {
                     <a className="btn" id="log-toggle" title="消息" onClick={this.props.logs}>
                         {this.props.state.logMenu.notify ? <Icon iconName="RingerSolid" /> : <Icon iconName="Ringer" />}
                     </a>
-                    <a className="btn" title="视图"><Icon iconName="View" /></a>
+                    <a className="btn" id="view-toggle" title="视图" onClick={this.props.views} 
+                        onMouseDown={e => {if (this.props.state.contextMenu.event === "#view-toggle") e.stopPropagation()}}>
+                            <Icon iconName="View" /></a>
                     <a className="btn" title="选项" onClick={this.props.settings}><Icon iconName="Settings" /></a>
                     <span className="seperator"></span>
                     <a className="btn system" title="最小化" onClick={this.minimize} style={{fontSize: 12}}><Icon iconName="Remove" /></a>

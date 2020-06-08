@@ -4,14 +4,16 @@ import { RootState } from "../scripts/reducer"
 import { ContextMenuType, closeContextMenu } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
 import { RSSItem, markRead, markUnread } from "../scripts/models/item"
-import { showItem } from "../scripts/models/page"
+import { showItem, switchView, ViewType } from "../scripts/models/page"
 import { FeedIdType } from "../scripts/models/feed"
+import { setDefaultView } from "../scripts/utils"
 
 const getContext = (state: RootState) => state.app.contextMenu
+const getViewType = (state: RootState) => state.page.viewType
 
 const mapStateToProps = createSelector(
-    [getContext],
-    (context) => {
+    [getContext, getViewType],
+    (context, viewType) => {
         switch (context.type) {
             case ContextMenuType.Item: return {
                 type: context.type,
@@ -24,6 +26,11 @@ const mapStateToProps = createSelector(
                 position: context.position,
                 text: context.target as string
             }
+            case ContextMenuType.View: return {
+                type: context.type,
+                event: context.event,
+                viewType: viewType
+            }
             default: return { type: ContextMenuType.Hidden }
         }
     }
@@ -34,6 +41,10 @@ const mapDispatchToProps = dispatch => {
         showItem: (feedId: FeedIdType, item: RSSItem) => dispatch(showItem(feedId, item)),
         markRead: (item: RSSItem) => dispatch(markRead(item)),
         markUnread: (item: RSSItem) => dispatch(markUnread(item)),
+        switchView: (viewType: ViewType) => {
+            setDefaultView(viewType)
+            dispatch(switchView(viewType))
+        },
         close: () => dispatch(closeContextMenu())
     }
 }
