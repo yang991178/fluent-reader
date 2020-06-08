@@ -18,6 +18,7 @@ function createWindow() {
         minWidth: 992,
         minHeight: 600,
         frame: false,
+        fullscreenable: false,
         webPreferences: {
             nodeIntegration: true,
             webviewTag: true
@@ -34,6 +35,7 @@ Menu.setApplicationMenu(null)
 app.on('ready', createWindow)
 
 app.on('window-all-closed', function () {
+    mainWindow = null
     if (process.platform !== 'darwin') {
         app.quit()
     }

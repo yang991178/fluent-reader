@@ -1,6 +1,6 @@
 import * as React from "react"
 import { openExternal } from "../../scripts/utils"
-import { RSSSource } from "../../scripts/models/source"
+import { RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { RSSItem } from "../../scripts/models/item"
 import { FeedIdType } from "../../scripts/models/feed"
 
@@ -22,8 +22,18 @@ export class Card extends React.Component<CardProps> {
     onClick = (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        this.props.markRead(this.props.item)
-        this.props.showItem(this.props.feedId, this.props.item)
+        switch (this.props.source.openTarget) {
+            case SourceOpenTarget.Local:
+            case SourceOpenTarget.Webpage: {
+                this.props.markRead(this.props.item)
+                this.props.showItem(this.props.feedId, this.props.item)
+                break
+            }
+            case SourceOpenTarget.External: {
+                this.openInBrowser()
+                break
+            }
+        }
     }
 
     onMouseUp = (e: React.MouseEvent) => {

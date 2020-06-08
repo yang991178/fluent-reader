@@ -5,18 +5,22 @@ import { RSSItem, insertItems } from "./item"
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
 
+export enum SourceOpenTarget {
+    Local, Webpage, External
+}
+
 export class RSSSource {
     sid: number
     url: string
     iconurl: string
     name: string
     description: string
-    useProxy: boolean
+    openTarget: SourceOpenTarget
 
     constructor(url: string, name: string = null) {
         this.url = url
         this.name = name
-        this.useProxy = false
+        this.openTarget = SourceOpenTarget.Local
     }
 
     async fetchMetaData(parser: Parser) {

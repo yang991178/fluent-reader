@@ -354,7 +354,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         </Stack>
                     </>
                 )
-                : <p className="settings-hint">双击分组以修改订阅源，可通过拖拽排序</p>
+                : <span className="settings-hint">双击分组以修改订阅源，可通过拖拽排序</span>
                 }
             </> : null}
         </div>

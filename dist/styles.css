@@ -247,6 +247,8 @@ img.favicon {
     margin-bottom: 16px;
 }
 .settings-hint {
+    user-select: none;
+    line-height: 32px;
     font-size: 12px;
     color: #605e5c;
 }
@@ -320,6 +322,19 @@ img.favicon {
     border-radius: 5px;
     overflow: hidden;
 }
+.article-container .btn-group .btn {
+    color: #fff;
+}
+.article-container .btn-group {
+    position: absolute;
+    top: calc(50% - 32px)
+}
+.article-container .btn-group.prev {
+    left: calc(50% - 486px);
+}
+.article-container .btn-group.next {
+    right: calc(50% - 486px);
+}
 .article webview {
     width: 100%;
     height: calc(100vh - 86px);
@@ -337,6 +352,11 @@ img.favicon {
 .article .actions .source-name {
     line-height: 35px;
     user-select: none;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .cards-feed-container {

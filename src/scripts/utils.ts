@@ -42,6 +42,9 @@ export function setProxy(address = null) {
     remote.getCurrentWebContents().session.setProxy({
         pacScript: getProxyStatus() ? address : ""
     })
+    remote.session.fromPartition("sandbox").setProxy({
+        pacScript: getProxyStatus() ? address : ""
+    })
 }
 
 import ElectronProxyAgent = require("@yang991178/electron-proxy-agent")

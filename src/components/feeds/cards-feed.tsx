@@ -20,9 +20,9 @@ class CardsFeed extends Feed {
 
     flexFix = () => {
         let elemPerRow = Math.floor(this.state.width / 280)
-        let elemLastRow = this.props.items.length % elemPerRow
+        //let elemLastRow = this.props.items.length % elemPerRow
         let fixes = new Array<JSX.Element>()
-        for (let i = 0; i < elemPerRow - elemLastRow; i += 1) {
+        for (let i = 0; i < elemPerRow; i += 1) {
             fixes.push(<div className="flex-fix" key={"f-"+i}></div>)
         }
         return fixes

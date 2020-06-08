@@ -1,15 +1,16 @@
 import * as React from "react"
 import { Label, DefaultButton, TextField, Stack, PrimaryButton, DetailsList, 
-    IColumn, SelectionMode, Selection } from "@fluentui/react"
-import { SourceState, RSSSource } from "../../scripts/models/source"
+    IColumn, SelectionMode, Selection, IChoiceGroupOption, ChoiceGroup } from "@fluentui/react"
+import { SourceState, RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { urlTest } from "../../scripts/utils"
 import DangerButton from "../utils/danger-button"
 
 type SourcesTabProps = {
-    sources: SourceState,
-    addSource: (url: string) => void,
-    updateSourceName: (source: RSSSource, name: string) => void,
-    deleteSource: (source: RSSSource) => void,
+    sources: SourceState
+    addSource: (url: string) => void
+    updateSourceName: (source: RSSSource, name: string) => void
+    updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => void
+    deleteSource: (source: RSSSource) => void
     importOPML: () => void
 }
 
@@ -49,6 +50,12 @@ const columns: IColumn[] = [
     }
 ]
 
+const sourceOpenTargetChoices: IChoiceGroupOption[] = [
+    { key: String(SourceOpenTarget.Local), text: "RSS正文" },
+    { key: String(SourceOpenTarget.Webpage), text: "加载网页" },
+    { key: String(SourceOpenTarget.External), text: "在浏览器中打开" }
+]
+
 class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
     selection: Selection
 
@@ -79,6 +86,12 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
     addSource = (event: React.FormEvent) => {
         event.preventDefault()
         if (urlTest(this.state.newUrl)) this.props.addSource(this.state.newUrl)
+    }
+
+    onOpenTargetChange = (_, option: IChoiceGroupOption) => {
+        let newTarget = parseInt(option.key) as SourceOpenTarget
+        this.props.updateSourceOpenTarget(this.state.selectedSource, newTarget)
+        this.setState({selectedSource: {...this.state.selectedSource, openTarget: newTarget} as RSSSource})
     }
 
     render = () => (
@@ -141,11 +154,21 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                             onClick={() => this.props.updateSourceName(this.state.selectedSource, this.state.newSourceName)}
                             text="修改名称" />
                     </Stack.Item>
+                </Stack>
+                <ChoiceGroup 
+                    label="订阅源文章打开方式" 
+                    options={sourceOpenTargetChoices}
+                    selectedKey={String(this.state.selectedSource.openTarget)}
+                    onChange={this.onOpenTargetChange} />
+                <Stack horizontal style={{marginTop: 24}}>
                     <Stack.Item>
                         <DangerButton
                             onClick={() => this.props.deleteSource(this.state.selectedSource)}
                             key={this.state.selectedSource.sid}
                             text={`删除订阅源`} />
+                    </Stack.Item>
+                    <Stack.Item>
+                        <span className="settings-hint">这将移除此订阅源与所有已保存的文章</span>
                     </Stack.Item>
                 </Stack>
             </>}

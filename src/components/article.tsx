@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
 import { openExternal } from "../scripts/utils"
 import { Stack, CommandBarButton, IContextualMenuProps } from "@fluentui/react"
-import { RSSSource } from "../scripts/models/source"
+import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
 
 const FONT_SIZE_STORE_KEY = "fontSize"
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
@@ -28,7 +28,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         super(props)
         this.state = {
             fontSize: this.getFontSize(),
-            loadWebpage: false
+            loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage
         }
     }
 
@@ -74,10 +74,20 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     componentDidMount = () => {
-        this.webview = document.getElementById("article")
-        this.webview.addEventListener("ipc-message", this.ipcHandler)
-        this.webview.addEventListener("new-window", this.popUpHandler)
-        this.webview.addEventListener("will-navigate", this.navigationHandler)
+        let webview = document.getElementById("article")
+        if (webview != this.webview) {
+            if (this.webview) this.componentWillUnmount()
+            webview.addEventListener("ipc-message", this.ipcHandler)
+            webview.addEventListener("new-window", this.popUpHandler)
+            webview.addEventListener("will-navigate", this.navigationHandler)
+            this.webview = webview
+        }
+    }
+    componentDidUpdate = (prevProps: ArticleProps) => {
+        if (prevProps.item.id != this.props.item.id) {
+            this.setState({loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage})
+        }
+        this.componentDidMount()
     }
 
     componentWillUnmount = () => {
@@ -110,8 +120,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 <span style={{width: 96}}></span>
                 <Stack className="actions" grow horizontal tokens={{childrenGap: 12}}>
                     <Stack.Item grow>
-                        {this.props.source.iconurl && <img className="favicon" src={this.props.source.iconurl} />}
-                        <span className="source-name">{this.props.source.name}</span>
+                        <span className="source-name">
+                            {this.props.source.iconurl && <img className="favicon" src={this.props.source.iconurl} />}
+                            {this.props.source.name}
+                        </span>
                     </Stack.Item>
                     <CommandBarButton
                         title={this.props.item.hasRead ? "标为未读" : "标为已读"}
@@ -146,6 +158,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             </Stack>
             <webview 
                 id="article"
+                key={this.props.item.id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 preload={this.state.loadWebpage ? null : "article/preload.js"}
                 partition="sandbox" />

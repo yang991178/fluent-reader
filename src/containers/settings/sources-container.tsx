@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import SourcesTab from "../../components/settings/sources"
-import { addSource, RSSSource, updateSource, deleteSource } from "../../scripts/models/source"
+import { addSource, RSSSource, updateSource, deleteSource, SourceOpenTarget } from "../../scripts/models/source"
 import { importOPML } from "../../scripts/models/group"
 import { AppDispatch } from "../../scripts/utils"
 
@@ -21,6 +21,9 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         addSource: (url: string) => dispatch(addSource(url)),
         updateSourceName: (source: RSSSource, name: string) => {
             dispatch(updateSource({ ...source, name: name } as RSSSource))
+        },
+        updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => {
+            dispatch(updateSource({ ...source, openTarget: target } as RSSSource))
         },
         deleteSource: (source: RSSSource) => dispatch(deleteSource(source)),
         importOPML: () => {

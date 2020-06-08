@@ -1,9 +1,10 @@
-import { ALL, SOURCE, FeedIdType } from "./feed"
-import { getWindowBreakpoint } from "../utils"
-import { RSSItem, ItemActionTypes, MARK_READ, MARK_UNREAD } from "./item"
+import { ALL, SOURCE, FeedIdType, loadMore } from "./feed"
+import { getWindowBreakpoint, AppThunk } from "../utils"
+import { RSSItem, ItemActionTypes, MARK_READ, MARK_UNREAD, markRead } from "./item"
 
 export const SELECT_PAGE = "SELECT_PAGE"
 export const SHOW_ITEM = "SHOW_ITEM"
+export const SHOW_OFFSET_ITEM = "SHOW_OFFSET_ITEM"
 export const DISMISS_ITEM = "DISMISS_ITEM"
 
 export enum PageType {
@@ -60,6 +61,33 @@ export function showItem(feedId: FeedIdType, item: RSSItem): PageActionTypes {
 }
 
 export const dismissItem = (): PageActionTypes => ({ type: DISMISS_ITEM })
+
+export function showOffsetItem(offset: number): AppThunk {
+    return (dispatch, getState) => {
+        let state = getState()
+        let [itemId, feedId] = [state.page.itemId, state.page.feedId]
+        let feed = state.feeds[feedId]
+        let iids = feed.iids
+        let itemIndex = iids.indexOf(itemId)
+        let newIndex = itemIndex + offset
+        if (itemIndex >= 0 && newIndex >= 0) {
+            if (newIndex < iids.length) {
+                let item = state.items[iids[newIndex]]
+                dispatch(markRead(item))
+                dispatch(showItem(feedId, item))
+                return
+            } else if (!feed.allLoaded){
+                dispatch(loadMore(feed)).then(() => {
+                    dispatch(showOffsetItem(offset))
+                }).catch(() => 
+                    dispatch(dismissItem())
+                )
+                return
+            }
+        }
+        dispatch(dismissItem())
+    }
+}
 
 export class PageState {
     feedId = ALL as FeedIdType

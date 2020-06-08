@@ -1,10 +1,7 @@
 import * as React from "react"
 import { FeedIdType } from "../scripts/models/feed"
 import { FeedContainer } from "../containers/feed-container"
-import { RSSItem } from "../scripts/models/item"
-import Article from "./article"
-import { dismissItem } from "../scripts/models/page"
-import { AnimationClassNames } from "@fluentui/react"
+import { AnimationClassNames, Icon } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
 
 type PageProps = {
@@ -13,9 +10,19 @@ type PageProps = {
     feeds: FeedIdType[]
     itemId: number
     dismissItem: () => void
+    offsetItem: (offset: number) => void
 }
 
 class Page extends React.Component<PageProps> {
+    prevItem = (event: React.MouseEvent) => {
+        event.stopPropagation()
+        this.props.offsetItem(-1)
+    }
+    nextItem = (event: React.MouseEvent) => {
+        event.stopPropagation()
+        this.props.offsetItem(1)
+    }
+
     render = () => (
         <>
             {this.props.settingsOn ? null :
@@ -29,6 +36,8 @@ class Page extends React.Component<PageProps> {
                     <div className={"article-wrapper " + AnimationClassNames.slideUpIn20} onClick={e => e.stopPropagation()}>
                         <ArticleContainer itemId={this.props.itemId} />
                     </div>
+                    <div className="btn-group prev"><a className="btn" onClick={this.prevItem}><Icon iconName="Back" /></a></div>
+                    <div className="btn-group next"><a className="btn" onClick={this.nextItem}><Icon iconName="Forward" /></a></div>
                 </div>
             )}
         </>
