@@ -10,6 +10,7 @@ function createWindow() {
     })
     // Create the browser window.
     mainWindow = new BrowserWindow({
+        title: "Fluent Reader",
         backgroundColor: "#faf9f8",
         x: mainWindowState.x,
         y: mainWindowState.y,
@@ -26,7 +27,7 @@ function createWindow() {
     })
     mainWindowState.manage(mainWindow)
     // and load the index.html of the app.
-    mainWindow.loadFile('index.html')
+    mainWindow.loadFile((app.isPackaged ? "dist/" : "") + 'index.html')
     mainWindow.webContents.openDevTools()
 }
 

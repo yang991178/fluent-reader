@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <radialGradient id="radial-gradient" cx="-0.025" cy="1.021" r="1.434" gradientTransform="matrix(0.704, -0.71, 0.41, 0.407, -0.426, 0.588)" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#769ebe"/>
+      <stop offset="1" stop-color="#93c3e8"/>
+    </radialGradient>
+    <filter id="矩形_9" x="32.5" y="12.5" width="355" height="355" filterUnits="userSpaceOnUse">
+      <feOffset input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="12.5" result="blur"/>
+      <feFlood flood-opacity="0.2"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <radialGradient id="radial-gradient-2" cx="-0.027" cy="1.043" r="1.428" gradientTransform="matrix(0.702, -0.712, 0.393, 0.387, -0.417, 0.62)" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#3a74a2"/>
+      <stop offset="1" stop-color="#64a5d6"/>
+    </radialGradient>
+    <filter id="矩形_8" x="22.5" y="77.5" width="300" height="300" filterUnits="userSpaceOnUse">
+      <feOffset input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="12.5" result="blur-2"/>
+      <feFlood flood-opacity="0.2"/>
+      <feComposite operator="in" in2="blur-2"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <radialGradient id="radial-gradient-3" cx="-0.146" cy="1.148" r="1.171" gradientTransform="matrix(0.683, -0.73, 0.699, 0.654, -0.849, 0.291)" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#004e8c"/>
+      <stop offset="1" stop-color="#0078d4"/>
+    </radialGradient>
+    <filter id="矩形_7" x="12.5" y="142.5" width="245" height="245" filterUnits="userSpaceOnUse">
+      <feOffset input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="12.5" result="blur-3"/>
+      <feFlood flood-opacity="0.2"/>
+      <feComposite operator="in" in2="blur-3"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="F" x="76" y="172" width="118" height="193" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="5" result="blur-4"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-4"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <clipPath id="clip-Web_1280_3">
+      <rect width="400" height="400"/>
+    </clipPath>
+  </defs>
+  <g id="Web_1280_3" data-name="Web 1280 – 3" clip-path="url(#clip-Web_1280_3)">
+    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#矩形_9)">
+      <rect id="矩形_9-2" data-name="矩形 9" width="280" height="280" rx="5" transform="translate(70 50)" fill="url(#radial-gradient)"/>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#矩形_8)">
+      <rect id="矩形_8-2" data-name="矩形 8" width="225" height="225" rx="5" transform="translate(60 115)" fill="url(#radial-gradient-2)"/>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#矩形_7)">
+      <rect id="矩形_7-2" data-name="矩形 7" width="170" height="170" rx="5" transform="translate(50 180)" fill="url(#radial-gradient-3)"/>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#F)">
+      <text id="F-2" data-name="F" transform="translate(91 317)" fill="#faf9f8" font-size="144" font-family="MicrosoftSansSerif, Microsoft Sans Serif"><tspan x="0" y="0">F</tspan></text>
+    </g>
+  </g>
+</svg>

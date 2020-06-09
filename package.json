@@ -1,16 +1,38 @@
 {
-  "name": "rss-reader",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "fluent-reader",
+  "version": "0.1.0",
+  "description": "A simplistic, modern desktop RSS reader",
+  "main": "./dist/electron.js",
   "scripts": {
     "build": "webpack --config ./webpack.config.js",
     "electron": "electron ./dist/electron.js",
-    "start": "npm run build && npm run electron"
+    "start": "npm run build && npm run electron",
+    "package-win": "electron-builder --win --x64"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Haoyuan Liu",
+  "license": "BSD",
+  "build": {
+    "appId": "me.hyliu.fluentreader",
+    "productName": "Fluent Reader",
+    "copyright": "Copyright © 2020 Haoyuan Liu",
+    "files": "./dist/**/*",
+    "directories": {
+      "output": "./bin/"
+    },
+    "win": {
+      "target": ["nsis", "appx"]
+    },
+    "appx": {
+      "applicationId": "FluentReader",
+      "identityName": "25286HaoyuanLiu.FluentReader",
+      "publisher": "CN=FD70E7FA-E5AC-41C4-B9C4-6E8708A6616A",
+      "backgroundColor": "transparent",
+      "languages": ["zh-CN", "en-US"],
+      "showNameOnTiles": true,
+      "setBuildNumber": true
+    }
+  },
   "devDependencies": {
     "@fluentui/react": "^7.115.3",
     "@types/nedb": "^1.8.9",
@@ -23,6 +45,7 @@
     "@yang991178/electron-proxy-agent": "^1.2.1",
     "@yang991178/rss-parser": "^3.8.1",
     "electron": "^8.3.0",
+    "electron-builder": "^22.7.0",
     "electron-react-devtools": "^0.5.3",
     "electron-window-state": "^5.0.3",
     "favicon": "0.0.2",

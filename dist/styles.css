@@ -188,6 +188,7 @@ nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
     font-size: 12px;
     color: #797775;
     margin: 2px 8px;
+    user-select: none;
 }
 
 .settings-container {
@@ -255,6 +256,13 @@ img.favicon {
     line-height: 32px;
     font-size: 12px;
     color: #605e5c;
+}
+.settings-about {
+    margin: 72px 0;
+}
+.settings-about > * {
+    margin: 0 !important;
+    -webkit-user-drag: none;
 }
 
 .main {
@@ -421,6 +429,10 @@ img.favicon {
     height: calc(100% - 32px);
     overflow: hidden scroll;
     position: relative;
+}
+.list-feed > div.load-more-wrapper {
+    text-align: center;
+    padding: 16px 0;
 }
 
 .cards-feed-container {
@@ -596,6 +608,7 @@ img.favicon {
 }
 .list-card .info {
     margin: 8px 10px;
+    height: 16px;
 }
 .list-card h3.title {
     font-size: 14px;

@@ -1,6 +1,6 @@
 import * as React from "react"
 import { FeedProps } from "./feed"
-import { PrimaryButton } from 'office-ui-fabric-react';
+import { DefaultButton } from 'office-ui-fabric-react';
 import ListCard from "../cards/list-card";
 
 class ListFeed extends React.Component<FeedProps> {
@@ -21,7 +21,7 @@ class ListFeed extends React.Component<FeedProps> {
                 }
                 {
                     (this.props.feed.loaded && !this.props.feed.allLoaded)
-                    ? <div className="load-more-wrapper"><PrimaryButton 
+                    ? <div className="load-more-wrapper"><DefaultButton 
                         text="加载更多" 
                         disabled={this.props.feed.loading}
                         onClick={() => this.props.loadMore(this.props.feed)} /></div>
