@@ -13,6 +13,8 @@ type ArticleProps = {
     source: RSSSource
     dismiss: () => void
     toggleHasRead: (item: RSSItem) => void
+    toggleStarred: (item: RSSItem) => void
+    toggleHidden: (item: RSSItem) => void
     textMenu: (text: string, position: [number, number]) => void
 }
 
@@ -51,6 +53,22 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         }))
     })
 
+    moreMenuProps = (): IContextualMenuProps => ({
+        items: [
+            {
+                key: "openInBrowser",
+                text: "在浏览器中打开",
+                iconProps: {iconName: "NavigateExternalInline"},
+                onClick: this.openInBrowser
+            },
+            {
+                key: "toggleHidden",
+                text:　this.props.item.hidden ? "取消隐藏" : "隐藏文章",
+                onClick: () => { this.props.toggleHidden(this.props.item) }
+            }
+        ]
+    })
+
     ipcHandler = event => {
         switch (event.channel) {
             case "request-navigation": {
@@ -84,7 +102,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         }
     }
     componentDidUpdate = (prevProps: ArticleProps) => {
-        if (prevProps.item.id != this.props.item.id) {
+        if (prevProps.item._id != this.props.item._id) {
             this.setState({loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage})
         }
         this.componentDidMount()
@@ -112,7 +130,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         <p className="title">{this.props.item.title}</p>
         <p className="date">{this.props.item.date.toLocaleString("zh-cn", {hour12: false})}</p>
         <article dangerouslySetInnerHTML={{__html: this.props.item.content}}></article>
-    </>))) + "&s=" + this.state.fontSize
+    </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}`
     
     render = () => (
         <div className="article">
@@ -128,11 +146,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     <CommandBarButton
                         title={this.props.item.hasRead ? "标为未读" : "标为已读"}
                         iconProps={this.props.item.hasRead 
-                            ? {iconName: "RadioBtnOn", style: {fontSize: 14, textAlign: "center"}} 
-                            : {iconName: "StatusCircleRing"}} 
+                            ? {iconName: "StatusCircleRing"}
+                            : {iconName: "RadioBtnOn", style: {fontSize: 14, textAlign: "center"}}}
                         onClick={() => this.props.toggleHasRead(this.props.item)} />
                     <CommandBarButton
-                        iconProps={{iconName: "FavoriteStar"}} />
+                        title={this.props.item.starred ? "取消星标" : "标为星标"}
+                        iconProps={{iconName: this.props.item.starred ? "FavoriteStarFill" : "FavoriteStar"}}
+                        onClick={() => this.props.toggleStarred(this.props.item)} />
                     <CommandBarButton
                         title="字体大小"
                         disabled={this.state.loadWebpage}
@@ -145,9 +165,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         iconProps={{iconName: "Globe"}} 
                         onClick={this.toggleWebpage} />
                     <CommandBarButton
-                        title="在浏览器中打开"
-                        iconProps={{iconName: "NavigateExternalInline", style: {marginTop: -4}}}
-                        onClick={this.openInBrowser} />
+                        title="更多"
+                        iconProps={{iconName: "More"}}
+                        menuIconProps={{style: {display: "none"}}}
+                        menuProps={this.moreMenuProps()} />
                 </Stack>
                 <Stack horizontal horizontalAlign="end" style={{width: 112}}>
                     <CommandBarButton
@@ -158,7 +179,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             </Stack>
             <webview 
                 id="article"
-                key={this.props.item.id + (this.state.loadWebpage ? "_" : "")}
+                key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 preload={this.state.loadWebpage ? null : "article/preload.js"}
                 partition="sandbox" />

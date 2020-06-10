@@ -6,20 +6,19 @@ import { PageActionTypes, SELECT_PAGE, PageType } from "./page"
 
 export const ALL = "ALL"
 export const SOURCE = "SOURCE"
-export type FeedIdType = number | string
 
 const LOAD_QUANTITY = 50
 
 export class RSSFeed {
-    id: FeedIdType
+    _id: string
     loaded: boolean
     loading: boolean
     allLoaded: boolean
     sids: number[]
-    iids: number[]
+    iids: string[]
 
-    constructor (id: FeedIdType, sids=[]) {
-        this.id = id
+    constructor (id: string = null, sids=[]) {
+        this._id = id
         this.sids = sids
         this.iids = []
         this.loaded = false
@@ -44,7 +43,7 @@ export class RSSFeed {
 }
 
 export type FeedState = {
-    [id in FeedIdType]: RSSFeed
+    [_id: string]: RSSFeed
 }
 
 export const INIT_FEEDS = 'INIT_FEEDS'
@@ -200,7 +199,7 @@ export function feedReducer(
                     let nextState = { ...state }
                     for (let k of Object.keys(state)) {
                         if (state[k].loaded) {
-                            let iids = action.items.filter(i => state[k].sids.includes(i.source)).map(i => i.id)
+                            let iids = action.items.filter(i => state[k].sids.includes(i.source)).map(i => i._id)
                             if (iids.length > 0) {
                                 nextState[k] = { 
                                     ...nextState[k], 
@@ -217,11 +216,11 @@ export function feedReducer(
             switch (action.status) {
                 case ActionStatus.Success: return {
                     ...state,
-                    [action.feed.id]: {
+                    [action.feed._id]: {
                         ...action.feed,
                         loaded: true,
                         allLoaded: action.items.length < LOAD_QUANTITY,
-                        iids: action.items.map(i => i.id)
+                        iids: action.items.map(i => i._id)
                     }
                 }
                 default: return state
@@ -230,23 +229,23 @@ export function feedReducer(
             switch (action.status) {
                 case ActionStatus.Request: return {
                     ...state,
-                    [action.feed.id] : {
+                    [action.feed._id] : {
                         ...action.feed,
                         loading: true
                     }
                 }
                 case ActionStatus.Success: return {
                     ...state,
-                    [action.feed.id] : {
+                    [action.feed._id] : {
                         ...action.feed,
                         loading: false,
                         allLoaded: action.items.length < LOAD_QUANTITY,
-                        iids: [...action.feed.iids, ...action.items.map(i => i.id)]
+                        iids: [...action.feed.iids, ...action.items.map(i => i._id)]
                     }
                 }
                 case ActionStatus.Failure: return {
                     ...state,
-                    [action.feed.id] : {
+                    [action.feed._id] : {
                         ...action.feed,
                         loading: false
                     }

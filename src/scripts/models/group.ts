@@ -1,7 +1,7 @@
 import fs = require("fs")
 import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource } from "./source"
 
-import { ActionStatus, AppThunk, domParser, AppDispatch, getWindowBreakpoint } from "../utils"
+import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
 import { saveSettings } from "./app"
 
 const GROUPS_STORE_KEY = "sourceGroups"

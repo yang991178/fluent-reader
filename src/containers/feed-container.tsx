@@ -3,12 +3,12 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { markRead, RSSItem } from "../scripts/models/item"
 import { openItemMenu } from "../scripts/models/app"
-import { FeedIdType, loadMore, RSSFeed } from "../scripts/models/feed"
+import { loadMore, RSSFeed } from "../scripts/models/feed"
 import { showItem, ViewType } from "../scripts/models/page"
 import { Feed } from "../components/feeds/feed"
 
 interface FeedContainerProps {
-    feedId: FeedIdType
+    feedId: string
     viewType: ViewType
 }
 
@@ -31,9 +31,9 @@ const makeMapStateToProps = () => {
 const mapDispatchToProps = dispatch => {
     return {
         markRead: (item: RSSItem) => dispatch(markRead(item)),
-        contextMenu: (feedId: FeedIdType, item: RSSItem, e) => dispatch(openItemMenu(item, feedId, e)),
+        contextMenu: (feedId: string, item: RSSItem, e) => dispatch(openItemMenu(item, feedId, e)),
         loadMore: (feed: RSSFeed) => dispatch(loadMore(feed)),
-        showItem: (fid: FeedIdType, item: RSSItem) => dispatch(showItem(fid, item))
+        showItem: (fid: string, item: RSSItem) => dispatch(showItem(fid, item))
     }
 }
 

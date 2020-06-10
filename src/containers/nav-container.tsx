@@ -7,7 +7,7 @@ import { ViewType } from "../scripts/models/page"
 import Nav from "../components/nav"
 
 const getState = (state: RootState) => state.app
-const getItemShown = (state: RootState) => (state.page.itemId >= 0) && state.page.viewType !== ViewType.List
+const getItemShown = (state: RootState) => state.page.itemId && state.page.viewType !== ViewType.List
 
 const mapStateToProps = createSelector(
     [getState, getItemShown], 

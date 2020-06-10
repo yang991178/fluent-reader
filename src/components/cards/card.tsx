@@ -2,15 +2,14 @@ import * as React from "react"
 import { openExternal } from "../../scripts/utils"
 import { RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { RSSItem } from "../../scripts/models/item"
-import { FeedIdType } from "../../scripts/models/feed"
 
 export interface CardProps {
-    feedId: FeedIdType
+    feedId: string
     item: RSSItem
     source: RSSSource
     markRead: (item: RSSItem) => void
-    contextMenu: (feedId: FeedIdType, item: RSSItem, e) => void
-    showItem: (fid: FeedIdType, item: RSSItem) => void
+    contextMenu: (feedId: string, item: RSSItem, e) => void
+    showItem: (fid: string, item: RSSItem) => void
 }
 
 export class Card extends React.Component<CardProps> {

@@ -1,4 +1,4 @@
-import { ALL, SOURCE, FeedIdType, loadMore } from "./feed"
+import { ALL, SOURCE, loadMore } from "./feed"
 import { getWindowBreakpoint, AppThunk, getDefaultView } from "../utils"
 import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
@@ -34,7 +34,7 @@ interface SwitchViewAction {
 
 interface ShowItemAction {
     type: typeof SHOW_ITEM
-    feedId: FeedIdType
+    feedId: string
     item: RSSItem
 }
 
@@ -70,7 +70,7 @@ export function switchView(viewType: ViewType): PageActionTypes {
     }
 }
 
-export function showItem(feedId: FeedIdType, item: RSSItem): PageActionTypes {
+export function showItem(feedId: string, item: RSSItem): PageActionTypes {
     return {
         type: SHOW_ITEM,
         feedId: feedId,
@@ -109,8 +109,8 @@ export function showOffsetItem(offset: number): AppThunk {
 
 export class PageState {
     viewType = getDefaultView()
-    feedId = ALL as FeedIdType
-    itemId = -1
+    feedId = ALL
+    itemId = null as string
 }
 
 export function pageReducer(
@@ -133,16 +133,16 @@ export function pageReducer(
         case SWITCH_VIEW: return {
             ...state,
             viewType: action.viewType,
-            itemId: action.viewType === ViewType.List ? state.itemId : -1
+            itemId: action.viewType === ViewType.List ? state.itemId : null
         }
         case SHOW_ITEM: return {
             ...state,
-            itemId: action.item.id
+            itemId: action.item._id
         }
         case DELETE_SOURCE:
         case DISMISS_ITEM: return {
             ...state,
-            itemId: -1
+            itemId: null
         }
         default: return state
     }

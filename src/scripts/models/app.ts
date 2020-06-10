@@ -1,7 +1,7 @@
 import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
-import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds, FeedIdType } from "./feed"
+import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
 import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP } from "./group"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
 
@@ -51,7 +51,7 @@ export class AppState {
         type: ContextMenuType,
         event?: MouseEvent | string,
         position?: [number, number],
-        target?: [RSSItem, FeedIdType] | RSSSource | string
+        target?: [RSSItem, string] | RSSSource | string
     }
 
     constructor() {
@@ -74,7 +74,7 @@ interface OpenItemMenuAction {
     type: typeof OPEN_ITEM_MENU
     event: MouseEvent
     item: RSSItem
-    feedId: FeedIdType
+    feedId: string
 }
 
 interface OpenTextMenuAction {
@@ -109,7 +109,7 @@ export function closeContextMenu(): ContextMenuActionTypes {
     return { type: CLOSE_CONTEXT_MENU }
 }
 
-export function openItemMenu(item: RSSItem, feedId: FeedIdType, event: React.MouseEvent): ContextMenuActionTypes {
+export function openItemMenu(item: RSSItem, feedId: string, event: React.MouseEvent): ContextMenuActionTypes {
     return {
         type: OPEN_ITEM_MENU,
         event: event.nativeEvent,

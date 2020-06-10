@@ -3,9 +3,8 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { ContextMenuType, closeContextMenu } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
-import { RSSItem, markRead, markUnread } from "../scripts/models/item"
+import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden } from "../scripts/models/item"
 import { showItem, switchView, ViewType } from "../scripts/models/page"
-import { FeedIdType } from "../scripts/models/feed"
 import { setDefaultView } from "../scripts/utils"
 
 const getContext = (state: RootState) => state.app.contextMenu
@@ -38,9 +37,11 @@ const mapStateToProps = createSelector(
 
 const mapDispatchToProps = dispatch => {
     return {
-        showItem: (feedId: FeedIdType, item: RSSItem) => dispatch(showItem(feedId, item)),
+        showItem: (feedId: string, item: RSSItem) => dispatch(showItem(feedId, item)),
         markRead: (item: RSSItem) => dispatch(markRead(item)),
         markUnread: (item: RSSItem) => dispatch(markUnread(item)),
+        toggleStarred: (item: RSSItem) => dispatch(toggleStarred(item)),
+        toggleHidden: (item: RSSItem) => dispatch(toggleHidden(item)),
         switchView: (viewType: ViewType) => {
             setDefaultView(viewType)
             dispatch(switchView(viewType))

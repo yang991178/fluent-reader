@@ -510,6 +510,7 @@ img.favicon {
     transition: box-shadow linear .08s;
     transform: scale(1);
     cursor: pointer;
+    animation-fill-mode: none;
 }
 .card:hover {
     box-shadow: #0006 0px 5px 40px;

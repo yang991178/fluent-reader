@@ -34,8 +34,8 @@ class CardsFeed extends React.Component<FeedProps> {
                 {
                     this.props.items.map((item) => (
                         <DefaultCard 
-                            feedId={this.props.feed.id}
-                            key={item.id}
+                            feedId={this.props.feed._id}
+                            key={item._id}
                             item={item} 
                             source={this.props.sourceMap[item.source]} 
                             markRead={this.props.markRead}

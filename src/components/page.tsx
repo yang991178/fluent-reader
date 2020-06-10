@@ -1,5 +1,4 @@
 import * as React from "react"
-import { FeedIdType } from "../scripts/models/feed"
 import { FeedContainer } from "../containers/feed-container"
 import { AnimationClassNames, Icon } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
@@ -8,8 +7,8 @@ import { ViewType } from "../scripts/models/page"
 type PageProps = {
     menuOn: boolean
     settingsOn: boolean
-    feeds: FeedIdType[]
-    itemId: number
+    feeds: string[]
+    itemId: string
     viewType: ViewType
     dismissItem: () => void
     offsetItem: (offset: number) => void
@@ -34,7 +33,7 @@ class Page extends React.Component<PageProps> {
                     <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid} />
                 ))}
             </div>}
-            {this.props.itemId >= 0 && (
+            {this.props.itemId && (
                 <div className="article-container" onClick={this.props.dismissItem}>
                     <div className={"article-wrapper " + AnimationClassNames.slideUpIn20} onClick={e => e.stopPropagation()}>
                         <ArticleContainer itemId={this.props.itemId} />
@@ -54,7 +53,7 @@ class Page extends React.Component<PageProps> {
                         <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid} />
                     ))}
                 </div>
-                {this.props.itemId >= 0 && (
+                {this.props.itemId && (
                     <div className="side-article-wrapper">
                         <ArticleContainer itemId={this.props.itemId} />
                     </div>

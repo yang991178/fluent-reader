@@ -5,7 +5,6 @@ import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, Directiona
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
-import { FeedIdType } from "../scripts/models/feed"
 import { ViewType } from "../scripts/models/page"
 
 export type ContextMenuProps = ContextReduxProps & {
@@ -13,12 +12,14 @@ export type ContextMenuProps = ContextReduxProps & {
     event?: MouseEvent | string
     position?: [number, number]
     item?: RSSItem
-    feedId?: FeedIdType
+    feedId?: string
     text?: string
     viewType: ViewType
-    showItem: (feedId: FeedIdType, item: RSSItem) => void
+    showItem: (feedId: string, item: RSSItem) => void
     markRead: (item: RSSItem) => void
     markUnread: (item: RSSItem) => void
+    toggleStarred: (item: RSSItem) => void
+    toggleHidden: (item: RSSItem) => void
     switchView: (viewType: ViewType) => void
     close: () => void
 }
@@ -59,8 +60,15 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     onClick: () => { this.props.markRead(this.props.item) }
                 },
                 {
-                    key: "markBelowAsRead",
-                    text: "将以下标为已读"
+                    key: "toggleStarred",
+                    text:　this.props.item.starred ? "取消星标" : "标为星标",
+                    iconProps: { iconName: this.props.item.starred ? "FavoriteStar" : "FavoriteStarFill" },
+                    onClick: () => { this.props.toggleStarred(this.props.item) }
+                },
+                {
+                    key: "toggleHidden",
+                    text:　this.props.item.hidden ? "取消隐藏" : "隐藏文章",
+                    onClick: () => { this.props.toggleHidden(this.props.item) }
                 },
                 {
                     key: "divider_1",
