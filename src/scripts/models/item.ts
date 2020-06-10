@@ -225,6 +225,28 @@ export function toggleHidden(item: RSSItem): AppThunk {
     }
 }
 
+export function applyItemReduction(item: RSSItem, type: string) {
+    let nextItem = { ...item }
+    switch (type) {
+        case MARK_READ:
+        case MARK_UNREAD: {
+            nextItem.hasRead = type === MARK_READ
+            break
+        }
+        case TOGGLE_STARRED: {
+            if (item.starred === true) delete nextItem.starred
+            else nextItem.starred = true
+            break
+        }
+        case TOGGLE_HIDDEN: {
+            if (item.hidden === true) delete nextItem.hidden
+            else nextItem.hidden = true
+            break
+        }
+    }
+    return nextItem
+}
+
 export function itemReducer(
     state: ItemState = {},
     action: ItemActionTypes | FeedActionTypes
@@ -242,29 +264,12 @@ export function itemReducer(
                 default: return state
             }
         case MARK_UNREAD:
-        case MARK_READ: return {
-            ...state,
-            [action.item._id] : {
-                ...action.item,
-                hasRead: action.type === MARK_READ
-            }
-        }
-        case TOGGLE_STARRED: {
-            let newItem = { ...action.item }
-            if (newItem.starred === true) delete newItem.starred
-            else newItem.starred = true
-            return {
-                ...state,
-                [newItem._id]: newItem
-            }
-        }
+        case MARK_READ:
+        case TOGGLE_STARRED:
         case TOGGLE_HIDDEN: {
-            let newItem = { ...action.item }
-            if (newItem.hidden === true) delete newItem.hidden
-            else newItem.hidden = true
             return {
                 ...state,
-                [newItem._id]: newItem
+                [action.item._id]: applyItemReduction(action.item, action.type)
             }
         }
         case LOAD_MORE:

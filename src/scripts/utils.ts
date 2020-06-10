@@ -2,7 +2,6 @@ import { shell, remote } from "electron"
 import { ThunkAction, ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
 import { RootState } from "./reducer"
-import URL = require("url")
 
 export enum ActionStatus {
     Request, Success, Failure, Intermediate
@@ -50,7 +49,6 @@ export function setProxy(address = null) {
 
 import ElectronProxyAgent = require("@yang991178/electron-proxy-agent")
 import { ViewType } from "./models/page"
-import { RSSSource } from "./models/source"
 let agent = new ElectronProxyAgent(remote.getCurrentWebContents().session)
 export const rssParser = new Parser({
     customFields: customFields,

@@ -4,15 +4,17 @@ import { RootState } from "../scripts/reducer"
 import { ContextMenuType, closeContextMenu } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
 import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden } from "../scripts/models/item"
-import { showItem, switchView, ViewType } from "../scripts/models/page"
+import { showItem, switchView, ViewType, switchFilter, toggleFilter } from "../scripts/models/page"
 import { setDefaultView } from "../scripts/utils"
+import { FeedFilter } from "../scripts/models/feed"
 
 const getContext = (state: RootState) => state.app.contextMenu
 const getViewType = (state: RootState) => state.page.viewType
+const getFilter = (state: RootState) => state.page.filter
 
 const mapStateToProps = createSelector(
-    [getContext, getViewType],
-    (context, viewType) => {
+    [getContext, getViewType, getFilter],
+    (context, viewType, filter) => {
         switch (context.type) {
             case ContextMenuType.Item: return {
                 type: context.type,
@@ -28,7 +30,8 @@ const mapStateToProps = createSelector(
             case ContextMenuType.View: return {
                 type: context.type,
                 event: context.event,
-                viewType: viewType
+                viewType: viewType,
+                filter: filter
             }
             default: return { type: ContextMenuType.Hidden }
         }
@@ -46,6 +49,8 @@ const mapDispatchToProps = dispatch => {
             setDefaultView(viewType)
             dispatch(switchView(viewType))
         },
+        switchFilter: (filter: FeedFilter) => dispatch(switchFilter(filter)),
+        toggleFilter: (filter: FeedFilter) => dispatch(toggleFilter(filter)),
         close: () => dispatch(closeContextMenu())
     }
 }

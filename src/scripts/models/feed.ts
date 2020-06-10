@@ -1,8 +1,40 @@
 import * as db from "../db"
 import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
-import { ItemActionTypes, FETCH_ITEMS, RSSItem } from "./item"
+import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction } from "./item"
 import { ActionStatus, AppThunk } from "../utils"
-import { PageActionTypes, SELECT_PAGE, PageType } from "./page"
+import { PageActionTypes, SELECT_PAGE, PageType, APPLY_FILTER } from "./page"
+
+export enum FeedFilter {
+    None,
+    ShowRead = 1 << 0,
+    ShowNotStarred = 1 << 1,
+    ShowHidden = 1 << 2,
+
+    Default = ShowRead | ShowNotStarred,
+    UnreadOnly = ShowNotStarred,
+    StarredOnly = ShowRead
+}
+export namespace FeedFilter {
+    export function toQueryObject(filter: FeedFilter) {
+        let query = {
+            hasRead: false,
+            starred: true,
+            hidden: { $exists: false }
+        }
+        if (filter & FeedFilter.ShowRead) delete query.hasRead
+        if (filter & FeedFilter.ShowNotStarred) delete query.starred
+        if (filter & FeedFilter.ShowHidden) delete query.hidden
+        return query
+    }
+
+    export function testItem(filter: FeedFilter, item: RSSItem) {
+        let flag = true
+        if (!(filter & FeedFilter.ShowRead)) flag = flag && !item.hasRead
+        if (!(filter & FeedFilter.ShowNotStarred)) flag = flag && item.starred
+        if (!(filter & FeedFilter.ShowHidden)) flag = flag && !item.hidden
+        return Boolean(flag)
+    }
+}
 
 export const ALL = "ALL"
 export const SOURCE = "SOURCE"
@@ -16,18 +48,24 @@ export class RSSFeed {
     allLoaded: boolean
     sids: number[]
     iids: string[]
+    filter: FeedFilter
 
-    constructor (id: string = null, sids=[]) {
+    constructor (id: string = null, sids=[], filter=FeedFilter.Default) {
         this._id = id
         this.sids = sids
         this.iids = []
         this.loaded = false
         this.allLoaded = false
+        this.filter = filter
     }
 
     static loadFeed(feed: RSSFeed, init = false): Promise<RSSItem[]> {
         return new Promise<RSSItem[]>((resolve, reject) => {
-            db.idb.find({ source: { $in: feed.sids } })
+            let query = {
+                source: { $in: feed.sids },
+                ...FeedFilter.toQueryObject(feed.filter)
+            }
+            db.idb.find(query)
                 .sort({ date: -1 })
                 .skip(init ? 0 : feed.iids.length)
                 .limit(LOAD_QUANTITY)
@@ -182,14 +220,24 @@ export function feedReducer(
             switch (action.status) {
                 case ActionStatus.Success: return {
                     ...state,
-                    [ALL]: new RSSFeed(ALL, [...state[ALL].sids, action.source.sid])
+                    [ALL]: new RSSFeed(ALL, [...state[ALL].sids, action.source.sid], state[ALL].filter)
                 }
                 default: return state
             }
         case DELETE_SOURCE: {
             let nextState = {}
             for (let [id, feed] of Object.entries(state)) {
-                nextState[id] = new RSSFeed(id, feed.sids.filter(sid => sid != action.source.sid))
+                nextState[id] = new RSSFeed(id, feed.sids.filter(sid => sid != action.source.sid), feed.filter)
+            }
+            return nextState
+        }
+        case APPLY_FILTER: {
+            let nextState = {}
+            for (let [id, feed] of Object.entries(state)) {
+                nextState[id] = {
+                    ...feed,
+                    filter: action.filter
+                }
             }
             return nextState
         }
@@ -197,13 +245,15 @@ export function feedReducer(
             switch (action.status) {
                 case ActionStatus.Success: {
                     let nextState = { ...state }
-                    for (let k of Object.keys(state)) {
-                        if (state[k].loaded) {
-                            let iids = action.items.filter(i => state[k].sids.includes(i.source)).map(i => i._id)
+                    for (let feed of Object.values(state)) {
+                        if (feed.loaded) {
+                            let iids = action.items
+                                .filter(i => feed.sids.includes(i.source) && FeedFilter.testItem(feed.filter, i))
+                                .map(i => i._id)
                             if (iids.length > 0) {
-                                nextState[k] = { 
-                                    ...nextState[k], 
-                                    iids: [...iids, ...nextState[k].iids]
+                                nextState[feed._id] = { 
+                                    ...feed, 
+                                    iids: [...iids, ...feed.iids]
                                 }
                             }
                         }
@@ -252,17 +302,37 @@ export function feedReducer(
                 }
                 default: return state
             }
+        case MARK_READ:
+        case MARK_UNREAD:
+        case TOGGLE_STARRED:
+        case TOGGLE_HIDDEN: {
+            let nextItem = applyItemReduction(action.item, action.type)
+            let filteredFeeds = Object.values(state).filter(feed => feed.loaded && !FeedFilter.testItem(feed.filter, nextItem))
+            if (filteredFeeds.length > 0) {
+                let nextState = { ...state }
+                for (let feed of filteredFeeds) {
+                    nextState[feed._id] = {
+                        ...feed,
+                        iids: feed.iids.filter(id => id != nextItem._id)
+                    }
+                }
+                return nextState
+            } else {
+                return state
+            }
+        }
         case SELECT_PAGE:
             switch (action.pageType) {
                 case PageType.Sources: return {
                     ...state,
-                    [SOURCE]: new RSSFeed(SOURCE, action.sids)
+                    [SOURCE]: new RSSFeed(SOURCE, action.sids, action.filter)
                 }
                 case PageType.AllArticles: return action.init ? {
                     ...state,
                     [ALL]: {
                         ...state[ALL],
-                        loaded: false
+                        loaded: false,
+                        filter: action.filter
                     }
                 } : state
                 default: return state

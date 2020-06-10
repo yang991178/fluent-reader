@@ -6,6 +6,7 @@ import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
 import { ViewType } from "../scripts/models/page"
+import { FeedFilter } from "../scripts/models/feed"
 
 export type ContextMenuProps = ContextReduxProps & {
     type: ContextMenuType
@@ -14,13 +15,16 @@ export type ContextMenuProps = ContextReduxProps & {
     item?: RSSItem
     feedId?: string
     text?: string
-    viewType: ViewType
+    viewType?: ViewType
+    filter?: FeedFilter
     showItem: (feedId: string, item: RSSItem) => void
     markRead: (item: RSSItem) => void
     markUnread: (item: RSSItem) => void
     toggleStarred: (item: RSSItem) => void
     toggleHidden: (item: RSSItem) => void
     switchView: (viewType: ViewType) => void
+    switchFilter: (filter: FeedFilter) => void
+    toggleFilter: (filter: FeedFilter) => void
     close: () => void
 }
 
@@ -101,20 +105,71 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
             ]
             case ContextMenuType.View: return [
                 {
-                    key: "cardView",
-                    text: "卡片视图",
-                    iconProps: { iconName: "GridViewMedium" },
-                    canCheck: true,
-                    checked: this.props.viewType === ViewType.Cards,
-                    onClick: () => this.props.switchView(ViewType.Cards)
+                    key: "section_1",
+                    itemType: ContextualMenuItemType.Section,
+                    sectionProps: {
+                        title: "视图",
+                        bottomDivider: true,
+                        items: [
+                            {
+                                key: "cardView",
+                                text: "卡片视图",
+                                iconProps: { iconName: "GridViewMedium" },
+                                canCheck: true,
+                                checked: this.props.viewType === ViewType.Cards,
+                                onClick: () => this.props.switchView(ViewType.Cards)
+                            },
+                            {
+                                key: "listView",
+                                text: "列表视图",
+                                iconProps: { iconName: "BacklogList" },
+                                canCheck: true,
+                                checked: this.props.viewType === ViewType.List,
+                                onClick: () => this.props.switchView(ViewType.List)
+                            },
+                        ]
+                    }
                 },
                 {
-                    key: "listView",
-                    text: "列表视图",
-                    iconProps: { iconName: "BacklogList" },
+                    key: "section_2",
+                    itemType: ContextualMenuItemType.Section,
+                    sectionProps: {
+                        title: "筛选",
+                        bottomDivider: true,
+                        items: [
+                            {
+                                key: "allArticles",
+                                text: "全部文章",
+                                iconProps: { iconName: "ClearFilter" },
+                                canCheck: true,
+                                checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.Default,
+                                onClick: () => this.props.switchFilter(FeedFilter.Default)
+                            },
+                            {
+                                key: "unreadOnly",
+                                text: "仅未读文章",
+                                iconProps: { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } },
+                                canCheck: true,
+                                checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.UnreadOnly,
+                                onClick: () => this.props.switchFilter(FeedFilter.UnreadOnly)
+                            },
+                            {
+                                key: "starredOnly",
+                                text: "仅星标文章",
+                                iconProps: { iconName: "FavoriteStarFill" },
+                                canCheck: true,
+                                checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.StarredOnly,
+                                onClick: () => this.props.switchFilter(FeedFilter.StarredOnly)
+                            }
+                        ]
+                    }
+                },
+                {
+                    key: "showHidden",
+                    text: "显示隐藏文章",
                     canCheck: true,
-                    checked: this.props.viewType === ViewType.List,
-                    onClick: () => this.props.switchView(ViewType.List)
+                    checked: Boolean(this.props.filter & FeedFilter.ShowHidden),
+                    onClick: () => this.props.toggleFilter(FeedFilter.ShowHidden)
                 }
             ]
             default: return []
