@@ -39,7 +39,7 @@ export class AppState {
     fetchingTotal = 0
     menu = getWindowBreakpoint()
     menuKey = ALL
-    title = "全部文章"
+    title = ""
     settings = {
         display: false,
         changed: false,
@@ -163,21 +163,27 @@ export const initIntlDone = (locale: string): InitIntlAction => ({
     locale: locale
 })
 
-export function initIntl(): AppThunk {
+export function initIntl(): AppThunk<Promise<void>> {
     return (dispatch) => {
         let locale = getCurrentLocale()
-        intl.init({
+        return intl.init({
             currentLocale: locale,
             locales: locales,
             fallbackLocale: "zh-CN"
-        }).then(() => dispatch(initIntlDone(locale)))
+        }).then(() => { dispatch(initIntlDone(locale)) })
     }
 }
 
 export function initApp(): AppThunk {
     return (dispatch) => {
-        dispatch(initSources()).then(() => dispatch(initFeeds())).then(() => dispatch(fetchItems()))
-        dispatch(initIntl())
+        dispatch(initIntl()).then(() =>
+            dispatch(initSources())
+        ).then(() => 
+            dispatch(initFeeds())
+        ).then(() => {
+            dispatch(selectAllArticles())
+            dispatch(fetchItems())
+        })
     }
 }
 
@@ -257,7 +263,7 @@ export function appReducer(
                         notify: !state.logMenu.display,
                         logs: [...state.logMenu.logs, new AppLog(
                             AppLogType.Failure,
-                            `无法加载订阅源“${action.errSource.name}”`,
+                            intl.get("log.fetchFailure", { name: action.errSource.name }),
                             String(action.err)
                         )]
                     }
@@ -270,7 +276,7 @@ export function appReducer(
                         ...state.logMenu,
                         logs: [...state.logMenu.logs, new AppLog(
                             AppLogType.Info,
-                            `成功加载 ${action.items.length} 篇文章`
+                            intl.get("log.fetchSuccess", { count: action.items.length })
                         )]
                     }
                 }
@@ -286,7 +292,7 @@ export function appReducer(
                     ...state,
                     menu: state.menu && action.keepMenu,
                     menuKey: ALL,
-                    title: "全部文章"
+                    title: intl.get("allArticles")
                 }
                 case PageType.Sources: return {
                     ...state,

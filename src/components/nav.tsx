@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { remote } from "electron"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AppState } from "../scripts/models/app"
@@ -76,25 +77,59 @@ class Nav extends React.Component<NavProps, NavState> {
         return (
             <nav className={this.hideButtons() + this.menuOn() + this.itemOn()}>
                 <div className="btn-group">
-                    <a className="btn hide-wide" title="菜单" onClick={this.props.menu}><Icon iconName="GlobalNavButton" /></a>
+                    <a className="btn hide-wide" 
+                        title={intl.get("nav.menu")} 
+                        onClick={this.props.menu}>
+                        <Icon iconName="GlobalNavButton" />
+                    </a>
                 </div>
                 <span className="title">{this.props.state.title}</span>
                 <div className="btn-group" style={{float:"right"}}>
-                    <a className={"btn"+this.fetching()} onClick={this.fetch} title="刷新"><Icon iconName="Refresh" /></a>
-                    <a className="btn" title="全部标为已读"><Icon iconName="InboxCheck" /></a>
-                    <a className="btn" id="log-toggle" title="消息" onClick={this.props.logs}>
+                    <a className={"btn"+this.fetching()} 
+                        onClick={this.fetch} 
+                        title={intl.get("nav.refresh")}>
+                        <Icon iconName="Refresh" />
+                    </a>
+                    <a className="btn" title={intl.get("nav.markAllRead")}>
+                        <Icon iconName="InboxCheck" />
+                    </a>
+                    <a className="btn" 
+                        id="log-toggle" 
+                        title={intl.get("nav.notifications")} 
+                        onClick={this.props.logs}>
                         {this.props.state.logMenu.notify ? <Icon iconName="RingerSolid" /> : <Icon iconName="Ringer" />}
                     </a>
-                    <a className="btn" id="view-toggle" title="视图" onClick={this.props.views} 
-                        onMouseDown={e => {if (this.props.state.contextMenu.event === "#view-toggle") e.stopPropagation()}}>
+                    <a className="btn" 
+                        id="view-toggle" 
+                        title={intl.get("nav.view")}
+                        onClick={this.props.views} 
+                        onMouseDown={e => {
+                            if (this.props.state.contextMenu.event === "#view-toggle") e.stopPropagation()}}>
                             <Icon iconName="View" /></a>
-                    <a className="btn" title="选项" onClick={this.props.settings}><Icon iconName="Settings" /></a>
-                    <span className="seperator"></span>
-                    <a className="btn system" title="最小化" onClick={this.minimize} style={{fontSize: 12}}><Icon iconName="Remove" /></a>
-                    <a className="btn system" title="最大化" onClick={this.maximize}>
-                        {this.state.maximized ? <Icon iconName="ChromeRestore" style={{fontSize: 11}} /> :<Icon iconName="Checkbox" style={{fontSize: 10}} />}
+                    <a className="btn" 
+                        title={intl.get("nav.settings")}
+                        onClick={this.props.settings}>
+                        <Icon iconName="Settings" />
                     </a>
-                    <a className="btn system close" title="关闭" onClick={this.close}><Icon iconName="Cancel" /></a>
+                    <span className="seperator"></span>
+                    <a className="btn system" 
+                        title={intl.get("nav.minimize")} 
+                        onClick={this.minimize} 
+                        style={{fontSize: 12}}>
+                        <Icon iconName="Remove" />
+                    </a>
+                    <a className="btn system" 
+                        title={intl.get("nav.maximize")} 
+                        onClick={this.maximize}>
+                        {this.state.maximized 
+                            ? <Icon iconName="ChromeRestore" style={{fontSize: 11}} /> 
+                            : <Icon iconName="Checkbox" style={{fontSize: 10}} />}
+                    </a>
+                    <a className="btn system close" 
+                        title={intl.get("close")}
+                        onClick={this.close}>
+                        <Icon iconName="Cancel" />
+                    </a>
                 </div>
                 {!this.canFetch() && 
                     <ProgressIndicator

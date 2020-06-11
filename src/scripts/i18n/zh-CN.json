@@ -7,6 +7,66 @@
     "openExternal": "在浏览器中打开",
     "emptyName": "名称不得为空",
     "followSystem": "跟随系统",
+    "more": "更多",
+    "close": "关闭",
+    "search": "搜索",
+    "loadMore": "加载更多",
+    "dangerButton": "确认{action}？",
+    "log": {
+        "empty": "无消息",
+        "fetchFailure": "无法加载订阅源“{name}”",
+        "fetchSuccess": "成功加载 {count} 篇文章"
+    },
+    "nav": {
+        "menu": "菜单",
+        "refresh": "刷新",
+        "markAllRead": "全部标为已读",
+        "notifications": "消息",
+        "view": "视图",
+        "settings": "选项",
+        "minimize": "最小化",
+        "maximize": "最大化"
+    },
+    "menu": {
+        "close": "关闭菜单",
+        "subscriptions": "订阅源"
+    },
+    "article": {
+        "hide": "隐藏文章",
+        "unhide": "取消隐藏",
+        "markRead": "标为已读",
+        "markUnread": "标为未读",
+        "star": "标为星标",
+        "unstar": "取消星标",
+        "fontSize": "字体大小",
+        "loadWebpage": "加载网页"
+    },
+    "context": {
+        "read": "阅读",
+        "copyTitle": "复制标题",
+        "copyURL": "复制链接",
+        "copy": "复制",
+        "search": "使用Google搜索“{text}”",
+        "view": "视图",
+        "cardView": "卡片视图",
+        "listView": "列表视图",
+        "filter": "筛选",
+        "unreadOnly": "仅未读文章",
+        "starredOnly": "仅星标文章",
+        "showHidden": "显示隐藏文章"
+    },
+    "settings": {
+        "name": "选项",
+        "fetching": "正在更新订阅源，请稍候…",
+        "exit": "退出选项",
+        "sources": "订阅源",
+        "grouping": "分组与排序",
+        "app": "应用偏好",
+        "about": "关于",
+        "version": "版本",
+        "openSource": "开源项目",
+        "feedback": "反馈"
+    },
     "sources": {
         "opmlFile": "OPML文件",
         "name": "订阅源名称",
@@ -22,6 +82,24 @@
         "badUrl": "请正确输入URL",
         "deleteWarning": "这将移除此订阅源与所有已保存的文章",
         "selected": "选中订阅源"
+    },
+    "groups": {
+        "type": "类型",
+        "group": "分组",
+        "source": "订阅源",
+        "capacity": "容量",
+        "exitGroup": "退出分组",
+        "deleteSource": "从分组删除订阅源",
+        "sourceHint": "拖拽订阅源以排序",
+        "create": "新建分组",
+        "selectedGroup": "选中分组",
+        "selectedSource": "选中订阅源",
+        "enterName": "输入名称",
+        "editName": "修改名称",
+        "deleteGroup": "删除分组",
+        "chooseGroup": "选择分组",
+        "addToGroup": "添加至分组",
+        "groupHint": "双击分组以修改订阅源，可通过拖拽排序"
     },
     "app": {
         "language": "界面语言",

@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { Callout, ActivityItem, Icon, DirectionalHint } from "@fluentui/react"
 import { AppLog, AppLogType } from "../scripts/models/app"
 import Time from "./utils/time"
@@ -29,7 +30,7 @@ class LogMenu extends React.Component<LogMenuProps> {
                 onDismiss={() => this.props.close()}
             >
                 { this.props.logs.length == 0 
-                ? <p style={{ textAlign: "center" }}>无消息</p>
+                ? <p style={{ textAlign: "center" }}>{intl.get("log.empty")}</p>
                 : this.activityItems().map((item => (
                     <ActivityItem {...item} key={item.key} style={{ margin: 12 }} />
                 ))) }

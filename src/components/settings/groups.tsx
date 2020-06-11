@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { SourceGroup } from "../../scripts/models/group"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
@@ -69,22 +70,22 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         })
     }
 
-    groupColumns: IColumn[] = [
+    groupColumns = (): IColumn[] => [
         {
             key: "type",
-            name: "类型",
+            name: intl.get("groups.type"),
             minWidth: 40,
             maxWidth: 40,
             data: "string",
             onRender: (g: SourceGroup) => <>
-                {g.isMultiple ? "分组" : "订阅源"}
+                {g.isMultiple ? intl.get("groups.group") : intl.get("groups.source")}
             </>
         },
         {
             key: "capacity",
-            name: "容量",
+            name: intl.get("groups.capacity"),
             minWidth: 40,
-            maxWidth: 40,
+            maxWidth: 60,
             data: "string",
             onRender: (g: SourceGroup) => <>
                 {g.isMultiple ? g.sids.length : ""}
@@ -92,7 +93,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         },
         {
             key: "name",
-            name: "名称",
+            name: intl.get("name"),
             minWidth: 200,
             data: "string",
             isRowHeader: true,
@@ -105,7 +106,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
     sourceColumns: IColumn[] = [
         {
             key: "favicon",
-            name: "图标",
+            name: intl.get("icon"),
             fieldName: "name",
             isIconOnly: true,
             iconName: "ImagePixel",
@@ -117,7 +118,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         },
         {
             key: "name",
-            name: "名称",
+            name: intl.get("name"),
             fieldName: "name",
             minWidth: 200,
             data: 'string',
@@ -252,11 +253,11 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
             <>
                 <Stack horizontal horizontalAlign="space-between" style={{height: 40}}>
                     <CommandBarButton 
-                        text="退出分组" 
+                        text={intl.get("groups.exitGroup")} 
                         iconProps={{iconName: "BackToWindow"}}
                         onClick={() => this.setState({manageGroup: false})} />
                     {this.state.selectedSources != null && <CommandBarButton 
-                        text="从分组删除订阅源" 
+                        text={intl.get("groups.deleteSource")} 
                         onClick={this.removeFromGroup}
                         iconProps={{iconName: "RemoveFromShoppingList", style: {color: "#d13438"}}} />}
                 </Stack>
@@ -272,18 +273,18 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         selectionMode={SelectionMode.multiple} />
                 </MarqueeSelection>
                 
-                <span className="settings-hint">拖拽订阅源以排序</span>
+                <span className="settings-hint">{intl.get("groups.sourceHint")}</span>
             </>}
             {(!this.state.manageGroup || !this.state.selectedGroup) 
             ?<>
                 <form onSubmit={this.createGroup}>
-                    <Label htmlFor="newGroupName">新建分组</Label>
+                    <Label htmlFor="newGroupName">{intl.get("groups.create")}</Label>
                     <Stack horizontal>
                         <Stack.Item grow>
                             <TextField 
-                                onGetErrorMessage={v => v.trim().length == 0 ? "名称不得为空" : ""} 
+                                onGetErrorMessage={v => v.trim().length == 0 ? intl.get("emptyName") : ""} 
                                 validateOnLoad={false} 
-                                placeholder="输入名称"
+                                placeholder={intl.get("groups.enterName")}
                                 value={this.state.newGroupName}
                                 id="newGroupName"
                                 name="newGroupName"
@@ -293,7 +294,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                             <PrimaryButton 
                                 disabled={this.state.newGroupName.length == 0}
                                 type="sumbit"
-                                text="新建" />
+                                text={intl.get("create")} />
                         </Stack.Item>
                     </Stack>
                 </form>
@@ -301,7 +302,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                 <DetailsList
                     compact={true}
                     items={this.props.groups} 
-                    columns={this.groupColumns}
+                    columns={this.groupColumns()}
                     setKey="selected"
                     onItemInvoked={this.manageGroup}
                     dragDropEvents={this.groupDragDropEvents}
@@ -311,13 +312,13 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                 {this.state.selectedGroup 
                 ? ( this.state.selectedGroup.isMultiple 
                     ?<>
-                        <Label>选中分组</Label>
+                        <Label>{intl.get("groups.selectedGroup")}</Label>
                         <Stack horizontal>
                             <Stack.Item grow>
                                 <TextField
-                                    onGetErrorMessage={v => v.trim().length == 0 ? "名称不得为空" : ""}
+                                    onGetErrorMessage={v => v.trim().length == 0 ? intl.get("emptyName") : ""}
                                     validateOnLoad={false}
-                                    placeholder="分组名称"
+                                    placeholder={intl.get("groups.enterName")}
                                     value={this.state.editGroupName}
                                     name="editGroupName"
                                     onChange={this.handleInputChange} />
@@ -326,22 +327,22 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                                 <DefaultButton
                                     disabled={this.state.editGroupName.length == 0}
                                     onClick={this.updateGroupName}
-                                    text="修改名称" />
+                                    text={intl.get("groups.editName")} />
                             </Stack.Item>
                             <Stack.Item>
                                 <DangerButton
                                     key={this.state.selectedGroup.index}
                                     onClick={this.deleteGroup}
-                                    text={`删除分组`} />
+                                    text={intl.get("groups.deleteGroup")} />
                             </Stack.Item>
                         </Stack>
                     </>
                     :<>
-                        <Label>选中订阅源</Label>
+                        <Label>{intl.get("groups.selectedSource")}</Label>
                         <Stack horizontal>
                             <Stack.Item grow>
                                 <Dropdown
-                                    placeholder="选择分组"
+                                    placeholder={intl.get("groups.chooseGroup")}
                                     selectedKey={this.state.dropdownIndex}
                                     options={this.dropdownOptions()}
                                     onChange={this.dropdownChange} />
@@ -350,12 +351,12 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                                 <DefaultButton
                                     disabled={this.state.dropdownIndex === null}
                                     onClick={this.addToGroup}
-                                    text="添加至分组" />
+                                    text={intl.get("groups.addToGroup")} />
                             </Stack.Item>
                         </Stack>
                     </>
                 )
-                : <span className="settings-hint">双击分组以修改订阅源，可通过拖拽排序</span>
+                : <span className="settings-hint">{intl.get("groups.groupHint")}</span>
                 }
             </> : null}
         </div>

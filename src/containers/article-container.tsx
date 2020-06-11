@@ -13,13 +13,15 @@ type ArticleContainerProps = {
 
 const getItem = (state: RootState, props: ArticleContainerProps) => state.items[props.itemId]
 const getSource = (state: RootState, props: ArticleContainerProps) => state.sources[state.items[props.itemId].source]
+const getLocale = (state: RootState) => state.app.locale
 
 const makeMapStateToProps = () => {
     return createSelector(
-        [getItem, getSource],
-        (item, source) => ({
+        [getItem, getSource, getLocale],
+        (item, source, locale) => ({
             item: item,
-            source: source
+            source: source,
+            locale: locale
         })
     )
 }

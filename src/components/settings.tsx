@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AnimationClassNames } from "@fluentui/react/lib/Styling"
 import AboutTab from "./settings/about"
@@ -23,24 +24,24 @@ class Settings extends React.Component<SettingsProps> {
         <div className="settings-container">
             <div className={"settings " + AnimationClassNames.slideUpIn20}>
                 {this.props.blocked && <div className="loading">
-                    <Spinner label="正在更新订阅源，请稍候…" />
+                    <Spinner label={intl.get("settings.fetching")} />
                 </div>}
                 <div className="btn-group" style={{position: "absolute", top: 6, left: -64}}>
-                    <a className={"btn" + (this.props.exitting ? " disabled" : "")} title="退出设置" onClick={this.props.close}>
+                    <a className={"btn" + (this.props.exitting ? " disabled" : "")} title={intl.get("settings.exit")} onClick={this.props.close}>
                         <Icon iconName="Back" />
                     </a>
                 </div>
                 <Pivot>
-                    <PivotItem headerText="订阅源" itemIcon="Source">
+                    <PivotItem headerText={intl.get("settings.sources")} itemIcon="Source">
                         <SourcesTabContainer />
                     </PivotItem>
-                    <PivotItem headerText="分组与排序" itemIcon="GroupList">
+                    <PivotItem headerText={intl.get("settings.grouping")} itemIcon="GroupList">
                         <GroupsTabContainer />
                     </PivotItem>
-                    <PivotItem headerText="应用选项" itemIcon="Settings">
+                    <PivotItem headerText={intl.get("settings.app")} itemIcon="Settings">
                         <AppTabContainer />
                     </PivotItem>
-                    <PivotItem headerText="关于" itemIcon="Info">
+                    <PivotItem headerText={intl.get("settings.about")} itemIcon="Info">
                         <AboutTab />
                     </PivotItem>
                 </Pivot>

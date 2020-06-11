@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { PrimaryButton } from "@fluentui/react";
 
 class DangerButton extends PrimaryButton {
@@ -35,7 +36,7 @@ class DangerButton extends PrimaryButton {
             {...this.props} 
             className={this.props.className + " danger"}
             onClick={this.onClick}
-            text={this.state.confirming ? `确认${this.props.text}?` : this.props.text}
+            text={this.state.confirming ? intl.get("dangerButton", { action: this.props.text.toLowerCase() }) : this.props.text}
         >
             {this.props.children}
         </PrimaryButton>

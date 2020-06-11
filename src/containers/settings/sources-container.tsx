@@ -1,3 +1,4 @@
+import intl = require("react-intl-universal")
 import { remote } from "electron"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
@@ -30,7 +31,7 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
             let path = remote.dialog.showOpenDialogSync(
                 remote.getCurrentWindow(),
                 {
-                    filters: [{ name: "OPML文件", extensions: ["xml", "opml"] }],
+                    filters: [{ name: intl.get("sources.opmlFile"), extensions: ["xml", "opml"] }],
                     properties: ["openFile"]
                 }
             )

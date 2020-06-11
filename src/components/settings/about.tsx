@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { Stack, Link } from "@fluentui/react"
 import { openExternal } from "../../scripts/utils"
 
@@ -8,11 +9,11 @@ class AboutTab extends React.Component {
             <Stack className="settings-about" horizontalAlign="center">
                 <img src="logo.svg" style={{width: 120, height: 120}} />
                 <h3>Fluent Reader</h3>
-                <small>版本 0.1.0</small>
+                <small>{intl.get("settings.version")} 0.1.0</small>
                 <p className="settings-hint">Copyright © 2020 Haoyuan Liu. All rights reserved.</p>
-                <Stack horizontal horizontalAlign="center" tokens={{childrenGap: 8}}>
-                    <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader")}>开源项目</Link></small>
-                    <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader/issues")}>反馈</Link></small>
+                <Stack horizontal horizontalAlign="center" tokens={{childrenGap: 12}}>
+                    <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader")}>{intl.get("settings.openSource")}</Link></small>
+                    <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader/issues")}>{intl.get("settings.feedback")}</Link></small>
                 </Stack>
             </Stack>
         </div>

@@ -5,8 +5,68 @@
     "icon": "Icon",
     "name": "Name",
     "openExternal": "Open externally",
-    "emptyName": "This field cannot be empty",
+    "emptyName": "This field cannot be empty.",
     "followSystem": "Follow system",
+    "more": "More",
+    "close": "Close",
+    "search": "Search",
+    "loadMore": "Load more",
+    "dangerButton": "Confirm {action}?",
+    "log": {
+        "empty": "No notifications",
+        "fetchFailure": "Failed to load source \"{name}\".",
+        "fetchSuccess": "Successfully fetched {count, plural, =1 {# article} other {# articles}}."
+    },
+    "nav": {
+        "menu": "Menu",
+        "refresh": "Refresh",
+        "markAllRead": "Mark all as read",
+        "notifications": "Notifications",
+        "view": "View",
+        "settings": "Settings",
+        "minimize": "Minimize",
+        "maximize": "Maximize"
+    },
+    "menu": {
+        "close": "Close menu",
+        "subscriptions": "Subscriptions"
+    },
+    "article": {
+        "hide": "Hide article",
+        "unhide": "Unhide article",
+        "markRead": "Mark as read",
+        "markUnread": "Mark as unread",
+        "star": "Star",
+        "unstar": "Remove star",
+        "fontSize": "Font size",
+        "loadWebpage": "Load webpage"
+    },
+    "context": {
+        "read": "Read",
+        "copyTitle": "Copy title",
+        "copyURL": "Copy link",
+        "copy": "Copy",
+        "search": "Search \"{text}\" on Google",
+        "view": "View",
+        "cardView": "Card view",
+        "listView": "List view",
+        "filter": "Filtering",
+        "unreadOnly": "Unread only",
+        "starredOnly": "Starred only",
+        "showHidden": "Show hidden articles"
+    },
+    "settings": {
+        "name": "Settings",
+        "fetching": "Updating sources, please wait …",
+        "exit": "Exit settings",
+        "sources": "Sources",
+        "grouping": "Grouping",
+        "app": "Preferences",
+        "about": "About",
+        "version": "Version",
+        "openSource": "Open source",
+        "feedback": "Feedback"
+    },
     "sources": {
         "opmlFile": "OPML File",
         "name": "Source name",
@@ -20,8 +80,26 @@
         "loadWebpage": "Load webpage",
         "inputUrl": "Enter URL",
         "badUrl": "Invalid URL",
-        "deleteWarning": "The source and all saved articles will be removed",
+        "deleteWarning": "The source and all saved articles will be removed.",
         "selected": "Selected source"
+    },
+    "groups": {
+        "type": "Type",
+        "group": "Group",
+        "source": "Source",
+        "capacity": "Capacity",
+        "exitGroup": "Back to groups",
+        "deleteSource": "Delete from group",
+        "sourceHint": "Drag and drop sources to reorder.",
+        "create": "Create group",
+        "selectedGroup": "Selected group",
+        "selectedSource": "Selected source",
+        "enterName": "Enter name",
+        "editName": "Edit name",
+        "deleteGroup": "Delete group",
+        "chooseGroup": "Select a group",
+        "addToGroup": "Add to ...",
+        "groupHint": "Double click on group to edit sources. Drag and drop to reorder."
     },
     "app": {
         "language": "Display language",

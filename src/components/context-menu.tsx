@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { clipboard } from "electron"
 import { openExternal, cutText, googleSearch } from "../scripts/utils"
 import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, DirectionalHint } from "office-ui-fabric-react/lib/ContextualMenu"
@@ -34,7 +35,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
             case ContextMenuType.Item: return [
                 {
                     key: "showItem",
-                    text: "阅读",
+                    text: intl.get("context.read"),
                     iconProps: { iconName: "TextDocument" },
                     onClick: () => {
                         this.props.markRead(this.props.item)
@@ -43,7 +44,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 },
                 {
                     key: "openInBrowser",
-                    text: "在浏览器中打开",
+                    text: intl.get("openExternal"),
                     iconProps: { iconName: "NavigateExternalInline" },
                     onClick: () => {
                         this.props.markRead(this.props.item)
@@ -53,25 +54,25 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 this.props.item.hasRead
                 ? {
                     key: "markAsUnread",
-                    text: "标为未读",
+                    text: intl.get("article.markUnread"),
                     iconProps: { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } },
                     onClick: () => { this.props.markUnread(this.props.item) }
                 }
                 : {
                     key: "markAsRead",
-                    text: "标为已读",
+                    text: intl.get("article.markRead"),
                     iconProps: { iconName: "StatusCircleRing" },
                     onClick: () => { this.props.markRead(this.props.item) }
                 },
                 {
                     key: "toggleStarred",
-                    text:　this.props.item.starred ? "取消星标" : "标为星标",
+                    text:　this.props.item.starred ? intl.get("article.unstar") : intl.get("article.star"),
                     iconProps: { iconName: this.props.item.starred ? "FavoriteStar" : "FavoriteStarFill" },
                     onClick: () => { this.props.toggleStarred(this.props.item) }
                 },
                 {
                     key: "toggleHidden",
-                    text:　this.props.item.hidden ? "取消隐藏" : "隐藏文章",
+                    text:　this.props.item.hidden ? intl.get("article.unhide") : intl.get("article.hide"),
                     onClick: () => { this.props.toggleHidden(this.props.item) }
                 },
                 {
@@ -80,25 +81,25 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 },
                 {
                     key: "copyTitle",
-                    text: "复制标题",
+                    text: intl.get("context.copyTitle"),
                     onClick: () => { clipboard.writeText(this.props.item.title) }
                 },
                 {
                     key: "copyURL",
-                    text: "复制链接",
+                    text: intl.get("context.copyURL"),
                     onClick: () => { clipboard.writeText(this.props.item.link) }
                 }
             ]
             case ContextMenuType.Text: return [
                 {
                     key: "copyText",
-                    text: "复制",
+                    text: intl.get("context.copy"),
                     iconProps: { iconName: "Copy" },
                     onClick: () => { clipboard.writeText(this.props.text) }
                 },
                 {
                     key: "searchText",
-                    text: `使用Google搜索“${cutText(this.props.text, 15)}”`,
+                    text: intl.get("context.search", { text: cutText(this.props.text, 15) }),
                     iconProps: { iconName: "Search" },
                     onClick: () => { googleSearch(this.props.text) }
                 }
@@ -108,12 +109,12 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     key: "section_1",
                     itemType: ContextualMenuItemType.Section,
                     sectionProps: {
-                        title: "视图",
+                        title: intl.get("context.view"),
                         bottomDivider: true,
                         items: [
                             {
                                 key: "cardView",
-                                text: "卡片视图",
+                                text: intl.get("context.cardView"),
                                 iconProps: { iconName: "GridViewMedium" },
                                 canCheck: true,
                                 checked: this.props.viewType === ViewType.Cards,
@@ -121,7 +122,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                             },
                             {
                                 key: "listView",
-                                text: "列表视图",
+                                text: intl.get("context.listView"),
                                 iconProps: { iconName: "BacklogList" },
                                 canCheck: true,
                                 checked: this.props.viewType === ViewType.List,
@@ -134,12 +135,12 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     key: "section_2",
                     itemType: ContextualMenuItemType.Section,
                     sectionProps: {
-                        title: "筛选",
+                        title: intl.get("context.filter"),
                         bottomDivider: true,
                         items: [
                             {
                                 key: "allArticles",
-                                text: "全部文章",
+                                text: intl.get("allArticles"),
                                 iconProps: { iconName: "ClearFilter" },
                                 canCheck: true,
                                 checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.Default,
@@ -147,7 +148,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                             },
                             {
                                 key: "unreadOnly",
-                                text: "仅未读文章",
+                                text: intl.get("context.unreadOnly"),
                                 iconProps: { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } },
                                 canCheck: true,
                                 checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.UnreadOnly,
@@ -155,7 +156,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                             },
                             {
                                 key: "starredOnly",
-                                text: "仅星标文章",
+                                text: intl.get("context.starredOnly"),
                                 iconProps: { iconName: "FavoriteStarFill" },
                                 canCheck: true,
                                 checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.StarredOnly,
@@ -166,7 +167,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 },
                 {
                     key: "showHidden",
-                    text: "显示隐藏文章",
+                    text: intl.get("context.showHidden"),
                     canCheck: true,
                     checked: Boolean(this.props.filter & FeedFilter.ShowHidden),
                     onClick: () => this.props.toggleFilter(FeedFilter.ShowHidden)

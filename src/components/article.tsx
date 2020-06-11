@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
 import { openExternal } from "../scripts/utils"
@@ -11,6 +12,7 @@ const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 type ArticleProps = {
     item: RSSItem
     source: RSSSource
+    locale: string
     dismiss: () => void
     toggleHasRead: (item: RSSItem) => void
     toggleStarred: (item: RSSItem) => void
@@ -57,13 +59,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         items: [
             {
                 key: "openInBrowser",
-                text: "在浏览器中打开",
+                text: intl.get("openExternal"),
                 iconProps: {iconName: "NavigateExternalInline"},
                 onClick: this.openInBrowser
             },
             {
                 key: "toggleHidden",
-                text:　this.props.item.hidden ? "取消隐藏" : "隐藏文章",
+                text:　this.props.item.hidden ? intl.get("article.unhide") : intl.get("article.hide"),
                 onClick: () => { this.props.toggleHidden(this.props.item) }
             }
         ]
@@ -128,7 +130,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
 
     articleView = () => "article/article.html?h=" + window.btoa(encodeURIComponent(renderToString(<>
         <p className="title">{this.props.item.title}</p>
-        <p className="date">{this.props.item.date.toLocaleString("zh-cn", {hour12: false})}</p>
+        <p className="date">{this.props.item.date.toLocaleString(this.props.locale, {hour12: !this.props.locale.startsWith("zh")})}</p>
         <article dangerouslySetInnerHTML={{__html: this.props.item.content}}></article>
     </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}&d=${Number(document.body.classList.contains("dark"))}`
     
@@ -144,35 +146,35 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         </span>
                     </Stack.Item>
                     <CommandBarButton
-                        title={this.props.item.hasRead ? "标为未读" : "标为已读"}
+                        title={this.props.item.hasRead ? intl.get("article.markUnread") : intl.get("article.markRead")}
                         iconProps={this.props.item.hasRead 
                             ? {iconName: "StatusCircleRing"}
                             : {iconName: "RadioBtnOn", style: {fontSize: 14, textAlign: "center"}}}
                         onClick={() => this.props.toggleHasRead(this.props.item)} />
                     <CommandBarButton
-                        title={this.props.item.starred ? "取消星标" : "标为星标"}
+                        title={this.props.item.starred ? intl.get("article.unstar") : intl.get("article.star")}
                         iconProps={{iconName: this.props.item.starred ? "FavoriteStarFill" : "FavoriteStar"}}
                         onClick={() => this.props.toggleStarred(this.props.item)} />
                     <CommandBarButton
-                        title="字体大小"
+                        title={intl.get("article.fontSize")}
                         disabled={this.state.loadWebpage}
                         iconProps={{iconName: "FontSize"}}
                         menuIconProps={{style: {display: "none"}}}
                         menuProps={this.fontMenuProps()} />
                     <CommandBarButton
-                        title="加载网页"
+                        title={intl.get("article.loadWebpage")}
                         className={this.state.loadWebpage ? "active" : ""}
                         iconProps={{iconName: "Globe"}} 
                         onClick={this.toggleWebpage} />
                     <CommandBarButton
-                        title="更多"
+                        title={intl.get("more")}
                         iconProps={{iconName: "More"}}
                         menuIconProps={{style: {display: "none"}}}
                         menuProps={this.moreMenuProps()} />
                 </Stack>
                 <Stack horizontal horizontalAlign="end" style={{width: 112}}>
                     <CommandBarButton
-                        title="关闭"
+                        title={intl.get("close")}
                         iconProps={{iconName: "BackToWindow"}}
                         onClick={this.props.dismiss} />
                 </Stack>  

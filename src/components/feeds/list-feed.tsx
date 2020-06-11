@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { FeedProps } from "./feed"
 import { DefaultButton } from 'office-ui-fabric-react';
 import ListCard from "../cards/list-card";
@@ -22,7 +23,7 @@ class ListFeed extends React.Component<FeedProps> {
                 {
                     (this.props.feed.loaded && !this.props.feed.allLoaded)
                     ? <div className="load-more-wrapper"><DefaultButton 
-                        text="加载更多" 
+                        text={intl.get("loadMore")} 
                         disabled={this.props.feed.loading}
                         onClick={() => this.props.loadMore(this.props.feed)} /></div>
                     : null
