@@ -6,14 +6,23 @@ html {
 }
 body {
     margin: 12px 96px 32px;
+    --gray: #484644;
+    --primary: #0078d4;
+    --primary-alt: #004578;
+}
+body.dark {
+    color: #f8f8f8;
+    --gray: #a19f9d;
+    --primary: #3a96dd;
+    --primary-alt: #4ba0e1;
 }
 
 a {
-    color: #0078d4;
+    color: var(--primary);
     text-decoration: none;
 }
 a:hover, a:active {
-    color: #004578;
+    color: var(--primary-alt);
     text-decoration: underline;
 }
 
@@ -28,7 +37,7 @@ a:hover, a:active {
     margin-block-end: 0;
 }
 #main > p.date {
-    color: #484644;
+    color: var(--gray);
     font-size: .875rem;
 }
 
@@ -47,6 +56,6 @@ article figure {
 }
 article figure figcaption {
     font-size: .875rem;
-    color: #484644;
+    color: var(--gray);
     -webkit-user-modify: read-only;
 }

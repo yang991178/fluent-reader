@@ -5,7 +5,7 @@ import AboutTab from "./settings/about"
 import { Pivot, PivotItem, Spinner } from "@fluentui/react"
 import SourcesTabContainer from "../containers/settings/sources-container"
 import GroupsTabContainer from "../containers/settings/groups-container"
-import ProxyTab from "./settings/proxy"
+import AppTab from "./settings/app"
 
 type SettingsProps = {
     display: boolean,
@@ -37,8 +37,8 @@ class Settings extends React.Component<SettingsProps> {
                     <PivotItem headerText="分组与排序" itemIcon="GroupList">
                         <GroupsTabContainer />
                     </PivotItem>
-                    <PivotItem headerText="代理" itemIcon="Globe">
-                        <ProxyTab />
+                    <PivotItem headerText="应用选项" itemIcon="Settings">
+                        <AppTab />
                     </PivotItem>
                     <PivotItem headerText="关于" itemIcon="Info">
                         <AboutTab />

@@ -15,6 +15,7 @@ for (let i of dom.querySelectorAll("img")) {
 for (let s of dom.querySelectorAll("script")) {
     s.parentNode.removeChild(s)
 }
+if (get("d") === "1") document.body.classList.add("dark")
 let main = document.getElementById("main")
 main.innerHTML = dom.body.innerHTML
 document.addEventListener("click", event => {

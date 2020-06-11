@@ -5,7 +5,7 @@ import { ContextMenuType, closeContextMenu } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
 import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden } from "../scripts/models/item"
 import { showItem, switchView, ViewType, switchFilter, toggleFilter } from "../scripts/models/page"
-import { setDefaultView } from "../scripts/utils"
+import { setDefaultView } from "../scripts/settings"
 import { FeedFilter } from "../scripts/models/feed"
 
 const getContext = (state: RootState) => state.app.contextMenu

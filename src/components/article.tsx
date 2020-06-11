@@ -130,7 +130,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         <p className="title">{this.props.item.title}</p>
         <p className="date">{this.props.item.date.toLocaleString("zh-cn", {hour12: false})}</p>
         <article dangerouslySetInnerHTML={{__html: this.props.item.content}}></article>
-    </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}`
+    </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}&d=${Number(document.body.classList.contains("dark"))}`
     
     render = () => (
         <div className="article">

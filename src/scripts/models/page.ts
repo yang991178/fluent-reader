@@ -1,5 +1,6 @@
 import { ALL, SOURCE, loadMore, FeedFilter, initFeeds } from "./feed"
-import { getWindowBreakpoint, AppThunk, getDefaultView } from "../utils"
+import { getWindowBreakpoint, AppThunk } from "../utils"
+import { getDefaultView } from "../settings"
 import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
 

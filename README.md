@@ -18,11 +18,10 @@ npm run build
 # Start the application
 npm run electron
 
+# Generate certificate for signature
+electron-builder create-self-signed-cert
 # Package the app for Windows
 npm run package-win
-# Generate certificate and sign the appx package
-electron-builder create-self-signed-cert
-signtool sign /fd SHA256 /a /f XXX.pfx "Fluent Reader X.X.X.appx"
 
 ```
 

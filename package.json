@@ -21,14 +21,21 @@
       "output": "./bin/"
     },
     "win": {
-      "target": ["nsis", "appx"]
+      "target": [
+        "nsis",
+        "appx"
+      ],
+      "certificateFile": "./bin/key.pfx"
     },
     "appx": {
       "applicationId": "FluentReader",
       "identityName": "25286HaoyuanLiu.FluentReader",
       "publisher": "CN=FD70E7FA-E5AC-41C4-B9C4-6E8708A6616A",
       "backgroundColor": "transparent",
-      "languages": ["zh-CN", "en-US"],
+      "languages": [
+        "zh-CN",
+        "en-US"
+      ],
       "showNameOnTiles": true,
       "setBuildNumber": true
     }
@@ -47,6 +54,7 @@
     "electron": "^8.3.0",
     "electron-builder": "^22.7.0",
     "electron-react-devtools": "^0.5.3",
+    "electron-store": "^5.2.0",
     "electron-window-state": "^5.0.3",
     "favicon": "0.0.2",
     "html-webpack-plugin": "^4.3.0",

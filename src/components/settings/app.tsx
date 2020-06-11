@@ -1,11 +1,19 @@
 import * as React from "react"
-import { getProxy, urlTest, getProxyStatus, toggleProxyStatus, setProxy } from "../../scripts/utils"
-import { Stack, Label, Toggle, TextField, DefaultButton } from "@fluentui/react"
+import { urlTest } from "../../scripts/utils"
+import { getProxy, getProxyStatus, toggleProxyStatus, setProxy, getThemeSettings, setThemeSettings, ThemeSettings } from "../../scripts/settings"
+import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme } from "@fluentui/react"
 
-class ProxyTab extends React.Component {
+const themeChoices: IChoiceGroupOption[] = [
+    { key: ThemeSettings.Default, text: "系统默认" },
+    { key: ThemeSettings.Light, text: "浅色模式" },
+    { key: ThemeSettings.Dark, text: "深色模式" }
+]
+
+class AppTab extends React.Component {
     state = {
         pacStatus: getProxyStatus(),
-        pacUrl: getProxy() 
+        pacUrl: getProxy(),
+        themeSettings: getThemeSettings()
     }
 
     toggleStatus = () => {
@@ -24,6 +32,11 @@ class ProxyTab extends React.Component {
     setUrl = (event: React.FormEvent) => {
         event.preventDefault()
         if (urlTest(this.state.pacUrl)) setProxy(this.state.pacUrl)
+    }
+
+    onThemeChange = (_, option: IChoiceGroupOption) => {
+        setThemeSettings(option.key as ThemeSettings)
+        this.setState({ themeSettings: option.key })
     }
 
     render = () => (
@@ -55,8 +68,14 @@ class ProxyTab extends React.Component {
                     </Stack.Item>
                 </Stack>
             </form>}
+
+            <ChoiceGroup
+                label="应用主题"
+                options={themeChoices}
+                onChange={this.onThemeChange}
+                selectedKey={this.state.themeSettings} />
         </div>
     )
 }
 
-export default ProxyTab
+export default AppTab

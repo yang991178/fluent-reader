@@ -1,7 +1,9 @@
-import { app, ipcMain, BrowserWindow, Menu } from "electron"
+import { app, ipcMain, BrowserWindow, Menu, nativeTheme } from "electron"
 import windowStateKeeper = require("electron-window-state")
+import Store = require('electron-store');
 
 let mainWindow: BrowserWindow
+const store = new Store()
 
 function createWindow() {
     let mainWindowState = windowStateKeeper({
@@ -11,7 +13,7 @@ function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
         title: "Fluent Reader",
-        backgroundColor: "#faf9f8",
+        backgroundColor: shouldUseDarkColors() ? "#282828" : "#faf9f8",
         x: mainWindowState.x,
         y: mainWindowState.y,
         width: mainWindowState.width,
@@ -47,3 +49,15 @@ app.on('activate', function () {
         createWindow()
     }
 })
+
+ipcMain.on("set-theme", (_, theme) => {
+    store.set("theme", theme)
+    nativeTheme.themeSource = theme
+})
+
+function shouldUseDarkColors() {
+    let option = store.get("theme", "system")
+    return option === "system"
+        ? nativeTheme.shouldUseDarkColors
+        : option === "dark"
+}

@@ -6,7 +6,6 @@ import CardInfo from "./info"
 class ListCard extends Card {
     className = () => {
         let cn = ["list-card", AnimationClassNames.slideUpIn10]
-        if (this.props.item.snippet && this.props.item.thumb) cn.push("transform")
         if (this.props.item.hidden) cn.push("hidden")
         return cn.join(" ")
     }
