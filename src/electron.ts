@@ -1,9 +1,10 @@
 import { app, ipcMain, BrowserWindow, Menu, nativeTheme } from "electron"
 import windowStateKeeper = require("electron-window-state")
-import Store = require('electron-store');
+import Store = require("electron-store")
 
 let mainWindow: BrowserWindow
 const store = new Store()
+nativeTheme.themeSource = store.get("theme", "system")
 
 function createWindow() {
     let mainWindowState = windowStateKeeper({
@@ -13,7 +14,7 @@ function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
         title: "Fluent Reader",
-        backgroundColor: shouldUseDarkColors() ? "#282828" : "#faf9f8",
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#282828" : "#faf9f8",
         x: mainWindowState.x,
         y: mainWindowState.y,
         width: mainWindowState.width,
@@ -22,15 +23,20 @@ function createWindow() {
         minHeight: 600,
         frame: false,
         fullscreenable: false,
+        show: false,
         webPreferences: {
             nodeIntegration: true,
             webviewTag: true
         }
     })
     mainWindowState.manage(mainWindow)
+    mainWindow.on('ready-to-show', () => {
+        mainWindow.show()
+        mainWindow.focus()
+        mainWindow.webContents.openDevTools()
+    });
     // and load the index.html of the app.
     mainWindow.loadFile((app.isPackaged ? "dist/" : "") + 'index.html')
-    mainWindow.webContents.openDevTools()
 }
 
 Menu.setApplicationMenu(null)
@@ -54,10 +60,3 @@ ipcMain.on("set-theme", (_, theme) => {
     store.set("theme", theme)
     nativeTheme.themeSource = theme
 })
-
-function shouldUseDarkColors() {
-    let option = store.get("theme", "system")
-    return option === "system"
-        ? nativeTheme.shouldUseDarkColors
-        : option === "dark"
-}

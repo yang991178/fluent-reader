@@ -13,8 +13,8 @@ body {
 body.dark {
     color: #f8f8f8;
     --gray: #a19f9d;
-    --primary: #3a96dd;
-    --primary-alt: #4ba0e1;
+    --primary: #4ba0e1;
+    --primary-alt: #65aee6;
 }
 
 a {

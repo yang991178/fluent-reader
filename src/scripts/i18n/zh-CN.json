@@ -1,0 +1,36 @@
+{
+    "allArticles": "全部文章",
+    "add": "添加",
+    "create": "新建",
+    "icon": "图标",
+    "name": "名称",
+    "openExternal": "在浏览器中打开",
+    "emptyName": "名称不得为空",
+    "followSystem": "跟随系统",
+    "sources": {
+        "opmlFile": "OPML文件",
+        "name": "订阅源名称",
+        "editName": "修改名称",
+        "openTarget": "订阅源文章打开方式",
+        "delete": "删除订阅源",
+        "add": "添加订阅源",
+        "import": "导入文件",
+        "export": "导出文件",
+        "rssText": "RSS正文",
+        "loadWebpage": "加载网页",
+        "inputUrl": "输入URL",
+        "badUrl": "请正确输入URL",
+        "deleteWarning": "这将移除此订阅源与所有已保存的文章",
+        "selected": "选中订阅源"
+    },
+    "app": {
+        "language": "界面语言",
+        "theme": "应用主题",
+        "lightTheme": "浅色模式",
+        "darkTheme": "深色模式",
+        "enableProxy": "启用代理",
+        "badUrl": "请正确输入URL",
+        "pac": "PAC地址",
+        "setPac": "设置PAC"
+    }
+}

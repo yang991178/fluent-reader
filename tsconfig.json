@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
       "jsx": "react",
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
       "target": "ES2019",
       "module": "CommonJS"
     }

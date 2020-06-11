@@ -1,4 +1,5 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { Label, DefaultButton, TextField, Stack, PrimaryButton, DetailsList, 
     IColumn, SelectionMode, Selection, IChoiceGroupOption, ChoiceGroup } from "@fluentui/react"
 import { SourceState, RSSSource, SourceOpenTarget } from "../../scripts/models/source"
@@ -19,42 +20,6 @@ type SourcesTabState = {
 } & {
     selectedSource: RSSSource
 }
-
-const columns: IColumn[] = [
-    {
-        key: "favicon",
-        name: "图标",
-        fieldName: "name",
-        isIconOnly: true,
-        iconName: "ImagePixel",
-        minWidth: 16,
-        maxWidth: 16,
-        onRender: (s: RSSSource) => s.iconurl && (
-            <img src={s.iconurl} className="favicon" />
-        )
-    },
-    {
-        key: "name",
-        name: "名称",
-        fieldName: "name",
-        minWidth: 200,
-        data: 'string',
-        isRowHeader: true
-    },
-    {
-        key: "url",
-        name: "URL",
-        fieldName: "url",
-        minWidth: 280,
-        data: 'string'
-    }
-]
-
-const sourceOpenTargetChoices: IChoiceGroupOption[] = [
-    { key: String(SourceOpenTarget.Local), text: "RSS正文" },
-    { key: String(SourceOpenTarget.Webpage), text: "加载网页" },
-    { key: String(SourceOpenTarget.External), text: "在浏览器中打开" }
-]
 
 class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
     selection: Selection
@@ -78,6 +43,42 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
         })
     }
 
+    columns = (): IColumn[] => [
+        {
+            key: "favicon",
+            name: intl.get("icon"),
+            fieldName: "name",
+            isIconOnly: true,
+            iconName: "ImagePixel",
+            minWidth: 16,
+            maxWidth: 16,
+            onRender: (s: RSSSource) => s.iconurl && (
+                <img src={s.iconurl} className="favicon" />
+            )
+        },
+        {
+            key: "name",
+            name: intl.get("name"),
+            fieldName: "name",
+            minWidth: 200,
+            data: 'string',
+            isRowHeader: true
+        },
+        {
+            key: "url",
+            name: "URL",
+            fieldName: "url",
+            minWidth: 280,
+            data: 'string'
+        }
+    ]
+
+    sourceOpenTargetChoices = (): IChoiceGroupOption[] => [
+        { key: String(SourceOpenTarget.Local), text: intl.get("sources.rssText") },
+        { key: String(SourceOpenTarget.Webpage), text: intl.get("sources.loadWebpage") },
+        { key: String(SourceOpenTarget.External), text: intl.get("openExternal") }
+    ]
+
     handleInputChange = (event) => {
         const name: string = event.target.name
         this.setState({[name]: event.target.value.trim()})
@@ -96,24 +97,24 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
 
     render = () => (
         <div className="tab-body">
-            <Label>OPML文件</Label>
+            <Label>{intl.get("sources.opmlFile")}</Label>
             <Stack horizontal>
                 <Stack.Item>
-                    <PrimaryButton onClick={this.props.importOPML} text="导入文件" />
+                    <PrimaryButton onClick={this.props.importOPML} text={intl.get("sources.import")} />
                 </Stack.Item>
                 <Stack.Item>
-                    <DefaultButton text="导出文件" />
+                    <DefaultButton text={intl.get("sources.export")} />
                 </Stack.Item>
             </Stack>
 
             <form onSubmit={this.addSource}>
-                <Label htmlFor="newUrl">添加订阅源</Label>
+            <Label htmlFor="newUrl">{intl.get("sources.add")}</Label>
                 <Stack horizontal>
                     <Stack.Item grow>
                         <TextField 
-                            onGetErrorMessage={v => urlTest(v.trim()) ? "" : "请正确输入URL"} 
+                            onGetErrorMessage={v => urlTest(v.trim()) ? "" : intl.get("sources.badUrl")} 
                             validateOnLoad={false} 
-                            placeholder="输入URL"
+                            placeholder={intl.get("sources.inputUrl")}
                             value={this.state.newUrl}
                             id="newUrl"
                             name="newUrl"
@@ -123,27 +124,27 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                         <PrimaryButton 
                             disabled={!urlTest(this.state.newUrl)}
                             type="submit"
-                            text="添加" />
+                            text={intl.get("add")} />
                     </Stack.Item>
                 </Stack>
             </form>
 
             <DetailsList
                 items={Object.values(this.props.sources)} 
-                columns={columns}
+                columns={this.columns()}
                 getKey={s => s.sid}
                 setKey="selected"
                 selection={this.selection}
                 selectionMode={SelectionMode.single} />
 
             {this.state.selectedSource && <>
-                <Label>选中订阅源</Label>
+                <Label>{intl.get("sources.selected")}</Label>
                 <Stack horizontal>
                     <Stack.Item grow>
                         <TextField
-                            onGetErrorMessage={v => v.trim().length == 0 ? "名称不得为空" : ""}
+                            onGetErrorMessage={v => v.trim().length == 0 ? intl.get("emptyName") : ""}
                             validateOnLoad={false}
-                            placeholder="订阅源名称"
+                            placeholder={intl.get("sources.name")}
                             value={this.state.newSourceName}
                             name="newSourceName"
                             onChange={this.handleInputChange} />
@@ -152,23 +153,23 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                         <DefaultButton
                             disabled={this.state.newSourceName.length == 0}
                             onClick={() => this.props.updateSourceName(this.state.selectedSource, this.state.newSourceName)}
-                            text="修改名称" />
+                            text={intl.get("sources.editName")} />
                     </Stack.Item>
                 </Stack>
                 <ChoiceGroup 
-                    label="订阅源文章打开方式" 
-                    options={sourceOpenTargetChoices}
+                    label={intl.get("sources.openTarget")} 
+                    options={this.sourceOpenTargetChoices()}
                     selectedKey={String(this.state.selectedSource.openTarget)}
                     onChange={this.onOpenTargetChange} />
-                <Stack horizontal style={{marginTop: 24}}>
+                <Stack horizontal>
                     <Stack.Item>
                         <DangerButton
                             onClick={() => this.props.deleteSource(this.state.selectedSource)}
                             key={this.state.selectedSource.sid}
-                            text={`删除订阅源`} />
+                            text={intl.get("sources.delete")} />
                     </Stack.Item>
                     <Stack.Item>
-                        <span className="settings-hint">这将移除此订阅源与所有已保存的文章</span>
+                        <span className="settings-hint">{intl.get("sources.deleteWarning")}</span>
                     </Stack.Item>
                 </Stack>
             </>}

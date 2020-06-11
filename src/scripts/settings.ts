@@ -1,6 +1,7 @@
 import { remote, ipcRenderer } from "electron"
 import { ViewType } from "./models/page"
 import { IPartialTheme, loadTheme } from "@fluentui/react"
+import locales from "./i18n/_locales"
 
 const PAC_STORE_KEY = "PAC"
 const PAC_STATUS_KEY = "PAC_ON"
@@ -95,6 +96,20 @@ export function applyThemeSettings() {
     } else { 
         document.body.classList.remove("dark")
     }
+}
+
+const LOCALE_STORE_KEY = "locale"
+export function setLocaleSettings(option: string) {
+    localStorage.setItem(LOCALE_STORE_KEY, option)
+}
+export function getLocaleSettings() {
+    let stored = localStorage.getItem(LOCALE_STORE_KEY)
+    return stored === null ? "default" : stored
+}
+export function getCurrentLocale() {
+    let set = getLocaleSettings()
+    let locale = set === "default" ? remote.app.getLocale() : set
+    return (locale in locales) ? locale : "en-US"
 }
 
 export const STORE_KEYS = [

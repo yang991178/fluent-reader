@@ -36,6 +36,7 @@ body.dark {
 }
 
 html, body {
+    background-color: transparent;
     font-family: "Segoe UI Regular", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
     height: 100%;
     overflow: hidden;
@@ -94,7 +95,7 @@ i.ms-Nav-chevron {
 .ms-Label, .ms-Spinner-label {
     user-select: none;
 }
-.ms-ActivityItem {
+.ms-ActivityItem, .ms-ActivityItem-commentText {
     color: var(--neutralSecondary);
 }
 .ms-ActivityItem-timeStamp {
@@ -192,7 +193,7 @@ body.dark .btn-group .btn:active {
     background-color: #fff2;
 }
 .btn-group .btn.disabled, .btn-group .btn.fetching {
-    background-color: unset;
+    background-color: unset !important;
     color: var(--neutralSecondaryAlt);
 }
 .btn-group .btn.fetching {
@@ -296,6 +297,9 @@ body.dark .settings .loading {
 }
 .tab-body .ms-StackItem:last-child {
     margin-right: 0;
+}
+.tab-body .ms-ChoiceFieldGroup {
+    margin-bottom: 20px;
 }
 img.favicon {
     width: 16px;

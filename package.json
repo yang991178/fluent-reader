@@ -62,6 +62,7 @@
     "pac-proxy-agent": "^4.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-intl-universal": "^2.2.5",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "redux-devtools": "^3.5.0",

@@ -1,0 +1,36 @@
+{
+    "allArticles": "All articles",
+    "add": "Add",
+    "create": "Create",
+    "icon": "Icon",
+    "name": "Name",
+    "openExternal": "Open externally",
+    "emptyName": "This field cannot be empty",
+    "followSystem": "Follow system",
+    "sources": {
+        "opmlFile": "OPML File",
+        "name": "Source name",
+        "editName": "Edit name",
+        "openTarget": "Default open target for articles",
+        "delete": "Delete source",
+        "add": "Add source",
+        "import": "Import",
+        "export": "Export",
+        "rssText": "RSS full text",
+        "loadWebpage": "Load webpage",
+        "inputUrl": "Enter URL",
+        "badUrl": "Invalid URL",
+        "deleteWarning": "The source and all saved articles will be removed",
+        "selected": "Selected source"
+    },
+    "app": {
+        "language": "Display language",
+        "theme": "Theme",
+        "lightTheme": "Light mode",
+        "darkTheme": "Dark mode",
+        "enableProxy": "Enable Proxy",
+        "badUrl": "Invalid URL",
+        "pac": "PAC Address",
+        "setPac": "Set PAC"
+    }
+}

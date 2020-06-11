@@ -1,9 +1,12 @@
-import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE } from "./source"
-import { RSSItem, ItemActionTypes, FETCH_ITEMS } from "./item"
+import intl = require("react-intl-universal")
+import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources } from "./source"
+import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
 import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP } from "./group"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
+import { getCurrentLocale, setLocaleSettings } from "../settings"
+import locales from "../i18n/_locales"
 
 export enum ContextMenuType {
     Hidden, Item, Text, View
@@ -28,6 +31,7 @@ export class AppLog {
 }
 
 export class AppState {
+    locale = null as string
     sourceInit = false
     feedInit = false
     fetchingItems = false
@@ -149,12 +153,44 @@ export function exitSettings(): AppThunk {
     }
 }
 
+export const INIT_INTL = "INIT_INTL"
+export interface InitIntlAction {
+    type: typeof INIT_INTL
+    locale: string
+}
+export const initIntlDone = (locale: string): InitIntlAction => ({
+    type: INIT_INTL,
+    locale: locale
+})
+
+export function initIntl(): AppThunk {
+    return (dispatch) => {
+        let locale = getCurrentLocale()
+        intl.init({
+            currentLocale: locale,
+            locales: locales,
+            fallbackLocale: "zh-CN"
+        }).then(() => dispatch(initIntlDone(locale)))
+    }
+}
+
+export function initApp(): AppThunk {
+    return (dispatch) => {
+        dispatch(initSources()).then(() => dispatch(initFeeds())).then(() => dispatch(fetchItems()))
+        dispatch(initIntl())
+    }
+}
+
 export function appReducer(
     state = new AppState(),
-    action: SourceActionTypes | ItemActionTypes | ContextMenuActionTypes | SettingsActionTypes
+    action: SourceActionTypes | ItemActionTypes | ContextMenuActionTypes | SettingsActionTypes | InitIntlAction
         | MenuActionTypes | LogMenuActionType | FeedActionTypes | PageActionTypes | SourceGroupActionTypes
 ): AppState {
     switch (action.type) {
+        case INIT_INTL: return {
+            ...state,
+            locale: action.locale
+        }
         case INIT_SOURCES:
             switch (action.status) {
                 case ActionStatus.Success: return {

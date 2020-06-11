@@ -7,9 +7,11 @@ import MenuContainer from "../containers/menu-container"
 import NavContainer from "../containers/nav-container"
 import LogMenuContainer from "../containers/log-menu-container"
 import SettingsContainer from "../containers/settings-container"
+import { RootState } from "../scripts/reducer"
 
-const Root = ({ dispatch }) => (
+const Root = ({ locale, dispatch }) => locale && (
     <div id="root" 
+        key={locale}
         onMouseDown={() => dispatch(closeContextMenu())}
         onContextMenu={event => {
             let text = document.getSelection().toString()
@@ -24,4 +26,5 @@ const Root = ({ dispatch }) => (
     </div>
 )
 
-export default connect()(Root)
+const getLocale = (state: RootState) => ({ locale: state.app.locale })
+export default connect(getLocale)(Root)

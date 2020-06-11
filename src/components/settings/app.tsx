@@ -1,20 +1,31 @@
 import * as React from "react"
+import intl = require("react-intl-universal")
 import { urlTest } from "../../scripts/utils"
-import { getProxy, getProxyStatus, toggleProxyStatus, setProxy, getThemeSettings, setThemeSettings, ThemeSettings } from "../../scripts/settings"
-import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme } from "@fluentui/react"
+import { getProxy, getProxyStatus, toggleProxyStatus, setProxy, getThemeSettings, setThemeSettings, ThemeSettings, getLocaleSettings } from "../../scripts/settings"
+import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption } from "@fluentui/react"
 
-const themeChoices: IChoiceGroupOption[] = [
-    { key: ThemeSettings.Default, text: "系统默认" },
-    { key: ThemeSettings.Light, text: "浅色模式" },
-    { key: ThemeSettings.Dark, text: "深色模式" }
-]
+type AppTabProps = {
+    setLanguage: (option: string) => void
+}
 
-class AppTab extends React.Component {
+class AppTab extends React.Component<AppTabProps> {
     state = {
         pacStatus: getProxyStatus(),
         pacUrl: getProxy(),
         themeSettings: getThemeSettings()
     }
+    
+    themeChoices = (): IChoiceGroupOption[] => [
+        { key: ThemeSettings.Default, text: intl.get("followSystem") },
+        { key: ThemeSettings.Light, text: intl.get("app.lightTheme") },
+        { key: ThemeSettings.Dark, text: intl.get("app.darkTheme") }
+    ]
+
+    languageOptions = (): IDropdownOption[] => [
+        { key: "default", text: intl.get("followSystem") },
+        { key: "en-US", text: "English" },
+        { key: "zh-CN", text: "中文（简体）"}
+    ]
 
     toggleStatus = () => {
         toggleProxyStatus()
@@ -41,9 +52,26 @@ class AppTab extends React.Component {
 
     render = () => (
         <div className="tab-body">
+            <Label>{intl.get("app.language")}</Label>
+            <Stack horizontal>
+                <Stack.Item>
+                    <Dropdown 
+                        defaultSelectedKey={getLocaleSettings()}
+                        options={this.languageOptions()}
+                        onChanged={option => this.props.setLanguage(String(option.key))}
+                        style={{width: 200}} />
+                </Stack.Item>
+            </Stack>
+
+            <ChoiceGroup
+                label={intl.get("app.theme")}
+                options={this.themeChoices()}
+                onChange={this.onThemeChange}
+                selectedKey={this.state.themeSettings} />
+
             <Stack horizontal verticalAlign="baseline">
                 <Stack.Item grow>
-                    <Label>启用代理</Label>
+                    <Label>{intl.get("app.enableProxy")}</Label>
                 </Stack.Item>
                 <Stack.Item>
                     <Toggle checked={this.state.pacStatus} onChange={this.toggleStatus} />
@@ -54,8 +82,8 @@ class AppTab extends React.Component {
                     <Stack.Item grow>
                         <TextField
                             required
-                            onGetErrorMessage={v => urlTest(v.trim()) ? "" : "请正确输入URL"} 
-                            placeholder="PAC地址"
+                            onGetErrorMessage={v => urlTest(v.trim()) ? "" : intl.get("app.badUrl")} 
+                            placeholder={intl.get("app.pac")}
                             name="pacUrl"
                             onChange={this.handleInputChange}
                             value={this.state.pacUrl} />
@@ -64,16 +92,10 @@ class AppTab extends React.Component {
                         <DefaultButton 
                             disabled={!urlTest(this.state.pacUrl)}
                             type="sumbit" 
-                            text="设置" />
+                            text={intl.get("app.setPac")} />
                     </Stack.Item>
                 </Stack>
             </form>}
-
-            <ChoiceGroup
-                label="应用主题"
-                options={themeChoices}
-                onChange={this.onThemeChange}
-                selectedKey={this.state.themeSettings} />
         </div>
     )
 }
