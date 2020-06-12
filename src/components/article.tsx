@@ -5,6 +5,8 @@ import { RSSItem } from "../scripts/models/item"
 import { openExternal } from "../scripts/utils"
 import { Stack, CommandBarButton, IContextualMenuProps } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
+import { store } from "../scripts/settings"
+import { clipboard } from "electron"
 
 const FONT_SIZE_STORE_KEY = "fontSize"
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
@@ -37,11 +39,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     getFontSize = () => {
-        let size = window.localStorage.getItem(FONT_SIZE_STORE_KEY)
-        return size ? parseInt(size) : 16
+        return store.get(FONT_SIZE_STORE_KEY, 16)
     }
     setFontSize = (size: number) => {
-        window.localStorage.setItem(FONT_SIZE_STORE_KEY, String(size))
+        store.set(FONT_SIZE_STORE_KEY, size)
         this.setState({fontSize: size})
     }
 
@@ -60,12 +61,19 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             {
                 key: "openInBrowser",
                 text: intl.get("openExternal"),
-                iconProps: {iconName: "NavigateExternalInline"},
+                iconProps: { iconName: "NavigateExternalInline" },
                 onClick: this.openInBrowser
+            },
+            {
+                key: "copyURL",
+                text: intl.get("context.copyURL"),
+                iconProps: { iconName: "Link" },
+                onClick: () => { clipboard.writeText(this.props.item.link) }
             },
             {
                 key: "toggleHidden",
                 text:　this.props.item.hidden ? intl.get("article.unhide") : intl.get("article.hide"),
+                iconProps: { iconName: this.props.item.hidden ? "View" : "Hide3" },
                 onClick: () => { this.props.toggleHidden(this.props.item) }
             }
         ]
@@ -132,7 +140,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         <p className="title">{this.props.item.title}</p>
         <p className="date">{this.props.item.date.toLocaleString(this.props.locale, {hour12: !this.props.locale.startsWith("zh")})}</p>
         <article dangerouslySetInnerHTML={{__html: this.props.item.content}}></article>
-    </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}&d=${Number(document.body.classList.contains("dark"))}`
+    </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}`
     
     render = () => (
         <div className="article">

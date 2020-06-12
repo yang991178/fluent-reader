@@ -3,7 +3,7 @@ import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, 
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
-import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP } from "./group"
+import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS } from "./group"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
 import { getCurrentLocale, setLocaleSettings } from "../settings"
 import locales from "../i18n/_locales"
@@ -230,6 +230,7 @@ export function appReducer(
         case UPDATE_SOURCE_GROUP:
         case ADD_SOURCE_TO_GROUP:
         case REMOVE_SOURCE_FROM_GROUP:
+        case REORDER_SOURCE_GROUPS:
         case DELETE_SOURCE_GROUP: return {
             ...state,
             settings: {

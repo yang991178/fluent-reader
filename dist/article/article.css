@@ -4,17 +4,19 @@ html, body {
 html {
     overflow: hidden scroll;
 }
-body {
+:root {
     margin: 12px 96px 32px;
     --gray: #484644;
     --primary: #0078d4;
     --primary-alt: #004578;
 }
-body.dark {
-    color: #f8f8f8;
-    --gray: #a19f9d;
-    --primary: #4ba0e1;
-    --primary-alt: #65aee6;
+@media (prefers-color-scheme: dark) {
+    :root {
+        color: #f8f8f8;
+        --gray: #a19f9d;
+        --primary: #4ba0e1;
+        --primary-alt: #65aee6;
+    }
 }
 
 a {

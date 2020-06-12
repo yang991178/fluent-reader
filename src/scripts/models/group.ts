@@ -3,6 +3,7 @@ import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource } from "./sourc
 
 import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
 import { saveSettings } from "./app"
+import { store } from "../settings"
 
 const GROUPS_STORE_KEY = "sourceGroups"
 
@@ -24,12 +25,11 @@ export class SourceGroup {
     }
 
     static save(groups: SourceGroup[]) {
-        localStorage.setItem(GROUPS_STORE_KEY, JSON.stringify(groups))
+        store.set(GROUPS_STORE_KEY, groups)
     }
 
     static load(): SourceGroup[] {
-        let stored = localStorage.getItem(GROUPS_STORE_KEY)
-        return stored ? <SourceGroup[]>JSON.parse(stored) : []
+        return store.get(GROUPS_STORE_KEY, [])
     }
 }
 

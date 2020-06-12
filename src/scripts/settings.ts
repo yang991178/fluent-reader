@@ -2,24 +2,28 @@ import { remote, ipcRenderer } from "electron"
 import { ViewType } from "./models/page"
 import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
+import Store = require("electron-store")
+import { schemaTypes } from "./config-schema"
 
-const PAC_STORE_KEY = "PAC"
-const PAC_STATUS_KEY = "PAC_ON"
+export const store = new Store<schemaTypes>()
+
+const PAC_STORE_KEY = "pac"
+const PAC_STATUS_KEY = "pacOn"
 export function getProxyStatus() {
-    return Boolean(localStorage.getItem(PAC_STATUS_KEY))
+    return store.get(PAC_STATUS_KEY, false)
 }
 export function toggleProxyStatus() {
-    localStorage.setItem(PAC_STATUS_KEY, getProxyStatus() ? "" : "on")
+    store.set(PAC_STATUS_KEY, !getProxyStatus())
     setProxy()
 }
 export function getProxy() {
-    return localStorage.getItem(PAC_STORE_KEY) || ""
+    return store.get(PAC_STORE_KEY, "")
 }
 export function setProxy(address = null) {
     if (!address) {
         address = getProxy()
     } else {
-        localStorage.setItem(PAC_STORE_KEY, address)
+        store.set(PAC_STORE_KEY, address)
     }
     remote.getCurrentWebContents().session.setProxy({
         pacScript: getProxyStatus() ? address : ""
@@ -30,12 +34,11 @@ export function setProxy(address = null) {
 }
 
 const VIEW_STORE_KEY = "view"
-export const getDefaultView = () => {
-    let view = localStorage.getItem(VIEW_STORE_KEY)
-    return view ? parseInt(view) as ViewType : ViewType.Cards
+export const getDefaultView = (): ViewType => {
+    return store.get(VIEW_STORE_KEY, ViewType.Cards)
 }
 export const setDefaultView = (viewType: ViewType) => {
-    localStorage.setItem(VIEW_STORE_KEY, String(viewType))
+    store.set(VIEW_STORE_KEY, viewType)
 }
 
 const lightTheme: IPartialTheme = { 
@@ -77,41 +80,29 @@ export enum ThemeSettings {
 }
 const THEME_STORE_KEY = "theme"
 export function setThemeSettings(theme: ThemeSettings) {
-    localStorage.setItem(THEME_STORE_KEY, theme)
-    ipcRenderer.send("set-theme", theme)
+    store.set(THEME_STORE_KEY, theme)
+    remote.nativeTheme.themeSource = theme
     applyThemeSettings()
 }
 export function getThemeSettings(): ThemeSettings {
-    let stored = localStorage.getItem(THEME_STORE_KEY)
-    return stored === null ? ThemeSettings.Default : stored as ThemeSettings
+    return store.get(THEME_STORE_KEY, ThemeSettings.Default)
 }
 export function applyThemeSettings() {
-    let theme = getThemeSettings()
-    let useDark = theme === ThemeSettings.Default 
-        ? remote.nativeTheme.shouldUseDarkColors
-        : theme === ThemeSettings.Dark
-    loadTheme(useDark ? darkTheme : lightTheme)
-    if (useDark) { 
-        document.body.classList.add("dark")
-    } else { 
-        document.body.classList.remove("dark")
-    }
+    loadTheme(remote.nativeTheme.shouldUseDarkColors ? darkTheme : lightTheme)
 }
+remote.nativeTheme.on("updated", () => {
+    applyThemeSettings()
+})
 
 const LOCALE_STORE_KEY = "locale"
 export function setLocaleSettings(option: string) {
-    localStorage.setItem(LOCALE_STORE_KEY, option)
+    store.set(LOCALE_STORE_KEY, option)
 }
 export function getLocaleSettings() {
-    let stored = localStorage.getItem(LOCALE_STORE_KEY)
-    return stored === null ? "default" : stored
+    return store.get(LOCALE_STORE_KEY, "default")
 }
 export function getCurrentLocale() {
     let set = getLocaleSettings()
     let locale = set === "default" ? remote.app.getLocale() : set
     return (locale in locales) ? locale : "en-US"
 }
-
-export const STORE_KEYS = [
-    PAC_STORE_KEY, PAC_STATUS_KEY, VIEW_STORE_KEY, THEME_STORE_KEY
-]

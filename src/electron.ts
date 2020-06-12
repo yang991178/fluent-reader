@@ -55,8 +55,3 @@ app.on('activate', function () {
         createWindow()
     }
 })
-
-ipcMain.on("set-theme", (_, theme) => {
-    store.set("theme", theme)
-    nativeTheme.themeSource = theme
-})

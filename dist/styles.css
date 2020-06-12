@@ -16,24 +16,27 @@
     --white: #fff;
     --whiteConstant: #fff;
 }
-body.dark {
-    --neutralLighterAlt: #282828;
-    --neutralLighter: #313131;
-    --neutralLight: #3f3f3f;
-    --neutralQuaternaryAlt: #484848;
-    --neutralQuaternary: #4f4f4f;
-    --neutralTertiaryAlt: #6d6d6d;
-    --neutralTertiary: #c8c8c8;
-    --neutralSecondaryAlt: #d2d0ce;
-    --neutralSecondary: #d0d0d0;
-    --neutralPrimaryAlt: #dadada;
-    --neutralPrimary: #ffffff;
-    --neutralDark: #f4f4f4;
-    --neutralDarker: #f4f4f4;
-    --black: #f8f8f8;
-    --white: #1f1f1f;
-    --whiteConstant: #f8f8f8;
+@media (prefers-color-scheme: dark) {
+    :root {
+        --neutralLighterAlt: #282828;
+        --neutralLighter: #313131;
+        --neutralLight: #3f3f3f;
+        --neutralQuaternaryAlt: #484848;
+        --neutralQuaternary: #4f4f4f;
+        --neutralTertiaryAlt: #6d6d6d;
+        --neutralTertiary: #c8c8c8;
+        --neutralSecondaryAlt: #d2d0ce;
+        --neutralSecondary: #d0d0d0;
+        --neutralPrimaryAlt: #dadada;
+        --neutralPrimary: #ffffff;
+        --neutralDark: #f4f4f4;
+        --neutralDarker: #f4f4f4;
+        --black: #f8f8f8;
+        --white: #1f1f1f;
+        --whiteConstant: #f8f8f8;
+    }
 }
+
 
 html, body {
     background-color: transparent;
@@ -78,9 +81,6 @@ body {
 }
 .ms-Button--commandBar.active .ms-Button-icon {
     color: #005a9e;
-}
-body.dark .ms-Button--commandBar.active .ms-Button-icon {
-    color: #c7e0f4;
 }
 i.ms-Nav-chevron {
     line-height: 32px;
@@ -186,12 +186,6 @@ nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
 .btn-group .btn:active {
     background-color: #0002;
 }
-body.dark .btn-group .btn:hover {
-    background-color: #fff1;
-}
-body.dark .btn-group .btn:active {
-    background-color: #fff2;
-}
 .btn-group .btn.disabled, .btn-group .btn.fetching {
     background-color: unset !important;
     color: var(--neutralSecondaryAlt);
@@ -281,9 +275,6 @@ div[role="tabpanel"] {
     height: 100%;
     background-color: #fffa;
     z-index: 6;
-}
-body.dark .settings .loading {
-    background-color: #000a;
 }
 .settings .loading .ms-Spinner {
     margin-top: 180px;
@@ -590,12 +581,7 @@ img.favicon {
 .card:active {
     transform: scale(.97);
 }
-body.dark .card {
-    box-shadow: #0006 0px 5px 20px;
-}
-body.dark .card:hover {
-    box-shadow: #0008 0px 5px 40px;
-}
+
 .card .bg {
     position: absolute;
     left: 0;
@@ -609,9 +595,6 @@ body.dark .card:hover {
 }
 .card div.bg {
     background-color: #fffb;
-}
-body.dark div.bg {
-    background-color: #000b;
 }
 .card img.head {
     display: block;
@@ -684,12 +667,6 @@ body.dark div.bg {
 .list-card:active {
     box-shadow: #0000 0px 5px 15px, inset #0004 0px 0px 15px;
 }
-body.dark .list-card:hover {
-    box-shadow: #0006 0px 5px 15px;
-}
-body.dark .list-card:active {
-    box-shadow: #0000 0px 5px 15px, inset #0006 0px 0px 15px;
-}
 .list-card div.head {
     width: 80px;
     height: 80px;
@@ -718,4 +695,34 @@ body.dark .list-card:active {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ms-Button--commandBar.active .ms-Button-icon {
+        color: #c7e0f4;
+    }
+    .btn-group .btn:hover {
+        background-color: #fff1;
+    }
+    .btn-group .btn:active {
+        background-color: #fff2;
+    }
+    .settings .loading {
+        background-color: #000a;
+    }
+    .card {
+        box-shadow: #0006 0px 5px 20px;
+    }
+    .card:hover {
+        box-shadow: #0008 0px 5px 40px;
+    }
+    .card div.bg {
+        background-color: #000b;
+    }
+    .list-card:hover {
+        box-shadow: #0006 0px 5px 15px;
+    }
+    .list-card:active {
+        box-shadow: #0000 0px 5px 15px, inset #0006 0px 0px 15px;
+    }
 }

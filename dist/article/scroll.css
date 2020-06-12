@@ -12,12 +12,14 @@
 ::-webkit-scrollbar-thumb:active {
     background-color: #0008;
 }
-body.dark::-webkit-scrollbar-thumb , body.dark *::-webkit-scrollbar-thumb {
-    background-color: #fff4;
-}
-body.dark::-webkit-scrollbar-thumb:hover, body.dark *::-webkit-scrollbar-thumb:hover {
-    background-color: #fff6;
-}
-body.dark::-webkit-scrollbar-thumb:active, body.dark *::-webkit-scrollbar-thumb:active {
-    background-color: #fff8;
+@media (prefers-color-scheme: dark) {
+    ::-webkit-scrollbar-thumb {
+        background-color: #fff4;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #fff6;
+    }
+    ::-webkit-scrollbar-thumb:active {
+        background-color: #fff8;
+    }
 }
