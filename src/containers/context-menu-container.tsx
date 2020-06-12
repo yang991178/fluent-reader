@@ -1,9 +1,9 @@
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
-import { ContextMenuType, closeContextMenu } from "../scripts/models/app"
+import { ContextMenuType, closeContextMenu, toggleSettings } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
-import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden } from "../scripts/models/item"
+import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden, markAllRead } from "../scripts/models/item"
 import { showItem, switchView, ViewType, switchFilter, toggleFilter } from "../scripts/models/page"
 import { setDefaultView } from "../scripts/settings"
 import { FeedFilter } from "../scripts/models/feed"
@@ -33,6 +33,11 @@ const mapStateToProps = createSelector(
                 viewType: viewType,
                 filter: filter
             }
+            case ContextMenuType.Group: return {
+                type: context.type,
+                event: context.event,
+                sids: context.target
+            }
             default: return { type: ContextMenuType.Hidden }
         }
     }
@@ -57,6 +62,8 @@ const mapDispatchToProps = dispatch => {
         },
         switchFilter: (filter: FeedFilter) => dispatch(switchFilter(filter)),
         toggleFilter: (filter: FeedFilter) => dispatch(toggleFilter(filter)),
+        markAllRead: (sids: number[]) => dispatch(markAllRead(sids)),
+        settings: () => dispatch(toggleSettings()),
         close: () => dispatch(closeContextMenu())
     }
 }

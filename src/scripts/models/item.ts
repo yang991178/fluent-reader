@@ -1,7 +1,7 @@
 import * as db from "../db"
 import { rssParser, domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
-import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
+import { FeedActionTypes, INIT_FEED, LOAD_MORE, FeedFilter } from "./feed"
 import Parser = require("@yang991178/rss-parser")
 
 export class RSSItem {
@@ -55,6 +55,7 @@ export type ItemState = {
 
 export const FETCH_ITEMS = 'FETCH_ITEMS'
 export const MARK_READ = "MARK_READ"
+export const MARK_ALL_READ = "MARK_ALL_READ"
 export const MARK_UNREAD = "MARK_UNREAD"
 export const TOGGLE_STARRED = "TOGGLE_STARRED"
 export const TOGGLE_HIDDEN = "TOGGLE_HIDDEN"
@@ -73,6 +74,11 @@ interface MarkReadAction {
     item: RSSItem
 }
 
+interface MarkAllReadAction {
+    type: typeof MARK_ALL_READ,
+    sids: number[]
+}
+
 interface MarkUnreadAction {
     type: typeof MARK_UNREAD
     item: RSSItem
@@ -88,7 +94,8 @@ interface ToggleHiddenAction {
     item: RSSItem
 }
 
-export type ItemActionTypes = FetchItemsAction | MarkReadAction | MarkUnreadAction | ToggleStarredAction | ToggleHiddenAction
+export type ItemActionTypes = FetchItemsAction | MarkReadAction | MarkAllReadAction | MarkUnreadAction 
+    | ToggleStarredAction | ToggleHiddenAction
 
 export function fetchItemsRequest(fetchCount = 0): ItemActionTypes {
     return {
@@ -174,6 +181,11 @@ const markReadDone = (item: RSSItem): ItemActionTypes => ({
     item: item 
 })
 
+const markAllReadDone = (sids: number[]): ItemActionTypes => ({
+    type: MARK_ALL_READ,
+    sids: sids
+})
+
 const markUnreadDone = (item: RSSItem): ItemActionTypes => ({ 
     type: MARK_UNREAD, 
     item: item 
@@ -181,15 +193,37 @@ const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
 
 export function markRead(item: RSSItem): AppThunk {
     return (dispatch) => {
-        db.idb.update({ _id: item._id }, { $set: { hasRead: true } })
-        dispatch(markReadDone(item))
+        if (!item.hasRead) {
+            db.idb.update({ _id: item._id }, { $set: { hasRead: true } })
+            dispatch(markReadDone(item))
+        }
+    }
+}
+
+export function markAllRead(sids: number[] = null): AppThunk {
+    return (dispatch, getState) => {
+        if (sids === null) {
+            let state = getState()
+            let feed = state.feeds[state.page.feedId]
+            sids = feed.sids
+        }
+        let query = { source: { $in: sids } }
+        db.idb.update(query, { $set: { hasRead: true } }, { multi: true }, (err) => {
+            if (err) {
+                console.log(err)
+            } else {
+                dispatch(markAllReadDone(sids))
+            }
+        })
     }
 }
 
 export function markUnread(item: RSSItem): AppThunk {
     return (dispatch) => {
-        db.idb.update({ _id: item._id }, { $set: { hasRead: false } })
-        dispatch(markUnreadDone(item))
+        if (item.hasRead) {
+            db.idb.update({ _id: item._id }, { $set: { hasRead: false } })
+            dispatch(markUnreadDone(item))
+        }
     }
 }
 
@@ -271,6 +305,21 @@ export function itemReducer(
                 ...state,
                 [action.item._id]: applyItemReduction(action.item, action.type)
             }
+        }
+        case MARK_ALL_READ: {
+            let nextState = {} as ItemState
+            let sids = new Set(action.sids)
+            for (let [id, item] of Object.entries(state)) {
+                if (sids.has(item.source) && !item.hasRead) {
+                    nextState[id] = {
+                        ...item,
+                        hasRead: true
+                    }
+                } else {
+                    nextState[id] = item
+                }
+            }
+            return nextState
         }
         case LOAD_MORE:
         case INIT_FEED: {

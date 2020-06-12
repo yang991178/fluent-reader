@@ -18,6 +18,7 @@ export type ContextMenuProps = ContextReduxProps & {
     text?: string
     viewType?: ViewType
     filter?: FeedFilter
+    sids?: number[]
     showItem: (feedId: string, item: RSSItem) => void
     markRead: (item: RSSItem) => void
     markUnread: (item: RSSItem) => void
@@ -26,6 +27,8 @@ export type ContextMenuProps = ContextReduxProps & {
     switchView: (viewType: ViewType) => void
     switchFilter: (filter: FeedFilter) => void
     toggleFilter: (filter: FeedFilter) => void
+    markAllRead: (sids: number[]) =>  void
+    settings: () => void
     close: () => void
 }
 
@@ -171,6 +174,20 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     canCheck: true,
                     checked: Boolean(this.props.filter & FeedFilter.ShowHidden),
                     onClick: () => this.props.toggleFilter(FeedFilter.ShowHidden)
+                }
+            ]
+            case ContextMenuType.Group: return [
+                {
+                    key: "markAllRead",
+                    text: intl.get("nav.markAllRead"),
+                    iconProps: { iconName: "CheckMark" },
+                    onClick: () => this.props.markAllRead(this.props.sids)
+                },
+                {
+                    key: "manage",
+                    text: intl.get("context.manageSources"),
+                    iconProps: { iconName: "Settings" },
+                    onClick: this.props.settings
                 }
             ]
             default: return []

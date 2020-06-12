@@ -9,7 +9,7 @@ import { getCurrentLocale, setLocaleSettings } from "../settings"
 import locales from "../i18n/_locales"
 
 export enum ContextMenuType {
-    Hidden, Item, Text, View
+    Hidden, Item, Text, View, Group
 }
 
 export enum AppLogType {
@@ -55,7 +55,7 @@ export class AppState {
         type: ContextMenuType,
         event?: MouseEvent | string,
         position?: [number, number],
-        target?: [RSSItem, string] | RSSSource | string
+        target?: [RSSItem, string] | number[] | string
     }
 
     constructor() {
@@ -69,6 +69,7 @@ export const CLOSE_CONTEXT_MENU = "CLOSE_CONTEXT_MENU"
 export const OPEN_ITEM_MENU = "OPEN_ITEM_MENU"
 export const OPEN_TEXT_MENU = "OPEN_TEXT_MENU"
 export const OPEN_VIEW_MENU = "OPEN_VIEW_MENU"
+export const OPEN_GROUP_MENU = "OPEN_GROUP_MENU"
 
 interface CloseContextMenuAction {
     type: typeof CLOSE_CONTEXT_MENU
@@ -91,7 +92,14 @@ interface OpenViewMenuAction {
     type: typeof OPEN_VIEW_MENU
 }
 
-export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction | OpenTextMenuAction | OpenViewMenuAction
+interface OpenGroupMenuAction {
+    type: typeof OPEN_GROUP_MENU
+    event: MouseEvent
+    sids: number[]
+}
+
+export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction 
+    | OpenTextMenuAction | OpenViewMenuAction | OpenGroupMenuAction
 
 export const TOGGLE_LOGS = "TOGGLE_LOGS"
 export interface LogMenuActionType { type: typeof TOGGLE_LOGS }
@@ -131,6 +139,14 @@ export function openTextMenu(text: string, position: [number, number]): ContextM
 }
 
 export const openViewMenu = (): ContextMenuActionTypes => ({ type: OPEN_VIEW_MENU })
+
+export function openGroupMenu(sids: number[], event: React.MouseEvent): ContextMenuActionTypes {
+    return {
+        type: OPEN_GROUP_MENU,
+        event: event.nativeEvent,
+        sids: sids
+    }
+}
 
 export const toggleMenu = () => ({ type: TOGGLE_MENU })
 export const toggleLogMenu = () => ({ type: TOGGLE_LOGS })
@@ -329,6 +345,14 @@ export function appReducer(
             contextMenu: {
                 type: ContextMenuType.View,
                 event: "#view-toggle"
+            }
+        }
+        case OPEN_GROUP_MENU: return {
+            ...state,
+            contextMenu: {
+                type: ContextMenuType.Group,
+                event: action.event,
+                target: action.sids
             }
         }
         case TOGGLE_MENU: return {

@@ -12,6 +12,9 @@
     "search": "Search",
     "loadMore": "Load more",
     "dangerButton": "Confirm {action}?",
+    "confirmMarkAll": "Do you really want to mark all articles on this page as read?",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
     "log": {
         "empty": "No notifications",
         "fetchFailure": "Failed to load source \"{name}\".",
@@ -53,7 +56,8 @@
         "filter": "Filtering",
         "unreadOnly": "Unread only",
         "starredOnly": "Starred only",
-        "showHidden": "Show hidden articles"
+        "showHidden": "Show hidden articles",
+        "manageSources": "Manage sources"
     },
     "settings": {
         "name": "Settings",

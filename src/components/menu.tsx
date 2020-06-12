@@ -16,7 +16,8 @@ export type MenuProps = {
     toggleMenu: () => void,
     allArticles: () => void,
     selectSourceGroup: (group: SourceGroup, menuKey: string) => void,
-    selectSource: (source: RSSSource) => void
+    selectSource: (source: RSSSource) => void,
+    groupContextMenu: (sids: number[], event: React.MouseEvent) => void,
 }
 
 export class Menu extends React.Component<MenuProps> {
@@ -80,9 +81,20 @@ export class Menu extends React.Component<MenuProps> {
         }
     })
 
+    onContext = (item: INavLink, event: React.MouseEvent) => {
+        let sids: number[]
+        let [type, index] = item.key.split("-")
+        if (type === "s") {
+            sids = [parseInt(index)]
+        } else {
+            sids = this.props.groups[parseInt(index)].sids
+        }
+        this.props.groupContextMenu(sids, event)
+    }
+
     _onRenderLink = (link: INavLink): JSX.Element => {
         return (
-            <Stack className="link-stack" horizontal grow>
+            <Stack className="link-stack" horizontal grow onContextMenu={event => this.onContext(link, event)}>
                 <div className="link-text">{link.name}</div>
                 {link.ariaLabel !== "0" && <div className="unread-count">{link.ariaLabel}</div>}
             </Stack>

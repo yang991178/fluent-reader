@@ -12,7 +12,8 @@ type NavProps = {
     menu: () => void,
     logs: () => void,
     views: () => void,
-    settings: () => void
+    settings: () => void,
+    markAllRead: () => void
 }
 
 type NavState = {
@@ -90,7 +91,9 @@ class Nav extends React.Component<NavProps, NavState> {
                         title={intl.get("nav.refresh")}>
                         <Icon iconName="Refresh" />
                     </a>
-                    <a className="btn" title={intl.get("nav.markAllRead")}>
+                    <a className="btn" 
+                        onClick={this.props.markAllRead}
+                        title={intl.get("nav.markAllRead")}>
                         <Icon iconName="InboxCheck" />
                     </a>
                     <a className="btn" 

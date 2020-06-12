@@ -2,7 +2,7 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { Menu } from "../components/menu"
-import { toggleMenu } from "../scripts/models/app"
+import { toggleMenu, openGroupMenu } from "../scripts/models/app"
 import { SourceGroup } from "../scripts/models/group"
 import { selectAllArticles, selectSources } from "../scripts/models/page"
 import { initFeeds } from "../scripts/models/feed"
@@ -36,6 +36,9 @@ const mapDispatchToProps = dispatch => ({
     selectSource: (source: RSSSource) => {
         dispatch(selectSources([source.sid], "s-"+source.sid, source.name))
         dispatch(initFeeds())
+    },
+    groupContextMenu: (sids: number[], event: React.MouseEvent) => {
+        dispatch(openGroupMenu(sids, event))
     }
 })
 

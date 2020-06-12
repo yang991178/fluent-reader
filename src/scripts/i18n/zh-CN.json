@@ -12,6 +12,9 @@
     "search": "搜索",
     "loadMore": "加载更多",
     "dangerButton": "确认{action}？",
+    "confirmMarkAll": "确认将本页所有文章标为已读？",
+    "confirm": "确认",
+    "cancel": "取消",
     "log": {
         "empty": "无消息",
         "fetchFailure": "无法加载订阅源“{name}”",
@@ -53,7 +56,8 @@
         "filter": "筛选",
         "unreadOnly": "仅未读文章",
         "starredOnly": "仅星标文章",
-        "showHidden": "显示隐藏文章"
+        "showHidden": "显示隐藏文章",
+        "manageSources": "管理订阅源"
     },
     "settings": {
         "name": "选项",

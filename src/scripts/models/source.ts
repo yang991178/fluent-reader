@@ -1,7 +1,7 @@
 import Parser = require("@yang991178/rss-parser")
 import * as db from "../db"
 import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
-import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD } from "./item"
+import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
 
@@ -331,15 +331,15 @@ export function sourceReducer(
                             updateMap.has(item.source) ? (updateMap.get(item.source) + 1) : 1)
                     }
                     let nextState = {} as SourceState
-                    for (let s in state) {
+                    for (let [s, source] of Object.entries(state)) {
                         let sid = parseInt(s)
                         if (updateMap.has(sid)) {
                             nextState[sid] = {
-                                ...state[sid],
-                                unreadCount: state[sid].unreadCount + updateMap.get(sid)
+                                ...source,
+                                unreadCount: source.unreadCount + updateMap.get(sid)
                             } as RSSSource
                         } else {
-                            nextState[sid] = state[sid]
+                            nextState[sid] = source
                         }
                     }
                     return nextState
@@ -354,6 +354,22 @@ export function sourceReducer(
                 ...state[action.item.source],
                 unreadCount: state[action.item.source].unreadCount + (action.type === MARK_UNREAD ? 1 : -1)
             } as RSSSource
+        }
+        case MARK_ALL_READ: {
+            let nextState = {} as SourceState
+            let sids = new Set(action.sids)
+            for (let [s, source] of Object.entries(state)) {
+                let sid = parseInt(s)
+                if (sids.has(sid) && source.unreadCount > 0) {
+                    nextState[sid] = {
+                        ...source,
+                        unreadCount: 0
+                    } as RSSSource
+                } else {
+                    nextState[sid] = source
+                }
+            }
+            return nextState
         }
         default: return state
     }
