@@ -1,7 +1,7 @@
 import Parser = require("@yang991178/rss-parser")
 import * as db from "../db"
 import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
-import { RSSItem, insertItems } from "./item"
+import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD } from "./item"
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
 
@@ -16,6 +16,7 @@ export class RSSSource {
     name: string
     description: string
     openTarget: SourceOpenTarget
+    unreadCount: number
 
     constructor(url: string, name: string = null) {
         this.url = url
@@ -139,17 +140,35 @@ export function initSourcesFailure(err): SourceActionTypes {
     }
 }
 
+function unreadCount(source: RSSSource): Promise<RSSSource> {
+    return new Promise<RSSSource>((resolve, reject) => {
+        db.idb.count({ source: source.sid, hasRead: false }, (err, n) => {
+            if (err) {
+                reject(err)
+            } else {
+                source.unreadCount = n
+                resolve(source)
+            }
+        })
+    })
+}
+
 export function initSources(): AppThunk<Promise<void>> {
     return (dispatch) => {
         dispatch(initSourcesRequest())
         return new Promise<void>((resolve, reject) => {
-            db.sdb.find({}).sort({ sid: 1 }).exec((err, docs) => {
+            db.sdb.find({}).sort({ sid: 1 }).exec((err, sources) => {
                 if (err) {
                     dispatch(initSourcesFailure(err))
                     reject(err)
                 } else {
-                    dispatch(initSourcesSuccess(docs))
-                    resolve()
+                    let p = sources.map(s => unreadCount(s))
+                    Promise.all(p)
+                        .then(values => {
+                            dispatch(initSourcesSuccess(values))
+                            resolve()
+                        })
+                        .catch(err => reject(err))
                 }
             })
         }) 
@@ -197,6 +216,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                             if (err) {
                                 reject(err)
                             } else {
+                                source.unreadCount = feed.items.length
                                 dispatch(addSourceSuccess(source, batch))
                                 RSSSource.checkItems(source, feed.items, db.idb)
                                     .then(items => insertItems(items))
@@ -228,7 +248,10 @@ export function updateSourceDone(source: RSSSource): SourceActionTypes {
 
 export function updateSource(source: RSSSource): AppThunk {
     return (dispatch) => {
-        db.sdb.update({ sid: source.sid }, { $set: { ...source }}, {}, err => {
+        let sourceCopy = { ...source }
+        delete sourceCopy.sid
+        delete sourceCopy.unreadCount
+        db.sdb.update({ sid: source.sid }, { $set: { ...sourceCopy }}, {}, err => {
             if (!err) {
                 dispatch(updateSourceDone(source))
             }
@@ -268,7 +291,7 @@ export function deleteSource(source: RSSSource): AppThunk {
 
 export function sourceReducer(
     state: SourceState = {},
-    action: SourceActionTypes
+    action: SourceActionTypes | ItemActionTypes
 ): SourceState {
     switch (action.type) {
         case INIT_SOURCES:
@@ -297,6 +320,40 @@ export function sourceReducer(
         case DELETE_SOURCE: {
             delete state[action.source.sid]
             return { ...state }
+        }
+        case FETCH_ITEMS: {
+            switch (action.status) {
+                case ActionStatus.Success: {
+                    let updateMap = new Map<number, number>()
+                    for (let item of action.items) {
+                        updateMap.set(
+                            item.source, 
+                            updateMap.has(item.source) ? (updateMap.get(item.source) + 1) : 1)
+                    }
+                    let nextState = {} as SourceState
+                    for (let s in state) {
+                        let sid = parseInt(s)
+                        if (updateMap.has(sid)) {
+                            nextState[sid] = {
+                                ...state[sid],
+                                unreadCount: state[sid].unreadCount + updateMap.get(sid)
+                            } as RSSSource
+                        } else {
+                            nextState[sid] = state[sid]
+                        }
+                    }
+                    return nextState
+                }
+                default: return state
+            }
+        }
+        case MARK_UNREAD:
+        case MARK_READ: return {
+            ...state,
+            [action.item.source]: {
+                ...state[action.item.source],
+                unreadCount: state[action.item.source].unreadCount + (action.type === MARK_UNREAD ? 1 : -1)
+            } as RSSSource
         }
         default: return state
     }

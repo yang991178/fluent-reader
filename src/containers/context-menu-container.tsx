@@ -44,7 +44,13 @@ const mapDispatchToProps = dispatch => {
         markRead: (item: RSSItem) => dispatch(markRead(item)),
         markUnread: (item: RSSItem) => dispatch(markUnread(item)),
         toggleStarred: (item: RSSItem) => dispatch(toggleStarred(item)),
-        toggleHidden: (item: RSSItem) => dispatch(toggleHidden(item)),
+        toggleHidden: (item: RSSItem) => {
+            if(!item.hasRead) {
+                dispatch(markRead(item))
+                item.hasRead = true // get around chaining error
+            }
+            dispatch(toggleHidden(item))
+        },
         switchView: (viewType: ViewType) => {
             setDefaultView(viewType)
             dispatch(switchView(viewType))

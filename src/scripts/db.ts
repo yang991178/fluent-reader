@@ -20,6 +20,7 @@ export const idb = new Datastore<RSSItem>({
         if (err) window.console.log(err)
     }
 })
+idb.ensureIndex({ fieldName: "source" })
 //idb.removeIndex("id")
 //idb.update({}, {$unset: {id: true}}, {multi: true})
 //idb.remove({}, { multi: true })

@@ -240,6 +240,22 @@ nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
     margin: 2px 8px;
     user-select: none;
 }
+.menu .link-stack {
+    overflow: hidden;
+}
+.menu .link-text {
+    margin-top: 0px;
+    margin-right: 4px;
+    margin-bottom: 0px;
+    margin-left: 4px;
+    text-align: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    flex-grow: 1;
+}
+.menu .unread-count {
+    color: var(--neutralSecondary);
+}
 
 .settings-container {
     position: fixed;

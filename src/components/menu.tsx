@@ -5,7 +5,7 @@ import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
 import { SourceGroup } from "../scripts/models/group"
 import { SourceState, RSSSource } from "../scripts/models/source"
 import { ALL } from "../scripts/models/feed"
-import { AnimationClassNames } from "@fluentui/react"
+import { AnimationClassNames, Stack } from "@fluentui/react"
 
 export type MenuProps = {
     status: boolean,
@@ -20,6 +20,8 @@ export type MenuProps = {
 }
 
 export class Menu extends React.Component<MenuProps> {
+    countOverflow = (count: number) => count >= 1000 ? "999+" : String(count)
+
     getItems = (): INavLinkGroup[] => [
         {
             links: [
@@ -31,6 +33,7 @@ export class Menu extends React.Component<MenuProps> {
                 },
                 {
                     name: intl.get("allArticles"),
+                    ariaLabel: this.countOverflow(Object.values(this.props.sources).map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
                     key: ALL,
                     icon: "TextDocument",
                     onClick: this.props.allArticles,
@@ -43,13 +46,15 @@ export class Menu extends React.Component<MenuProps> {
     getGroups = (): INavLinkGroup[] => [{
         links: this.props.groups.filter(g => g.sids.length > 0).map((g, i) => {
             if (g.isMultiple) {
+                let sources = g.sids.map(sid => this.props.sources[sid])
                 return {
                     name: g.name,
+                    ariaLabel: this.countOverflow(sources.map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
                     key: "g-" + i,
                     url: null,
                     isExpanded: true,
                     onClick: () => this.props.selectSourceGroup(g, "g-" + i),
-                    links: g.sids.map(sid => this.props.sources[sid]).map(this.getSource)
+                    links: sources.map(this.getSource)
                 }
             } else {
                 return this.getSource(this.props.sources[g.sids[0]])
@@ -59,6 +64,7 @@ export class Menu extends React.Component<MenuProps> {
 
     getSource = (s: RSSSource): INavLink => ({
         name: s.name,
+        ariaLabel: this.countOverflow(s.unreadCount),
         key: "s-" + s.sid,
         onClick: () => this.props.selectSource(s),
         iconProps: s.iconurl ? this.getIconStyle(s.iconurl) : null,
@@ -74,6 +80,16 @@ export class Menu extends React.Component<MenuProps> {
         }
     })
 
+    _onRenderLink = (link: INavLink): JSX.Element => {
+        return (
+            <Stack className="link-stack" horizontal grow>
+                <div className="link-text">{link.name}</div>
+                {link.ariaLabel !== "0" && <div className="unread-count">{link.ariaLabel}</div>}
+            </Stack>
+        )
+        return ;
+      };
+
     render() {
         return this.props.status && (
             <div className="menu-container" onClick={this.props.toggleMenu} style={{display: this.props.display ? "block" : "none"}}>
@@ -84,11 +100,13 @@ export class Menu extends React.Component<MenuProps> {
                     </div>
                     <div className="nav-wrapper">
                         <Nav 
+                            onRenderLink={this._onRenderLink}
                             groups={this.getItems()} 
                             selectedKey={this.props.selected} />
                         <p className={"subs-header " + AnimationClassNames.slideDownIn10}>{intl.get("menu.subscriptions")}</p>
                         <Nav 
                             selectedKey={this.props.selected}
+                            onRenderLink={this._onRenderLink}
                             groups={this.getGroups()} />
                     </div>
                 </div>
