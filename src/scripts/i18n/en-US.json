@@ -72,6 +72,7 @@
         "feedback": "Feedback"
     },
     "sources": {
+        "errorImport": "Error importing {count, plural, =1 {# source} other {# sources}}.",
         "opmlFile": "OPML File",
         "name": "Source name",
         "editName": "Edit name",

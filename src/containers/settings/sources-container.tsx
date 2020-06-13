@@ -5,7 +5,7 @@ import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import SourcesTab from "../../components/settings/sources"
 import { addSource, RSSSource, updateSource, deleteSource, SourceOpenTarget } from "../../scripts/models/source"
-import { importOPML } from "../../scripts/models/group"
+import { importOPML, exportOPML } from "../../scripts/models/group"
 import { AppDispatch } from "../../scripts/utils"
 
 const getSources = (state: RootState) => state.sources
@@ -36,6 +36,16 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
                 }
             )
             if (path && path.length > 0) dispatch(importOPML(path[0]))
+        },
+        exportOPML: () => {
+            remote.dialog.showSaveDialog(
+                remote.getCurrentWindow(),
+                {
+                    filters: [{ name: intl.get("sources.opmlFile"), extensions: ["opml"] }]
+                }
+            ).then(result => {
+                if (!result.canceled) dispatch(exportOPML(result.filePath))
+            })
         }
     }
 }

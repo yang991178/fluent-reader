@@ -24,6 +24,7 @@ const customFields = {
 import ElectronProxyAgent = require("@yang991178/electron-proxy-agent")
 import { ViewType } from "./models/page"
 import { IPartialTheme } from "@fluentui/react"
+import { SourceGroup } from "./models/group"
 let agent = new ElectronProxyAgent(remote.getCurrentWebContents().session)
 export const rssParser = new Parser({
     customFields: customFields,

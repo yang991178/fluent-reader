@@ -204,7 +204,7 @@ export function addSourceFailure(err, batch: boolean): SourceActionTypes {
 export function addSource(url: string, name: string = null, batch = false): AppThunk<Promise<number>> {
     return (dispatch, getState) => {
         let app = getState().app
-        if (app.sourceInit && !app.fetchingItems) {
+        if (app.sourceInit) {
             dispatch(addSourceRequest(batch))
             let source = new RSSSource(url, name)
             return source.fetchMetaData(rssParser)
@@ -235,7 +235,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                     return new Promise((_, reject) => { reject(e) })
                 })
         }
-        return new Promise((_, reject) => { reject("Sources not initialized or fetching items.") })
+        return new Promise((_, reject) => { reject("Sources not initialized.") })
     }
 }
 

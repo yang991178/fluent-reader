@@ -13,6 +13,7 @@ type SourcesTabProps = {
     updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => void
     deleteSource: (source: RSSSource) => void
     importOPML: () => void
+    exportOPML: () => void
 }
 
 type SourcesTabState = {
@@ -103,7 +104,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                     <PrimaryButton onClick={this.props.importOPML} text={intl.get("sources.import")} />
                 </Stack.Item>
                 <Stack.Item>
-                    <DefaultButton text={intl.get("sources.export")} />
+                    <DefaultButton onClick={this.props.exportOPML} text={intl.get("sources.export")} />
                 </Stack.Item>
             </Stack>
 

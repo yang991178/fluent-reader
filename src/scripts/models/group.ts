@@ -1,9 +1,12 @@
 import fs = require("fs")
-import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource } from "./source"
+import intl = require("react-intl-universal")
+import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource, RSSSource } from "./source"
 
 import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
 import { saveSettings } from "./app"
 import { store } from "../settings"
+import { fetchItemsIntermediate, fetchItemsRequest, fetchItemsSuccess } from "./item"
+import { remote } from "electron"
 
 const GROUPS_STORE_KEY = "sourceGroups"
 
@@ -21,6 +24,7 @@ export class SourceGroup {
         } else {
             this.isMultiple = true
             this.name = name
+            this.expanded = true
         }
         this.sids = sids
     }
@@ -184,15 +188,11 @@ export function toggleGroupExpansion(groupIndex: number): AppThunk {
     }
 }
 
-async function outlineToSource(dispatch: AppDispatch, outline: Element): Promise<number> {
+function outlineToSource(outline: Element): [ReturnType<typeof addSource>, string] {
     let url = outline.getAttribute("xmlUrl")
     let name = outline.getAttribute("text") || outline.getAttribute("name")
     if (url) {
-        try {
-            return await dispatch(addSource(url.trim(), name, true))
-        } catch (e) {
-            return null
-        }
+        return [addSource(url.trim(), name, true), url]
     } else {
         return null
     }
@@ -205,36 +205,89 @@ export function importOPML(path: string): AppThunk {
                 console.log(err)
             } else {
                 dispatch(saveSettings())
-                let successes: number = 0, failures: number = 0
                 let doc = domParser.parseFromString(data, "text/xml").getElementsByTagName("body")
                 if (doc.length == 0) {
                     dispatch(saveSettings())
                     return
                 }
+                let sources: [ReturnType<typeof addSource>, number, string][] = []
+                let errors: [string, any][] = []
                 for (let el of doc[0].children) {
                     if (el.getAttribute("type") === "rss") {
-                        let sid = await outlineToSource(dispatch, el)
-                        if (sid === null) failures += 1
-                        else successes += 1
+                        let source = outlineToSource(el)
+                        if (source) sources.push([source[0], -1, source[1]])
                     } else if (el.hasAttribute("text") || el.hasAttribute("title")) {
                         let groupName = el.getAttribute("text") || el.getAttribute("title")
                         let gid = dispatch(createSourceGroup(groupName))
                         for (let child of el.children) {
-                            let sid = await outlineToSource(dispatch, child)
-                            if (sid === null) {
-                                failures += 1
-                            } else {
-                                successes += 1
-                                dispatch(addSourceToGroup(gid, sid))
-                            }
+                            let source = outlineToSource(child)
+                            if (source) sources.push([source[0], gid, source[1]])
                         }
                     }
                 }
-                console.log(failures, successes)
-                dispatch(saveSettings())
+                dispatch(fetchItemsRequest(sources.length))
+                let promises = sources.map(([s, gid, url]) => {
+                    return dispatch(s).then(sid => {
+                        if (sid !== null) dispatch(addSourceToGroup(gid, sid))
+                    }).catch(err => {
+                        errors.push([url, err])
+                    }).finally(() => {
+                        dispatch(fetchItemsIntermediate())
+                    })
+                })
+                Promise.allSettled(promises).then(() => {
+                    dispatch(fetchItemsSuccess([]))
+                    dispatch(saveSettings())
+                    if (errors.length > 0) {
+                        remote.dialog.showErrorBox(
+                            intl.get("sources.errorImport", { count: errors.length }), 
+                            errors.map(e => {
+                                return e[0] + "\n" + String(e[1])
+                            }).join("\n")
+                        )
+                    }
+                })
             }
         })
     }
+}
+
+function sourceToOutline(source: RSSSource, xml: Document) {
+    let outline = xml.createElement("outline")
+    outline.setAttribute("text", source.name)
+    outline.setAttribute("name", source.name)
+    outline.setAttribute("type", "rss")
+    outline.setAttribute("xmlUrl", source.url)
+    return outline
+}
+
+export function exportOPML(path: string): AppThunk {
+    return (_, getState) => {
+        let state = getState()
+        let xml = domParser.parseFromString(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><opml version=\"1.0\"><head><title>Fluent Reader Export</title></head><body></body></opml>", 
+            "text/xml"
+        )
+        let body = xml.getElementsByTagName("body")[0]
+        for (let group of state.groups) {
+            if (group.isMultiple) {
+                let outline = xml.createElement("outline")
+                outline.setAttribute("text", group.name)
+                outline.setAttribute("name", group.name)
+                for (let sid of group.sids) {
+                    outline.appendChild(sourceToOutline(state.sources[sid], xml))
+                }
+                body.appendChild(outline)
+            } else {
+                body.appendChild(sourceToOutline(state.sources[group.sids[0]], xml))
+            }
+        }
+        let serializer = new XMLSerializer()
+        fs.writeFile(path, serializer.serializeToString(xml), (err) => {
+            if (err) console.log(err)
+        })
+    }
+    
 }
 
 export type GroupState = SourceGroup[]

@@ -72,6 +72,7 @@
         "feedback": "反馈"
     },
     "sources": {
+        "errorImport": "导入{count}项订阅源时出错",
         "opmlFile": "OPML文件",
         "name": "订阅源名称",
         "editName": "修改名称",

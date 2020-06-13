@@ -185,7 +185,7 @@ export function initIntl(): AppThunk<Promise<void>> {
         return intl.init({
             currentLocale: locale,
             locales: locales,
-            fallbackLocale: "zh-CN"
+            fallbackLocale: "en-US"
         }).then(() => { dispatch(initIntlDone(locale)) })
     }
 }
@@ -234,7 +234,7 @@ export function appReducer(
                 }
                 default: return {
                     ...state,
-                    fetchingItems: false,
+                    fetchingItems: state.fetchingTotal !== 0,
                     settings: {
                         ...state.settings,
                         saving: action.batch
