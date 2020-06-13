@@ -18,6 +18,7 @@ export type MenuProps = {
     selectSourceGroup: (group: SourceGroup, menuKey: string) => void,
     selectSource: (source: RSSSource) => void,
     groupContextMenu: (sids: number[], event: React.MouseEvent) => void,
+    updateGroupExpansion: (event: React.MouseEvent<HTMLElement>, key: string, selected: string) => void,
 }
 
 export class Menu extends React.Component<MenuProps> {
@@ -53,7 +54,7 @@ export class Menu extends React.Component<MenuProps> {
                     ariaLabel: this.countOverflow(sources.map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
                     key: "g-" + i,
                     url: null,
-                    isExpanded: true,
+                    isExpanded: g.expanded,
                     onClick: () => this.props.selectSourceGroup(g, "g-" + i),
                     links: sources.map(this.getSource)
                 }
@@ -119,6 +120,7 @@ export class Menu extends React.Component<MenuProps> {
                         <Nav 
                             selectedKey={this.props.selected}
                             onRenderLink={this._onRenderLink}
+                            onLinkExpandClick={(event, item) => this.props.updateGroupExpansion(event, item.key, this.props.selected)}
                             groups={this.getGroups()} />
                     </div>
                 </div>

@@ -11,6 +11,7 @@ export class SourceGroup {
     isMultiple: boolean
     sids: number[]
     name?: string
+    expanded?: boolean
     index?: number // available only from groups tab container
 
     constructor(sids: number[], name: string = null) {
@@ -39,6 +40,7 @@ export const REMOVE_SOURCE_FROM_GROUP = "REMOVE_SOURCE_FROM_GROUP"
 export const UPDATE_SOURCE_GROUP = "UPDATE_SOURCE_GROUP"
 export const REORDER_SOURCE_GROUPS = "REORDER_SOURCE_GROUPS"
 export const DELETE_SOURCE_GROUP = "DELETE_SOURCE_GROUP"
+export const TOGGLE_GROUP_EXPANSION = "TOGGLE_GROUP_EXPANSION"
 
 interface CreateSourceGroupAction {
     type: typeof CREATE_SOURCE_GROUP,
@@ -73,9 +75,14 @@ interface DeleteSourceGroupAction {
     groupIndex: number
 }
 
+interface ToggleGroupExpansionAction {
+    type: typeof TOGGLE_GROUP_EXPANSION,
+    groupIndex: number
+}
+
 export type SourceGroupActionTypes = CreateSourceGroupAction | AddSourceToGroupAction 
     | RemoveSourceFromGroupAction | UpdateSourceGroupAction | ReorderSourceGroupsAction 
-    | DeleteSourceGroupAction
+    | DeleteSourceGroupAction | ToggleGroupExpansionAction
 
 export function createSourceGroupDone(group: SourceGroup): SourceGroupActionTypes {
     return {
@@ -163,6 +170,16 @@ function reorderSourceGroupsDone(groups: SourceGroup[]): SourceGroupActionTypes 
 export function reorderSourceGroups(groups: SourceGroup[]): AppThunk {
     return (dispatch, getState) => {
         dispatch(reorderSourceGroupsDone(groups))
+        SourceGroup.save(getState().groups)
+    }
+}
+
+export function toggleGroupExpansion(groupIndex: number): AppThunk {
+    return (dispatch, getState) => {
+        dispatch({
+            type: TOGGLE_GROUP_EXPANSION,
+            groupIndex: groupIndex
+        })
         SourceGroup.save(getState().groups)
     }
 }
@@ -266,6 +283,10 @@ export function groupReducer(
             ...state[action.groupIndex].sids.map(sid => new SourceGroup([sid])),
             ...state.slice(action.groupIndex + 1)
         ]
+        case TOGGLE_GROUP_EXPANSION: return state.map((g, i) => i == action.groupIndex ? ({
+            ...g,
+            expanded: !g.expanded
+        }) : g)
         default: return state
     }
 }

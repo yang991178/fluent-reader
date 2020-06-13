@@ -64,16 +64,18 @@ export function selectAllArticles(init = false): AppThunk {
 
 export function selectSources(sids: number[], menuKey: string, title: string): AppThunk {
     return (dispatch, getState) => {
-        dispatch({
-            type: SELECT_PAGE,
-            pageType: PageType.Sources,
-            keepMenu: getWindowBreakpoint(),
-            filter: getState().page.filter,
-            sids: sids,
-            menuKey: menuKey,
-            title: title,
-            init: true
-        } as PageActionTypes)
+        if (getState().app.menuKey !== menuKey) {
+            dispatch({
+                type: SELECT_PAGE,
+                pageType: PageType.Sources,
+                keepMenu: getWindowBreakpoint(),
+                filter: getState().page.filter,
+                sids: sids,
+                menuKey: menuKey,
+                title: title,
+                init: true
+            } as PageActionTypes)
+        }    
     }
 }
 

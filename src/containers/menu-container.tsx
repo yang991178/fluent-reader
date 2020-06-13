@@ -3,7 +3,7 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { Menu } from "../components/menu"
 import { toggleMenu, openGroupMenu } from "../scripts/models/app"
-import { SourceGroup } from "../scripts/models/group"
+import { SourceGroup, toggleGroupExpansion } from "../scripts/models/group"
 import { selectAllArticles, selectSources } from "../scripts/models/page"
 import { initFeeds } from "../scripts/models/feed"
 import { RSSSource } from "../scripts/models/source"
@@ -39,6 +39,12 @@ const mapDispatchToProps = dispatch => ({
     },
     groupContextMenu: (sids: number[], event: React.MouseEvent) => {
         dispatch(openGroupMenu(sids, event))
+    },
+    updateGroupExpansion: (event: React.MouseEvent<HTMLElement>, key: string, selected: string) => {
+        if ((event.target as HTMLElement).tagName !== "DIV" || key === selected) {
+            let [type, index] = key.split("-")
+            if (type === "g") dispatch(toggleGroupExpansion(parseInt(index)))
+        }
     }
 })
 

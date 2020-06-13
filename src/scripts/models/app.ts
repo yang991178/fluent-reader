@@ -5,7 +5,7 @@ import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
 import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS } from "./group"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
-import { getCurrentLocale, setLocaleSettings } from "../settings"
+import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
 
 export enum ContextMenuType {

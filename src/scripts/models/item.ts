@@ -211,10 +211,9 @@ export function markAllRead(sids: number[] = null): AppThunk {
         db.idb.update(query, { $set: { hasRead: true } }, { multi: true }, (err) => {
             if (err) {
                 console.log(err)
-            } else {
-                dispatch(markAllReadDone(sids))
             }
         })
+        dispatch(markAllReadDone(sids))
     }
 }
 
