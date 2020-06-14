@@ -236,7 +236,7 @@ export function importOPML(path: string): AppThunk {
                     })
                 })
                 Promise.allSettled(promises).then(() => {
-                    dispatch(fetchItemsSuccess([]))
+                    dispatch(fetchItemsSuccess([], {}))
                     dispatch(saveSettings())
                     if (errors.length > 0) {
                         remote.dialog.showErrorBox(
@@ -284,7 +284,7 @@ export function exportOPML(path: string): AppThunk {
         }
         let serializer = new XMLSerializer()
         fs.writeFile(path, serializer.serializeToString(xml), (err) => {
-            if (err) console.log(err)
+            if (err) remote.dialog.showErrorBox(intl.get("settings.writeError"), String(err))
         })
     }
     

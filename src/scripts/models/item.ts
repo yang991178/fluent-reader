@@ -2,7 +2,7 @@ import * as db from "../db"
 import intl = require("react-intl-universal")
 import { rssParser, domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
-import { FeedActionTypes, INIT_FEED, LOAD_MORE, FeedFilter } from "./feed"
+import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
 import Parser = require("@yang991178/rss-parser")
 
 export class RSSItem {
@@ -64,6 +64,7 @@ interface FetchItemsAction {
     status: ActionStatus
     fetchCount?: number
     items?: RSSItem[]
+    itemState?: ItemState
     errSource?: RSSSource
     err?
 }
@@ -104,11 +105,12 @@ export function fetchItemsRequest(fetchCount = 0): ItemActionTypes {
     }
 }
 
-export function fetchItemsSuccess(items: RSSItem[]): ItemActionTypes {
+export function fetchItemsSuccess(items: RSSItem[], itemState: ItemState): ItemActionTypes {
     return {
         type: FETCH_ITEMS,
         status: ActionStatus.Success,
-        items: items
+        items: items,
+        itemState: itemState
     }
 }
 
@@ -162,7 +164,7 @@ export function fetchItems(): AppThunk<Promise<void>> {
                 })
                 insertItems(items)
                 .then(inserted => {
-                    dispatch(fetchItemsSuccess(inserted.reverse()))
+                    dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
                     resolve()
                 })
                 .catch(err => {

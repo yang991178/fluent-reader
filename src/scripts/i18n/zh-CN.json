@@ -62,6 +62,7 @@
         "manageSources": "管理订阅源"
     },
     "settings": {
+        "writeError": "写入文件时发生错误",
         "name": "选项",
         "fetching": "正在更新订阅源，请稍候…",
         "exit": "退出选项",
@@ -111,6 +112,10 @@
         "groupHint": "双击分组以修改订阅源，可通过拖拽排序"
     },
     "app": {
+        "data": "应用数据",
+        "backup": "备份",
+        "restore": "还原",
+        "frData": "Fluent Reader数据",
         "language": "界面语言",
         "theme": "应用主题",
         "lightTheme": "浅色模式",

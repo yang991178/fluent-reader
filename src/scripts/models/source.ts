@@ -223,8 +223,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                                 dispatch(addSourceSuccess(source, batch))
                                 RSSSource.checkItems(source, feed.items, db.idb)
                                     .then(items => insertItems(items))
-                                    .then(items => {
-                                        //dispatch(fetchItemsSuccess(items))
+                                    .then(() => {
                                         SourceGroup.save(getState().groups)
                                         resolve(source.sid)
                                     })

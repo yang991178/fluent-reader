@@ -4,6 +4,8 @@ import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import Store = require("electron-store")
 import { schemaTypes } from "./config-schema"
+import fs = require("fs")
+import intl = require("react-intl-universal")
 
 export const store = new Store<schemaTypes>()
 
@@ -105,4 +107,29 @@ export function getCurrentLocale() {
     let set = getLocaleSettings()
     let locale = set === "default" ? remote.app.getLocale() : set
     return (locale in locales) ? locale : "en-US"
+}
+
+export function exportAll(path) {
+    let output = {}
+    for (let [key, value] of store) {
+        output[key] = value
+    }
+    output["nedb"] = {}
+    let openRequest = window.indexedDB.open("NeDB")
+    openRequest.onsuccess = () => {
+        let db = openRequest.result
+        let objectStore = db.transaction("nedbdata").objectStore("nedbdata")
+        let cursorRequest = objectStore.openCursor()
+        cursorRequest.onsuccess = () => {
+            let cursor = cursorRequest.result
+            if (cursor) {
+                output["nedb"][cursor.key] = cursor.value
+                cursor.continue()
+            } else {
+                fs.writeFile(path, JSON.stringify(output), (err) => {
+                    if (err) remote.dialog.showErrorBox(intl.get("settings.writeError"), String(err))
+                })
+            }
+        }
+    }
 }

@@ -69,3 +69,19 @@ export const cutText = (s: string, length: number) => {
 }
 
 export const googleSearch = (text: string) => openExternal("https://www.google.com/search?q=" + encodeURIComponent(text))
+
+export function mergeSortedArrays<T>(a: T[], b: T[], cmp: ((x: T, y: T) => number)): T[] {
+    let merged = new Array<T>()
+    let i = 0
+    let j = 0
+    while (i < a.length && j < b.length) {
+        if (cmp(a[i], b[j]) <= 0) {
+            merged.push(a[i++])
+        } else {
+            merged.push(b[j++])
+        }
+    }
+    while (i < a.length) merged.push(a[i++])
+    while (j < b.length) merged.push(b[j++])
+    return merged
+}

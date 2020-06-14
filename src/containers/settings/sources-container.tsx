@@ -42,6 +42,7 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
             remote.dialog.showSaveDialog(
                 remote.getCurrentWindow(),
                 {
+                    defaultPath: "*/Fluent_Reader_Export.opml",
                     filters: [{ name: intl.get("sources.opmlFile"), extensions: ["opml"] }]
                 }
             ).then(result => {

@@ -1,7 +1,7 @@
 import * as db from "../db"
 import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
-import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction } from "./item"
-import { ActionStatus, AppThunk } from "../utils"
+import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction, ItemState } from "./item"
+import { ActionStatus, AppThunk, mergeSortedArrays } from "../utils"
 import { PageActionTypes, SELECT_PAGE, PageType, APPLY_FILTER } from "./page"
 
 export enum FilterType {
@@ -115,9 +115,9 @@ export type FeedState = {
     [_id: string]: RSSFeed
 }
 
-export const INIT_FEEDS = 'INIT_FEEDS'
-export const INIT_FEED = 'INIT_FEED'
-export const LOAD_MORE = 'LOAD_MORE'
+export const INIT_FEEDS = "INIT_FEEDS"
+export const INIT_FEED = "INIT_FEED"
+export const LOAD_MORE = "LOAD_MORE"
 
 interface initFeedsAction {
     type: typeof INIT_FEEDS
@@ -278,13 +278,14 @@ export function feedReducer(
                     let nextState = { ...state }
                     for (let feed of Object.values(state)) {
                         if (feed.loaded) {
-                            let iids = action.items
+                            let items = action.items
                                 .filter(i => feed.sids.includes(i.source) && FeedFilter.testItem(feed.filter, i))
-                                .map(i => i._id)
-                            if (iids.length > 0) {
+                            if (items.length > 0) {
+                                let oldItems = feed.iids.map(id => action.itemState[id])
+                                let nextItems = mergeSortedArrays(oldItems, items, (a, b) => b.date.getTime() - a.date.getTime())
                                 nextState[feed._id] = { 
                                     ...feed, 
-                                    iids: [...iids, ...feed.iids]
+                                    iids: nextItems.map(i => i._id)
                                 }
                             }
                         }

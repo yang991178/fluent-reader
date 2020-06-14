@@ -62,6 +62,7 @@
         "manageSources": "Manage sources"
     },
     "settings": {
+        "writeError": "An error has occured while writing the file.",
         "name": "Settings",
         "fetching": "Updating sources, please wait …",
         "exit": "Exit settings",
@@ -111,6 +112,10 @@
         "groupHint": "Double click on group to edit sources. Drag and drop to reorder."
     },
     "app": {
+        "data": "Application Data",
+        "backup": "Backup",
+        "restore": "Restore",
+        "frData": "Fluent Reader Data",
         "language": "Display language",
         "theme": "Theme",
         "lightTheme": "Light mode",

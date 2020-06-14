@@ -1,8 +1,9 @@
 import * as React from "react"
 import intl = require("react-intl-universal")
 import { urlTest } from "../../scripts/utils"
-import { getProxy, getProxyStatus, toggleProxyStatus, setProxy, getThemeSettings, setThemeSettings, ThemeSettings, getLocaleSettings } from "../../scripts/settings"
-import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption } from "@fluentui/react"
+import { getProxy, getProxyStatus, toggleProxyStatus, setProxy, getThemeSettings, setThemeSettings, ThemeSettings, getLocaleSettings, exportAll } from "../../scripts/settings"
+import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption, PrimaryButton } from "@fluentui/react"
+import { remote } from "electron"
 
 type AppTabProps = {
     setLanguage: (option: string) => void
@@ -48,6 +49,18 @@ class AppTab extends React.Component<AppTabProps> {
     onThemeChange = (_, option: IChoiceGroupOption) => {
         setThemeSettings(option.key as ThemeSettings)
         this.setState({ themeSettings: option.key })
+    }
+
+    exportAll = () => {
+        remote.dialog.showSaveDialog(
+            remote.getCurrentWindow(),
+            {
+                defaultPath: "*/Fluent_Reader_Backup.frdata",
+                filters: [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
+            }
+        ).then(result => {
+            if (!result.canceled) exportAll(result.filePath)
+        })
     }
 
     render = () => (
@@ -96,6 +109,16 @@ class AppTab extends React.Component<AppTabProps> {
                     </Stack.Item>
                 </Stack>
             </form>}
+
+            <Label>{intl.get("app.data")}</Label>
+            <Stack horizontal>
+            <Stack.Item>
+                    <PrimaryButton onClick={this.exportAll} text={intl.get("app.backup")} />
+                </Stack.Item>
+                <Stack.Item>
+                    <DefaultButton text={intl.get("app.restore")} />
+                </Stack.Item>
+            </Stack>
         </div>
     )
 }

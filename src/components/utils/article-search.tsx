@@ -2,21 +2,9 @@ import * as React from "react"
 import intl = require("react-intl-universal")
 import { connect } from "react-redux"
 import { RootState } from "../../scripts/reducer"
-import { SearchBox, IRefObject, ISearchBox } from "@fluentui/react"
+import { SearchBox, ISearchBox, Async } from "@fluentui/react"
 import { AppDispatch } from "../../scripts/utils"
 import { performSearch } from "../../scripts/models/page"
-
-class Debounced {
-    public use = (func: (...args: any[]) => any, delay: number): ((...args: any[]) => void) => {
-        let timer: NodeJS.Timeout
-        return (...args: any[]) => {
-            clearTimeout(timer)
-            timer = setTimeout(() => {
-                func.apply(this, args)
-            }, delay)
-        }
-    }
-}
 
 type SearchProps = {
     searchOn: boolean
@@ -30,7 +18,14 @@ class ArticleSearch extends React.Component<SearchProps> {
 
     constructor(props: SearchProps) {
         super(props)
-        this.debouncedSearch = new Debounced().use((query: string) => props.dispatch(performSearch(query)), 750)
+        this.debouncedSearch = new Async().debounce((query: string) => {
+            try {
+                RegExp(query)
+                props.dispatch(performSearch(query))
+            } catch {
+                // console.log("Invalid regex")
+            }
+        }, 750)
         this.inputRef = React.createRef<ISearchBox>()
     }
 
