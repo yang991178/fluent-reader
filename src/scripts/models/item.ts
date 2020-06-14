@@ -1,4 +1,5 @@
 import * as db from "../db"
+import intl = require("react-intl-universal")
 import { rssParser, domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FeedFilter } from "./feed"
@@ -15,14 +16,13 @@ export class RSSItem {
     content: string
     snippet: string
     creator?: string
-    categories?: string[]
     hasRead: boolean
     starred?: true
     hidden?: true
 
     constructor (item: Parser.Item, source: RSSSource) {
         this.source = source.sid
-        this.title = item.title || ""
+        this.title = item.title || intl.get("article.untitled")
         this.link = item.link || ""
         this.fetchedDate = new Date()
         this.date = item.isoDate ? new Date(item.isoDate) : this.fetchedDate
@@ -44,7 +44,6 @@ export class RSSItem {
             this.snippet = htmlDecode(item.contentSnippet || "")
         }
         this.creator = item.creator
-        this.categories = item.categories
         this.hasRead = false
     }
 }

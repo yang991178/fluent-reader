@@ -24,7 +24,7 @@ class DefaultCard extends Card {
                 ) : null}
                 <CardInfo source={this.props.source} item={this.props.item} />
                 <h3 className="title">{this.props.item.title}</h3>
-                <p className={"snippet"+(this.props.item.thumb?"":" show")}>{this.props.item.snippet}</p>
+                <p className={"snippet"+(this.props.item.thumb?"":" show")}>{this.props.item.snippet.slice(0, 325)}</p>
             </div>
         )
     }

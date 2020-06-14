@@ -4,34 +4,65 @@ import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_S
 import { ActionStatus, AppThunk } from "../utils"
 import { PageActionTypes, SELECT_PAGE, PageType, APPLY_FILTER } from "./page"
 
-export enum FeedFilter {
+export enum FilterType {
     None,
     ShowRead = 1 << 0,
     ShowNotStarred = 1 << 1,
     ShowHidden = 1 << 2,
+    FullSearch = 1 << 3,
 
     Default = ShowRead | ShowNotStarred,
     UnreadOnly = ShowNotStarred,
-    StarredOnly = ShowRead
+    StarredOnly = ShowRead,
+    Toggles = ShowHidden | FullSearch
 }
-export namespace FeedFilter {
-    export function toQueryObject(filter: FeedFilter) {
+export class FeedFilter {
+    type: FilterType
+    search: string
+
+    constructor(type=FilterType.Default, search="") {
+        this.type = type
+        this.search = search
+    }
+
+    static toQueryObject(filter: FeedFilter) {
+        let type = filter.type
         let query = {
             hasRead: false,
             starred: true,
             hidden: { $exists: false }
+        } as any
+        if (type & FilterType.ShowRead) delete query.hasRead
+        if (type & FilterType.ShowNotStarred) delete query.starred
+        if (type & FilterType.ShowHidden) delete query.hidden
+        if (filter.search !== "") {
+            let regex = RegExp(filter.search)
+            if (type & FilterType.FullSearch) {
+                query.$or = [
+                    { title: { $regex: regex } },
+                    { snippet: { $regex: regex } }
+                ]
+            } else {
+                query.title = { $regex: regex }
+            }
         }
-        if (filter & FeedFilter.ShowRead) delete query.hasRead
-        if (filter & FeedFilter.ShowNotStarred) delete query.starred
-        if (filter & FeedFilter.ShowHidden) delete query.hidden
         return query
     }
 
-    export function testItem(filter: FeedFilter, item: RSSItem) {
+    static testItem(filter: FeedFilter, item: RSSItem) {
+        let type = filter.type
         let flag = true
-        if (!(filter & FeedFilter.ShowRead)) flag = flag && !item.hasRead
-        if (!(filter & FeedFilter.ShowNotStarred)) flag = flag && item.starred
-        if (!(filter & FeedFilter.ShowHidden)) flag = flag && !item.hidden
+        if (!(type & FilterType.ShowRead)) flag = flag && !item.hasRead
+        if (!(type & FilterType.ShowNotStarred)) flag = flag && item.starred
+        if (!(type & FilterType.ShowHidden)) flag = flag && !item.hidden
+        if (filter.search !== "") { 
+            let regex = RegExp(filter.search)
+            if (type & FilterType.FullSearch) {
+                flag = flag && (regex.test(item.title) || regex.test(item.snippet))
+            } else {
+                flag = flag && regex.test(item.title)
+            }
+        }
         return Boolean(flag)
     }
 }
@@ -50,13 +81,13 @@ export class RSSFeed {
     iids: string[]
     filter: FeedFilter
 
-    constructor (id: string = null, sids=[], filter=FeedFilter.Default) {
+    constructor (id: string = null, sids=[], filter=null) {
         this._id = id
         this.sids = sids
         this.iids = []
         this.loaded = false
         this.allLoaded = false
-        this.filter = filter
+        this.filter = filter === null ? new FeedFilter() : filter
     }
 
     static loadFeed(feed: RSSFeed, init = false): Promise<RSSItem[]> {

@@ -13,12 +13,14 @@ export type MenuProps = {
     selected: string,
     sources: SourceState,
     groups: SourceGroup[],
+    searchOn: boolean,
     toggleMenu: () => void,
     allArticles: () => void,
     selectSourceGroup: (group: SourceGroup, menuKey: string) => void,
     selectSource: (source: RSSSource) => void,
     groupContextMenu: (sids: number[], event: React.MouseEvent) => void,
     updateGroupExpansion: (event: React.MouseEvent<HTMLElement>, key: string, selected: string) => void,
+    toggleSearch: () => void,
 }
 
 export class Menu extends React.Component<MenuProps> {
@@ -29,8 +31,10 @@ export class Menu extends React.Component<MenuProps> {
             links: [
                 {
                     name: intl.get("search"),
+                    ariaLabel: this.props.searchOn ? "✓" : "0",
                     key: "search",
                     icon: "Search",
+                    onClick: this.props.toggleSearch,
                     url: null
                 },
                 {
@@ -100,7 +104,6 @@ export class Menu extends React.Component<MenuProps> {
                 {link.ariaLabel !== "0" && <div className="unread-count">{link.ariaLabel}</div>}
             </Stack>
         )
-        return ;
       };
 
     render() {

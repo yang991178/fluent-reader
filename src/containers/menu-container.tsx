@@ -4,22 +4,24 @@ import { RootState } from "../scripts/reducer"
 import { Menu } from "../components/menu"
 import { toggleMenu, openGroupMenu } from "../scripts/models/app"
 import { SourceGroup, toggleGroupExpansion } from "../scripts/models/group"
-import { selectAllArticles, selectSources } from "../scripts/models/page"
+import { selectAllArticles, selectSources, toggleSearch } from "../scripts/models/page"
 import { initFeeds } from "../scripts/models/feed"
 import { RSSSource } from "../scripts/models/source"
 
 const getApp = (state: RootState) => state.app
 const getSources = (state: RootState) => state.sources
 const getGroups = (state: RootState) => state.groups
+const getSearchOn = (state: RootState) => state.page.searchOn
 
 const mapStateToProps = createSelector(
-    [getApp, getSources, getGroups],
-    (app, sources, groups) => ({
+    [getApp, getSources, getGroups, getSearchOn],
+    (app, sources, groups, searchOn) => ({
         status: app.sourceInit,
         display: app.menu,
         selected: app.menuKey,
         sources: sources,
-        groups: groups
+        groups: groups,
+        searchOn: searchOn,
     })
 )
 
@@ -45,7 +47,8 @@ const mapDispatchToProps = dispatch => ({
             let [type, index] = key.split("-")
             if (type === "g") dispatch(toggleGroupExpansion(parseInt(index)))
         }
-    }
+    },
+    toggleSearch: () => dispatch(toggleSearch()),
 })
 
 const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(Menu)

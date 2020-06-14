@@ -3,6 +3,7 @@ import { FeedContainer } from "../containers/feed-container"
 import { AnimationClassNames, Icon } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
 import { ViewType } from "../scripts/models/page"
+import ArticleSearch from "./utils/article-search"
 
 type PageProps = {
     menuOn: boolean
@@ -29,6 +30,7 @@ class Page extends React.Component<PageProps> {
         <>
             {this.props.settingsOn ? null :
             <div className={"main" + (this.props.menuOn ? " menu-on" : "")}>
+                <ArticleSearch />
                 {this.props.feeds.map(fid => (
                     <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid} />
                 ))}
@@ -48,6 +50,7 @@ class Page extends React.Component<PageProps> {
         <>
             {this.props.settingsOn ? null :
             <div className={"list-main" + (this.props.menuOn ? " menu-on" : "")}>
+                <ArticleSearch />
                 <div className="list-feed-container">
                     {this.props.feeds.map(fid => (
                         <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid} />

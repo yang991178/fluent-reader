@@ -35,6 +35,7 @@
         "subscriptions": "Subscriptions"
     },
     "article": {
+        "untitled": "(Untitled)",
         "hide": "Hide article",
         "unhide": "Unhide article",
         "markRead": "Mark as read",
@@ -56,6 +57,7 @@
         "filter": "Filtering",
         "unreadOnly": "Unread only",
         "starredOnly": "Starred only",
+        "fullSearch": "Search in full text",
         "showHidden": "Show hidden articles",
         "manageSources": "Manage sources"
     },
@@ -72,6 +74,8 @@
         "feedback": "Feedback"
     },
     "sources": {
+        "untitled": "Source",
+        "errorAdd": "An error has occured when adding the source.",
         "errorImport": "Error importing {count, plural, =1 {# source} other {# sources}}.",
         "opmlFile": "OPML File",
         "name": "Source name",

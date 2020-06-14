@@ -7,7 +7,7 @@
     "build": "webpack --config ./webpack.config.js",
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
-    "package-win": "electron-builder --win --x64",
+    "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w --arm64",
     "package-mac": "sudo electron-builder --mac"
   },
   "keywords": [],
@@ -19,13 +19,10 @@
     "copyright": "Copyright © 2020 Haoyuan Liu",
     "files": "./dist/**/*",
     "directories": {
-      "output": "./bin/"
+      "output": "./bin/${platform}/${arch}/"
     },
     "win": {
-      "target": [
-        "nsis",
-        "appx"
-      ],
+      "target": [ "nsis", "appx" ],
       "certificateFile": "./bin/key.pfx"
     },
     "appx": {
@@ -41,7 +38,7 @@
       "setBuildNumber": true
     },
     "mac": {
-      "target": ["dmg"]
+      "target": [ "dmg" ]
     }
   },
   "devDependencies": {
@@ -55,7 +52,7 @@
     "@types/reselect": "^2.2.0",
     "@yang991178/electron-proxy-agent": "^1.2.1",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^8.3.0",
+    "electron": "^9.0.4",
     "electron-builder": "^22.7.0",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",

@@ -35,6 +35,7 @@
         "subscriptions": "订阅源"
     },
     "article": {
+        "untitled": "（无标题）",
         "hide": "隐藏文章",
         "unhide": "取消隐藏",
         "markRead": "标为已读",
@@ -56,6 +57,7 @@
         "filter": "筛选",
         "unreadOnly": "仅未读文章",
         "starredOnly": "仅星标文章",
+        "fullSearch": "在正文中搜索",
         "showHidden": "显示隐藏文章",
         "manageSources": "管理订阅源"
     },
@@ -72,6 +74,8 @@
         "feedback": "反馈"
     },
     "sources": {
+        "untitled": "订阅源",
+        "errorAdd": "添加订阅源时出错",
         "errorImport": "导入{count}项订阅源时出错",
         "opmlFile": "OPML文件",
         "name": "订阅源名称",

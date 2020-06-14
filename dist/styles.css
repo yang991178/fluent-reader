@@ -337,7 +337,6 @@ img.favicon {
 
 .main {
     height: calc(100% - 32px);
-    position: relative;
     overflow-y: scroll;
 }
 .main::before {
@@ -351,6 +350,19 @@ img.favicon {
     margin-bottom: -32px;
     background: linear-gradient(var(--neutralLighterAlt), #faf9f800);
     z-index: 1;
+}
+.article-search {
+    z-index: 4;
+    position: absolute;
+    top:0;
+    left: 36px;
+    width: 100%;
+    max-width: calc(100% - 484px);
+    margin: 4px 16px;
+    border: none;
+    -webkit-app-region: none;
+    height: 28px;
+    box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132), 0 0.3px 0.9px 0 rgba(0,0,0,.108);
 }
 
 @media (min-width: 1441px) {
@@ -385,6 +397,10 @@ img.favicon {
     }
     .main.menu-on, .list-main.menu-on {
         margin-left: 280px;
+    }
+    .menu-on .article-search {
+        left: 280px;
+        max-width: calc(100% - 728px);
     }
 
     nav.hide-btns .btn-group .btn, nav.menu-on .btn-group .btn.hide-wide, .menu .btn-group .btn.hide-wide {
@@ -460,7 +476,7 @@ img.favicon {
 .side-article-wrapper .article > .ms-Stack {
     border-top: 1px solid var(--neutralQuaternaryAlt);
 }
-.list-feed-container::before, .side-article-wrapper::before {
+.list-feed-container:first-child::before, .side-article-wrapper::before {
     content: "";
     display: block;
     width: 100%;
@@ -477,6 +493,11 @@ img.favicon {
     margin-top: -32px;
     overflow: hidden;
     background: var(--white);
+}
+.list-main .article-search {
+    left: 0;
+    max-width: 330px;
+    margin: 4px 10px;
 }
 .list-feed-container {
     width: 350px;

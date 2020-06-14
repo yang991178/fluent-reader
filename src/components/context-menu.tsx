@@ -7,7 +7,7 @@ import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
 import { ViewType } from "../scripts/models/page"
-import { FeedFilter } from "../scripts/models/feed"
+import { FilterType } from "../scripts/models/feed"
 
 export type ContextMenuProps = ContextReduxProps & {
     type: ContextMenuType
@@ -17,7 +17,7 @@ export type ContextMenuProps = ContextReduxProps & {
     feedId?: string
     text?: string
     viewType?: ViewType
-    filter?: FeedFilter
+    filter?: FilterType
     sids?: number[]
     showItem: (feedId: string, item: RSSItem) => void
     markRead: (item: RSSItem) => void
@@ -25,8 +25,8 @@ export type ContextMenuProps = ContextReduxProps & {
     toggleStarred: (item: RSSItem) => void
     toggleHidden: (item: RSSItem) => void
     switchView: (viewType: ViewType) => void
-    switchFilter: (filter: FeedFilter) => void
-    toggleFilter: (filter: FeedFilter) => void
+    switchFilter: (filter: FilterType) => void
+    toggleFilter: (filter: FilterType) => void
     markAllRead: (sids: number[]) =>  void
     settings: () => void
     close: () => void
@@ -146,34 +146,41 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                                 text: intl.get("allArticles"),
                                 iconProps: { iconName: "ClearFilter" },
                                 canCheck: true,
-                                checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.Default,
-                                onClick: () => this.props.switchFilter(FeedFilter.Default)
+                                checked: (this.props.filter & ~FilterType.Toggles) == FilterType.Default,
+                                onClick: () => this.props.switchFilter(FilterType.Default)
                             },
                             {
                                 key: "unreadOnly",
                                 text: intl.get("context.unreadOnly"),
                                 iconProps: { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } },
                                 canCheck: true,
-                                checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.UnreadOnly,
-                                onClick: () => this.props.switchFilter(FeedFilter.UnreadOnly)
+                                checked: (this.props.filter & ~FilterType.Toggles) == FilterType.UnreadOnly,
+                                onClick: () => this.props.switchFilter(FilterType.UnreadOnly)
                             },
                             {
                                 key: "starredOnly",
                                 text: intl.get("context.starredOnly"),
                                 iconProps: { iconName: "FavoriteStarFill" },
                                 canCheck: true,
-                                checked: (this.props.filter & ~FeedFilter.ShowHidden) == FeedFilter.StarredOnly,
-                                onClick: () => this.props.switchFilter(FeedFilter.StarredOnly)
+                                checked: (this.props.filter & ~FilterType.Toggles) == FilterType.StarredOnly,
+                                onClick: () => this.props.switchFilter(FilterType.StarredOnly)
                             }
                         ]
                     }
                 },
                 {
+                    key: "fullSearch",
+                    text: intl.get("context.fullSearch"),
+                    canCheck: true,
+                    checked: Boolean(this.props.filter & FilterType.FullSearch),
+                    onClick: () => this.props.toggleFilter(FilterType.FullSearch)
+                },
+                {
                     key: "showHidden",
                     text: intl.get("context.showHidden"),
                     canCheck: true,
-                    checked: Boolean(this.props.filter & FeedFilter.ShowHidden),
-                    onClick: () => this.props.toggleFilter(FeedFilter.ShowHidden)
+                    checked: Boolean(this.props.filter & FilterType.ShowHidden),
+                    onClick: () => this.props.toggleFilter(FilterType.ShowHidden)
                 }
             ]
             case ContextMenuType.Group: return [

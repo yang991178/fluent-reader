@@ -1,9 +1,11 @@
 import Parser = require("@yang991178/rss-parser")
+import intl = require("react-intl-universal")
 import * as db from "../db"
 import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
+import { remote } from "electron"
 
 export enum SourceOpenTarget {
     Local, Webpage, External
@@ -14,7 +16,6 @@ export class RSSSource {
     url: string
     iconurl: string
     name: string
-    description: string
     openTarget: SourceOpenTarget
     unreadCount: number
 
@@ -26,8 +27,10 @@ export class RSSSource {
 
     async fetchMetaData(parser: Parser) {
         let feed = await parser.parseURL(this.url)
-        if (!this.name && feed.title) this.name = feed.title.trim()
-        this.description = feed.description
+        if (!this.name) {
+            if (feed.title) this.name = feed.title.trim()
+            this.name = this.name || intl.get("sources.untitled")
+        }
         let domain = this.url.split("/").slice(0, 3).join("/")
         let f: string = null
         try {
@@ -232,6 +235,9 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                 .catch(e => {
                     console.log(e)
                     dispatch(addSourceFailure(e, batch))
+                    if (!batch) {
+                        remote.dialog.showErrorBox(intl.get("sources.errorAdd"), String(e))
+                    }
                     return new Promise((_, reject) => { reject(e) })
                 })
         }

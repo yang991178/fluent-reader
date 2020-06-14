@@ -28,14 +28,15 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         },
         deleteSource: (source: RSSSource) => dispatch(deleteSource(source)),
         importOPML: () => {
-            let path = remote.dialog.showOpenDialogSync(
+            remote.dialog.showOpenDialog(
                 remote.getCurrentWindow(),
                 {
                     filters: [{ name: intl.get("sources.opmlFile"), extensions: ["xml", "opml"] }],
                     properties: ["openFile"]
                 }
-            )
-            if (path && path.length > 0) dispatch(importOPML(path[0]))
+            ).then(result => {
+                if (!result.canceled && result.filePaths.length > 0) dispatch(importOPML(result.filePaths[0]))
+            })
         },
         exportOPML: () => {
             remote.dialog.showSaveDialog(

@@ -26,7 +26,8 @@ function createWindow() {
         show: false,
         webPreferences: {
             nodeIntegration: true,
-            webviewTag: true
+            webviewTag: true,
+            enableRemoteModule: true
         }
     })
     mainWindowState.manage(mainWindow)

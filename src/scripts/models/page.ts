@@ -1,8 +1,9 @@
-import { ALL, SOURCE, loadMore, FeedFilter, initFeeds } from "./feed"
+import { ALL, SOURCE, loadMore, FeedFilter, FilterType, initFeeds } from "./feed"
 import { getWindowBreakpoint, AppThunk } from "../utils"
 import { getDefaultView } from "../settings"
 import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
+import { toggleMenu } from "./app"
 
 export const SELECT_PAGE = "SELECT_PAGE"
 export const SWITCH_VIEW = "SWITCH_VIEW"
@@ -10,6 +11,7 @@ export const SHOW_ITEM = "SHOW_ITEM"
 export const SHOW_OFFSET_ITEM = "SHOW_OFFSET_ITEM"
 export const DISMISS_ITEM = "DISMISS_ITEM"
 export const APPLY_FILTER = "APPLY_FILTER"
+export const TOGGLE_SEARCH = "TOGGLE_SEARCH"
 
 export enum PageType {
     AllArticles, Sources, Page
@@ -47,8 +49,10 @@ interface ApplyFilterAction {
 }
 
 interface DismissItemAction { type: typeof DISMISS_ITEM }
+interface ToggleSearchAction { type: typeof TOGGLE_SEARCH }
 
-export type PageActionTypes = SelectPageAction | SwitchViewAction | ShowItemAction | DismissItemAction | ApplyFilterAction
+export type PageActionTypes = SelectPageAction | SwitchViewAction | ShowItemAction 
+    | DismissItemAction | ApplyFilterAction | ToggleSearchAction
 
 export function selectAllArticles(init = false): AppThunk {
     return (dispatch, getState) => {
@@ -95,6 +99,22 @@ export function showItem(feedId: string, item: RSSItem): PageActionTypes {
 }
 
 export const dismissItem = (): PageActionTypes => ({ type: DISMISS_ITEM })
+
+export const toggleSearch = (): AppThunk => {
+    return (dispatch, getState) => {
+        let state = getState()
+        dispatch(({ type: TOGGLE_SEARCH }))
+        if (!getWindowBreakpoint()) {
+            dispatch(toggleMenu())
+        }
+        if (state.page.searchOn) {
+            dispatch(applyFilter({
+                ...state.page.filter,
+                search: ""
+            }))
+        }
+    }
+}
 
 export function showOffsetItem(offset: number): AppThunk {
     return (dispatch, getState) => {
@@ -150,28 +170,46 @@ function applyFilter(filter: FeedFilter): AppThunk {
     }
 }
 
-export function switchFilter(filter: FeedFilter): AppThunk {
+export function switchFilter(filter: FilterType): AppThunk {
     return (dispatch, getState) => {
         let oldFilter = getState().page.filter
-        let newFilter = filter | (oldFilter & FeedFilter.ShowHidden)
-        if (newFilter != oldFilter) {
-            dispatch(applyFilter(newFilter))
+        let oldType = oldFilter.type
+        let newType = filter | (oldType & FilterType.Toggles)
+        if (oldType != newType) {
+            dispatch(applyFilter({
+                ...oldFilter,
+                type: newType
+            }))
         }
     }
 }
 
-export function toggleFilter(filter: FeedFilter): AppThunk {
+export function toggleFilter(filter: FilterType): AppThunk {
     return (dispatch, getState) => {
-        let oldFilter = getState().page.filter
-        dispatch(applyFilter(oldFilter ^ filter))
+        let nextFilter = { ...getState().page.filter }
+        nextFilter.type ^= filter
+        dispatch(applyFilter(nextFilter))
+    }
+}
+
+export function performSearch(query: string): AppThunk {
+    return (dispatch, getState) => {
+        let state = getState()
+        if (state.page.searchOn) {
+            dispatch(applyFilter({
+                ...state.page.filter,
+                search: query
+            }))
+        }
     }
 }
 
 export class PageState {
     viewType = getDefaultView()
-    filter = FeedFilter.Default
+    filter = new FeedFilter()
     feedId = ALL
     itemId = null as string
+    searchOn = false
 }
 
 export function pageReducer(
@@ -208,6 +246,10 @@ export function pageReducer(
         case DISMISS_ITEM: return {
             ...state,
             itemId: null
+        }
+        case TOGGLE_SEARCH: return {
+            ...state,
+            searchOn: !state.searchOn
         }
         default: return state
     }
