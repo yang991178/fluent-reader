@@ -3,7 +3,8 @@ import windowStateKeeper = require("electron-window-state")
 import Store = require("electron-store")
 
 let mainWindow: BrowserWindow
-const store = new Store()
+let store = new Store()
+let restarting = false
 nativeTheme.themeSource = store.get("theme", "system")
 
 function createWindow() {
@@ -31,28 +32,38 @@ function createWindow() {
         }
     })
     mainWindowState.manage(mainWindow)
-    mainWindow.on('ready-to-show', () => {
+    mainWindow.on("ready-to-show", () => {
         mainWindow.show()
         mainWindow.focus()
         mainWindow.webContents.openDevTools()
     });
     // and load the index.html of the app.
-    mainWindow.loadFile((app.isPackaged ? "dist/" : "") + 'index.html')
+    mainWindow.loadFile((app.isPackaged ? "dist/" : "") + "index.html")
 }
 
 Menu.setApplicationMenu(null)
 
-app.on('ready', createWindow)
+app.on("ready", createWindow)
 
-app.on('window-all-closed', function () {
+app.on("window-all-closed", function () {
     mainWindow = null
-    if (process.platform !== 'darwin') {
+    if (restarting) {
+        restarting = false
+        store = new Store()
+        nativeTheme.themeSource = store.get("theme", "system")
+        createWindow()
+    } else if (process.platform !== "darwin") {
         app.quit()
     }
 })
 
-app.on('activate', function () {
+app.on("activate", function () {
     if (mainWindow === null) {
         createWindow()
     }
+})
+
+ipcMain.on("restart", () => {
+    restarting = true
+    mainWindow.close()
 })

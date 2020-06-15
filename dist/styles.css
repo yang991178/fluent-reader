@@ -75,6 +75,10 @@ body {
     background: #a4262c;
     border-color: #a4262c;
 }
+.ms-Button--primary.danger.is-disabled {
+    background: var(--neutralLighter);
+    border-color: var(--neutralLighter);
+}
 .ms-Button--commandBar.active {
     background-color: var(--neutralLight);
     color: var(--neutralDark);
@@ -326,6 +330,11 @@ img.favicon {
     font-size: 12px;
     color: var(--neutralSecondary);
 }
+.settings-hint.up {
+    position: relative;
+    top: -12px;
+    line-height: unset;
+}
 .settings-about {
     margin: 72px 0;
     color: var(--black);
@@ -542,6 +551,15 @@ img.favicon {
 }
 .flex-fix {
     min-width: 280px;
+}
+.cards-feed-container > .empty, .list-feed > .empty {
+    width: 100%;
+    height: calc(100vh - 64px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: var(--neutralSecondary);
+    font-size: 14px;
 }
 
 .info {

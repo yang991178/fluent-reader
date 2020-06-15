@@ -15,15 +15,17 @@ class DangerButton extends PrimaryButton {
     }
 
     onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (this.state.confirming) {
-            if (this.props.onClick) this.props.onClick(event)
-            clearTimeout(this.timerID)
-            this.clear()
-        } else {
-            this.setState({ confirming: true })
-            this.timerID = setTimeout(() => {
+        if (!this.props.disabled) {
+            if (this.state.confirming) {
+                if (this.props.onClick) this.props.onClick(event)
+                clearTimeout(this.timerID)
                 this.clear()
-            }, 5000)
+            } else {
+                this.setState({ confirming: true })
+                this.timerID = setTimeout(() => {
+                    this.clear()
+                }, 5000)
+            }
         }
     }
 

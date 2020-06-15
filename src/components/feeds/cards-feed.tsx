@@ -53,6 +53,9 @@ class CardsFeed extends React.Component<FeedProps> {
                         onClick={() => this.props.loadMore(this.props.feed)} /></div>
                     : null
                 }
+                { this.props.items.length === 0 && (
+                    <div className="empty">{intl.get("article.empty")}</div>
+                )}
             </div>
         )
     }

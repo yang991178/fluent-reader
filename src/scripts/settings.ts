@@ -1,6 +1,6 @@
 import { remote, ipcRenderer } from "electron"
 import { ViewType } from "./models/page"
-import { IPartialTheme, loadTheme } from "@fluentui/react"
+import { IPartialTheme, loadTheme, values } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import Store = require("electron-store")
 import { schemaTypes } from "./config-schema"
@@ -109,7 +109,7 @@ export function getCurrentLocale() {
     return (locale in locales) ? locale : "en-US"
 }
 
-export function exportAll(path) {
+export function exportAll(path: string) {
     let output = {}
     for (let [key, value] of store) {
         output[key] = value
@@ -132,4 +132,35 @@ export function exportAll(path) {
             }
         }
     }
+}
+
+export function importAll(path) {
+    fs.readFile(path, "utf-8", async (err, data) => {
+        if (err) {
+            console.log(err)
+        } else {
+            let configs = JSON.parse(data)
+            let openRequest = window.indexedDB.open("NeDB")
+            openRequest.onsuccess = () => {
+                let db = openRequest.result
+                let objectStore = db.transaction("nedbdata", "readwrite").objectStore("nedbdata")
+                let requests = Object.entries(configs.nedb).map(([key, value]) => {
+                    return objectStore.put(value, key)
+                })
+                let promises = requests.map(req => new Promise((resolve, reject) => {
+                    req.onsuccess = () => resolve()
+                    req.onerror = () => reject()
+                }))
+                Promise.all(promises).then(() => {
+                    delete configs.nedb
+                    store.clear()
+                    for (let [key, value] of Object.entries(configs)) {
+                        // @ts-ignore
+                        store.set(key, value)
+                    }
+                    ipcRenderer.send("restart")
+                })
+            }
+        }
+    })
 }

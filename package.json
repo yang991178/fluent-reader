@@ -22,8 +22,7 @@
       "output": "./bin/${platform}/${arch}/"
     },
     "win": {
-      "target": [ "nsis", "appx" ],
-      "certificateFile": "./bin/key.pfx"
+      "target": [ "nsis", "appx" ]
     },
     "appx": {
       "applicationId": "FluentReader",

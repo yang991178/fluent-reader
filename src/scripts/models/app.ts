@@ -7,6 +7,7 @@ import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELET
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
 import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
+import * as db from "../db"
 
 export enum ContextMenuType {
     Hidden, Item, Text, View, Group
@@ -198,7 +199,10 @@ export function initApp(): AppThunk {
             dispatch(initFeeds())
         ).then(() => {
             dispatch(selectAllArticles())
-            dispatch(fetchItems())
+            return dispatch(fetchItems())
+        }).then(() => {
+            db.sdb.persistence.compactDatafile()
+            db.idb.persistence.compactDatafile()
         })
     }
 }

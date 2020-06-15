@@ -26,22 +26,22 @@ export class RSSItem {
         this.link = item.link || ""
         this.fetchedDate = new Date()
         this.date = item.isoDate ? new Date(item.isoDate) : this.fetchedDate
-        if (item.thumb) this.thumb = item.thumb
-        else if (item.image) this.thumb = item.image
-        else {
-            let dom = domParser.parseFromString(item.content, "text/html")
-            let baseEl = dom.createElement('base')
-            baseEl.setAttribute('href', this.link.split("/").slice(0, 3).join("/"))
-            dom.head.append(baseEl)
-            let img = dom.querySelector("img")
-            if (img && img.src) this.thumb = img.src
-        }
         if (item.fullContent) {
             this.content = item.fullContent
             this.snippet = htmlDecode(item.fullContent)
         } else {
             this.content = item.content || ""
             this.snippet = htmlDecode(item.contentSnippet || "")
+        }
+        if (item.thumb) this.thumb = item.thumb
+        else if (item.image) this.thumb = item.image
+        else {
+            let dom = domParser.parseFromString(this.content, "text/html")
+            let baseEl = dom.createElement('base')
+            baseEl.setAttribute('href', this.link.split("/").slice(0, 3).join("/"))
+            dom.head.append(baseEl)
+            let img = dom.querySelector("img")
+            if (img && img.src) this.thumb = img.src
         }
         this.creator = item.creator
         this.hasRead = false

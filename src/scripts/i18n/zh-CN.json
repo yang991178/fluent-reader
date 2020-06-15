@@ -35,6 +35,7 @@
         "subscriptions": "订阅源"
     },
     "article": {
+        "empty": "无文章",
         "untitled": "（无标题）",
         "hide": "隐藏文章",
         "unhide": "取消隐藏",
@@ -112,6 +113,16 @@
         "groupHint": "双击分组以修改订阅源，可通过拖拽排序"
     },
     "app": {
+        "cleanup": "清理",
+        "cache": "清空缓存",
+        "cacheSize": "已缓存{size}数据",
+        "deleteChoices": "删除 … 天前的文章",
+        "confirmDelete": "删除文章",
+        "daysAgo": "{days}天前",
+        "deleteAll": "删除全部文章",
+        "calculatingSize": "正在计算占用空间…",
+        "itemSize": "本地文章约占用{size}空间",
+        "confirmImport": "确认要从备份文件导入数据吗？这将清除所有应用数据。",
         "data": "应用数据",
         "backup": "备份",
         "restore": "还原",

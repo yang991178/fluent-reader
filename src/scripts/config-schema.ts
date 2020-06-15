@@ -12,6 +12,7 @@ import { SourceGroup } from "./models/group"
 } */
 
 export type schemaTypes = {
+    version: string
     theme: ThemeSettings
     pac: string
     pacOn: boolean

@@ -35,6 +35,7 @@
         "subscriptions": "Subscriptions"
     },
     "article": {
+        "empty": "No articles",
         "untitled": "(Untitled)",
         "hide": "Hide article",
         "unhide": "Unhide article",
@@ -112,6 +113,16 @@
         "groupHint": "Double click on group to edit sources. Drag and drop to reorder."
     },
     "app": {
+        "cleanup": "Clean up",
+        "cache": "Clear cache",
+        "cacheSize": "Cached {size} of data",
+        "deleteChoices": "Delete articles from ... days ago",
+        "confirmDelete": "Delete",
+        "daysAgo": "{days} days ago",
+        "deleteAll": "Delete all articles",
+        "calculatingSize": "Calculating size...",
+        "itemSize": "Around {size} of local storage is occupied by articles",
+        "confirmImport": "Do you really want to import data from the backup file? All current data will be wiped.",
         "data": "Application Data",
         "backup": "Backup",
         "restore": "Restore",

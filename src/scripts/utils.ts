@@ -85,3 +85,25 @@ export function mergeSortedArrays<T>(a: T[], b: T[], cmp: ((x: T, y: T) => numbe
     while (j < b.length) merged.push(b[j++])
     return merged
 }
+
+export function byteToMB(B: number) {
+    let MB = Math.round(B / 1048576)
+    return MB + "MB"
+}
+
+export function calculateItemSize(): Promise<number> {
+    return new Promise((resolve, reject) => {
+        let openRequest = window.indexedDB.open("NeDB")
+        openRequest.onsuccess = () => {
+            let db = openRequest.result
+            let objectStore = db.transaction("nedbdata").objectStore("nedbdata")
+            let getRequest = objectStore.get("items")
+            getRequest.onsuccess = () => {
+                let resultBuffer = Buffer.from(getRequest.result)
+                resolve(resultBuffer.length)
+            }
+            getRequest.onerror = () => reject()
+        }
+        openRequest.onerror = () => reject()
+    })
+}
