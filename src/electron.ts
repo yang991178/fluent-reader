@@ -1,10 +1,12 @@
 import { app, ipcMain, BrowserWindow, Menu, nativeTheme } from "electron"
 import windowStateKeeper = require("electron-window-state")
 import Store = require("electron-store")
+import performUpdate from "./scripts/update-scripts"
 
 let mainWindow: BrowserWindow
 let store = new Store()
 let restarting = false
+performUpdate(store)
 nativeTheme.themeSource = store.get("theme", "system")
 
 function createWindow() {
@@ -35,7 +37,7 @@ function createWindow() {
     mainWindow.on("ready-to-show", () => {
         mainWindow.show()
         mainWindow.focus()
-        mainWindow.webContents.openDevTools()
+        if (!app.isPackaged) mainWindow.webContents.openDevTools()
     });
     // and load the index.html of the app.
     mainWindow.loadFile((app.isPackaged ? "dist/" : "") + "index.html")

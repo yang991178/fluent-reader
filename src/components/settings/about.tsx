@@ -2,6 +2,7 @@ import * as React from "react"
 import intl = require("react-intl-universal")
 import { Stack, Link } from "@fluentui/react"
 import { openExternal } from "../../scripts/utils"
+import { remote } from "electron"
 
 class AboutTab extends React.Component {
     render = () => (
@@ -9,7 +10,7 @@ class AboutTab extends React.Component {
             <Stack className="settings-about" horizontalAlign="center">
                 <img src="logo.svg" style={{width: 120, height: 120}} />
                 <h3>Fluent Reader</h3>
-                <small>{intl.get("settings.version")} 0.1.0</small>
+                <small>{intl.get("settings.version")} {remote.app.getVersion()}</small>
                 <p className="settings-hint">Copyright © 2020 Haoyuan Liu. All rights reserved.</p>
                 <Stack horizontal horizontalAlign="center" tokens={{childrenGap: 12}}>
                     <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader")}>{intl.get("settings.openSource")}</Link></small>

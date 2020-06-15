@@ -9,6 +9,9 @@ module.exports = [
       rules: [{
         test: /\.ts$/,
         include: /src/,
+        resolve: {
+          extensions: ['.ts', '.js']
+        },
         use: [{ loader: 'ts-loader' }]
       }]
     },

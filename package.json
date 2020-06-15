@@ -1,13 +1,13 @@
 {
   "name": "fluent-reader",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A simplistic, modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
     "build": "webpack --config ./webpack.config.js",
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
-    "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w --arm64",
+    "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w appx:arm64",
     "package-mac": "sudo electron-builder --mac"
   },
   "keywords": [],
@@ -35,6 +35,12 @@
       ],
       "showNameOnTiles": true,
       "setBuildNumber": true
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true
     },
     "mac": {
       "target": [ "dmg" ]

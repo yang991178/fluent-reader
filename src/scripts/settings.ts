@@ -9,6 +9,14 @@ import intl = require("react-intl-universal")
 
 export const store = new Store<schemaTypes>()
 
+const MENU_STORE_KEY = "menuOn"
+export function getDefaultMenu() {
+    return store.get(MENU_STORE_KEY, false)
+}
+export function setDefaultMenu(state: boolean) {
+    store.set(MENU_STORE_KEY, state)
+}
+
 const PAC_STORE_KEY = "pac"
 const PAC_STATUS_KEY = "pacOn"
 export function getProxyStatus() {

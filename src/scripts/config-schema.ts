@@ -20,4 +20,5 @@ export type schemaTypes = {
     locale: string
     sourceGroups: SourceGroup[]
     fontSize: number
+    menuOn: boolean
 }
