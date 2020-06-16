@@ -12,7 +12,11 @@ type SearchProps = {
     dispatch: AppDispatch
 }
 
-class ArticleSearch extends React.Component<SearchProps> {
+type SearchState = {
+    query: string
+}
+
+class ArticleSearch extends React.Component<SearchProps, SearchState> {
     debouncedSearch: (query: string) => void
     inputRef: React.RefObject<ISearchBox>
 
@@ -27,10 +31,12 @@ class ArticleSearch extends React.Component<SearchProps> {
             }
         }, 750)
         this.inputRef = React.createRef<ISearchBox>()
+        this.state = { query: props.initQuery }
     }
 
     onSearchChange = (_, newValue: string) => {
         this.debouncedSearch(newValue)
+        this.setState({ query: newValue })
     }
 
     componentDidUpdate(prevProps: SearchProps) {
@@ -45,7 +51,7 @@ class ArticleSearch extends React.Component<SearchProps> {
                 componentRef={this.inputRef}
                 className="article-search"
                 placeholder={intl.get("search")}
-                defaultValue={this.props.initQuery}
+                value={this.state.query}
                 onChange={this.onSearchChange} />
         )
     }
