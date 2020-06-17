@@ -15,7 +15,7 @@ If you are using macOS or an older version of Windows, you can also [get Fluent 
 ## Features
 
 <p align="center">
-  <img src="https://github.com/yang991178/rss-reader/raw/master/screenshot.jpg">
+  <img src="https://github.com/yang991178/rss-reader/raw/master/docs/imgs/screenshot.jpg">
 </p>
 
 - A modern UI inspired by Fluent Design System with full dark mode support.
