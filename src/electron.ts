@@ -3,6 +3,11 @@ import windowStateKeeper = require("electron-window-state")
 import Store = require("electron-store")
 import performUpdate from "./scripts/update-scripts"
 
+const locked = app.requestSingleInstanceLock()
+if (!locked) {
+    app.quit()
+}
+
 let mainWindow: BrowserWindow
 let store = new Store()
 let restarting = false
@@ -46,6 +51,12 @@ function createWindow() {
 Menu.setApplicationMenu(null)
 
 app.on("ready", createWindow)
+
+app.on("second-instance", () => {
+    if (mainWindow !== null) {
+        mainWindow.focus()
+    }
+})
 
 app.on("window-all-closed", function () {
     mainWindow = null
