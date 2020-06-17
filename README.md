@@ -7,12 +7,22 @@
 
 ## Download
 
-Fluent Reader is currently under development and is only available via source code. 
-Alpha builds will be available in packaged binaries through GitHub releases and Microsoft Store later.
+For Windows 10 users, the recommended way of installation is through [Microsoft Store](https://www.microsoft.com/store/apps/9P71FC94LRH8?cid=github). 
+This enables auto-update and experimental ARM64 support.
+
+If you are using macOS or an older version of Windows, you can also [get Fluent Reader from GitHub releases](https://github.com/yang991178/fluent-reader/releases).
+
+## Features
 
 <p align="center">
   <img src="https://github.com/yang991178/rss-reader/raw/master/screenshot.jpg">
 </p>
+
+- A modern UI inspired by Fluent Design System with full dark mode support.
+- Importing or exporting OPML files, full application data backup & restoration.
+- Read the full content with the built-in article view or load webpages by default.
+- Search for articles with regular expressions or filter by read status.
+- Organize your subscriptions with folder-like groupings.
 
 ## Development
 

@@ -67,9 +67,12 @@ a:hover, a:active {
 .screenshot {
     display: block;
     margin: 0 auto;
-    width: 95%;
+    width: 90%;
     max-width: 1464px;
     overflow: hidden;
+}
+.screenshot > img {
+    width: 100%;
 }
 
 .light-container {
