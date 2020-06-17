@@ -18,11 +18,14 @@ export class RSSSource {
     name: string
     openTarget: SourceOpenTarget
     unreadCount: number
+    lastFetched: Date
+    fetchFrequency?: number // in minutes
 
     constructor(url: string, name: string = null) {
         this.url = url
         this.name = name
         this.openTarget = SourceOpenTarget.Local
+        this.lastFetched = new Date()
     }
 
     async fetchMetaData(parser: Parser) {
@@ -46,10 +49,10 @@ export class RSSSource {
         }
     }
 
-    private static checkItem(source: RSSSource, item: Parser.Item, db: Nedb<RSSItem>): Promise<RSSItem> {
+    private static checkItem(source: RSSSource, item: Parser.Item): Promise<RSSItem> {
         return new Promise<RSSItem>((resolve, reject) => {
             let i = new RSSItem(item, source)
-            db.findOne({
+            db.idb.findOne({
                 source: i.source,
                 title: i.title,
                 date: i.date
@@ -66,11 +69,11 @@ export class RSSSource {
         })
     }
 
-    static checkItems(source: RSSSource, items: Parser.Item[], db: Nedb<RSSItem>): Promise<RSSItem[]> {
+    static checkItems(source: RSSSource, items: Parser.Item[]): Promise<RSSItem[]> {
         return new Promise<RSSItem[]>((resolve, reject) => {
             let p = new Array<Promise<RSSItem>>()
             for (let item of items) {
-                p.push(this.checkItem(source, item, db))
+                p.push(this.checkItem(source, item))
             }
             Promise.all(p).then(values => {
                 resolve(values.filter(v => v != null))
@@ -78,9 +81,10 @@ export class RSSSource {
         })
     }
 
-    static async fetchItems(source: RSSSource, parser: Parser, db: Nedb<RSSItem>) {
+    static async fetchItems(source: RSSSource, parser: Parser) {
         let feed = await parser.parseURL(source.url)
-        return await this.checkItems(source, feed.items, db)
+        db.sdb.update({ sid: source.sid }, { $set: { lastFetched: new Date() } })
+        return await this.checkItems(source, feed.items)
     }
 }
 
@@ -204,6 +208,34 @@ export function addSourceFailure(err, batch: boolean): SourceActionTypes {
     }
 }
 
+function insertSource(source: RSSSource, trials = 0): AppThunk<Promise<RSSSource>> {
+    return (dispatch, getState) => {
+        return new Promise((resolve, reject) => {
+            if (trials >= 25) {
+                reject("Failed to insert the source into NeDB.")
+                return
+            }
+            let sids = Object.values(getState().sources).map(s => s.sid)
+            source.sid = Math.max(...sids, -1) + 1
+            db.sdb.insert(source, (err, inserted) => {
+                if (err) {
+                    if (/^Can't insert key [0-9]+,/.test(err.message)) {
+                        console.log("sid conflict")
+                        dispatch(insertSource(source, trials + 1))
+                            .then(inserted => resolve(inserted))
+                            .catch(err => reject(err))
+                    } else {
+                        reject(err)
+                    }
+                } else {
+                    resolve(inserted)
+                }
+            })
+        })
+    }
+
+}
+
 export function addSource(url: string, name: string = null, batch = false): AppThunk<Promise<number>> {
     return (dispatch, getState) => {
         let app = getState().app
@@ -212,32 +244,24 @@ export function addSource(url: string, name: string = null, batch = false): AppT
             let source = new RSSSource(url, name)
             return source.fetchMetaData(rssParser)
                 .then(feed => {
-                    let sids = Object.values(getState().sources).map(s => s.sid)
-                    source.sid = Math.max(...sids, -1) + 1
-                    return new Promise<number>((resolve, reject) => {
-                        db.sdb.insert(source, (err) => {
-                            if (err) {
-                                reject(err)
-                            } else {
-                                source.unreadCount = feed.items.length
-                                dispatch(addSourceSuccess(source, batch))
-                                RSSSource.checkItems(source, feed.items, db.idb)
-                                    .then(items => insertItems(items))
-                                    .then(() => {
-                                        SourceGroup.save(getState().groups)
-                                        resolve(source.sid)
-                                    })
-                            }
+                    return dispatch(insertSource(source))
+                        .then(inserted => {
+                            inserted.unreadCount = feed.items.length
+                            dispatch(addSourceSuccess(inserted, batch))
+                            return RSSSource.checkItems(inserted, feed.items)
+                                .then(items => insertItems(items))
+                                .then(() => {
+                                    SourceGroup.save(getState().groups)
+                                    return inserted.sid
+                                })
                         })
-                    })
                 })
                 .catch(e => {
-                    console.log(e)
                     dispatch(addSourceFailure(e, batch))
                     if (!batch) {
                         remote.dialog.showErrorBox(intl.get("sources.errorAdd"), String(e))
                     }
-                    return new Promise((_, reject) => { reject(e) })
+                    return Promise.reject(e)
                 })
         }
         return new Promise((_, reject) => { reject("Sources not initialized.") })

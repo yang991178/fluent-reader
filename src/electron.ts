@@ -3,11 +3,23 @@ import windowStateKeeper = require("electron-window-state")
 import Store = require("electron-store")
 import performUpdate from "./scripts/update-scripts"
 
+const locked = app.requestSingleInstanceLock()
+if (!locked) {
+    app.quit()
+}
+
 let mainWindow: BrowserWindow
-let store = new Store()
-let restarting = false
-performUpdate(store)
-nativeTheme.themeSource = store.get("theme", "system")
+let store: Store
+let restarting: boolean
+
+function init() {
+    restarting = false
+    store = new Store()
+    performUpdate(store)
+    nativeTheme.themeSource = store.get("theme", "system")
+}
+
+init()
 
 function createWindow() {
     let mainWindowState = windowStateKeeper({
@@ -47,12 +59,16 @@ Menu.setApplicationMenu(null)
 
 app.on("ready", createWindow)
 
+app.on("second-instance", () => {
+    if (mainWindow !== null) {
+        mainWindow.focus()
+    }
+})
+
 app.on("window-all-closed", function () {
     mainWindow = null
     if (restarting) {
-        restarting = false
-        store = new Store()
-        nativeTheme.themeSource = store.get("theme", "system")
+        init()
         createWindow()
     } else if (process.platform !== "darwin") {
         app.quit()
