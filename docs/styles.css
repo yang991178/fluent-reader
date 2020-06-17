@@ -1,21 +1,3 @@
-:root {
-    --neutralLighterAlt: #faf9f8;
-    --neutralLighter: #f3f2f1;
-    --neutralLight: #edebe9;
-    --neutralQuaternaryAlt: #e1dfdd;
-    --neutralQuaternary: #d2d0ce;
-    --neutralTertiaryAlt: #c8c6c4;
-    --neutralTertiary: #a19f9d;
-    --neutralSecondaryAlt: #8a8886;
-    --neutralSecondary: #605e5c;
-    --neutralPrimaryAlt: #3b3a39;
-    --neutralPrimary: #323130;
-    --neutralDark: #201f1e;
-    --neutralDarker: #161514;
-    --black: #000;
-    --white: #fff;
-}
-
 html, body {
     background-color: #f3f2f1;
     font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
@@ -193,6 +175,7 @@ a:hover, a:active {
         margin-left: 5vw;
     }
     .light-container .screenshot {
+        width: 95vw;
         margin: 0 0 -25vw 5vw;
         position: relative;
         top: -25vw;
