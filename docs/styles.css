@@ -1,0 +1,208 @@
+:root {
+    --neutralLighterAlt: #faf9f8;
+    --neutralLighter: #f3f2f1;
+    --neutralLight: #edebe9;
+    --neutralQuaternaryAlt: #e1dfdd;
+    --neutralQuaternary: #d2d0ce;
+    --neutralTertiaryAlt: #c8c6c4;
+    --neutralTertiary: #a19f9d;
+    --neutralSecondaryAlt: #8a8886;
+    --neutralSecondary: #605e5c;
+    --neutralPrimaryAlt: #3b3a39;
+    --neutralPrimary: #323130;
+    --neutralDark: #201f1e;
+    --neutralDarker: #161514;
+    --black: #000;
+    --white: #fff;
+}
+
+html, body {
+    background-color: #f3f2f1;
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0;
+    line-height: 1.5;
+    width: 100%;
+}
+html {
+    overflow-x: hidden;
+}
+
+a {
+    color: #0078d4;
+    text-decoration: none;
+}
+a:hover, a:active {
+    color: #004578;
+    text-decoration: underline;
+}
+
+.elevate {
+    box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,.132), 0 1.2px 3.6px 0 rgba(0,0,0,.108);
+}
+
+.logo-container {
+    height: 100vh;
+    width: 100%;
+    min-height: 540px;
+    position: relative;
+}
+.logo-container img {
+    height: 180px;
+    width: 180px;
+    position: fixed;
+    left: calc(50% - 90px);
+    top: calc(50% - 230px);
+}
+.logo-container header {
+    text-align: center;
+    display: block;
+    width: 100%;
+    font-size: 1.75em;
+    font-weight: 500;
+    position: fixed;
+    left: 0;
+    top: calc(50% - 40px);
+}
+
+.screenshot {
+    display: block;
+    margin: 0 auto;
+    width: 95%;
+    max-width: 1464px;
+    overflow: hidden;
+}
+
+.light-container {
+    padding-bottom: 48px;
+    background-color: #fff;
+    position: relative;
+}
+.light-container .screenshot {
+    margin: 0 auto -280px;
+    position: relative;
+    top: -280px;
+}
+.light-container h1, .dark-container h1 {
+    width: 95%;
+    max-width: 800px;
+    margin: 48px auto 24px;
+    font-weight: 500;
+    text-align: center;
+}
+.light-container p, .dark-container p {
+    width: 85%;
+    max-width: 750px;
+    margin: 24px auto;
+    text-align: center;
+    font-size: 1.375em;
+    color: #323130;
+}
+
+.features-container {
+    padding: 48px 0;
+    margin: 0 auto;
+    width: 95%;
+    max-width: 950px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    position: relative;
+    background-color: #f3f2f1;
+}
+.features-container > section {
+    display: block;
+    width: 45%;
+    height: 560px;
+    padding: 18px 36px;
+    background-color: #fff;
+    margin: 24px 0;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+}
+.features-container > section > h3 {
+    font-weight: 500;
+    color: #605e5c;
+    margin: 0 0 .5em;
+}
+.features-container > section > h3 > span {
+    color: #d2d0ce;
+    background-color: #d2d0ce;
+    user-select: none;
+}
+.features-container > section > img {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    max-width: 90%;
+}
+.features-container > section > img.center {
+    left: auto;
+    right: auto;
+}
+
+.dark-container {
+    position: relative;
+    background-color: #1f1f1f;
+    color: #fff;
+    padding: 72px 0;
+    overflow: hidden;
+}
+.dark-container p {
+    color: #d2d0ce;
+}
+
+.get-container {
+    height: 100vh;
+    width: 100%;
+    min-height: 540px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: column;
+    position: relative;
+}
+.ms-get {
+    width: 142px; 
+    height: 52px;
+    margin-bottom: 16px;
+}
+.links {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: calc(50vh - 210px) 0 48px;
+}
+.links > a { 
+    display: inline-block;
+    margin: 0 8px;
+}
+
+@media (max-width: 780px) {
+    html, body { font-size: 14px; }
+    .logo-container img {
+        height: 140px;
+        width: 140px;
+        left: calc(50% - 70px);
+        top: calc(50% - 190px);
+    }
+    .screenshot {
+        margin-left: 5vw;
+    }
+    .light-container .screenshot {
+        margin: 0 0 -25vw 5vw;
+        position: relative;
+        top: -25vw;
+    }
+    .screenshot > img {
+        width: 150%;
+    }
+    .features-container > section {
+        width: 95%;
+        height: auto;
+        padding-bottom: 80%;
+    }
+    .features-container > section:last-of-type {
+        padding-bottom: 36px;
+    }
+}
