@@ -147,8 +147,12 @@ export function fetchItems(): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
         let promises = new Array<Promise<RSSItem[]>>()
         if (!getState().app.fetchingItems) {
-            for (let source of <RSSSource[]>Object.values(getState().sources)) {
-                let promise = RSSSource.fetchItems(source, rssParser, db.idb)
+            let timenow = new Date().getTime()
+            let sources = <RSSSource[]>Object.values(getState().sources).filter(s =>
+                (s.lastFetched.getTime() + (s.fetchFrequency || 0) * 60000) <= timenow
+            )
+            for (let source of sources) {
+                let promise = RSSSource.fetchItems(source, rssParser)
                 promise.finally(() => dispatch(fetchItemsIntermediate()))
                 promises.push(promise)
             }

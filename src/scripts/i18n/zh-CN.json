@@ -15,6 +15,11 @@
     "confirmMarkAll": "确认将本页所有文章标为已读？",
     "confirm": "确认",
     "cancel": "取消",
+    "time": {
+        "m": "{m}分钟",
+        "h": "{h}小时",
+        "d": "{d}天"
+    },
     "log": {
         "empty": "无消息",
         "fetchFailure": "无法加载订阅源“{name}”",
@@ -82,6 +87,8 @@
         "opmlFile": "OPML文件",
         "name": "订阅源名称",
         "editName": "修改名称",
+        "fetchFrequency": "抓取频率限制",
+        "unlimited": "无限制",
         "openTarget": "订阅源文章打开方式",
         "delete": "删除订阅源",
         "add": "添加订阅源",

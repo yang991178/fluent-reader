@@ -9,10 +9,17 @@ if (!locked) {
 }
 
 let mainWindow: BrowserWindow
-let store = new Store()
-let restarting = false
-performUpdate(store)
-nativeTheme.themeSource = store.get("theme", "system")
+let store: Store
+let restarting: boolean
+
+function init() {
+    restarting = false
+    store = new Store()
+    performUpdate(store)
+    nativeTheme.themeSource = store.get("theme", "system")
+}
+
+init()
 
 function createWindow() {
     let mainWindowState = windowStateKeeper({
@@ -61,9 +68,7 @@ app.on("second-instance", () => {
 app.on("window-all-closed", function () {
     mainWindow = null
     if (restarting) {
-        restarting = false
-        store = new Store()
-        nativeTheme.themeSource = store.get("theme", "system")
+        init()
         createWindow()
     } else if (process.platform !== "darwin") {
         app.quit()

@@ -18,11 +18,14 @@ export class RSSSource {
     name: string
     openTarget: SourceOpenTarget
     unreadCount: number
+    lastFetched: Date
+    fetchFrequency?: number // in minutes
 
     constructor(url: string, name: string = null) {
         this.url = url
         this.name = name
         this.openTarget = SourceOpenTarget.Local
+        this.lastFetched = new Date()
     }
 
     async fetchMetaData(parser: Parser) {
@@ -46,10 +49,10 @@ export class RSSSource {
         }
     }
 
-    private static checkItem(source: RSSSource, item: Parser.Item, db: Nedb<RSSItem>): Promise<RSSItem> {
+    private static checkItem(source: RSSSource, item: Parser.Item): Promise<RSSItem> {
         return new Promise<RSSItem>((resolve, reject) => {
             let i = new RSSItem(item, source)
-            db.findOne({
+            db.idb.findOne({
                 source: i.source,
                 title: i.title,
                 date: i.date
@@ -66,11 +69,11 @@ export class RSSSource {
         })
     }
 
-    static checkItems(source: RSSSource, items: Parser.Item[], db: Nedb<RSSItem>): Promise<RSSItem[]> {
+    static checkItems(source: RSSSource, items: Parser.Item[]): Promise<RSSItem[]> {
         return new Promise<RSSItem[]>((resolve, reject) => {
             let p = new Array<Promise<RSSItem>>()
             for (let item of items) {
-                p.push(this.checkItem(source, item, db))
+                p.push(this.checkItem(source, item))
             }
             Promise.all(p).then(values => {
                 resolve(values.filter(v => v != null))
@@ -78,9 +81,10 @@ export class RSSSource {
         })
     }
 
-    static async fetchItems(source: RSSSource, parser: Parser, db: Nedb<RSSItem>) {
+    static async fetchItems(source: RSSSource, parser: Parser) {
         let feed = await parser.parseURL(source.url)
-        return await this.checkItems(source, feed.items, db)
+        db.sdb.update({ sid: source.sid }, { $set: { lastFetched: new Date() } })
+        return await this.checkItems(source, feed.items)
     }
 }
 
@@ -244,7 +248,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                         .then(inserted => {
                             inserted.unreadCount = feed.items.length
                             dispatch(addSourceSuccess(inserted, batch))
-                            return RSSSource.checkItems(inserted, feed.items, db.idb)
+                            return RSSSource.checkItems(inserted, feed.items)
                                 .then(items => insertItems(items))
                                 .then(() => {
                                     SourceGroup.save(getState().groups)

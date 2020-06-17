@@ -15,6 +15,11 @@
     "confirmMarkAll": "Do you really want to mark all articles on this page as read?",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "time": {
+        "m": "{m, plural, =1 {# minute} other {# minutes}}",
+        "h": "{h, plural, =1 {# hour} other {# hours}}",
+        "d": "{d, plural, =1 {# day} other {# days}}"
+    },
     "log": {
         "empty": "No notifications",
         "fetchFailure": "Failed to load source \"{name}\".",
@@ -82,6 +87,8 @@
         "opmlFile": "OPML File",
         "name": "Source name",
         "editName": "Edit name",
+        "fetchFrequency": "Fetch frequency limit",
+        "unlimited": "Unlimited",
         "openTarget": "Default open target for articles",
         "delete": "Delete source",
         "add": "Add source",

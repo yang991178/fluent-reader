@@ -26,6 +26,9 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => {
             dispatch(updateSource({ ...source, openTarget: target } as RSSSource))
         },
+        updateFetchFrequency: (source: RSSSource, frequency: number) => {
+            dispatch(updateSource({ ...source, fetchFrequency: frequency } as RSSSource))
+        },
         deleteSource: (source: RSSSource) => dispatch(deleteSource(source)),
         importOPML: () => {
             remote.dialog.showOpenDialog(

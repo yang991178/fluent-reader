@@ -1,7 +1,7 @@
 import * as React from "react"
 import intl = require("react-intl-universal")
 import { Label, DefaultButton, TextField, Stack, PrimaryButton, DetailsList, 
-    IColumn, SelectionMode, Selection, IChoiceGroupOption, ChoiceGroup } from "@fluentui/react"
+    IColumn, SelectionMode, Selection, IChoiceGroupOption, ChoiceGroup, IDropdownOption, Dropdown } from "@fluentui/react"
 import { SourceState, RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { urlTest } from "../../scripts/utils"
 import DangerButton from "../utils/danger-button"
@@ -11,6 +11,7 @@ type SourcesTabProps = {
     addSource: (url: string) => void
     updateSourceName: (source: RSSSource, name: string) => void
     updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => void
+    updateFetchFrequency: (source: RSSSource, frequency: number) => void
     deleteSource: (source: RSSSource) => void
     importOPML: () => void
     exportOPML: () => void
@@ -73,6 +74,24 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
             data: 'string'
         }
     ]
+
+    fetchFrequencyOptions = (): IDropdownOption[] => [
+        { key: "0", text: intl.get("sources.unlimited") },
+        { key: "15", text: intl.get("time.m", { m: 15 }) },
+        { key: "30", text: intl.get("time.m", { m: 30 }) },
+        { key: "60", text: intl.get("time.h", { h: 1 }) },
+        { key: "120", text: intl.get("time.h", { h: 2 }) },
+        { key: "180", text: intl.get("time.h", { h: 3 }) },
+        { key: "360", text: intl.get("time.h", { h: 6 }) },
+        { key: "720", text: intl.get("time.h", { h: 12 }) },
+        { key: "1440", text: intl.get("time.d", { d: 1 }) }
+    ]
+
+    onFetchFrequencyChange = (_, option: IDropdownOption) => {
+        let frequency = parseInt(option.key as string)
+        this.props.updateFetchFrequency(this.state.selectedSource, frequency)
+        this.setState({selectedSource: {...this.state.selectedSource, fetchFrequency: frequency} as RSSSource})
+    }
 
     sourceOpenTargetChoices = (): IChoiceGroupOption[] => [
         { key: String(SourceOpenTarget.Local), text: intl.get("sources.rssText") },
@@ -155,6 +174,16 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                             disabled={this.state.newSourceName.length == 0}
                             onClick={() => this.props.updateSourceName(this.state.selectedSource, this.state.newSourceName)}
                             text={intl.get("sources.editName")} />
+                    </Stack.Item>
+                </Stack>
+                <Label>{intl.get("sources.fetchFrequency")}</Label>
+                <Stack>
+                    <Stack.Item>
+                        <Dropdown
+                            options={this.fetchFrequencyOptions()}
+                            selectedKey={this.state.selectedSource.fetchFrequency ? String(this.state.selectedSource.fetchFrequency) : "0"}
+                            onChange={this.onFetchFrequencyChange}
+                            style={{width: 200}} />
                     </Stack.Item>
                 </Stack>
                 <ChoiceGroup 
