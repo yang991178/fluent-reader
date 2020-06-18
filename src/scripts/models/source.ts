@@ -1,7 +1,7 @@
 import Parser = require("@yang991178/rss-parser")
 import intl = require("react-intl-universal")
 import * as db from "../db"
-import { rssParser, faviconPromise, ActionStatus, AppThunk } from "../utils"
+import { rssParser, fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
@@ -29,21 +29,15 @@ export class RSSSource {
     }
 
     async fetchMetaData(parser: Parser) {
-        let feed = await parser.parseURL(this.url)
+        let feed = await parseRSS(this.url)
         if (!this.name) {
             if (feed.title) this.name = feed.title.trim()
             this.name = this.name || intl.get("sources.untitled")
         }
         let domain = this.url.split("/").slice(0, 3).join("/")
-        let f: string = null
         try {
-            f = await faviconPromise(domain)
-            if (f === null) f = domain + "/favicon.ico"
-            let result = await fetch(f)
-            if (result.status == 200 && result.headers.has("Content-Type")
-                && result.headers.get("Content-Type").startsWith("image")) {
-                this.iconurl = f
-            }
+            let f = await fetchFavicon(domain)
+            if (f !== null) this.iconurl = f
         } finally {
             return feed
         }
@@ -82,7 +76,7 @@ export class RSSSource {
     }
 
     static async fetchItems(source: RSSSource, parser: Parser) {
-        let feed = await parser.parseURL(source.url)
+        let feed = await parseRSS(source.url)
         db.sdb.update({ sid: source.sid }, { $set: { lastFetched: new Date() } })
         return await this.checkItems(source, feed.items)
     }

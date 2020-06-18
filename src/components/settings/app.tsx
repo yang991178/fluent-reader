@@ -164,6 +164,9 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                             text={intl.get("app.setPac")} />
                     </Stack.Item>
                 </Stack>
+                <span className="settings-hint up">
+                    {intl.get("app.pacHint")}
+                </span>
             </form>}
 
             <Label>{intl.get("app.cleanup")}</Label>

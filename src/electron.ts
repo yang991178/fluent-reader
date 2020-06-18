@@ -66,6 +66,9 @@ app.on("second-instance", () => {
 })
 
 app.on("window-all-closed", function () {
+    if (mainWindow) {
+        mainWindow.webContents.session.clearStorageData({ storages: ["cookies"] })
+    }
     mainWindow = null
     if (restarting) {
         init()

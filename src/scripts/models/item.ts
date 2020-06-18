@@ -163,7 +163,7 @@ export function fetchItems(): AppThunk<Promise<void>> {
                     if (r.status === "fulfilled") items.push(...r.value)
                     else {
                         console.log(r.reason)
-                        dispatch(fetchItemsFailure(getState().sources[i], r.reason))
+                        dispatch(fetchItemsFailure(sources[i], r.reason))
                     }
                 })
                 insertItems(items)
