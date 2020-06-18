@@ -55,7 +55,26 @@ function createWindow() {
     mainWindow.loadFile((app.isPackaged ? "dist/" : "") + "index.html")
 }
 
-Menu.setApplicationMenu(null)
+if (process.platform === 'darwin') {
+    const template = [
+        {
+            label: "Application",
+            submenu: [
+                { label: "Quit", accelerator: "Command+Q", click: () => { app.quit() } }
+            ]
+        },
+        {
+            label: "Edit",
+            submenu: [
+                { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+                { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+            ]
+        }
+    ]
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+} else {
+    Menu.setApplicationMenu(null)
+}
 
 app.on("ready", createWindow)
 
