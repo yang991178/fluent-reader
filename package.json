@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A simplistic, modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -22,7 +22,10 @@
       "output": "./bin/${platform}/${arch}/"
     },
     "win": {
-      "target": [ "nsis", "appx" ]
+      "target": [
+        "nsis",
+        "appx"
+      ]
     },
     "appx": {
       "applicationId": "FluentReader",
@@ -43,7 +46,9 @@
       "deleteAppDataOnUninstall": true
     },
     "mac": {
-      "target": [ "dmg" ]
+      "target": [
+        "dmg"
+      ]
     }
   },
   "devDependencies": {
@@ -55,17 +60,14 @@
     "@types/redux": "^3.6.0",
     "@types/redux-thunk": "^2.1.0",
     "@types/reselect": "^2.2.0",
-    "@yang991178/electron-proxy-agent": "^1.2.1",
     "@yang991178/rss-parser": "^3.8.1",
     "electron": "^9.0.4",
     "electron-builder": "^22.7.0",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
     "electron-window-state": "^5.0.3",
-    "favicon": "0.0.2",
     "html-webpack-plugin": "^4.3.0",
     "nedb": "^1.8.0",
-    "pac-proxy-agent": "^4.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-intl-universal": "^2.2.5",
@@ -74,7 +76,6 @@
     "redux-devtools": "^3.5.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "simplebar-react": "^2.2.0",
     "ts-loader": "^7.0.4",
     "typescript": "^3.9.2",
     "webpack": "^4.43.0",

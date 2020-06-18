@@ -141,6 +141,7 @@
         "enableProxy": "Enable Proxy",
         "badUrl": "Invalid URL",
         "pac": "PAC Address",
-        "setPac": "Set PAC"
+        "setPac": "Set PAC",
+        "pacHint": "For Socks proxies, it is recommended for PAC to return \"SOCKS5\" for proxy-side DNS. Turning off proxy requires restart."
     }
 }

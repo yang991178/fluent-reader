@@ -141,6 +141,7 @@
         "enableProxy": "启用代理",
         "badUrl": "请正确输入URL",
         "pac": "PAC地址",
-        "setPac": "设置PAC"
+        "setPac": "设置PAC",
+        "pacHint": "对于Socks代理建议PAC返回“SOCKS5”以启用代理端解析。关闭代理需重启应用后生效。"
     }
 }

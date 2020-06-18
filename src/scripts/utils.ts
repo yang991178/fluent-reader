@@ -17,41 +17,61 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 export type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>
 
 import Parser = require("@yang991178/rss-parser")
-const customFields = {
-    item: ["thumb", "image", ["content:encoded", "fullContent"]] as Parser.CustomFieldItem[]
-}
-
-import ElectronProxyAgent = require("@yang991178/electron-proxy-agent")
-import { ViewType } from "./models/page"
-import { IPartialTheme } from "@fluentui/react"
-import { SourceGroup } from "./models/group"
-let agent = new ElectronProxyAgent(remote.getCurrentWebContents().session)
 export const rssParser = new Parser({
-    customFields: customFields,
-    requestOptions: {
-        agent: agent
+    customFields: {
+        item: ["thumb", "image", ["content:encoded", "fullContent"]] as Parser.CustomFieldItem[]
     }
 })
 
+export async function parseRSS(url: string) {
+    try {
+        let result = await fetch(url, { credentials: "omit" })
+        if (result.ok) {
+            return await rssParser.parseString(await result.text())
+        } else {
+            throw new Error(result.statusText)
+        }
+    } catch {
+        throw new Error("A network error has occured.")
+    }
+}
+
 export const domParser = new DOMParser()
 
-const favicon = require("favicon")
-export function faviconPromise(url: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-        favicon(url, (err, icon: string) => {
-            if (err) reject(err)
-            else if (!icon) resolve(icon)
-            else {
-                let parts = icon.split("//")
-                resolve(parts[0] + "//" + parts[parts.length - 1])
+import Url = require("url")
+export async function fetchFavicon(url: string) {
+    try {
+        let result = await fetch(url, { credentials: "omit" })
+        if (result.ok) {
+            let html = await result.text()
+            let dom = domParser.parseFromString(html, "text/html")
+            let links = dom.getElementsByTagName("link")
+            for (let link of links) {
+                let rel = link.getAttribute("rel")
+                if ((rel === "icon" || rel === "shortcut icon") && link.hasAttribute("href")) {
+                    let href = link.getAttribute("href")
+                    let parsedUrl = Url.parse(url)
+                    if (href.startsWith("//")) return parsedUrl.protocol + href
+                    else if (href.startsWith("/")) return url + href
+                    else return href
+                }
             }
-        })
-    })
+        }
+        url = url + "/favicon.ico"
+        result = await fetch(url, { credentials: "omit" })
+        if (result.status == 200 && result.headers.has("Content-Type")
+            && result.headers.get("Content-Type").startsWith("image")) {
+            return url
+        }
+        return null
+    } catch {
+        return null
+    }
 }
 
 export function htmlDecode(input: string) {
-    var doc = domParser.parseFromString(input, "text/html");
-    return doc.documentElement.textContent;
+    var doc = domParser.parseFromString(input, "text/html")
+    return doc.documentElement.textContent
 }
 
 export function openExternal(url: string) {

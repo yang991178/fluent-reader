@@ -35,12 +35,11 @@ export function setProxy(address = null) {
     } else {
         store.set(PAC_STORE_KEY, address)
     }
-    remote.getCurrentWebContents().session.setProxy({
-        pacScript: getProxyStatus() ? address : ""
-    })
-    remote.session.fromPartition("sandbox").setProxy({
-        pacScript: getProxyStatus() ? address : ""
-    })
+    if (getProxyStatus()) {
+        let rules = { pacScript: address }
+        remote.getCurrentWebContents().session.setProxy(rules)
+        remote.session.fromPartition("sandbox").setProxy(rules)
+    }
 }
 
 const VIEW_STORE_KEY = "view"

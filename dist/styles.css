@@ -560,6 +560,7 @@ img.favicon {
     align-items: center;
     color: var(--neutralSecondary);
     font-size: 14px;
+    user-select: none;
 }
 
 .info {
