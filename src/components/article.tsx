@@ -109,6 +109,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             webview.addEventListener("new-window", this.popUpHandler)
             webview.addEventListener("will-navigate", this.navigationHandler)
             this.webview = webview
+            webview.focus()
         }
     }
     componentDidUpdate = (prevProps: ArticleProps) => {
