@@ -13,8 +13,12 @@ class DefaultCard extends Card {
 
     render() {
         return (
-            <div className={this.className()} 
-                onClick={this.onClick} onMouseUp={this.onMouseUp} >
+            <div 
+                className={this.className()} 
+                onClick={this.onClick} 
+                onMouseUp={this.onMouseUp}
+                onMouseDown={event => event.preventDefault()}
+                data-is-focusable>
                 {this.props.item.thumb ? (
                     <img className="bg" src={this.props.item.thumb} />
                 ) : null}

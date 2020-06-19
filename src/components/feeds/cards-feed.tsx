@@ -2,7 +2,7 @@ import * as React from "react"
 import intl = require("react-intl-universal")
 import { FeedProps } from "./feed"
 import DefaultCard from "../cards/default-card"
-import { PrimaryButton } from 'office-ui-fabric-react';
+import { PrimaryButton, FocusZone } from 'office-ui-fabric-react';
 
 class CardsFeed extends React.Component<FeedProps> {
     state = { width: window.innerWidth - 12 }
@@ -31,7 +31,7 @@ class CardsFeed extends React.Component<FeedProps> {
 
     render() {
         return this.props.feed.loaded && (
-            <div className="cards-feed-container">
+            <FocusZone as="div" id="refocus" className="cards-feed-container">
                 {
                     this.props.items.map((item) => (
                         <DefaultCard 
@@ -56,7 +56,7 @@ class CardsFeed extends React.Component<FeedProps> {
                 { this.props.items.length === 0 && (
                     <div className="empty">{intl.get("article.empty")}</div>
                 )}
-            </div>
+            </FocusZone>
         )
     }
 }

@@ -5,7 +5,7 @@ import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
 import { SourceGroup } from "../scripts/models/group"
 import { SourceState, RSSSource } from "../scripts/models/source"
 import { ALL } from "../scripts/models/feed"
-import { AnimationClassNames, Stack, FocusZone, FocusZoneDirection } from "@fluentui/react"
+import { AnimationClassNames, Stack } from "@fluentui/react"
 
 export type MenuProps = {
     status: boolean,

@@ -631,8 +631,19 @@ img.favicon {
     cursor: pointer;
     animation-fill-mode: none;
 }
-.card:hover {
+.card:hover, .card:focus {
     box-shadow: #0006 0px 5px 40px;
+    outline: none;
+}
+.card:focus::after, .list-card:focus::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc(100% - 6px);
+    height: calc(100% - 6px);
+    border: 1px solid var(--white);
+    outline: 2px solid #0078d4;
 }
 .card:active {
     transform: scale(.97);
@@ -663,7 +674,8 @@ img.favicon {
 .card img.head, .card p, .card h3 {
     transition: transform ease-out .12s;
 }
-.card.transform:hover img.head, .card.transform:hover p, .card.transform:hover h3 {
+.card.transform:hover img.head, .card.transform:hover p, .card.transform:hover h3,
+.card.transform:focus img.head, .card.transform:focus p, .card.transform:focus h3 {
     transform: translateY(-144px);
 }
 .card h3.title {
@@ -717,8 +729,9 @@ img.favicon {
     cursor: pointer;
     box-shadow: #0000 0px 5px 15px;
 }
-.list-card:hover {
+.list-card:hover, .list-card:focus {
     box-shadow: #0004 0px 5px 15px;
+    outline: none;
 }
 .list-card:active {
     box-shadow: #0000 0px 5px 15px, inset #0004 0px 0px 15px;

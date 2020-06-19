@@ -1,6 +1,6 @@
 import * as React from "react"
 import { FeedContainer } from "../containers/feed-container"
-import { AnimationClassNames, Icon } from "@fluentui/react"
+import { AnimationClassNames, Icon, FocusTrapZone } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
 import { ViewType } from "../scripts/models/page"
 import ArticleSearch from "./utils/article-search"
@@ -36,13 +36,17 @@ class Page extends React.Component<PageProps> {
                 ))}
             </div>}
             {this.props.itemId && (
-                <div className="article-container" onClick={this.props.dismissItem}>
+                <FocusTrapZone 
+                    ignoreExternalFocusing={true}
+                    isClickableOutsideFocusTrap={true}
+                    className="article-container"
+                    onClick={this.props.dismissItem}>
                     <div className={"article-wrapper " + AnimationClassNames.slideUpIn20} onClick={e => e.stopPropagation()}>
                         <ArticleContainer itemId={this.props.itemId} />
                     </div>
                     <div className="btn-group prev"><a className="btn" onClick={this.prevItem}><Icon iconName="Back" /></a></div>
                     <div className="btn-group next"><a className="btn" onClick={this.nextItem}><Icon iconName="Forward" /></a></div>
-                </div>
+                </FocusTrapZone>
             )}
         </>
     )

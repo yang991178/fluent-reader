@@ -1,13 +1,13 @@
 import * as React from "react"
 import intl = require("react-intl-universal")
 import { FeedProps } from "./feed"
-import { DefaultButton } from 'office-ui-fabric-react';
+import { DefaultButton, FocusZone, FocusZoneDirection } from 'office-ui-fabric-react';
 import ListCard from "../cards/list-card";
 
 class ListFeed extends React.Component<FeedProps> {
     render() {
         return this.props.feed.loaded && (
-            <div className="list-feed">
+            <FocusZone as="div" id="refocus" direction={FocusZoneDirection.vertical} className="list-feed">
                 {
                     this.props.items.map((item) => (
                         <ListCard 
@@ -31,7 +31,7 @@ class ListFeed extends React.Component<FeedProps> {
                 { this.props.items.length === 0 && (
                     <div className="empty">{intl.get("article.empty")}</div>
                 )}
-            </div>
+            </FocusZone>
         )
     }
 }

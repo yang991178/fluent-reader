@@ -3,10 +3,10 @@ import intl = require("react-intl-universal")
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
 import { openExternal } from "../scripts/utils"
-import { Stack, CommandBarButton, IContextualMenuProps } from "@fluentui/react"
+import { Stack, CommandBarButton, IContextualMenuProps, FocusZone } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
 import { store } from "../scripts/settings"
-import { clipboard } from "electron"
+import { clipboard, remote } from "electron"
 
 const FONT_SIZE_STORE_KEY = "fontSize"
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
@@ -28,7 +28,8 @@ type ArticleState = {
 }
 
 class Article extends React.Component<ArticleProps, ArticleState> {
-    webview: HTMLWebViewElement
+    webview: Electron.WebviewTag
+    shouldRefocus = false
     
     constructor(props) {
         super(props)
@@ -100,14 +101,23 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         openExternal(event.url)
         this.props.dismiss()
     }
+    keyDownHandler = (_, input) => {
+        if (input.type === "keyDown" && input.key === "Escape") {
+            this.shouldRefocus = true
+            this.props.dismiss()
+        }
+    }
 
     componentDidMount = () => {
-        let webview = document.getElementById("article")
+        let webview = document.getElementById("article") as Electron.WebviewTag
         if (webview != this.webview) {
-            if (this.webview) this.componentWillUnmount()
             webview.addEventListener("ipc-message", this.ipcHandler)
             webview.addEventListener("new-window", this.popUpHandler)
             webview.addEventListener("will-navigate", this.navigationHandler)
+            webview.addEventListener("dom-ready", () => {
+                let webContents = remote.webContents.fromId(webview.getWebContentsId())
+                webContents.on("before-input-event", this.keyDownHandler)
+            })
             this.webview = webview
             webview.focus()
         }
@@ -120,9 +130,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     componentWillUnmount = () => {
-        this.webview.removeEventListener("ipc-message", this.ipcHandler)
-        this.webview.removeEventListener("new-window", this.popUpHandler)
-        this.webview.removeEventListener("will-navigate", this.navigationHandler)
+        if (this.shouldRefocus) {
+            let refocus = document.querySelector("#refocus>div[tabindex='0']") as HTMLElement
+            if (refocus) refocus.focus()
+        }
     }
 
     openInBrowser = () => {
@@ -144,7 +155,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}`
     
     render = () => (
-        <div className="article">
+        <FocusZone className="article">
             <Stack horizontal style={{height: 36}}>
                 <span style={{width: 96}}></span>
                 <Stack className="actions" grow horizontal tokens={{childrenGap: 12}}>
@@ -194,7 +205,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 preload={this.state.loadWebpage ? null : "article/preload.js"}
                 partition="sandbox" />
-        </div>
+        </FocusZone>
     )
 }
 
