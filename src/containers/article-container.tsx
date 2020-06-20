@@ -1,9 +1,9 @@
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
-import { RSSItem, markUnread, markRead, toggleStarred, toggleHidden } from "../scripts/models/item"
+import { RSSItem, markUnread, markRead, toggleStarred, toggleHidden, itemShortcuts } from "../scripts/models/item"
 import { AppDispatch } from "../scripts/utils"
-import { dismissItem } from "../scripts/models/page"
+import { dismissItem, showOffsetItem } from "../scripts/models/page"
 import Article from "../components/article"
 import { openTextMenu } from "../scripts/models/app"
 
@@ -28,7 +28,9 @@ const makeMapStateToProps = () => {
 
 const mapDispatchToProps = (dispatch: AppDispatch) => {
     return {
+        shortcuts: (item: RSSItem, key: string) => dispatch(itemShortcuts(item, key)),
         dismiss: () => dispatch(dismissItem()),
+        offsetItem: (offset: number) => dispatch(showOffsetItem(offset)),
         toggleHasRead: (item: RSSItem) => dispatch(item.hasRead ? markUnread(item) : markRead(item)),
         toggleStarred: (item: RSSItem) => dispatch(toggleStarred(item)),
         toggleHidden: (item: RSSItem) => dispatch(toggleHidden(item)),

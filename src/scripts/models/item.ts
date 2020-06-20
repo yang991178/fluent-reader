@@ -1,6 +1,6 @@
 import * as db from "../db"
 import intl = require("react-intl-universal")
-import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
+import { domParser, htmlDecode, ActionStatus, AppThunk, openExternal } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
 import Parser = require("@yang991178/rss-parser")
@@ -260,6 +260,26 @@ export function toggleHidden(item: RSSItem): AppThunk {
             db.idb.update({ _id: item._id }, { $set: { hidden: true } })
         }
         dispatch(toggleHiddenDone(item))
+    }
+}
+
+export function itemShortcuts(item: RSSItem, key: string): AppThunk {
+    return (dispatch) => {
+        switch (key) {
+            case "m": 
+                if (item.hasRead) dispatch(markUnread(item))
+                else dispatch(markRead(item))
+                break
+            case "b": 
+                openExternal(item.link)
+                break
+            case "s": 
+                dispatch(toggleStarred(item))
+                break
+            case "h": 
+                dispatch(toggleHidden(item))
+                break
+        }
     }
 }
 

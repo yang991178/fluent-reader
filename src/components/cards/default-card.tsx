@@ -18,6 +18,8 @@ class DefaultCard extends Card {
                 onClick={this.onClick} 
                 onMouseUp={this.onMouseUp}
                 onMouseDown={event => event.preventDefault()}
+                onKeyDown={this.onKeyDown}
+                data-iid={this.props.item._id}
                 data-is-focusable>
                 {this.props.item.thumb ? (
                     <img className="bg" src={this.props.item.thumb} />

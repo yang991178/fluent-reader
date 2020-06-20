@@ -7,6 +7,7 @@ export interface CardProps {
     feedId: string
     item: RSSItem
     source: RSSSource
+    shortcuts: (item: RSSItem, key: string) => void
     markRead: (item: RSSItem) => void
     contextMenu: (feedId: string, item: RSSItem, e) => void
     showItem: (fid: string, item: RSSItem) => void
@@ -45,5 +46,9 @@ export class Card extends React.Component<CardProps> {
             case 2:
                 this.props.contextMenu(this.props.feedId, this.props.item, e)
         }
+    }
+
+    onKeyDown = (e: React.KeyboardEvent) => {
+        this.props.shortcuts(this.props.item, e.key)
     }
 }

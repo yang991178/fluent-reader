@@ -15,6 +15,7 @@ class ListFeed extends React.Component<FeedProps> {
                             key={item._id}
                             item={item} 
                             source={this.props.sourceMap[item.source]} 
+                            shortcuts={this.props.shortcuts}
                             markRead={this.props.markRead}
                             contextMenu={this.props.contextMenu}
                             showItem={this.props.showItem} />

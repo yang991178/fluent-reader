@@ -22,15 +22,15 @@ class Settings extends React.Component<SettingsProps> {
 
     render = () => this.props.display && (
         <div className="settings-container">
+            <div className="btn-group" style={{position: "absolute", top: 70, left: "calc(50% - 404px)"}}>
+                <a className={"btn" + (this.props.exitting ? " disabled" : "")} title={intl.get("settings.exit")} onClick={this.props.close}>
+                    <Icon iconName="Back" />
+                </a>
+            </div>
             <div className={"settings " + AnimationClassNames.slideUpIn20}>
                 {this.props.blocked && <div className="loading">
                     <Spinner label={intl.get("settings.fetching")} />
                 </div>}
-                <div className="btn-group" style={{position: "absolute", top: 6, left: -64}}>
-                    <a className={"btn" + (this.props.exitting ? " disabled" : "")} title={intl.get("settings.exit")} onClick={this.props.close}>
-                        <Icon iconName="Back" />
-                    </a>
-                </div>
                 <Pivot>
                     <PivotItem headerText={intl.get("settings.sources")} itemIcon="Source">
                         <SourcesTabContainer />

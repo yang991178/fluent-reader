@@ -221,18 +221,20 @@ export function pageReducer(
             switch (action.pageType) {
                 case PageType.AllArticles: return {
                     ...state,
-                    feedId: ALL
+                    feedId: ALL,
+                    itemId: null
                 }
                 case PageType.Sources: return {
                     ...state,
-                    feedId: SOURCE
+                    feedId: SOURCE,
+                    itemId: null
                 }
                 default: return state
             }
         case SWITCH_VIEW: return {
             ...state,
             viewType: action.viewType,
-            itemId: action.viewType === ViewType.List ? state.itemId : null
+            itemId:  null
         }
         case APPLY_FILTER: return {
             ...state,

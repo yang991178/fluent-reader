@@ -15,7 +15,9 @@ type ArticleProps = {
     item: RSSItem
     source: RSSSource
     locale: string
+    shortcuts: (item: RSSItem, key: string) => void
     dismiss: () => void
+    offsetItem: (offset: number) => void
     toggleHasRead: (item: RSSItem) => void
     toggleStarred: (item: RSSItem) => void
     toggleHidden: (item: RSSItem) => void
@@ -102,9 +104,23 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         this.props.dismiss()
     }
     keyDownHandler = (_, input) => {
-        if (input.type === "keyDown" && input.key === "Escape") {
-            this.shouldRefocus = true
-            this.props.dismiss()
+        if (input.type === "keyDown") {
+            switch (input.key) {
+                case "Escape": 
+                    this.shouldRefocus = true
+                    this.props.dismiss()
+                    break
+                case "ArrowLeft":
+                case "ArrowRight":
+                    this.props.offsetItem(input.key === "ArrowLeft" ? -1 : 1)
+                    break
+                case "l": 
+                    this.toggleWebpage()
+                    break
+                default:
+                    this.props.shortcuts(this.props.item, input.key)
+                    break
+            }
         }
     }
 
@@ -120,6 +136,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             })
             this.webview = webview
             webview.focus()
+            let card = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
+            // @ts-ignore
+            if (card) card.scrollIntoViewIfNeeded()
         }
     }
     componentDidUpdate = (prevProps: ArticleProps) => {
@@ -131,7 +150,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
 
     componentWillUnmount = () => {
         if (this.shouldRefocus) {
-            let refocus = document.querySelector("#refocus>div[tabindex='0']") as HTMLElement
+            let refocus = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
             if (refocus) refocus.focus()
         }
     }

@@ -14,8 +14,11 @@ class ListCard extends Card {
         return (
             <div 
                 className={this.className()}
-                onClick={this.onClick} onMouseUp={this.onMouseUp}
+                onClick={this.onClick}
+                onMouseUp={this.onMouseUp}
                 onMouseDown={event => event.preventDefault()}
+                onKeyDown={this.onKeyDown}
+                data-iid={this.props.item._id}
                 data-is-focusable>
                 {this.props.item.thumb ? (
                     <div className="head"><img src={this.props.item.thumb} /></div>
