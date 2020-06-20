@@ -4,6 +4,7 @@ import { remote } from "electron"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AppState } from "../scripts/models/app"
 import { ProgressIndicator } from "@fluentui/react"
+import { getWindowBreakpoint } from "../scripts/utils"
 
 type NavProps = {
     state: AppState,
@@ -35,6 +36,40 @@ class Nav extends React.Component<NavProps, NavState> {
             maximized: remote.getCurrentWindow().isMaximized(),
             window: window
         }
+    }
+
+    navShortcutsHandler = (e: KeyboardEvent) => {
+        if (!this.props.state.settings.display) {
+            switch (e.key) {
+                case "F1":
+                    this.props.menu()
+                    break
+                case "F5":
+                    this.fetch()
+                    break
+                case "F6":
+                    this.props.markAllRead()
+                    break
+                case "F7":
+                    if (!this.props.state.menu || getWindowBreakpoint())
+                        this.props.logs()
+                    break
+                case "F8":
+                    if (!this.props.state.menu || getWindowBreakpoint())
+                        this.props.views()
+                    break
+                case "F9":
+                    this.props.settings()
+                    break
+            }
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener("keydown", this.navShortcutsHandler)
+    }
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.navShortcutsHandler)
     }
 
     minimize = () => {

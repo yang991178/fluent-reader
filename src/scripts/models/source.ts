@@ -1,7 +1,7 @@
 import Parser = require("@yang991178/rss-parser")
 import intl = require("react-intl-universal")
 import * as db from "../db"
-import { rssParser, fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
+import { fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
@@ -28,16 +28,16 @@ export class RSSSource {
         this.lastFetched = new Date()
     }
 
-    async fetchMetaData(parser: Parser) {
-        let feed = await parseRSS(this.url)
-        if (!this.name) {
-            if (feed.title) this.name = feed.title.trim()
-            this.name = this.name || intl.get("sources.untitled")
+    static async fetchMetaData(source: RSSSource) {
+        let feed = await parseRSS(source.url)
+        if (!source.name) {
+            if (feed.title) source.name = feed.title.trim()
+            source.name = source.name || intl.get("sources.untitled")
         }
-        let domain = this.url.split("/").slice(0, 3).join("/")
+        let domain = source.url.split("/").slice(0, 3).join("/")
         try {
             let f = await fetchFavicon(domain)
-            if (f !== null) this.iconurl = f
+            if (f !== null) source.iconurl = f
         } finally {
             return feed
         }
@@ -75,7 +75,7 @@ export class RSSSource {
         })
     }
 
-    static async fetchItems(source: RSSSource, parser: Parser) {
+    static async fetchItems(source: RSSSource) {
         let feed = await parseRSS(source.url)
         db.sdb.update({ sid: source.sid }, { $set: { lastFetched: new Date() } })
         return await this.checkItems(source, feed.items)
@@ -236,7 +236,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
         if (app.sourceInit) {
             dispatch(addSourceRequest(batch))
             let source = new RSSSource(url, name)
-            return source.fetchMetaData(rssParser)
+            return RSSSource.fetchMetaData(source)
                 .then(feed => {
                     return dispatch(insertSource(source))
                         .then(inserted => {

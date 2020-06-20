@@ -1,6 +1,6 @@
 import { remote, ipcRenderer } from "electron"
 import { ViewType } from "./models/page"
-import { IPartialTheme, loadTheme, values } from "@fluentui/react"
+import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import Store = require("electron-store")
 import { schemaTypes } from "./config-schema"
@@ -51,7 +51,7 @@ export const setDefaultView = (viewType: ViewType) => {
 }
 
 const lightTheme: IPartialTheme = { 
-    defaultFontStyle: { fontFamily: '"Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' } 
+    defaultFontStyle: { fontFamily: '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' } 
 }
 const darkTheme: IPartialTheme = {
     ...lightTheme,

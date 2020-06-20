@@ -1,7 +1,7 @@
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
-import { markRead, RSSItem } from "../scripts/models/item"
+import { markRead, RSSItem, itemShortcuts } from "../scripts/models/item"
 import { openItemMenu } from "../scripts/models/app"
 import { loadMore, RSSFeed } from "../scripts/models/feed"
 import { showItem, ViewType } from "../scripts/models/page"
@@ -30,6 +30,7 @@ const makeMapStateToProps = () => {
 }
 const mapDispatchToProps = dispatch => {
     return {
+        shortcuts: (item: RSSItem, key: string) => dispatch(itemShortcuts(item, key)),
         markRead: (item: RSSItem) => dispatch(markRead(item)),
         contextMenu: (feedId: string, item: RSSItem, e) => dispatch(openItemMenu(item, feedId, e)),
         loadMore: (feed: RSSFeed) => dispatch(loadMore(feed)),

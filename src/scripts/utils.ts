@@ -17,7 +17,7 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 export type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>
 
 import Parser = require("@yang991178/rss-parser")
-export const rssParser = new Parser({
+const rssParser = new Parser({
     customFields: {
         item: ["thumb", "image", ["content:encoded", "fullContent"]] as Parser.CustomFieldItem[]
     }

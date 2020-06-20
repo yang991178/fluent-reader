@@ -56,7 +56,7 @@
         "copyTitle": "复制标题",
         "copyURL": "复制链接",
         "copy": "复制",
-        "search": "使用Google搜索“{text}”",
+        "search": "使用 Google 搜索“{text}”",
         "view": "视图",
         "cardView": "卡片视图",
         "listView": "列表视图",
@@ -77,6 +77,7 @@
         "app": "应用偏好",
         "about": "关于",
         "version": "版本",
+        "shortcuts": "快捷键",
         "openSource": "开源项目",
         "feedback": "反馈"
     },

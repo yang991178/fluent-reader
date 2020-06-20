@@ -26,7 +26,7 @@ export type MenuProps = {
 export class Menu extends React.Component<MenuProps> {
     countOverflow = (count: number) => count >= 1000 ? "999+" : String(count)
 
-    getItems = (): INavLinkGroup[] => [
+    getLinkGroups = (): INavLinkGroup[] => [
         {
             links: [
                 {
@@ -46,27 +46,27 @@ export class Menu extends React.Component<MenuProps> {
                     url: null
                 }
             ]
+        },
+        {
+            name: intl.get("menu.subscriptions"),
+            links: this.props.groups.filter(g => g.sids.length > 0).map((g, i) => {
+                if (g.isMultiple) {
+                    let sources = g.sids.map(sid => this.props.sources[sid])
+                    return {
+                        name: g.name,
+                        ariaLabel: this.countOverflow(sources.map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
+                        key: "g-" + i,
+                        url: null,
+                        isExpanded: g.expanded,
+                        onClick: () => this.props.selectSourceGroup(g, "g-" + i),
+                        links: sources.map(this.getSource)
+                    }
+                } else {
+                    return this.getSource(this.props.sources[g.sids[0]])
+                }
+            })
         }
     ]
-
-    getGroups = (): INavLinkGroup[] => [{
-        links: this.props.groups.filter(g => g.sids.length > 0).map((g, i) => {
-            if (g.isMultiple) {
-                let sources = g.sids.map(sid => this.props.sources[sid])
-                return {
-                    name: g.name,
-                    ariaLabel: this.countOverflow(sources.map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
-                    key: "g-" + i,
-                    url: null,
-                    isExpanded: g.expanded,
-                    onClick: () => this.props.selectSourceGroup(g, "g-" + i),
-                    links: sources.map(this.getSource)
-                }
-            } else {
-                return this.getSource(this.props.sources[g.sids[0]])
-            }
-        }
-    )}]
 
     getSource = (s: RSSSource): INavLink => ({
         name: s.name,
@@ -106,6 +106,10 @@ export class Menu extends React.Component<MenuProps> {
         )
       };
 
+    _onRenderGroupHeader = (group: INavLinkGroup): JSX.Element => {
+        return <p className={"subs-header " + AnimationClassNames.slideDownIn10}>{group.name}</p>;
+    }
+
     render() {
         return this.props.status && (
             <div className="menu-container" onClick={this.props.toggleMenu} style={{display: this.props.display ? "block" : "none"}}>
@@ -116,15 +120,11 @@ export class Menu extends React.Component<MenuProps> {
                     </div>
                     <div className="nav-wrapper">
                         <Nav 
+                            onRenderGroupHeader={this._onRenderGroupHeader}
                             onRenderLink={this._onRenderLink}
-                            groups={this.getItems()} 
-                            selectedKey={this.props.selected} />
-                        <p className={"subs-header " + AnimationClassNames.slideDownIn10}>{intl.get("menu.subscriptions")}</p>
-                        <Nav 
+                            groups={this.getLinkGroups()} 
                             selectedKey={this.props.selected}
-                            onRenderLink={this._onRenderLink}
-                            onLinkExpandClick={(event, item) => this.props.updateGroupExpansion(event, item.key, this.props.selected)}
-                            groups={this.getGroups()} />
+                            onLinkExpandClick={(event, item) => this.props.updateGroupExpansion(event, item.key, this.props.selected)} />
                     </div>
                 </div>
             </div>

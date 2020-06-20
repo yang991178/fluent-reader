@@ -23,6 +23,7 @@ If you are using macOS or an older version of Windows, you can also [get Fluent 
 - Read the full content with the built-in article view or load webpages by default.
 - Search for articles with regular expressions or filter by read status.
 - Organize your subscriptions with folder-like groupings.
+- Single-key [keyboard shortcuts](https://github.com/yang991178/fluent-reader/wiki/Support#keyboard-shortcuts).
 
 ## Development
 
@@ -31,7 +32,7 @@ If you are using macOS or an older version of Windows, you can also [get Fluent 
 Make Fluent Reader better by reporting bugs or opening feature requests through [GitHub issues](https://github.com/yang991178/fluent-reader/issues). 
 
 You can also help internationalize the app by providing [translations into additional languages](https://github.com/yang991178/fluent-reader/tree/master/src/scripts/i18n). 
-Refer to the repo of [react-intl-universal](https://github.com/alibaba/react-intl-universal) for internationalization references. 
+Refer to the repo of [react-intl-universal](https://github.com/alibaba/react-intl-universal) to get started on internationalization. 
 
 If you enjoyed using the app, consider supporting its development by [donating through Paypal](https://www.paypal.me/yang991178) or buying the app from Microsoft Store.
 

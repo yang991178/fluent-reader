@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="350" height="350" viewBox="0 0 350 350">
+  <defs>
+    <style>
+      :root {
+        --white: #1f1f1f;
+        --primary: #3f3f3f;
+      }
+
+      .cls-1 {
+        clip-path: url(#clip-Web_1280_5);
+      }
+
+      .cls-2, .cls-3 {
+        fill: var(--white);
+      }
+
+      .cls-2 {
+        stroke: var(--primary);
+        stroke-width: 5px;
+      }
+
+      .cls-4 {
+        fill: var(--primary);
+      }
+
+      .cls-5 {
+        fill: var(--white);
+        font-size: 167px;
+        font-family: Arial-BoldMT, Arial;
+        font-weight: 700;
+      }
+
+      .cls-6 {
+        stroke: none;
+      }
+
+      .cls-7 {
+        fill: none;
+      }
+    </style>
+    <clipPath id="clip-Web_1280_5">
+      <rect width="350" height="350"/>
+    </clipPath>
+  </defs>
+  <g class="cls-1">
+    <rect class="cls-3" width="350" height="350"/>
+    <g class="cls-2" transform="translate(45 25)">
+      <rect class="cls-6" width="280" height="280" rx="5"/>
+      <rect class="cls-7" x="2.5" y="2.5" width="275" height="275" rx="2.5"/>
+    </g>
+    <rect class="cls-3" width="235" height="235" rx="5" transform="translate(30 85)"/>
+    <g class="cls-2" transform="translate(35 90)">
+      <rect class="cls-6" width="225" height="225" rx="5"/>
+      <rect class="cls-7" x="2.5" y="2.5" width="220" height="220" rx="2.5"/>
+    </g>
+    <rect class="cls-3" width="180" height="180" rx="5" transform="translate(20 150)"/>
+    <rect class="cls-4" width="170" height="170" rx="5" transform="translate(25 155)"/>
+    <text id="F" class="cls-5" transform="translate(59 301)"><tspan x="0" y="0">F</tspan></text>
+  </g>
+</svg>

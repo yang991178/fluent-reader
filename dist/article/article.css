@@ -61,3 +61,6 @@ article figure figcaption {
     color: var(--gray);
     -webkit-user-modify: read-only;
 }
+article iframe {
+    width: 100%;
+}
