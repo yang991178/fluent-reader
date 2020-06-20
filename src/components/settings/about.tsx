@@ -13,6 +13,7 @@ class AboutTab extends React.Component {
                 <small>{intl.get("settings.version")} {remote.app.getVersion()}</small>
                 <p className="settings-hint">Copyright © 2020 Haoyuan Liu. All rights reserved.</p>
                 <Stack horizontal horizontalAlign="center" tokens={{childrenGap: 12}}>
+                    <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader/wiki/Support#keyboard-shortcuts")}>{intl.get("settings.shortcuts")}</Link></small>
                     <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader")}>{intl.get("settings.openSource")}</Link></small>
                     <small><Link onClick={() => openExternal("https://github.com/yang991178/fluent-reader/issues")}>{intl.get("settings.feedback")}</Link></small>
                 </Stack>
