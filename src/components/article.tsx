@@ -114,11 +114,22 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 case "ArrowRight":
                     this.props.offsetItem(input.key === "ArrowLeft" ? -1 : 1)
                     break
-                case "l": 
+                case "l": case "L":
                     this.toggleWebpage()
                     break
                 default:
                     this.props.shortcuts(this.props.item, input.key)
+                    const keyboardEvent = new KeyboardEvent("keydown", {
+                        code: input.code,
+                        key: input.key,
+                        shiftKey: input.shift,
+                        altKey: input.alt,
+                        ctrlKey: input.control,
+                        metaKey: input.meta,
+                        repeat: input.isAutoRepeat,
+                        bubbles: true
+                    })
+                    document.dispatchEvent(keyboardEvent)
                     break
             }
         }

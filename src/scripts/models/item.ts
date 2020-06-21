@@ -266,17 +266,18 @@ export function toggleHidden(item: RSSItem): AppThunk {
 export function itemShortcuts(item: RSSItem, key: string): AppThunk {
     return (dispatch) => {
         switch (key) {
-            case "m": 
+            case "m": case "M":
                 if (item.hasRead) dispatch(markUnread(item))
                 else dispatch(markRead(item))
                 break
-            case "b": 
+            case "b": case "B":
+                if (!item.hasRead) dispatch(markRead(item))
                 openExternal(item.link)
                 break
-            case "s": 
+            case "s": case "S":
                 dispatch(toggleStarred(item))
                 break
-            case "h": 
+            case "h": case "H":
                 dispatch(toggleHidden(item))
                 break
         }

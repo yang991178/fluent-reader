@@ -7,14 +7,15 @@ import { ProgressIndicator } from "@fluentui/react"
 import { getWindowBreakpoint } from "../scripts/utils"
 
 type NavProps = {
-    state: AppState,
-    itemShown: boolean,
-    fetch: () => void,
-    menu: () => void,
-    logs: () => void,
-    views: () => void,
-    settings: () => void,
+    state: AppState
+    itemShown: boolean
+    menu: () => void
+    search: () => void
     markAllRead: () => void
+    fetch: () => void
+    logs: () => void
+    views: () => void
+    settings: () => void
 }
 
 type NavState = {
@@ -43,6 +44,9 @@ class Nav extends React.Component<NavProps, NavState> {
             switch (e.key) {
                 case "F1":
                     this.props.menu()
+                    break
+                case "F2":
+                    this.props.search()
                     break
                 case "F5":
                     this.fetch()

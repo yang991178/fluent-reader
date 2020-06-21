@@ -7,6 +7,7 @@ import ArticleSearch from "./utils/article-search"
 
 type PageProps = {
     menuOn: boolean
+    contextOn: boolean
     settingsOn: boolean
     feeds: string[]
     itemId: string
@@ -35,6 +36,7 @@ class Page extends React.Component<PageProps> {
             </div>}
             {this.props.itemId && (
                 <FocusTrapZone 
+                    disabled={this.props.contextOn}
                     ignoreExternalFocusing={true}
                     isClickableOutsideFocusTrap={true}
                     className="article-container"

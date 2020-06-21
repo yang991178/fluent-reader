@@ -41,6 +41,7 @@ class ArticleSearch extends React.Component<SearchProps, SearchState> {
 
     componentDidUpdate(prevProps: SearchProps) {
         if (this.props.searchOn && !prevProps.searchOn) {
+            this.setState({ query: this.props.initQuery })
             this.inputRef.current.focus()
         }
     }
