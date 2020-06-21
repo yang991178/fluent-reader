@@ -199,6 +199,7 @@ export function initIntl(): AppThunk<Promise<void>> {
 
 export function initApp(): AppThunk {
     return (dispatch) => {
+        document.body.classList.add(process.platform)
         dispatch(initIntl()).then(() =>
             dispatch(initSources())
         ).then(() => 
