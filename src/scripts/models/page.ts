@@ -1,5 +1,5 @@
-import { ALL, SOURCE, loadMore, FeedFilter, FilterType, initFeeds } from "./feed"
-import { getWindowBreakpoint, AppThunk } from "../utils"
+import { ALL, SOURCE, loadMore, FeedFilter, FilterType, initFeeds, FeedActionTypes, INIT_FEED } from "./feed"
+import { getWindowBreakpoint, AppThunk, ActionStatus } from "../utils"
 import { getDefaultView } from "../settings"
 import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
@@ -104,7 +104,7 @@ export const toggleSearch = (): AppThunk => {
     return (dispatch, getState) => {
         let state = getState()
         dispatch(({ type: TOGGLE_SEARCH }))
-        if (!getWindowBreakpoint()) {
+        if (!getWindowBreakpoint() && state.app.menu) {
             dispatch(toggleMenu())
         }
         if (state.page.searchOn) {
@@ -214,7 +214,7 @@ export class PageState {
 
 export function pageReducer(
     state = new PageState(),
-    action: PageActionTypes | SourceActionTypes
+    action: PageActionTypes | SourceActionTypes | FeedActionTypes
 ): PageState {
     switch (action.type) {
         case SELECT_PAGE:
@@ -243,6 +243,14 @@ export function pageReducer(
         case SHOW_ITEM: return {
             ...state,
             itemId: action.item._id
+        }
+        case INIT_FEED: switch (action.status) {
+            case ActionStatus.Success: return {
+                ...state,
+                itemId: (action.feed._id === state.feedId && action.items.filter(i => i._id === state.itemId).length === 0)
+                    ? null : state.itemId
+            }
+            default: return state
         }
         case DELETE_SOURCE:
         case DISMISS_ITEM: return {

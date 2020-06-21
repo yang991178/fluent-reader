@@ -5,7 +5,7 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { fetchItems, markAllRead } from "../scripts/models/item"
 import { toggleMenu, toggleLogMenu, toggleSettings, openViewMenu } from "../scripts/models/app"
-import { ViewType } from "../scripts/models/page"
+import { ViewType, toggleSearch } from "../scripts/models/page"
 import Nav from "../components/nav"
 
 const getState = (state: RootState) => state.app
@@ -25,6 +25,7 @@ const mapDispatchToProps = (dispatch) => ({
     logs: () => dispatch(toggleLogMenu()),
     views: () => dispatch(openViewMenu()),
     settings: () => dispatch(toggleSettings()),
+    search: () => dispatch(toggleSearch()),
     markAllRead: () => {
         remote.dialog.showMessageBox(remote.getCurrentWindow(), {
             title: intl.get("nav.markAllRead"),

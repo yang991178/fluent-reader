@@ -29,7 +29,8 @@ function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
         title: "Fluent Reader",
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#282828" : "#faf9f8",
+        backgroundColor: process.platform === "darwin" ? "#00000000" : (nativeTheme.shouldUseDarkColors ? "#282828" : "#faf9f8"),
+        vibrancy: "sidebar",
         x: mainWindowState.x,
         y: mainWindowState.y,
         width: mainWindowState.width,
@@ -55,7 +56,7 @@ function createWindow() {
     mainWindow.loadFile((app.isPackaged ? "dist/" : "") + "index.html")
 }
 
-if (process.platform === 'darwin') {
+if (process.platform === "darwin") {
     const template = [
         {
             label: "Application",
@@ -66,8 +67,12 @@ if (process.platform === 'darwin') {
         {
             label: "Edit",
             submenu: [
+                { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+                { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+                { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
                 { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
                 { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+                { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
             ]
         }
     ]

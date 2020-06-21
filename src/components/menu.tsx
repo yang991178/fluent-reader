@@ -91,8 +91,10 @@ export class Menu extends React.Component<MenuProps> {
         let [type, index] = item.key.split("-")
         if (type === "s") {
             sids = [parseInt(index)]
-        } else {
+        } else if (type === "g") {
             sids = this.props.groups[parseInt(index)].sids
+        } else {
+            return
         }
         this.props.groupContextMenu(sids, event)
     }

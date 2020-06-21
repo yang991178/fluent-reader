@@ -199,6 +199,7 @@ export function initIntl(): AppThunk<Promise<void>> {
 
 export function initApp(): AppThunk {
     return (dispatch) => {
+        document.body.classList.add(process.platform)
         dispatch(initIntl()).then(() =>
             dispatch(initSources())
         ).then(() => 
@@ -266,10 +267,7 @@ export function appReducer(
         }
         case INIT_FEEDS:
             switch (action.status) {
-                case ActionStatus.Request: return {
-                    ...state,
-                    feedInit: false
-                }
+                case ActionStatus.Request: return state
                 default: return {
                     ...state,
                     feedInit: true
