@@ -31,7 +31,6 @@ type ArticleState = {
 
 class Article extends React.Component<ArticleProps, ArticleState> {
     webview: Electron.WebviewTag
-    shouldRefocus = false
     
     constructor(props) {
         super(props)
@@ -107,7 +106,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         if (input.type === "keyDown") {
             switch (input.key) {
                 case "Escape": 
-                    this.shouldRefocus = true
                     this.props.dismiss()
                     break
                 case "ArrowLeft":
@@ -160,10 +158,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     componentWillUnmount = () => {
-        if (this.shouldRefocus) {
-            let refocus = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
-            if (refocus) refocus.focus()
-        }
+        let refocus = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
+        if (refocus) refocus.focus()
     }
 
     openInBrowser = () => {
