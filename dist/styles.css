@@ -404,6 +404,9 @@ img.favicon {
     body.darwin .menu-container .menu {
         background: none;
     }
+    body.darwin .menu-container .menu.item-on {
+        background-color: var(--neutralLight);
+    }
     .menu-container .menu::after {
         content: "";
         display: block;
