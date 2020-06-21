@@ -214,12 +214,13 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
 
     handleInputChange = (event) => {
         const name: string = event.target.name
-        this.setState({[name]: event.target.value.trim()})
+        this.setState({[name]: event.target.value})
     }
 
     createGroup = (event: React.FormEvent) => {
         event.preventDefault()
-        if (this.state.newGroupName.length > 0) this.props.createGroup(this.state.newGroupName)
+        let trimmed = this.state.newGroupName.trim()
+        if (trimmed.length > 0) this.props.createGroup(trimmed)
     }
 
     addToGroup = () => {
@@ -239,7 +240,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
 
     updateGroupName = () => {
         let group = this.state.selectedGroup
-        group = { ...group, name: this.state.editGroupName }
+        group = { ...group, name: this.state.editGroupName.trim() }
         this.props.updateGroup(group)
     }
 
@@ -292,7 +293,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         </Stack.Item>
                         <Stack.Item>
                             <PrimaryButton 
-                                disabled={this.state.newGroupName.length == 0}
+                                disabled={this.state.newGroupName.trim().length == 0}
                                 type="sumbit"
                                 text={intl.get("create")} />
                         </Stack.Item>
@@ -325,7 +326,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                             </Stack.Item>
                             <Stack.Item>
                                 <DefaultButton
-                                    disabled={this.state.editGroupName.length == 0}
+                                    disabled={this.state.editGroupName.trim().length == 0}
                                     onClick={this.updateGroupName}
                                     text={intl.get("groups.editName")} />
                             </Stack.Item>

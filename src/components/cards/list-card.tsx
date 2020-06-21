@@ -16,7 +16,6 @@ class ListCard extends Card {
                 className={this.className()}
                 onClick={this.onClick}
                 onMouseUp={this.onMouseUp}
-                onMouseDown={event => event.preventDefault()}
                 onKeyDown={this.onKeyDown}
                 data-iid={this.props.item._id}
                 data-is-focusable>

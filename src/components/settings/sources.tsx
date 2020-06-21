@@ -101,12 +101,13 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
 
     handleInputChange = (event) => {
         const name: string = event.target.name
-        this.setState({[name]: event.target.value.trim()})
+        this.setState({[name]: event.target.value})
     }
 
     addSource = (event: React.FormEvent) => {
         event.preventDefault()
-        if (urlTest(this.state.newUrl)) this.props.addSource(this.state.newUrl)
+        let trimmed = this.state.newUrl.trim()
+        if (urlTest(trimmed)) this.props.addSource(trimmed)
     }
 
     onOpenTargetChange = (_, option: IChoiceGroupOption) => {
@@ -142,7 +143,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                     </Stack.Item>
                     <Stack.Item>
                         <PrimaryButton 
-                            disabled={!urlTest(this.state.newUrl)}
+                            disabled={!urlTest(this.state.newUrl.trim())}
                             type="submit"
                             text={intl.get("add")} />
                     </Stack.Item>
@@ -171,8 +172,8 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                     </Stack.Item>
                     <Stack.Item>
                         <DefaultButton
-                            disabled={this.state.newSourceName.length == 0}
-                            onClick={() => this.props.updateSourceName(this.state.selectedSource, this.state.newSourceName)}
+                            disabled={this.state.newSourceName.trim().length == 0}
+                            onClick={() => this.props.updateSourceName(this.state.selectedSource, this.state.newSourceName.trim())}
                             text={intl.get("sources.editName")} />
                     </Stack.Item>
                 </Stack>

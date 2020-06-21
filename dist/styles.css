@@ -154,6 +154,9 @@ nav .progress {
     text-align: center;
     vertical-align: middle;
 }
+body.darwin .btn-group .seperator {
+    line-height: 32px;
+}
 .btn-group .seperator::before {
     content: "|";
 }
@@ -181,11 +184,14 @@ nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
 nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
     color: var(--white);
 }
-.btn-group .btn:hover {
+.btn-group .btn:hover, .ms-Nav-compositeLink:hover {
     background-color: #0001;
 }
-.btn-group .btn:active {
+.btn-group .btn:active, .ms-Nav-compositeLink:active {
     background-color: #0002;
+}
+.ms-Nav-compositeLink:hover .ms-Nav-link {
+    background: none;
 }
 .btn-group .btn.disabled, .btn-group .btn.fetching {
     background-color: unset !important;
@@ -661,11 +667,13 @@ img.favicon {
     cursor: pointer;
     animation-fill-mode: none;
 }
-.card:hover, .card:focus {
-    box-shadow: #0006 0px 5px 40px;
+.card:focus, .list-card:focus {
     outline: none;
 }
-.card:focus::after, .list-card:focus::after {
+.card:hover, .ms-Fabric--isFocusVisible .card:focus {
+    box-shadow: #0006 0px 5px 40px;
+}
+.ms-Fabric--isFocusVisible .card:focus::after, .ms-Fabric--isFocusVisible .list-card:focus::after {
     content: "";
     position: absolute;
     top: 2px;
@@ -705,7 +713,9 @@ img.favicon {
     transition: transform ease-out .12s;
 }
 .card.transform:hover img.head, .card.transform:hover p, .card.transform:hover h3,
-.card.transform:focus img.head, .card.transform:focus p, .card.transform:focus h3 {
+.ms-Fabric--isFocusVisible .card.transform:focus img.head,
+.ms-Fabric--isFocusVisible .card.transform:focus p,
+.ms-Fabric--isFocusVisible .card.transform:focus h3 {
     transform: translateY(-144px);
 }
 .card h3.title {
@@ -759,9 +769,8 @@ img.favicon {
     cursor: pointer;
     box-shadow: #0000 0px 5px 15px;
 }
-.list-card:hover, .list-card:focus {
+.list-card:hover, .ms-Fabric--isFocusVisible .list-card:focus {
     box-shadow: #0004 0px 5px 15px;
-    outline: none;
 }
 .list-card:active {
     box-shadow: #0000 0px 5px 15px, inset #0004 0px 0px 15px;
@@ -800,10 +809,10 @@ img.favicon {
     .ms-Button--commandBar.active .ms-Button-icon {
         color: #c7e0f4;
     }
-    .btn-group .btn:hover {
+    .btn-group .btn:hover, .ms-Nav-compositeLink:hover {
         background-color: #fff1;
     }
-    .btn-group .btn:active {
+    .btn-group .btn:active, .ms-Nav-compositeLink:active {
         background-color: #fff2;
     }
     .settings .loading {
