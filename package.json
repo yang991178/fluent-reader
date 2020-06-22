@@ -8,7 +8,8 @@
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
     "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w appx:arm64",
-    "package-mac": "sudo electron-builder --mac"
+    "package-mac": "sudo electron-builder --mac",
+    "package-linux": "electron-builder --linux"
   },
   "keywords": [],
   "author": "Haoyuan Liu",
@@ -48,6 +49,11 @@
     "mac": {
       "target": [
         "dmg"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
       ]
     }
   },
