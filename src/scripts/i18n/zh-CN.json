@@ -84,6 +84,8 @@
     "sources": {
         "untitled": "订阅源",
         "errorAdd": "添加订阅源时出错",
+        "errorParse": "解析OPML文件时出错",
+        "errorParseHint": "请确保OPML文件完整且使用UTF-8编码。",
         "errorImport": "导入{count}项订阅源时出错",
         "opmlFile": "OPML文件",
         "name": "订阅源名称",
@@ -99,8 +101,9 @@
         "loadWebpage": "加载网页",
         "inputUrl": "输入URL",
         "badUrl": "请正确输入URL",
-        "deleteWarning": "这将移除此订阅源与所有已保存的文章",
-        "selected": "选中订阅源"
+        "deleteWarning": "这将移除订阅源与所有已保存的文章",
+        "selected": "选中订阅源",
+        "selectedMulti": "选中多个订阅源"
     },
     "groups": {
         "type": "类型",

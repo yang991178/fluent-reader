@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import SourcesTab from "../../components/settings/sources"
-import { addSource, RSSSource, updateSource, deleteSource, SourceOpenTarget } from "../../scripts/models/source"
+import { addSource, RSSSource, updateSource, deleteSource, SourceOpenTarget, deleteSources } from "../../scripts/models/source"
 import { importOPML, exportOPML } from "../../scripts/models/group"
 import { AppDispatch } from "../../scripts/utils"
 
@@ -30,6 +30,7 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
             dispatch(updateSource({ ...source, fetchFrequency: frequency } as RSSSource))
         },
         deleteSource: (source: RSSSource) => dispatch(deleteSource(source)),
+        deleteSources: (sources: RSSSource[]) => dispatch(deleteSources(sources)),
         importOPML: () => {
             remote.dialog.showOpenDialog(
                 remote.getCurrentWindow(),

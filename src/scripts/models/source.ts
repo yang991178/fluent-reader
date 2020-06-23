@@ -55,6 +55,7 @@ export class RSSSource {
                 if (err) {
                     reject(err)
                 } else if (doc === null) {
+                    RSSItem.parseContent(i, item)
                     resolve(i)
                 } else {
                     resolve(null)
@@ -289,26 +290,41 @@ export function deleteSourceDone(source: RSSSource): SourceActionTypes {
     }
 }
 
-export function deleteSource(source: RSSSource): AppThunk {
+export function deleteSource(source: RSSSource, batch = false): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
-        dispatch(saveSettings())
-        db.idb.remove({ source: source.sid }, { multi: true }, (err) => {
-            if (err) {
-                console.log(err)
-                dispatch(saveSettings())
-            } else {
-                db.sdb.remove({ sid: source.sid }, {}, (err) => {
-                    if (err) {
-                        console.log(err)
-                        dispatch(saveSettings())
-                    } else {
-                        dispatch(deleteSourceDone(source))
-                        SourceGroup.save(getState().groups)
-                        dispatch(saveSettings())
-                    }
-                })
-            }
+        return new Promise((resolve) => {
+            if (!batch) dispatch(saveSettings())
+            db.idb.remove({ source: source.sid }, { multi: true }, (err) => {
+                if (err) {
+                    console.log(err)
+                    if (!batch) dispatch(saveSettings())
+                    resolve()
+                } else {
+                    db.sdb.remove({ sid: source.sid }, {}, (err) => {
+                        if (err) {
+                            console.log(err)
+                            if (!batch) dispatch(saveSettings())
+                            resolve()
+                        } else {
+                            dispatch(deleteSourceDone(source))
+                            SourceGroup.save(getState().groups)
+                            if (!batch) dispatch(saveSettings())
+                            resolve()
+                        }
+                    })
+                }
+            })
         })
+    }
+}
+
+export function deleteSources(sources: RSSSource[]): AppThunk<Promise<void>> {
+    return async (dispatch) => {
+        dispatch(saveSettings())
+        for (let source of sources) {
+            await dispatch(deleteSource(source, true))
+        }
+        dispatch(saveSettings())
     }
 }
 

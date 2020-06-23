@@ -210,6 +210,12 @@ export function importOPML(path: string): AppThunk {
                     dispatch(saveSettings())
                     return
                 }
+                let parseError = doc[0].getElementsByTagName("parsererror")
+                if (parseError.length > 0) {
+                    dispatch(saveSettings())
+                    remote.dialog.showErrorBox(intl.get("sources.errorParse"), intl.get("sources.errorParseHint"))
+                    return
+                }
                 let sources: [ReturnType<typeof addSource>, number, string][] = []
                 let errors: [string, any][] = []
                 for (let el of doc[0].children) {
