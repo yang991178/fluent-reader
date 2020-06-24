@@ -58,6 +58,7 @@ export class RSSSource {
                     reject(err)
                 } else if (doc === null) {
                     RSSItem.parseContent(i, item)
+                    if (source.rules) SourceRule.applyAll(source.rules, i)
                     resolve(i)
                 } else {
                     resolve(null)
@@ -367,9 +368,10 @@ export function sourceReducer(
                 case ActionStatus.Success: {
                     let updateMap = new Map<number, number>()
                     for (let item of action.items) {
-                        updateMap.set(
+                        if (!item.hasRead) { updateMap.set(
                             item.source, 
-                            updateMap.has(item.source) ? (updateMap.get(item.source) + 1) : 1)
+                            updateMap.has(item.source) ? (updateMap.get(item.source) + 1) : 1
+                        )}
                     }
                     let nextState = {} as SourceState
                     for (let [s, source] of Object.entries(state)) {

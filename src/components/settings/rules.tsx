@@ -6,6 +6,8 @@ import { Stack, Label, Dropdown, IDropdownOption, TextField, PrimaryButton, Icon
 import { SourceRule, RuleActions } from "../../scripts/models/rule"
 import { FilterType } from "../../scripts/models/feed"
 import { validateRegex } from "../../scripts/utils"
+import { RSSItem } from "../../scripts/models/item"
+import Parser = require("@yang991178/rss-parser")
 
 const actionKeyMap = {
     "r-true": "article.markRead",
@@ -29,6 +31,9 @@ type RulesTabState = {
     fullSearch: boolean
     match: boolean
     actionKeys: string[]
+    mockTitle: string
+    mockContent: string
+    mockResult: string
 }
 
 class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
@@ -46,7 +51,10 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
             regex: "",
             fullSearch: false,
             match: true,
-            actionKeys: []
+            actionKeys: [],
+            mockTitle: "",
+            mockContent: "",
+            mockResult: ""
         }
         this.rulesSelection = new Selection({
             getKey: (_, i) => i,
@@ -141,7 +149,10 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
     }
     onSourceOptionChange = (_, item: IDropdownOption) => {
         this.initRuleEdit()
-        this.setState({ sid: item.key as string, selectedRules: [], editIndex: -1 })
+        this.setState({ 
+            sid: item.key as string, selectedRules: [], editIndex: -1,
+            mockTitle: "", mockContent: "", mockResult: ""
+        })
     }
 
     searchOptions = (): IDropdownOption[] => [
@@ -241,6 +252,19 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
         return items
     }
 
+    testMockItem = () => {
+        let parsed = { title: this.state.mockTitle }
+        let source = this.props.sources[parseInt(this.state.sid)]
+        let item = new RSSItem(parsed as Parser.Item, source)
+        item.snippet = this.state.mockContent
+        SourceRule.applyAll(this.getSourceRules(), item)
+        let result = []
+        result.push(intl.get(item.hasRead ? "article.markRead" : "article.markUnread"))
+        if (item.starred) result.push(intl.get("article.star"))
+        if (item.hidden) result.push(intl.get("article.hide"))
+        this.setState({ mockResult: result.join(", ") })
+    }
+
     render = () => (
         <div className="tab-body">
             <Stack horizontal tokens={{childrenGap: 16}}>
@@ -331,6 +355,31 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
                         selection={this.rulesSelection}
                         selectionMode={SelectionMode.multiple} />
                 </MarqueeSelection>
+                <span className="settings-hint up">{intl.get("rules.hint")}</span>
+
+                <Label>{intl.get("rules.test")}</Label>
+                <Stack horizontal>
+                    <Stack.Item grow>
+                        <TextField
+                            name="mockTitle"
+                            placeholder={intl.get("rules.title")}
+                            value={this.state.mockTitle}
+                            onChange={this.handleInputChange} />
+                    </Stack.Item>
+                    <Stack.Item grow>
+                        <TextField
+                            name="mockContent"
+                            placeholder={intl.get("rules.content")}
+                            value={this.state.mockContent}
+                            onChange={this.handleInputChange} />
+                    </Stack.Item>
+                    <Stack.Item>
+                        <PrimaryButton
+                            text={intl.get("confirm")}
+                            onClick={this.testMockItem} />
+                    </Stack.Item>
+                </Stack>
+                <span className="settings-hint up">{this.state.mockResult}</span>
             </>)}
         </div>
     )

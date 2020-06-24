@@ -134,13 +134,16 @@
         "if": "If",
         "then": "Then",
         "title": "Title",
+        "content": "Content",
         "fullSearch": "Title or content",
         "match": "matches",
         "notMatch": "doesn't match",
         "regex": "Regular expression",
         "badRegex": "Invalid regular expression.",
         "action": "Actions",
-        "selectAction": "Select actions"
+        "selectAction": "Select actions",
+        "hint": "Rules will be applied in order. Drag and drop to reorder.",
+        "test": "Test rules"
     },
     "app": {
         "cleanup": "Clean up",
