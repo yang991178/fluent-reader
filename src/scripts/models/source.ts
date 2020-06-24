@@ -6,6 +6,7 @@ import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNR
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
 import { remote } from "electron"
+import { SourceRule } from "./rule"
 
 export enum SourceOpenTarget {
     Local, Webpage, External
@@ -20,6 +21,7 @@ export class RSSSource {
     unreadCount: number
     lastFetched: Date
     fetchFrequency?: number // in minutes
+    rules?: SourceRule[]
 
     constructor(url: string, name: string = null) {
         this.url = url

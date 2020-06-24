@@ -1,4 +1,3 @@
-import { remote } from "electron"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"

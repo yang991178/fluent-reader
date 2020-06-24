@@ -316,11 +316,18 @@ div[role="tabpanel"] {
 .tab-body .ms-ChoiceFieldGroup {
     margin-bottom: 20px;
 }
+.tab-body .ms-CommandBar {
+    padding: 0;
+}
 img.favicon {
     width: 16px;
     height: 16px;
     vertical-align: middle;
     user-select: none;
+}
+img.favicon.dropdown {
+    margin-right: 8px;
+    vertical-align: sub;
 }
 .ms-DetailsList-contentWrapper {
     max-height: 400px;

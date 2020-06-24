@@ -3,7 +3,7 @@ import intl = require("react-intl-universal")
 import { connect } from "react-redux"
 import { RootState } from "../../scripts/reducer"
 import { SearchBox, ISearchBox, Async } from "@fluentui/react"
-import { AppDispatch } from "../../scripts/utils"
+import { AppDispatch, validateRegex } from "../../scripts/utils"
 import { performSearch } from "../../scripts/models/page"
 
 type SearchProps = {
@@ -23,12 +23,8 @@ class ArticleSearch extends React.Component<SearchProps, SearchState> {
     constructor(props: SearchProps) {
         super(props)
         this.debouncedSearch = new Async().debounce((query: string) => {
-            try {
-                RegExp(query)
-                props.dispatch(performSearch(query))
-            } catch {
-                // console.log("Invalid regex")
-            }
+            let regex = validateRegex(query)
+            if (regex !== null) props.dispatch(performSearch(query))
         }, 750)
         this.inputRef = React.createRef<ISearchBox>()
         this.state = { query: props.initQuery }

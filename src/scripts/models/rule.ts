@@ -10,6 +10,20 @@ export const enum ItemAction {
 export type RuleActions = {
     [type in ItemAction]: boolean
 }
+export namespace RuleActions {
+    export function toKeys(actions: RuleActions): string[] {
+        return Object.entries(actions).map(([t, f]) => `${t}-${f}`)
+    }
+
+    export function fromKeys(strs: string[]): RuleActions {
+        const fromKey = (str: string): [ItemAction, boolean] => {
+            let [t, f] = str.split("-") as [ItemAction, string]
+            if (f) return [t, f === "true"]
+            else return [t, true]
+        }
+        return Object.fromEntries(strs.map(fromKey)) as RuleActions
+    }
+}
 
 type ActionTransformType = {
     [type in ItemAction]: (i: RSSItem, f: boolean) => void
@@ -43,11 +57,11 @@ export class SourceRule {
     match: boolean
     actions: RuleActions
 
-    constructor(regex: string, actions: RuleActions, fullSearch: boolean, match: boolean) {
-        this.filter = new FeedFilter(FilterType.Default, regex)
+    constructor(regex: string, actions: string[], fullSearch: boolean, match: boolean) {
+        this.filter = new FeedFilter(FilterType.Default | FilterType.ShowHidden, regex)
         if (fullSearch) this.filter.type |= FilterType.FullSearch
         this.match = match
-        this.actions = actions
+        this.actions = RuleActions.fromKeys(actions)
     }
 
     static apply(rule: SourceRule, item: RSSItem) {

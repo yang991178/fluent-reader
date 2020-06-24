@@ -130,3 +130,11 @@ export function calculateItemSize(): Promise<number> {
         openRequest.onerror = () => reject()
     })
 }
+
+export function validateRegex(regex: string): RegExp {
+    try {
+        return new RegExp(regex)
+    } catch {
+        return null
+    }
+}

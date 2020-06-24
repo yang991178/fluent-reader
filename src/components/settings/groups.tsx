@@ -160,7 +160,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         let groups = this.props.groups.filter(g => g.index != draggedItem.index)
   
         groups.splice(insertIndex, 0, draggedItem)
-  
+        this.groupSelection.setAllSelected(false)
         this.props.reorderGroups(groups)
     }
 
