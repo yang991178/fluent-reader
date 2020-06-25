@@ -6,6 +6,9 @@
     "name": "名称",
     "openExternal": "在浏览器中打开",
     "emptyName": "名称不得为空",
+    "emptyField": "此项不得为空",
+    "edit": "编辑",
+    "delete": "删除",
     "followSystem": "跟随系统",
     "more": "更多",
     "close": "关闭",
@@ -78,6 +81,7 @@
         "exit": "退出选项",
         "sources": "订阅源",
         "grouping": "分组与排序",
+        "rules": "规则",
         "app": "应用偏好",
         "about": "关于",
         "version": "版本",
@@ -88,6 +92,8 @@
     "sources": {
         "untitled": "订阅源",
         "errorAdd": "添加订阅源时出错",
+        "errorParse": "解析OPML文件时出错",
+        "errorParseHint": "请确保OPML文件完整且使用UTF-8编码。",
         "errorImport": "导入{count}项订阅源时出错",
         "opmlFile": "OPML文件",
         "name": "订阅源名称",
@@ -103,8 +109,9 @@
         "loadWebpage": "加载网页",
         "inputUrl": "输入URL",
         "badUrl": "请正确输入URL",
-        "deleteWarning": "这将移除此订阅源与所有已保存的文章",
-        "selected": "选中订阅源"
+        "deleteWarning": "这将移除订阅源与所有已保存的文章",
+        "selected": "选中订阅源",
+        "selectedMulti": "选中多个订阅源"
     },
     "groups": {
         "type": "类型",
@@ -123,6 +130,24 @@
         "chooseGroup": "选择分组",
         "addToGroup": "添加至分组",
         "groupHint": "双击分组以修改订阅源，可通过拖拽排序"
+    },
+    "rules": {
+        "source": "订阅源",
+        "selectSource": "选择一个订阅源",
+        "new": "新建规则",
+        "if": "若",
+        "then": "则",
+        "title": "标题",
+        "content": "正文",
+        "fullSearch": "标题或正文",
+        "match": "匹配",
+        "notMatch": "不匹配",
+        "regex": "正则表达式",
+        "badRegex": "正则表达式非法",
+        "action": "行为",
+        "selectAction": "选择行为",
+        "hint": "规则将按顺序执行，拖拽以排序",
+        "test": "测试规则"
     },
     "app": {
         "cleanup": "清理",

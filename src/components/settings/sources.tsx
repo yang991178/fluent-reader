@@ -13,6 +13,7 @@ type SourcesTabProps = {
     updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => void
     updateFetchFrequency: (source: RSSSource, frequency: number) => void
     deleteSource: (source: RSSSource) => void
+    deleteSources: (sources: RSSSource[]) => void
     importOPML: () => void
     exportOPML: () => void
 }
@@ -20,7 +21,8 @@ type SourcesTabProps = {
 type SourcesTabState = {
     [formName: string]: string
 } & {
-    selectedSource: RSSSource
+    selectedSource: RSSSource,
+    selectedSources: RSSSource[]
 }
 
 class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
@@ -31,15 +33,18 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
         this.state = {
             newUrl: "",
             newSourceName: "",
-            selectedSource: null
+            selectedSource: null,
+            selectedSources: null
         }
         this.selection = new Selection({
             getKey: s => (s as RSSSource).sid,
             onSelectionChanged: () => {
-                let source = this.selection.getSelectedCount() ? this.selection.getSelection()[0] as RSSSource : null
+                let count =  this.selection.getSelectedCount()
+                let sources = count ? this.selection.getSelection() as RSSSource[] : null
                 this.setState({
-                    selectedSource: source,
-                    newSourceName: source ? source.name : ""
+                    selectedSource: count === 1 ? sources[0] : null,
+                    selectedSources: count > 1 ? sources : null,
+                    newSourceName: count === 1 ? sources[0].name : ""
                 })
             }
         })
@@ -99,6 +104,12 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
         { key: String(SourceOpenTarget.External), text: intl.get("openExternal") }
     ]
 
+    updateSourceName = () => {
+        let newName = this.state.newSourceName.trim()
+        this.props.updateSourceName(this.state.selectedSource, newName)
+        this.setState({selectedSource: {...this.state.selectedSource, name: newName} as RSSSource})
+    }
+
     handleInputChange = (event) => {
         const name: string = event.target.name
         this.setState({[name]: event.target.value})
@@ -151,12 +162,13 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
             </form>
 
             <DetailsList
+                compact={Object.keys(this.props.sources).length >= 10}
                 items={Object.values(this.props.sources)} 
                 columns={this.columns()}
                 getKey={s => s.sid}
                 setKey="selected"
                 selection={this.selection}
-                selectionMode={SelectionMode.single} />
+                selectionMode={SelectionMode.multiple} />
 
             {this.state.selectedSource && <>
                 <Label>{intl.get("sources.selected")}</Label>
@@ -173,7 +185,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                     <Stack.Item>
                         <DefaultButton
                             disabled={this.state.newSourceName.trim().length == 0}
-                            onClick={() => this.props.updateSourceName(this.state.selectedSource, this.state.newSourceName.trim())}
+                            onClick={this.updateSourceName}
                             text={intl.get("sources.editName")} />
                     </Stack.Item>
                 </Stack>
@@ -197,6 +209,19 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                         <DangerButton
                             onClick={() => this.props.deleteSource(this.state.selectedSource)}
                             key={this.state.selectedSource.sid}
+                            text={intl.get("sources.delete")} />
+                    </Stack.Item>
+                    <Stack.Item>
+                        <span className="settings-hint">{intl.get("sources.deleteWarning")}</span>
+                    </Stack.Item>
+                </Stack>
+            </>}
+            {this.state.selectedSources && <>
+                <Label>{intl.get("sources.selectedMulti")}</Label>
+                <Stack horizontal>
+                    <Stack.Item>
+                        <DangerButton
+                            onClick={() => this.props.deleteSources(this.state.selectedSources)}
                             text={intl.get("sources.delete")} />
                     </Stack.Item>
                     <Stack.Item>

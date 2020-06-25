@@ -19,7 +19,10 @@ export type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>
 import Parser = require("@yang991178/rss-parser")
 const rssParser = new Parser({
     customFields: {
-        item: ["thumb", "image", ["content:encoded", "fullContent"]] as Parser.CustomFieldItem[]
+        item: [
+            "thumb", "image", ["content:encoded", "fullContent"], 
+            ['media:content', 'mediaContent', {keepArray: true}],
+        ] as Parser.CustomFieldItem[]
     }
 })
 
@@ -126,4 +129,12 @@ export function calculateItemSize(): Promise<number> {
         }
         openRequest.onerror = () => reject()
     })
+}
+
+export function validateRegex(regex: string): RegExp {
+    try {
+        return new RegExp(regex)
+    } catch {
+        return null
+    }
 }

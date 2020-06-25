@@ -6,6 +6,9 @@
     "name": "Name",
     "openExternal": "Open externally",
     "emptyName": "This field cannot be empty.",
+    "emptyField": "This field cannot be empty.",
+    "edit": "Edit",
+    "delete": "Delete",
     "followSystem": "Follow system",
     "more": "More",
     "close": "Close",
@@ -78,6 +81,7 @@
         "exit": "Exit settings",
         "sources": "Sources",
         "grouping": "Grouping",
+        "rules": "Rules",
         "app": "Preferences",
         "about": "About",
         "version": "Version",
@@ -88,6 +92,8 @@
     "sources": {
         "untitled": "Source",
         "errorAdd": "An error has occured when adding the source.",
+        "errorParse": "An error has occured when parsing the OPML file.",
+        "errorParseHint": "Please ensure that the file isn't corrupted and is encoded with UTF-8.",
         "errorImport": "Error importing {count, plural, =1 {# source} other {# sources}}.",
         "opmlFile": "OPML File",
         "name": "Source name",
@@ -104,7 +110,8 @@
         "inputUrl": "Enter URL",
         "badUrl": "Invalid URL",
         "deleteWarning": "The source and all saved articles will be removed.",
-        "selected": "Selected source"
+        "selected": "Selected source",
+        "selectedMulti": "Selected multiple sources"
     },
     "groups": {
         "type": "Type",
@@ -123,6 +130,24 @@
         "chooseGroup": "Select a group",
         "addToGroup": "Add to ...",
         "groupHint": "Double click on group to edit sources. Drag and drop to reorder."
+    },
+    "rules": {
+        "source": "Source",
+        "selectSource": "Select a source",
+        "new": "New Rule",
+        "if": "If",
+        "then": "Then",
+        "title": "Title",
+        "content": "Content",
+        "fullSearch": "Title or content",
+        "match": "matches",
+        "notMatch": "doesn't match",
+        "regex": "Regular expression",
+        "badRegex": "Invalid regular expression.",
+        "action": "Actions",
+        "selectAction": "Select actions",
+        "hint": "Rules will be applied in order. Drag and drop to reorder.",
+        "test": "Test rules"
     },
     "app": {
         "cleanup": "Clean up",

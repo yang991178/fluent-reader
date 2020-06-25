@@ -6,6 +6,7 @@ import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNR
 import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
 import { remote } from "electron"
+import { SourceRule } from "./rule"
 
 export enum SourceOpenTarget {
     Local, Webpage, External
@@ -20,6 +21,7 @@ export class RSSSource {
     unreadCount: number
     lastFetched: Date
     fetchFrequency?: number // in minutes
+    rules?: SourceRule[]
 
     constructor(url: string, name: string = null) {
         this.url = url
@@ -55,6 +57,8 @@ export class RSSSource {
                 if (err) {
                     reject(err)
                 } else if (doc === null) {
+                    RSSItem.parseContent(i, item)
+                    if (source.rules) SourceRule.applyAll(source.rules, i)
                     resolve(i)
                 } else {
                     resolve(null)
@@ -289,26 +293,41 @@ export function deleteSourceDone(source: RSSSource): SourceActionTypes {
     }
 }
 
-export function deleteSource(source: RSSSource): AppThunk {
+export function deleteSource(source: RSSSource, batch = false): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
-        dispatch(saveSettings())
-        db.idb.remove({ source: source.sid }, { multi: true }, (err) => {
-            if (err) {
-                console.log(err)
-                dispatch(saveSettings())
-            } else {
-                db.sdb.remove({ sid: source.sid }, {}, (err) => {
-                    if (err) {
-                        console.log(err)
-                        dispatch(saveSettings())
-                    } else {
-                        dispatch(deleteSourceDone(source))
-                        SourceGroup.save(getState().groups)
-                        dispatch(saveSettings())
-                    }
-                })
-            }
+        return new Promise((resolve) => {
+            if (!batch) dispatch(saveSettings())
+            db.idb.remove({ source: source.sid }, { multi: true }, (err) => {
+                if (err) {
+                    console.log(err)
+                    if (!batch) dispatch(saveSettings())
+                    resolve()
+                } else {
+                    db.sdb.remove({ sid: source.sid }, {}, (err) => {
+                        if (err) {
+                            console.log(err)
+                            if (!batch) dispatch(saveSettings())
+                            resolve()
+                        } else {
+                            dispatch(deleteSourceDone(source))
+                            SourceGroup.save(getState().groups)
+                            if (!batch) dispatch(saveSettings())
+                            resolve()
+                        }
+                    })
+                }
+            })
         })
+    }
+}
+
+export function deleteSources(sources: RSSSource[]): AppThunk<Promise<void>> {
+    return async (dispatch) => {
+        dispatch(saveSettings())
+        for (let source of sources) {
+            await dispatch(deleteSource(source, true))
+        }
+        dispatch(saveSettings())
     }
 }
 
@@ -349,9 +368,10 @@ export function sourceReducer(
                 case ActionStatus.Success: {
                     let updateMap = new Map<number, number>()
                     for (let item of action.items) {
-                        updateMap.set(
+                        if (!item.hasRead) { updateMap.set(
                             item.source, 
-                            updateMap.has(item.source) ? (updateMap.get(item.source) + 1) : 1)
+                            updateMap.has(item.source) ? (updateMap.get(item.source) + 1) : 1
+                        )}
                     }
                     let nextState = {} as SourceState
                     for (let [s, source] of Object.entries(state)) {
