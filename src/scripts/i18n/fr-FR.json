@@ -16,9 +16,13 @@
     "confirm": "Confirmer",
     "cancel": "Annuler",
     "time": {
-        "m": "{m, plural, =1 {# minute} other {# minutes}}",
-        "h": "{h, plural, =1 {# heure} other {# heures}}",
-        "d": "{d, plural, =1 {# jour} other {# jours}}"
+        "now": "maintenant",
+        "m": "m",
+        "h": "h",
+        "d": "j",
+        "minute": "{m, plural, =1 {# minute} other {# minutes}}",
+        "hour": "{h, plural, =1 {# heure} other {# heures}}",
+        "day": "{d, plural, =1 {# jour} other {# jours}}"
     },
     "log": {
         "empty": "Aucune notification",
