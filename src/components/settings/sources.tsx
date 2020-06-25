@@ -77,14 +77,14 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
 
     fetchFrequencyOptions = (): IDropdownOption[] => [
         { key: "0", text: intl.get("sources.unlimited") },
-        { key: "15", text: intl.get("time.m", { m: 15 }) },
-        { key: "30", text: intl.get("time.m", { m: 30 }) },
-        { key: "60", text: intl.get("time.h", { h: 1 }) },
-        { key: "120", text: intl.get("time.h", { h: 2 }) },
-        { key: "180", text: intl.get("time.h", { h: 3 }) },
-        { key: "360", text: intl.get("time.h", { h: 6 }) },
-        { key: "720", text: intl.get("time.h", { h: 12 }) },
-        { key: "1440", text: intl.get("time.d", { d: 1 }) }
+        { key: "15", text: intl.get("time.minute", { m: 15 }) },
+        { key: "30", text: intl.get("time.minute", { m: 30 }) },
+        { key: "60", text: intl.get("time.hour", { h: 1 }) },
+        { key: "120", text: intl.get("time.hour", { h: 2 }) },
+        { key: "180", text: intl.get("time.hour", { h: 3 }) },
+        { key: "360", text: intl.get("time.hour", { h: 6 }) },
+        { key: "720", text: intl.get("time.hour", { h: 12 }) },
+        { key: "1440", text: intl.get("time.day", { d: 1 }) }
     ]
 
     onFetchFrequencyChange = (_, option: IDropdownOption) => {
