@@ -92,7 +92,7 @@
     "sources": {
         "untitled": "Source",
         "errorAdd": "An error has occured when adding the source.",
-        "errorParse": "An error has occured when parsing the OPML file.",
+        "errorParse": "An error has occurred when parsing the OPML file.",
         "errorParseHint": "Please ensure that the file isn't corrupted and is encoded with UTF-8.",
         "errorImport": "Error importing {count, plural, =1 {# source} other {# sources}}.",
         "opmlFile": "OPML File",
