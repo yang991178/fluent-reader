@@ -75,7 +75,7 @@
         "manageSources": "Manage sources"
     },
     "settings": {
-        "writeError": "An error has occured while writing the file.",
+        "writeError": "An error has occurred while writing the file.",
         "name": "Settings",
         "fetching": "Updating sources, please wait …",
         "exit": "Exit settings",
