@@ -35,7 +35,8 @@
       "backgroundColor": "transparent",
       "languages": [
         "zh-CN",
-        "en-US"
+        "en-US",
+        "fr-FR"
       ],
       "showNameOnTiles": true,
       "setBuildNumber": true
