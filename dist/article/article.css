@@ -33,9 +33,9 @@ a:hover, a:active {
     margin: 0 auto;
 }
 #main > p.title {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     line-height: 1.75rem;
-    font-weight: 600;
+    font-weight: normal;
     margin-block-end: 0;
 }
 #main > p.date {

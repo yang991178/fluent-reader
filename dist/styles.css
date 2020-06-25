@@ -722,9 +722,9 @@ img.favicon {
     transform: translateY(-144px);
 }
 .card h3.title {
-    font-size: 16px;
+    font-size: 17px;
     line-height: 22px;
-    font-weight: 600;
+    font-weight: normal;
     margin: 10px 12px;
     position: relative;
     -webkit-line-clamp: 3;
@@ -797,9 +797,9 @@ img.favicon {
     height: 16px;
 }
 .list-card h3.title {
-    font-size: 14px;
+    font-size: 15px;
     line-height: 18px;
-    font-weight: 600;
+    font-weight: normal;
     margin: 8px 10px;
     position: relative;
     -webkit-line-clamp: 3;
