@@ -40,7 +40,7 @@
 
 html, body {
     background-color: transparent;
-    font-family: "Segoe UI Regular", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
+    font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
     height: 100%;
     overflow: hidden;
     margin: 0;
@@ -386,6 +386,10 @@ img.favicon.dropdown {
     height: 28px;
     box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132), 0 0.3px 0.9px 0 rgba(0,0,0,.108);
 }
+.list-main .article-search {
+    max-width: 294px;
+    margin: 4px 10px;
+}
 
 @media (min-width: 1441px) {
     #root > nav.menu-on {
@@ -431,6 +435,10 @@ img.favicon.dropdown {
     .menu-on .article-search {
         left: 280px;
         max-width: calc(100% - 728px);
+    }
+    .list-main.menu-on .article-search {
+        left: 0;
+        width: 330px;
     }
 
     nav.hide-btns .btn-group .btn, nav.menu-on .btn-group .btn.hide-wide, .menu .btn-group .btn.hide-wide {
@@ -545,11 +553,6 @@ img.favicon.dropdown {
     margin-top: -32px;
     overflow: hidden;
     background: var(--white);
-}
-.list-main .article-search {
-    left: 0;
-    max-width: 330px;
-    margin: 4px 10px;
 }
 .list-feed-container {
     width: 350px;

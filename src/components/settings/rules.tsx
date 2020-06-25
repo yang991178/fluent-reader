@@ -149,6 +149,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
     }
     onSourceOptionChange = (_, item: IDropdownOption) => {
         this.initRuleEdit()
+        this.rulesSelection.setAllSelected(false)
         this.setState({ 
             sid: item.key as string, selectedRules: [], editIndex: -1,
             mockTitle: "", mockContent: "", mockResult: ""
@@ -285,7 +286,9 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
             {this.state.sid && (
             this.state.editIndex > -1 || !this.getSourceRules() || this.getSourceRules().length === 0 
             ? <>
-                <Label>{intl.get("rules.new")}</Label>
+                <Label>
+                    {intl.get((this.state.editIndex >= 0 && this.state.editIndex < this.getSourceRules().length) ? "edit" : "rules.new")}
+                </Label>
                 <Stack horizontal>
                     <Stack.Item>
                         <Label>{intl.get("rules.if")}</Label>

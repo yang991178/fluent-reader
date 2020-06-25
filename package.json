@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "A simplistic, modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "keywords": [],
   "author": "Haoyuan Liu",
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "build": {
     "appId": "me.hyliu.fluentreader",
     "productName": "Fluent Reader",
@@ -25,7 +25,8 @@
     "win": {
       "target": [
         "nsis",
-        "appx"
+        "appx",
+        "zip"
       ]
     },
     "appx": {

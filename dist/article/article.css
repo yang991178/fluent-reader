@@ -1,5 +1,5 @@
 html, body {
-    font-family: "Segoe UI Regular", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
+    font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
 }
 html {
     overflow: hidden scroll;
@@ -19,6 +19,9 @@ html {
     }
 }
 
+h1, h2, h3, h4, h5, h6, b, strong {
+    font-weight: 600;
+}
 a {
     color: var(--primary);
     text-decoration: none;
@@ -63,4 +66,9 @@ article figure figcaption {
 }
 article iframe {
     width: 100%;
+}
+article code {
+    font-family: Monaco, Consolas, monospace;
+    font-size: .875rem;
+    line-height: 1;
 }
