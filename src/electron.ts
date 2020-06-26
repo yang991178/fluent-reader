@@ -37,7 +37,8 @@ function createWindow() {
         height: mainWindowState.height,
         minWidth: 992,
         minHeight: 600,
-        frame: false,
+        frame: process.platform === "darwin",
+        titleBarStyle: "hiddenInset",
         fullscreenable: false,
         show: false,
         webPreferences: {

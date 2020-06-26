@@ -120,7 +120,7 @@ class Nav extends React.Component<NavProps, NavState> {
                     <a className="btn hide-wide" 
                         title={intl.get("nav.menu")} 
                         onClick={this.props.menu}>
-                        <Icon iconName="GlobalNavButton" />
+                        <Icon iconName={process.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
                     </a>
                 </div>
                 <span className="title">{this.props.state.title}</span>
