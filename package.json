@@ -37,7 +37,8 @@
       "languages": [
         "zh-CN",
         "en-US",
-        "fr-FR"
+        "fr-FR",
+        "es"
       ],
       "showNameOnTiles": true,
       "setBuildNumber": true

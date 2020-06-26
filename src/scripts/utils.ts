@@ -35,7 +35,7 @@ export async function parseRSS(url: string) {
             throw new Error(result.statusText)
         }
     } catch {
-        throw new Error("A network error has occured.")
+        throw new Error("A network error has occurred.")
     }
 }
 
