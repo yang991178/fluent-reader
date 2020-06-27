@@ -15,6 +15,7 @@
     --black: #000;
     --white: #fff;
     --whiteConstant: #fff;
+    --navHeight: 32px;
 }
 @media (prefers-color-scheme: dark) {
     :root {
@@ -36,7 +37,9 @@
         --whiteConstant: #f8f8f8;
     }
 }
-
+body.darwin {
+    --navHeight: 38px;
+}
 
 html, body {
     background-color: transparent;
@@ -104,7 +107,7 @@ i.ms-Nav-chevron {
 }
 
 #root > nav {
-    height: 32px;
+    height: var(--navHeight);
     -webkit-app-region: drag;
     user-select: none;
     overflow: hidden;
@@ -130,16 +133,19 @@ nav .progress {
 }
 #root > nav span.title {
     font-size: 12px;
-    line-height: 32px;
+    line-height: var(--navHeight);
     vertical-align: top;
     letter-spacing: 2px;
     margin: 0 4px;
     display: inline-block;
-    max-width: 300px;
+    max-width: 280px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     color: var(--black);
+}
+body.darwin #root > nav span.title {
+    max-width: 220px;
 }
 .btn-group {
     display: inline-block;
@@ -148,14 +154,14 @@ nav .progress {
 }
 .btn-group .seperator {
     display: inline-block;
-    width: 32px;
+    width: var(--navHeight);
     font-size: 12px;
     color: #c8c6c4;
     text-align: center;
     vertical-align: middle;
 }
 body.darwin .btn-group .seperator {
-    line-height: 32px;
+    display: none;
 }
 .btn-group .seperator::before {
     content: "|";
@@ -170,6 +176,13 @@ body.darwin .btn-group .seperator {
     color: var(--black);
     font-size: 14px;
     vertical-align: top;
+}
+#root > nav .btn-group .btn, .menu .btn-group .btn {
+    height: var(--navHeight);
+    line-height: var(--navHeight);
+}
+body.darwin #root > nav .btn-group .btn:first-of-type {
+    margin-left: 72px;
 }
 #root > nav .btn-group .btn.system {
     position: relative;
@@ -215,6 +228,9 @@ nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
 .btn-group .btn.inline-block-wide { 
     display: none;
 }
+body.darwin .btn-group .btn.system {
+    display: none;
+}
 
 .menu-container, .article-container {
     position: fixed;
@@ -237,8 +253,12 @@ nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
     height: 100%;
     background-color: var(--neutralLighterAlt);
 }
+body.darwin .menu .btn-group {
+    display: flex;
+    flex-direction: row-reverse;
+}
 .menu-container .menu .nav-wrapper {
-    max-height: calc(100% - 32px);
+    max-height: calc(100% - var(--navHeight));
     overflow: hidden auto;
 }
 .menu-container .menu p.subs-header {
@@ -356,7 +376,7 @@ img.favicon.dropdown {
 }
 
 .main {
-    margin-top: -32px;
+    margin-top: calc(-1 * var(--navHeight));
     height: 100%;
     overflow: hidden;
     background-color: var(--neutralLighterAlt);
@@ -365,11 +385,11 @@ img.favicon.dropdown {
     content: "";
     display: block;
     position: sticky;
-    top: 32px;
+    top: var(--navHeight);
     left: 0;
     width: calc(100% - 16px);
-    height: 32px;
-    margin-bottom: -32px;
+    height: var(--navHeight);
+    margin-bottom: calc(-1 * var(--navHeight));
     background: linear-gradient(var(--neutralLighterAlt), #faf9f800);
     z-index: 1;
 }
@@ -383,17 +403,30 @@ img.favicon.dropdown {
     margin: 4px 16px;
     border: none;
     -webkit-app-region: none;
-    height: 28px;
+    height: calc(var(--navHeight) - 4px);
     box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132), 0 0.3px 0.9px 0 rgba(0,0,0,.108);
+}
+body.darwin .article-search {
+    left: 108px;
+    max-width: calc(100% - 384px);
 }
 .list-main .article-search {
     max-width: 294px;
     margin: 4px 10px;
 }
+body.darwin .list-main .article-search {
+    max-width: 314px;
+    left: 0;
+    top: var(--navHeight);
+    margin: 0 10px;
+}
 
 @media (min-width: 1441px) {
     #root > nav.menu-on {
         padding-left: 296px;
+    }
+    #root > nav.menu-on span.title, body.darwin #root > nav.menu-on span.title {
+        max-width: 300px;
     }
     nav.menu-on .btn-group .btn {
         display: inline-block;
@@ -436,9 +469,17 @@ img.favicon.dropdown {
         left: 280px;
         max-width: calc(100% - 728px);
     }
+    body.darwin .menu-on .article-search {
+        left: 280px;
+        max-width: calc(100% - 556px);
+    }
     .list-main.menu-on .article-search {
         left: 0;
         width: 330px;
+    }
+    body.darwin .list-main.menu-on .article-search {
+        left: 0;
+        top: 4px;
     }
 
     nav.hide-btns .btn-group .btn, nav.menu-on .btn-group .btn.hide-wide, .menu .btn-group .btn.hide-wide {
@@ -500,8 +541,8 @@ img.favicon.dropdown {
 }
 .side-article-wrapper, .side-logo-wrapper {
     flex-grow: 1;
-    padding-top: 32px;
-    height: calc(100% - 32px);
+    padding-top: var(--navHeight);
+    height: calc(100% - var(--navHeight));
     background: var(--white);
 }
 .side-logo-wrapper {
@@ -542,7 +583,7 @@ img.favicon.dropdown {
     width: 100%;
     border-bottom: 1px solid var(--neutralQuaternaryAlt);
     position: absolute;
-    top: 31px;
+    top: calc(var(--navHeight) - 1px);
 }
 
 .list-main {
@@ -550,7 +591,7 @@ img.favicon.dropdown {
     flex-wrap: wrap;
     height: 100%;
     position: relative;
-    margin-top: -32px;
+    margin-top: calc(-1 * var(--navHeight));
     overflow: hidden;
     background: var(--white);
 }
@@ -572,8 +613,8 @@ img.favicon.dropdown {
     box-shadow: inset 5px 0 25px #0004;
 }
 .list-feed {
-    margin-top: 32px;
-    height: calc(100% - 32px);
+    margin-top: var(--navHeight);
+    height: calc(100% - var(--navHeight));
     overflow: hidden scroll;
     position: relative;
 }
@@ -589,7 +630,7 @@ img.favicon.dropdown {
     padding: 12px;
     height: calc(100% - 56px);
     overflow: hidden scroll;
-    margin-top: 32px;
+    margin-top: var(--navHeight);
 }
 .cards-feed-container > div.load-more-wrapper, .flex-fix {
     text-align: center;

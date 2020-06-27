@@ -4,3 +4,4 @@ dist/*.js.map
 dist/*.html
 bin/*
 package-lock.json
+.DS_Store

@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A simplistic, modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -37,7 +37,8 @@
       "languages": [
         "zh-CN",
         "en-US",
-        "fr-FR"
+        "fr-FR",
+        "es"
       ],
       "showNameOnTiles": true,
       "setBuildNumber": true

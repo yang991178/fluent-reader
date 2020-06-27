@@ -1,5 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="400" viewBox="0 0 400 400">
   <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-Web_1280_6);
+      }
+
+      .cls-2 {
+        fill: url(#radial-gradient);
+      }
+
+      .cls-3 {
+        fill: url(#radial-gradient-2);
+      }
+
+      .cls-4 {
+        fill: url(#radial-gradient-3);
+      }
+
+      .cls-5 {
+        fill: #faf9f8;
+        font-size: 144px;
+        font-family: Arial-BoldMT, Arial;
+        font-weight: 700;
+      }
+
+      .cls-6 {
+        filter: url(#F);
+      }
+
+      .cls-7 {
+        filter: url(#矩形_7);
+      }
+
+      .cls-8 {
+        filter: url(#矩形_8);
+      }
+
+      .cls-9 {
+        filter: url(#矩形_9);
+      }
+    </style>
     <radialGradient id="radial-gradient" cx="-0.025" cy="1.021" r="1.434" gradientTransform="matrix(0.704, -0.71, 0.41, 0.407, -0.426, 0.588)" gradientUnits="objectBoundingBox">
       <stop offset="0" stop-color="#769ebe"/>
       <stop offset="1" stop-color="#93c3e8"/>
@@ -33,29 +73,29 @@
       <feComposite operator="in" in2="blur-3"/>
       <feComposite in="SourceGraphic"/>
     </filter>
-    <filter id="F" x="76" y="172" width="118" height="193" filterUnits="userSpaceOnUse">
+    <filter id="F" x="76" y="177" width="118" height="191" filterUnits="userSpaceOnUse">
       <feOffset dy="3" input="SourceAlpha"/>
       <feGaussianBlur stdDeviation="5" result="blur-4"/>
       <feFlood flood-opacity="0.161"/>
       <feComposite operator="in" in2="blur-4"/>
       <feComposite in="SourceGraphic"/>
     </filter>
-    <clipPath id="clip-Web_1280_3">
+    <clipPath id="clip-Web_1280_6">
       <rect width="400" height="400"/>
     </clipPath>
   </defs>
-  <g id="Web_1280_3" data-name="Web 1280 – 3" clip-path="url(#clip-Web_1280_3)">
-    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#矩形_9)">
-      <rect id="矩形_9-2" data-name="矩形 9" width="280" height="280" rx="5" transform="translate(70 50)" fill="url(#radial-gradient)"/>
+  <g id="Web_1280_6" data-name="Web 1280 – 6" class="cls-1">
+    <g class="cls-9" transform="matrix(1, 0, 0, 1, 0, 0)">
+      <rect id="矩形_9-2" data-name="矩形 9" class="cls-2" width="280" height="280" rx="5" transform="translate(70 50)"/>
     </g>
-    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#矩形_8)">
-      <rect id="矩形_8-2" data-name="矩形 8" width="225" height="225" rx="5" transform="translate(60 115)" fill="url(#radial-gradient-2)"/>
+    <g class="cls-8" transform="matrix(1, 0, 0, 1, 0, 0)">
+      <rect id="矩形_8-2" data-name="矩形 8" class="cls-3" width="225" height="225" rx="5" transform="translate(60 115)"/>
     </g>
-    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#矩形_7)">
-      <rect id="矩形_7-2" data-name="矩形 7" width="170" height="170" rx="5" transform="translate(50 180)" fill="url(#radial-gradient-3)"/>
+    <g class="cls-7" transform="matrix(1, 0, 0, 1, 0, 0)">
+      <rect id="矩形_7-2" data-name="矩形 7" class="cls-4" width="170" height="170" rx="5" transform="translate(50 180)"/>
     </g>
-    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#F)">
-      <text id="F-2" data-name="F" transform="translate(91 317)" fill="#faf9f8" font-size="144" font-family="MicrosoftSansSerif, Microsoft Sans Serif"><tspan x="0" y="0">F</tspan></text>
+    <g class="cls-6" transform="matrix(1, 0, 0, 1, 0, 0)">
+      <text id="F-2" data-name="F" class="cls-5" transform="translate(91 319)"><tspan x="0" y="0">F</tspan></text>
     </g>
   </g>
 </svg>

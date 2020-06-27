@@ -119,7 +119,9 @@ export class Menu extends React.Component<MenuProps> {
                 <div className={"menu" + (this.props.itemOn ? " item-on" : "")} onClick={(e) => e.stopPropagation()}>
                     <div className="btn-group">
                         <a className="btn hide-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
-                        <a className="btn inline-block-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}><Icon iconName="GlobalNavButton" /></a>
+                        <a className="btn inline-block-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}>
+                            <Icon iconName={process.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
+                        </a>
                     </div>
                     <div className="nav-wrapper">
                         <Nav 
