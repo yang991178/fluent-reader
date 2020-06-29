@@ -5,7 +5,7 @@ import locales from "./i18n/_locales"
 import Store = require("electron-store")
 import { schemaTypes } from "./config-schema"
 import fs = require("fs")
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 
 export const store = new Store<schemaTypes>()
 

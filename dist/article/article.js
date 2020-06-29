@@ -19,9 +19,16 @@ let main = document.getElementById("main")
 main.innerHTML = dom.body.innerHTML
 document.addEventListener("click", event => {
     event.preventDefault()
-    if (event.target.href) post("request-navigation", event.target.href)
+    let target = event.target
+    while (target.nodeName !== "#document") {
+        if (target.href) {
+            window.renderer.requestNavigation(target.href)
+            break
+        }
+        target = target.parentNode
+    }
 })
 document.addEventListener("contextmenu", event => {
     let text = document.getSelection().toString()
-    if (text) post("context-menu", [event.clientX, event.clientY], text)
+    if (text) window.renderer.contextMenu([event.clientX, event.clientY], text)
 })

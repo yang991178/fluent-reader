@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { PrimaryButton } from "@fluentui/react";
 
 class DangerButton extends PrimaryButton {

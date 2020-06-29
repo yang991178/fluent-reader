@@ -1,5 +1,5 @@
 import fs = require("fs")
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource, RSSSource } from "./source"
 
 import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"

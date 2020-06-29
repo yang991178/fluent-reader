@@ -1,5 +1,5 @@
 import Parser = require("@yang991178/rss-parser")
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import * as db from "../db"
 import { fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"

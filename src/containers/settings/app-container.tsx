@@ -1,4 +1,4 @@
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { connect } from "react-redux"
 import { setLocaleSettings, importAll } from "../../scripts/settings"
 import { initIntl, saveSettings } from "../../scripts/models/app"

@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { Callout, ActivityItem, Icon, DirectionalHint } from "@fluentui/react"
 import { AppLog, AppLogType } from "../scripts/models/app"
 import Time from "./utils/time"

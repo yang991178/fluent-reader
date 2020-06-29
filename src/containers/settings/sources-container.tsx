@@ -1,4 +1,4 @@
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { remote } from "electron"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"

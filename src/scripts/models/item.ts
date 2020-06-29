@@ -1,5 +1,5 @@
 import * as db from "../db"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { domParser, htmlDecode, ActionStatus, AppThunk, openExternal } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"

@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
 import { openExternal } from "../scripts/utils"
@@ -230,6 +230,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 preload={this.state.loadWebpage ? null : "article/preload.js"}
+                webpreferences="contextIsolation,sandbox,disableDialogs,autoplayPolicy=document-user-activation-required"
                 partition="sandbox" />
         </FocusZone>
     )

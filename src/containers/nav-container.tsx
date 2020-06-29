@@ -1,5 +1,5 @@
 import { remote } from "electron"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"

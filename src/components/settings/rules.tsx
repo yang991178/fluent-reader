@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { Stack, Label, Dropdown, IDropdownOption, TextField, PrimaryButton, Icon, DropdownMenuItemType, 
     DefaultButton, DetailsList, IColumn, CommandBar, ICommandBarItemProps, Selection, SelectionMode, MarqueeSelection, IDragDropEvents } from "@fluentui/react"

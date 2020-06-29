@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { FeedProps } from "./feed"
 import { DefaultButton, FocusZone, FocusZoneDirection } from 'office-ui-fabric-react';
 import ListCard from "../cards/list-card";

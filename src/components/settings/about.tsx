@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { Stack, Link } from "@fluentui/react"
 import { openExternal } from "../../scripts/utils"
 import { remote } from "electron"
