@@ -7,10 +7,10 @@ import { initializeIcons } from "@fluentui/react/lib/Icons"
 import { rootReducer, RootState } from "./scripts/reducer"
 import Root from "./components/root"
 import { AppDispatch } from "./scripts/utils"
-import { setProxy, applyThemeSettings } from "./scripts/settings"
+import { applyThemeSettings } from "./scripts/settings"
 import { initApp } from "./scripts/models/app"
 
-setProxy()
+window.settings.setProxy()
 
 applyThemeSettings()
 initializeIcons("icons/")

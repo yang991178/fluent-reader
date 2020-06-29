@@ -5,7 +5,7 @@ import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
 import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS } from "./group"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
-import { getCurrentLocale, setDefaultMenu, getDefaultMenu } from "../settings"
+import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
 import * as db from "../db"
 
@@ -38,7 +38,7 @@ export class AppState {
     fetchingItems = false
     fetchingProgress = 0
     fetchingTotal = 0
-    menu = getWindowBreakpoint() && getDefaultMenu()
+    menu = getWindowBreakpoint() && window.settings.getDefaultMenu()
     menuKey = ALL
     title = ""
     settings = {
@@ -152,7 +152,7 @@ export function openGroupMenu(sids: number[], event: React.MouseEvent): ContextM
 export function toggleMenu(): AppThunk {
     return (dispatch, getState) => {
         dispatch({ type: TOGGLE_MENU })
-        setDefaultMenu(getState().app.menu)
+        window.settings.setDefaultMenu(getState().app.menu)
     }
 }
 

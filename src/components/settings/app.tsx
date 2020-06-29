@@ -1,7 +1,8 @@
 import * as React from "react"
 import intl from "react-intl-universal"
 import { urlTest, byteToMB, calculateItemSize } from "../../scripts/utils"
-import { getProxy, getProxyStatus, toggleProxyStatus, setProxy, getThemeSettings, setThemeSettings, ThemeSettings, getLocaleSettings, exportAll } from "../../scripts/settings"
+import { ThemeSettings } from "../../schema-types"
+import { getThemeSettings, setThemeSettings, exportAll } from "../../scripts/settings"
 import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption, PrimaryButton } from "@fluentui/react"
 import { remote } from "electron"
 import DangerButton from "../utils/danger-button"
@@ -25,8 +26,8 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     constructor(props) {
         super(props)
         this.state = {
-            pacStatus: getProxyStatus(),
-            pacUrl: getProxy(),
+            pacStatus: window.settings.getProxyStatus(),
+            pacUrl: window.settings.getProxy(),
             themeSettings: getThemeSettings(),
             itemSize: null,
             cacheSize: null,
@@ -86,10 +87,10 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     ]
 
     toggleStatus = () => {
-        toggleProxyStatus()
+        window.settings.toggleProxyStatus()
         this.setState({ 
-            pacStatus: getProxyStatus(),
-            pacUrl: getProxy() 
+            pacStatus: window.settings.getProxyStatus(),
+            pacUrl: window.settings.getProxy() 
         })
     }
     
@@ -101,7 +102,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
 
     setUrl = (event: React.FormEvent) => {
         event.preventDefault()
-        if (urlTest(this.state.pacUrl)) setProxy(this.state.pacUrl)
+        if (urlTest(this.state.pacUrl)) window.settings.setProxy(this.state.pacUrl)
     }
 
     onThemeChange = (_, option: IChoiceGroupOption) => {
@@ -127,7 +128,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             <Stack horizontal>
                 <Stack.Item>
                     <Dropdown 
-                        defaultSelectedKey={getLocaleSettings()}
+                        defaultSelectedKey={window.settings.getLocaleSettings()}
                         options={this.languageOptions()}
                         onChanged={option => this.props.setLanguage(String(option.key))}
                         style={{width: 200}} />

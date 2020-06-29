@@ -2,7 +2,7 @@ import * as React from "react"
 import { FeedContainer } from "../containers/feed-container"
 import { AnimationClassNames, Icon, FocusTrapZone } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
-import { ViewType } from "../scripts/models/page"
+import { ViewType } from "../schema-types"
 import ArticleSearch from "./utils/article-search"
 
 type PageProps = {

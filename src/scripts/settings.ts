@@ -1,54 +1,12 @@
 import { remote, ipcRenderer } from "electron"
-import { ViewType } from "./models/page"
 import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import Store = require("electron-store")
-import { schemaTypes } from "./config-schema"
+import { ThemeSettings, SchemaTypes } from "../schema-types"
 import fs = require("fs")
 import intl from "react-intl-universal"
 
-export const store = new Store<schemaTypes>()
-
-const MENU_STORE_KEY = "menuOn"
-export function getDefaultMenu() {
-    return store.get(MENU_STORE_KEY, false)
-}
-export function setDefaultMenu(state: boolean) {
-    store.set(MENU_STORE_KEY, state)
-}
-
-const PAC_STORE_KEY = "pac"
-const PAC_STATUS_KEY = "pacOn"
-export function getProxyStatus() {
-    return store.get(PAC_STATUS_KEY, false)
-}
-export function toggleProxyStatus() {
-    store.set(PAC_STATUS_KEY, !getProxyStatus())
-    setProxy()
-}
-export function getProxy() {
-    return store.get(PAC_STORE_KEY, "")
-}
-export function setProxy(address = null) {
-    if (!address) {
-        address = getProxy()
-    } else {
-        store.set(PAC_STORE_KEY, address)
-    }
-    if (getProxyStatus()) {
-        let rules = { pacScript: address }
-        remote.getCurrentWebContents().session.setProxy(rules)
-        remote.session.fromPartition("sandbox").setProxy(rules)
-    }
-}
-
-const VIEW_STORE_KEY = "view"
-export const getDefaultView = (): ViewType => {
-    return store.get(VIEW_STORE_KEY, ViewType.Cards)
-}
-export const setDefaultView = (viewType: ViewType) => {
-    store.set(VIEW_STORE_KEY, viewType)
-}
+export const store = new Store<SchemaTypes>()
 
 const lightTheme: IPartialTheme = { 
     defaultFontStyle: { fontFamily: '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' } 
@@ -56,63 +14,50 @@ const lightTheme: IPartialTheme = {
 const darkTheme: IPartialTheme = {
     ...lightTheme,
     palette: {
-        neutralLighterAlt: '#282828',
-        neutralLighter: '#313131',
-        neutralLight: '#3f3f3f',
-        neutralQuaternaryAlt: '#484848',
-        neutralQuaternary: '#4f4f4f',
-        neutralTertiaryAlt: '#6d6d6d',
-        neutralTertiary: '#c8c8c8',
-        neutralSecondary: '#d0d0d0',
-        neutralSecondaryAlt: '#d2d0ce',
-        neutralPrimaryAlt: '#dadada',
-        neutralPrimary: '#ffffff',
-        neutralDark: '#f4f4f4',
-        black: '#f8f8f8',
-        white: '#1f1f1f',
-        themePrimary: '#3a96dd',
-        themeLighterAlt: '#020609',
-        themeLighter: '#091823',
-        themeLight: '#112d43',
-        themeTertiary: '#235a85',
-        themeSecondary: '#3385c3',
-        themeDarkAlt: '#4ba0e1',
-        themeDark: '#65aee6',
-        themeDarker: '#8ac2ec',
-        accent: '#3a96dd'
+        neutralLighterAlt: "#282828",
+        neutralLighter: "#313131",
+        neutralLight: "#3f3f3f",
+        neutralQuaternaryAlt: "#484848",
+        neutralQuaternary: "#4f4f4f",
+        neutralTertiaryAlt: "#6d6d6d",
+        neutralTertiary: "#c8c8c8",
+        neutralSecondary: "#d0d0d0",
+        neutralSecondaryAlt: "#d2d0ce",
+        neutralPrimaryAlt: "#dadada",
+        neutralPrimary: "#ffffff",
+        neutralDark: "#f4f4f4",
+        black: "#f8f8f8",
+        white: "#1f1f1f",
+        themePrimary: "#3a96dd",
+        themeLighterAlt: "#020609",
+        themeLighter: "#091823",
+        themeLight: "#112d43",
+        themeTertiary: "#235a85",
+        themeSecondary: "#3385c3",
+        themeDarkAlt: "#4ba0e1",
+        themeDark: "#65aee6",
+        themeDarker: "#8ac2ec",
+        accent: "#3a96dd"
     }
 }
-export enum ThemeSettings {
-    Default = "system", 
-    Light = "light", 
-    Dark = "dark"
-}
+
 const THEME_STORE_KEY = "theme"
 export function setThemeSettings(theme: ThemeSettings) {
-    store.set(THEME_STORE_KEY, theme)
-    remote.nativeTheme.themeSource = theme
+    window.settings.setThemeSettings(theme)
     applyThemeSettings()
 }
 export function getThemeSettings(): ThemeSettings {
-    return store.get(THEME_STORE_KEY, ThemeSettings.Default)
+    return window.settings.getThemeSettings()
 }
 export function applyThemeSettings() {
-    loadTheme(remote.nativeTheme.shouldUseDarkColors ? darkTheme : lightTheme)
+    loadTheme(window.settings.shouldUseDarkColors() ? darkTheme : lightTheme)
 }
-remote.nativeTheme.on("updated", () => {
-    applyThemeSettings()
+window.settings.addThemeUpdateListener((shouldDark) => {
+    loadTheme(shouldDark ? darkTheme : lightTheme)
 })
 
-const LOCALE_STORE_KEY = "locale"
-export function setLocaleSettings(option: string) {
-    store.set(LOCALE_STORE_KEY, option)
-}
-export function getLocaleSettings() {
-    return store.get(LOCALE_STORE_KEY, "default")
-}
 export function getCurrentLocale() {
-    let set = getLocaleSettings()
-    let locale = set === "default" ? remote.app.getLocale() : set
+    let locale = window.settings.getCurrentLocale()
     return (locale in locales) ? locale : "en-US"
 }
 

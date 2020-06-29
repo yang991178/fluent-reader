@@ -1,6 +1,6 @@
 import * as React from "react"
 import intl from "react-intl-universal"
-import { SourceGroup } from "../../scripts/models/group"
+import { SourceGroup } from "../../schema-types"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
      TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, IDragDropContext } from "@fluentui/react"

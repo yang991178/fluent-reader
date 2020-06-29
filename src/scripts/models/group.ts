@@ -1,42 +1,11 @@
 import fs = require("fs")
 import intl from "react-intl-universal"
 import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource, RSSSource } from "./source"
-
+import { SourceGroup } from "../../schema-types"
 import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
 import { saveSettings } from "./app"
-import { store } from "../settings"
 import { fetchItemsIntermediate, fetchItemsRequest, fetchItemsSuccess } from "./item"
 import { remote } from "electron"
-
-const GROUPS_STORE_KEY = "sourceGroups"
-
-export class SourceGroup {
-    isMultiple: boolean
-    sids: number[]
-    name?: string
-    expanded?: boolean
-    index?: number // available only from groups tab container
-
-    constructor(sids: number[], name: string = null) {
-        name = (name && name.trim()) || "订阅源组"
-        if (sids.length == 1) {
-            this.isMultiple = false
-        } else {
-            this.isMultiple = true
-            this.name = name
-            this.expanded = true
-        }
-        this.sids = sids
-    }
-
-    static save(groups: SourceGroup[]) {
-        store.set(GROUPS_STORE_KEY, groups)
-    }
-
-    static load(): SourceGroup[] {
-        return store.get(GROUPS_STORE_KEY, [])
-    }
-}
 
 export const CREATE_SOURCE_GROUP = "CREATE_SOURCE_GROUP"
 export const ADD_SOURCE_TO_GROUP = "ADD_SOURCE_TO_GROUP"
@@ -100,7 +69,7 @@ export function createSourceGroup(name: string): AppThunk<number> {
         let group = new SourceGroup([], name)
         dispatch(createSourceGroupDone(group))
         let groups = getState().groups
-        SourceGroup.save(groups)
+        window.settings.saveGroups(groups)
         return groups.length - 1
     }
 }
@@ -116,7 +85,7 @@ function addSourceToGroupDone(groupIndex: number, sid: number): SourceGroupActio
 export function addSourceToGroup(groupIndex: number, sid: number): AppThunk {
     return (dispatch, getState) => {
         dispatch(addSourceToGroupDone(groupIndex, sid))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -131,7 +100,7 @@ function removeSourceFromGroupDone(groupIndex: number, sids: number[]): SourceGr
 export function removeSourceFromGroup(groupIndex: number, sids: number[]): AppThunk {
     return (dispatch, getState) => {
         dispatch(removeSourceFromGroupDone(groupIndex, sids))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -145,7 +114,7 @@ function deleteSourceGroupDone(groupIndex: number): SourceGroupActionTypes {
 export function deleteSourceGroup(groupIndex: number): AppThunk {
     return (dispatch, getState) => {
         dispatch(deleteSourceGroupDone(groupIndex))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -160,7 +129,7 @@ function updateSourceGroupDone(group: SourceGroup): SourceGroupActionTypes {
 export function updateSourceGroup(group: SourceGroup): AppThunk {
     return (dispatch, getState) => {
         dispatch(updateSourceGroupDone(group))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -174,7 +143,7 @@ function reorderSourceGroupsDone(groups: SourceGroup[]): SourceGroupActionTypes 
 export function reorderSourceGroups(groups: SourceGroup[]): AppThunk {
     return (dispatch, getState) => {
         dispatch(reorderSourceGroupsDone(groups))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -184,7 +153,7 @@ export function toggleGroupExpansion(groupIndex: number): AppThunk {
             type: TOGGLE_GROUP_EXPANSION,
             groupIndex: groupIndex
         })
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -299,7 +268,7 @@ export function exportOPML(path: string): AppThunk {
 export type GroupState = SourceGroup[]
 
 export function groupReducer(
-    state = SourceGroup.load(),
+    state = window.settings.loadGroups(),
     action: SourceActionTypes | SourceGroupActionTypes
 ): GroupState {
     switch(action.type) {

@@ -4,7 +4,8 @@ import { RootState } from "../scripts/reducer"
 import { markRead, RSSItem, itemShortcuts } from "../scripts/models/item"
 import { openItemMenu } from "../scripts/models/app"
 import { loadMore, RSSFeed } from "../scripts/models/feed"
-import { showItem, ViewType } from "../scripts/models/page"
+import { showItem } from "../scripts/models/page"
+import { ViewType } from "../schema-types"
 import { Feed } from "../components/feeds/feed"
 
 interface FeedContainerProps {

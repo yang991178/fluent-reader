@@ -6,7 +6,7 @@ import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, Directiona
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
-import { ViewType } from "../scripts/models/page"
+import { ViewType } from "../schema-types"
 import { FilterType } from "../scripts/models/feed"
 
 export type ContextMenuProps = ContextReduxProps & {

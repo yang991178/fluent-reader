@@ -22,6 +22,25 @@ module.exports = [
   },
   {
     mode: 'production',
+    entry: './src/preload.ts',
+    target: 'electron-preload',
+    module: {
+      rules: [{
+        test: /\.ts$/,
+        include: /src/,
+        resolve: {
+          extensions: ['.ts', '.js']
+        },
+        use: [{ loader: 'ts-loader' }]
+      }]
+    },
+    output: {
+      path: __dirname + '/dist',
+      filename: 'preload.js'
+    }
+  },
+  {
+    mode: 'production',
     entry: './src/index.tsx',
     target: 'electron-renderer',
     devtool: 'source-map',

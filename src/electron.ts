@@ -1,7 +1,9 @@
 import { app, ipcMain, BrowserWindow, Menu, nativeTheme } from "electron"
 import windowStateKeeper = require("electron-window-state")
-import Store = require("electron-store")
-import performUpdate from "./scripts/update-scripts"
+import { ThemeSettings } from "./schema-types"
+import { store, setThemeListener } from "./main/settings"
+import performUpdate from "./main/update-scripts"
+import path = require("path")
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -11,14 +13,12 @@ if (!process.mas) {
 }
 
 let mainWindow: BrowserWindow
-let store: Store
 let restarting: boolean
 
 function init(setTheme = true) {
     restarting = false
-    store = new Store()
     performUpdate(store)
-    if (setTheme) nativeTheme.themeSource = store.get("theme", "system")
+    if (setTheme) nativeTheme.themeSource = store.get("theme", ThemeSettings.Default)
 }
 
 init()
@@ -46,7 +46,8 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             webviewTag: true,
-            enableRemoteModule: true
+            enableRemoteModule: true,
+            preload: path.join(app.getAppPath(), (app.isPackaged ? "dist/" : "") + "preload.js")
         }
     })
     mainWindowState.manage(mainWindow)
@@ -54,9 +55,10 @@ function createWindow() {
         mainWindow.show()
         mainWindow.focus()
         if (!app.isPackaged) mainWindow.webContents.openDevTools()
-    });
+    })
+    setThemeListener(mainWindow)
     // and load the index.html of the app.
-    mainWindow.loadFile((app.isPackaged ? "dist/" : "") + "index.html")
+    mainWindow.loadFile((app.isPackaged ? "dist/" : "") + "index.html", )
 }
 
 if (process.platform === "darwin") {

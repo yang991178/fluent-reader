@@ -1,6 +1,6 @@
 import intl from "react-intl-universal"
 import { connect } from "react-redux"
-import { setLocaleSettings, importAll } from "../../scripts/settings"
+import { importAll } from "../../scripts/settings"
 import { initIntl, saveSettings } from "../../scripts/models/app"
 import * as db from "../../scripts/db"
 import AppTab from "../../components/settings/app"
@@ -9,7 +9,7 @@ import { remote } from "electron"
 
 const mapDispatchToProps = dispatch => ({
     setLanguage: (option: string) => {
-        setLocaleSettings(option)
+        window.settings.setLocaleSettings(option)
         dispatch(initIntl())
     },
     deleteArticles: (days: number) => new Promise((resolve) => {

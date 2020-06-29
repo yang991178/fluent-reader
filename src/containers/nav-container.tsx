@@ -5,7 +5,8 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { fetchItems, markAllRead } from "../scripts/models/item"
 import { toggleMenu, toggleLogMenu, toggleSettings, openViewMenu } from "../scripts/models/app"
-import { ViewType, toggleSearch } from "../scripts/models/page"
+import { toggleSearch } from "../scripts/models/page"
+import { ViewType } from "../schema-types"
 import Nav from "../components/nav"
 
 const getState = (state: RootState) => state.app
