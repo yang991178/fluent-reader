@@ -9,6 +9,7 @@
     "start": "npm run build && npm run electron",
     "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w appx:arm64",
     "package-mac": "sudo electron-builder --mac",
+    "package-mas": "sudo electron-builder --mac mas && sudo bash build/resignAndPackage.sh",
     "package-linux": "electron-builder --linux"
   },
   "keywords": [],
@@ -50,9 +51,20 @@
       "deleteAppDataOnUninstall": true
     },
     "mac": {
+      "darkModeSupport": true,
       "target": [
         "dmg"
-      ]
+      ],
+      "category": "public.app-category.news"
+    },
+    "mas": {
+      "appId": "DevHYLiu.FluentReader",
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+      "provisioningProfile": "build/embedded.provisionprofile",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "asarUnpack": []
     },
     "linux": {
       "target": [
@@ -70,7 +82,7 @@
     "@types/redux-thunk": "^2.1.0",
     "@types/reselect": "^2.2.0",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^9.0.4",
+    "electron": "^9.0.5",
     "electron-builder": "^22.7.0",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",

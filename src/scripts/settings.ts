@@ -161,10 +161,17 @@ export function importAll(path) {
                 Promise.all(promises).then(() => {
                     delete configs.nedb
                     store.clear()
+                    let hasTheme = false
                     for (let [key, value] of Object.entries(configs)) {
-                        // @ts-ignore
-                        store.set(key, value)
+                        if (key === THEME_STORE_KEY) {
+                            setThemeSettings(value as ThemeSettings)
+                            hasTheme = true
+                        } else {
+                            // @ts-ignore
+                            store.set(key, value)
+                        }
                     }
+                    if (!hasTheme) setThemeSettings(ThemeSettings.Default)
                     ipcRenderer.send("restart")
                 })
             }
