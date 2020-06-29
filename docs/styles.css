@@ -147,10 +147,22 @@ a:hover, a:active {
     flex-direction: column;
     position: relative;
 }
+.stores {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+.stores > a {
+    display: inline-block;
+    margin: 0 16px 16px;
+}
 .ms-get {
-    width: 142px; 
+    width: 142px;
     height: 52px;
-    margin-bottom: 16px;
+}
+.mac-get {
+    height: 52px;
 }
 .links {
     display: flex;
@@ -190,5 +202,11 @@ a:hover, a:active {
     }
     .features-container > section:last-of-type {
         padding-bottom: 36px;
+    }
+    .stores {
+        flex-direction: column;
+    }
+    .links {
+        margin-top: calc(50vh - 270px);
     }
 }
