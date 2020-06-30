@@ -1,7 +1,7 @@
-import { SourceGroup, ViewType, ThemeSettings } from "../schema-types"
+import { SourceGroup, ViewType, ThemeSettings, SchemaTypes } from "../schema-types"
 import { ipcRenderer } from "electron"
 
-const SettingsBridge = {
+const settingsBridge = {
     saveGroups: (groups: SourceGroup[]) => {
         ipcRenderer.invoke("set-groups", groups)
     },
@@ -59,13 +59,21 @@ const SettingsBridge = {
     },
     getCurrentLocale: (): string => {
         return ipcRenderer.sendSync("get-locale")
-    }
+    },
+
+    getAll: () => {
+        return ipcRenderer.sendSync("get-all-settings") as Object
+    },
+
+    setAll: (configs) => {
+        ipcRenderer.invoke("import-all-settings", configs)
+    },
 }
 
 declare global { 
     interface Window {
-        settings: typeof SettingsBridge
+        settings: typeof settingsBridge
     }
 }
 
-export default SettingsBridge
+export default settingsBridge

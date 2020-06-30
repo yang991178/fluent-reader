@@ -1,11 +1,9 @@
-import fs = require("fs")
 import intl from "react-intl-universal"
 import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource, RSSSource } from "./source"
 import { SourceGroup } from "../../schema-types"
-import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
+import { ActionStatus, AppThunk, domParser } from "../utils"
 import { saveSettings } from "./app"
 import { fetchItemsIntermediate, fetchItemsRequest, fetchItemsSuccess } from "./item"
-import { remote } from "electron"
 
 export const CREATE_SOURCE_GROUP = "CREATE_SOURCE_GROUP"
 export const ADD_SOURCE_TO_GROUP = "ADD_SOURCE_TO_GROUP"
@@ -167,12 +165,11 @@ function outlineToSource(outline: Element): [ReturnType<typeof addSource>, strin
     }
 }
 
-export function importOPML(path: string): AppThunk {
+export function importOPML(): AppThunk {
     return async (dispatch) => {
-        fs.readFile(path, "utf-8", async (err, data) => {
-            if (err) {
-                console.log(err)
-            } else {
+        const filters = [{ name: intl.get("sources.opmlFile"), extensions: ["xml", "opml"] }]
+        window.utils.showOpenDialog(filters).then(data => {
+            if (data) {
                 dispatch(saveSettings())
                 let doc = domParser.parseFromString(data, "text/xml").getElementsByTagName("body")
                 if (doc.length == 0) {
@@ -182,7 +179,7 @@ export function importOPML(path: string): AppThunk {
                 let parseError = doc[0].getElementsByTagName("parsererror")
                 if (parseError.length > 0) {
                     dispatch(saveSettings())
-                    remote.dialog.showErrorBox(intl.get("sources.errorParse"), intl.get("sources.errorParseHint"))
+                    window.utils.showErrorBox(intl.get("sources.errorParse"), intl.get("sources.errorParseHint"))
                     return
                 }
                 let sources: [ReturnType<typeof addSource>, number, string][] = []
@@ -214,7 +211,7 @@ export function importOPML(path: string): AppThunk {
                     dispatch(fetchItemsSuccess([], {}))
                     dispatch(saveSettings())
                     if (errors.length > 0) {
-                        remote.dialog.showErrorBox(
+                        window.utils.showErrorBox(
                             intl.get("sources.errorImport", { count: errors.length }), 
                             errors.map(e => {
                                 return e[0] + "\n" + String(e[1])
@@ -236,33 +233,35 @@ function sourceToOutline(source: RSSSource, xml: Document) {
     return outline
 }
 
-export function exportOPML(path: string): AppThunk {
+export function exportOPML(): AppThunk {
     return (_, getState) => {
-        let state = getState()
-        let xml = domParser.parseFromString(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><opml version=\"1.0\"><head><title>Fluent Reader Export</title></head><body></body></opml>", 
-            "text/xml"
-        )
-        let body = xml.getElementsByTagName("body")[0]
-        for (let group of state.groups) {
-            if (group.isMultiple) {
-                let outline = xml.createElement("outline")
-                outline.setAttribute("text", group.name)
-                outline.setAttribute("name", group.name)
-                for (let sid of group.sids) {
-                    outline.appendChild(sourceToOutline(state.sources[sid], xml))
+        const filters = [{ name: intl.get("sources.opmlFile"), extensions: ["opml"] }]
+        window.utils.showSaveDialog(filters, "*/Fluent_Reader_Export.opml").then(write => {
+            if (write) {
+                let state = getState()
+                let xml = domParser.parseFromString(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><opml version=\"1.0\"><head><title>Fluent Reader Export</title></head><body></body></opml>", 
+                    "text/xml"
+                )
+                let body = xml.getElementsByTagName("body")[0]
+                for (let group of state.groups) {
+                    if (group.isMultiple) {
+                        let outline = xml.createElement("outline")
+                        outline.setAttribute("text", group.name)
+                        outline.setAttribute("name", group.name)
+                        for (let sid of group.sids) {
+                            outline.appendChild(sourceToOutline(state.sources[sid], xml))
+                        }
+                        body.appendChild(outline)
+                    } else {
+                        body.appendChild(sourceToOutline(state.sources[group.sids[0]], xml))
+                    }
                 }
-                body.appendChild(outline)
-            } else {
-                body.appendChild(sourceToOutline(state.sources[group.sids[0]], xml))
+                let serializer = new XMLSerializer()
+                write(serializer.serializeToString(xml), intl.get("settings.writeError"))
             }
-        }
-        let serializer = new XMLSerializer()
-        fs.writeFile(path, serializer.serializeToString(xml), (err) => {
-            if (err) remote.dialog.showErrorBox(intl.get("settings.writeError"), String(err))
         })
     }
-    
 }
 
 export type GroupState = SourceGroup[]

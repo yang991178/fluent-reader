@@ -1,6 +1,7 @@
 import Store = require("electron-store")
 import { SchemaTypes, SourceGroup, ViewType, ThemeSettings } from "../schema-types"
 import { ipcMain, session, nativeTheme, BrowserWindow, app } from "electron"
+import { WindowManager } from "./window"
 
 export const store = new Store<SchemaTypes>()
 
@@ -76,12 +77,14 @@ ipcMain.handle("set-theme", (_, theme: ThemeSettings) => {
 ipcMain.on("get-theme-dark-color", (event) => {
     event.returnValue = nativeTheme.shouldUseDarkColors
 })
-export function setThemeListener(window: BrowserWindow) {
+export function setThemeListener(manager: WindowManager) {
     nativeTheme.removeAllListeners()
     nativeTheme.on("updated", () => {
-        let contents = window.webContents
-        if (!contents.isDestroyed()) {
-            contents.send("theme-updated", nativeTheme.shouldUseDarkColors)
+        if (manager.hasWindow()) {
+            let contents = manager.mainWindow.webContents
+            if (!contents.isDestroyed()) {
+                contents.send("theme-updated", nativeTheme.shouldUseDarkColors)
+            }
         }
     })
 }
@@ -100,4 +103,12 @@ ipcMain.on("get-locale", (event) => {
     let setting = getLocaleSettings()
     let locale = setting === "default" ? app.getLocale() : setting
     event.returnValue = locale
+})
+
+ipcMain.on("get-all-settings", (event) => {
+    let output = {}
+    for (let [key, value] of store) {
+        output[key] = value
+    }
+    event.returnValue = output
 })

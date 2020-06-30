@@ -1,7 +1,8 @@
-import { shell, remote } from "electron"
 import { ThunkAction, ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
 import { RootState } from "./reducer"
+import Parser from "@yang991178/rss-parser"
+import Url from "url"
 
 export enum ActionStatus {
     Request, Success, Failure, Intermediate
@@ -16,7 +17,6 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 
 export type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>
 
-import Parser = require("@yang991178/rss-parser")
 const rssParser = new Parser({
     customFields: {
         item: [
@@ -41,7 +41,6 @@ export async function parseRSS(url: string) {
 
 export const domParser = new DOMParser()
 
-import Url = require("url")
 export async function fetchFavicon(url: string) {
     try {
         let result = await fetch(url, { credentials: "omit" })
@@ -77,21 +76,16 @@ export function htmlDecode(input: string) {
     return doc.documentElement.textContent
 }
 
-export function openExternal(url: string) {
-    if (url.startsWith("https://") || url.startsWith("http://"))
-        shell.openExternal(url)
-}
-
 export const urlTest = (s: string) => 
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi.test(s)
 
-export const getWindowBreakpoint = () => remote.getCurrentWindow().getSize()[0] >= 1441
+export const getWindowBreakpoint = () => window.outerWidth >= 1441
 
 export const cutText = (s: string, length: number) => {
     return (s.length <= length) ? s : s.slice(0, length) + "…"
 }
 
-export const googleSearch = (text: string) => openExternal("https://www.google.com/search?q=" + encodeURIComponent(text))
+export const googleSearch = (text: string) => window.utils.openExternal("https://www.google.com/search?q=" + encodeURIComponent(text))
 
 export function mergeSortedArrays<T>(a: T[], b: T[], cmp: ((x: T, y: T) => number)): T[] {
     let merged = new Array<T>()
@@ -114,6 +108,17 @@ export function byteToMB(B: number) {
     return MB + "MB"
 }
 
+function byteLength(str: string) {
+    var s = str.length;
+    for (var i = str.length - 1; i >= 0; i--) {
+        var code = str.charCodeAt(i);
+        if (code > 0x7f && code <= 0x7ff) s++;
+        else if (code > 0x7ff && code <= 0xffff) s += 2;
+        if (code >= 0xDC00 && code <= 0xDFFF) i--; //trail surrogate
+    }
+    return s;
+}
+
 export function calculateItemSize(): Promise<number> {
     return new Promise((resolve, reject) => {
         let openRequest = window.indexedDB.open("NeDB")
@@ -122,8 +127,7 @@ export function calculateItemSize(): Promise<number> {
             let objectStore = db.transaction("nedbdata").objectStore("nedbdata")
             let getRequest = objectStore.get("items")
             getRequest.onsuccess = () => {
-                let resultBuffer = Buffer.from(getRequest.result)
-                resolve(resultBuffer.length)
+                resolve(byteLength(getRequest.result))
             }
             getRequest.onerror = () => reject()
         }

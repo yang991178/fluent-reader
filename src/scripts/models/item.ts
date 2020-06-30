@@ -1,9 +1,9 @@
 import * as db from "../db"
 import intl from "react-intl-universal"
-import { domParser, htmlDecode, ActionStatus, AppThunk, openExternal } from "../utils"
+import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
-import Parser = require("@yang991178/rss-parser")
+import Parser from "@yang991178/rss-parser"
 
 export class RSSItem {
     _id: string
@@ -279,7 +279,7 @@ export function itemShortcuts(item: RSSItem, key: string): AppThunk {
                 break
             case "b": case "B":
                 if (!item.hasRead) dispatch(markRead(item))
-                openExternal(item.link)
+                window.utils.openExternal(item.link)
                 break
             case "s": case "S":
                 dispatch(toggleStarred(item))

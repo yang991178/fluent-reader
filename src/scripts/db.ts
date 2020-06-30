@@ -1,4 +1,4 @@
-import Datastore = require("nedb")
+import Datastore from "nedb"
 import { RSSSource } from "./models/source"
 import { RSSItem } from "./models/item"
 

@@ -1,7 +1,6 @@
 import * as React from "react"
 import intl from "react-intl-universal"
-import { clipboard } from "electron"
-import { openExternal, cutText, googleSearch } from "../scripts/utils"
+import { cutText, googleSearch } from "../scripts/utils"
 import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, DirectionalHint } from "office-ui-fabric-react/lib/ContextualMenu"
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
@@ -51,7 +50,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     iconProps: { iconName: "NavigateExternalInline" },
                     onClick: () => {
                         this.props.markRead(this.props.item)
-                        openExternal(this.props.item.link)
+                        window.utils.openExternal(this.props.item.link)
                     }
                 },
                 this.props.item.hasRead
@@ -85,12 +84,12 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 {
                     key: "copyTitle",
                     text: intl.get("context.copyTitle"),
-                    onClick: () => { clipboard.writeText(this.props.item.title) }
+                    onClick: () => { window.utils.writeClipboard(this.props.item.title) }
                 },
                 {
                     key: "copyURL",
                     text: intl.get("context.copyURL"),
-                    onClick: () => { clipboard.writeText(this.props.item.link) }
+                    onClick: () => { window.utils.writeClipboard(this.props.item.link) }
                 }
             ]
             case ContextMenuType.Text: return [
@@ -98,7 +97,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     key: "copyText",
                     text: intl.get("context.copy"),
                     iconProps: { iconName: "Copy" },
-                    onClick: () => { clipboard.writeText(this.props.text) }
+                    onClick: () => { window.utils.writeClipboard(this.props.text) }
                 },
                 {
                     key: "searchText",

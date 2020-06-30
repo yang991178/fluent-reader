@@ -1,5 +1,4 @@
 import * as React from "react"
-import { openExternal } from "../../scripts/utils"
 import { RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { RSSItem } from "../../scripts/models/item"
 
@@ -16,7 +15,7 @@ export interface CardProps {
 export class Card extends React.Component<CardProps> {
     openInBrowser = () => {
         this.props.markRead(this.props.item)
-        openExternal(this.props.item.link)
+        window.utils.openExternal(this.props.item.link)
     }
 
     onClick = (e: React.MouseEvent) => {

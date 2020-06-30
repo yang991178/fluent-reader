@@ -4,13 +4,12 @@ import { urlTest, byteToMB, calculateItemSize } from "../../scripts/utils"
 import { ThemeSettings } from "../../schema-types"
 import { getThemeSettings, setThemeSettings, exportAll } from "../../scripts/settings"
 import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption, PrimaryButton } from "@fluentui/react"
-import { remote } from "electron"
 import DangerButton from "../utils/danger-button"
 
 type AppTabProps = {
     setLanguage: (option: string) => void
     deleteArticles: (days: number) => Promise<void>
-    importAll: () => void
+    importAll: () => Promise<void>
 }
 
 type AppTabState = {
@@ -38,7 +37,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     }
 
     getCacheSize = () => {
-        remote.session.defaultSession.getCacheSize().then(size => {
+        window.utils.getCacheSize().then(size => {
             this.setState({ cacheSize: byteToMB(size) })
         })
     }
@@ -49,7 +48,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     }
 
     clearCache = () => {
-        remote.session.defaultSession.clearCache().then(() => {
+        window.utils.clearCache().then(() => {
             this.getCacheSize()
         })
     }
@@ -108,18 +107,6 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     onThemeChange = (_, option: IChoiceGroupOption) => {
         setThemeSettings(option.key as ThemeSettings)
         this.setState({ themeSettings: option.key as ThemeSettings })
-    }
-
-    exportAll = () => {
-        remote.dialog.showSaveDialog(
-            remote.getCurrentWindow(),
-            {
-                defaultPath: "*/Fluent_Reader_Backup.frdata",
-                filters: [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
-            }
-        ).then(result => {
-            if (!result.canceled) exportAll(result.filePath)
-        })
     }
 
     render = () => (
@@ -206,7 +193,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             <Label>{intl.get("app.data")}</Label>
             <Stack horizontal>
             <Stack.Item>
-                    <PrimaryButton onClick={this.exportAll} text={intl.get("app.backup")} />
+                    <PrimaryButton onClick={exportAll} text={intl.get("app.backup")} />
                 </Stack.Item>
                 <Stack.Item>
                     <DefaultButton onClick={this.props.importAll} text={intl.get("app.restore")} />

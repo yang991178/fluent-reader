@@ -2,11 +2,9 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
-import { openExternal } from "../scripts/utils"
 import { Stack, CommandBarButton, IContextualMenuProps, FocusZone } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
 import { store } from "../scripts/settings"
-import { clipboard, remote } from "electron"
 
 const FONT_SIZE_STORE_KEY = "fontSize"
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
@@ -70,7 +68,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key: "copyURL",
                 text: intl.get("context.copyURL"),
                 iconProps: { iconName: "Link" },
-                onClick: () => { clipboard.writeText(this.props.item.link) }
+                onClick: () => { window.utils.writeClipboard(this.props.item.link) }
             },
             {
                 key: "toggleHidden",
@@ -84,7 +82,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     ipcHandler = event => {
         switch (event.channel) {
             case "request-navigation": {
-                openExternal(event.args[0])
+                window.utils.openExternal(event.args[0])
                 break
             }
             case "context-menu": {
@@ -96,13 +94,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         }
     }
     popUpHandler = event => {
-        openExternal(event.url)
+        window.utils.openExternal(event.url)
     }
     navigationHandler = event => {
-        openExternal(event.url)
+        window.utils.openExternal(event.url)
         this.props.dismiss()
     }
-    keyDownHandler = (_, input) => {
+    keyDownHandler = (input: Electron.Input) => {
         if (input.type === "keyDown") {
             switch (input.key) {
                 case "Escape": 
@@ -140,8 +138,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             webview.addEventListener("new-window", this.popUpHandler)
             webview.addEventListener("will-navigate", this.navigationHandler)
             webview.addEventListener("dom-ready", () => {
-                let webContents = remote.webContents.fromId(webview.getWebContentsId())
-                webContents.on("before-input-event", this.keyDownHandler)
+                window.utils.addWebviewKeydownListener(webview.getWebContentsId(), this.keyDownHandler)
             })
             this.webview = webview
             webview.focus()
@@ -163,7 +160,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     openInBrowser = () => {
-        openExternal(this.props.item.link)
+        window.utils.openExternal(this.props.item.link)
     }
 
     toggleWebpage = () => {

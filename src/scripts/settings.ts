@@ -1,9 +1,7 @@
-import { remote, ipcRenderer } from "electron"
 import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import Store = require("electron-store")
 import { ThemeSettings, SchemaTypes } from "../schema-types"
-import fs = require("fs")
 import intl from "react-intl-universal"
 
 export const store = new Store<SchemaTypes>()
@@ -61,65 +59,58 @@ export function getCurrentLocale() {
     return (locale in locales) ? locale : "en-US"
 }
 
-export function exportAll(path: string) {
-    let output = {}
-    for (let [key, value] of store) {
-        output[key] = value
-    }
-    output["nedb"] = {}
-    let openRequest = window.indexedDB.open("NeDB")
-    openRequest.onsuccess = () => {
-        let db = openRequest.result
-        let objectStore = db.transaction("nedbdata").objectStore("nedbdata")
-        let cursorRequest = objectStore.openCursor()
-        cursorRequest.onsuccess = () => {
-            let cursor = cursorRequest.result
-            if (cursor) {
-                output["nedb"][cursor.key] = cursor.value
-                cursor.continue()
-            } else {
-                fs.writeFile(path, JSON.stringify(output), (err) => {
-                    if (err) remote.dialog.showErrorBox(intl.get("settings.writeError"), String(err))
-                })
-            }
-        }
-    }
-}
-
-export function importAll(path) {
-    fs.readFile(path, "utf-8", async (err, data) => {
-        if (err) {
-            console.log(err)
-        } else {
-            let configs = JSON.parse(data)
+export function exportAll() {
+    const filters = [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
+    window.utils.showSaveDialog(filters, "*/Fluent_Reader_Backup.frdata").then(write => {
+        if (write) {
+            let output = window.settings.getAll()
+            output["nedb"] = {}
             let openRequest = window.indexedDB.open("NeDB")
             openRequest.onsuccess = () => {
                 let db = openRequest.result
-                let objectStore = db.transaction("nedbdata", "readwrite").objectStore("nedbdata")
-                let requests = Object.entries(configs.nedb).map(([key, value]) => {
-                    return objectStore.put(value, key)
-                })
-                let promises = requests.map(req => new Promise((resolve, reject) => {
-                    req.onsuccess = () => resolve()
-                    req.onerror = () => reject()
-                }))
-                Promise.all(promises).then(() => {
-                    delete configs.nedb
-                    store.clear()
-                    let hasTheme = false
-                    for (let [key, value] of Object.entries(configs)) {
-                        if (key === THEME_STORE_KEY) {
-                            setThemeSettings(value as ThemeSettings)
-                            hasTheme = true
-                        } else {
-                            // @ts-ignore
-                            store.set(key, value)
-                        }
+                let objectStore = db.transaction("nedbdata").objectStore("nedbdata")
+                let cursorRequest = objectStore.openCursor()
+                cursorRequest.onsuccess = () => {
+                    let cursor = cursorRequest.result
+                    if (cursor) {
+                        output["nedb"][cursor.key] = cursor.value
+                        cursor.continue()
+                    } else {
+                        write(JSON.stringify(output), intl.get("settings.writeError"))
                     }
-                    if (!hasTheme) setThemeSettings(ThemeSettings.Default)
-                    ipcRenderer.send("restart")
-                })
+                }
             }
         }
     })
+}
+
+export async function importAll() {
+    const filters = [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
+    let data = await window.utils.showOpenDialog(filters)
+    if (!data) return true
+    let confirmed = await window.utils.showMessageBox(
+        intl.get("app.restore"),
+        intl.get("app.confirmImport"),
+        intl.get("confirm"), intl.get("cancel"),
+        true, "warning"
+    )
+    if (!confirmed) return true
+    let configs = JSON.parse(data)
+    let openRequest = window.indexedDB.open("NeDB")
+    openRequest.onsuccess = () => {
+        let db = openRequest.result
+        let objectStore = db.transaction("nedbdata", "readwrite").objectStore("nedbdata")
+        let requests = Object.entries(configs.nedb).map(([key, value]) => {
+            return objectStore.put(value, key)
+        })
+        let promises = requests.map(req => new Promise((resolve, reject) => {
+            req.onsuccess = () => resolve()
+            req.onerror = () => reject()
+        }))
+        Promise.all(promises).then(() => {
+            delete configs.nedb
+            window.settings.setAll(configs)
+        })
+    }
+    return false
 }

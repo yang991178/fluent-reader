@@ -1,4 +1,6 @@
 import { contextBridge } from "electron"
-import SettingsBridge from "./bridges/settings"
+import settingsBridge from "./bridges/settings"
+import utilsBridge from "./bridges/utils"
 
-window.settings = SettingsBridge
+window.settings = settingsBridge
+window.utils = utilsBridge

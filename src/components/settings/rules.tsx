@@ -7,7 +7,7 @@ import { SourceRule, RuleActions } from "../../scripts/models/rule"
 import { FilterType } from "../../scripts/models/feed"
 import { validateRegex } from "../../scripts/utils"
 import { RSSItem } from "../../scripts/models/item"
-import Parser = require("@yang991178/rss-parser")
+import Parser from "@yang991178/rss-parser"
 
 const actionKeyMap = {
     "r-true": "article.markRead",

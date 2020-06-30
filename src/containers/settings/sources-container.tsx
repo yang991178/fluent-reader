@@ -1,5 +1,3 @@
-import intl from "react-intl-universal"
-import { remote } from "electron"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
@@ -31,28 +29,8 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         },
         deleteSource: (source: RSSSource) => dispatch(deleteSource(source)),
         deleteSources: (sources: RSSSource[]) => dispatch(deleteSources(sources)),
-        importOPML: () => {
-            remote.dialog.showOpenDialog(
-                remote.getCurrentWindow(),
-                {
-                    filters: [{ name: intl.get("sources.opmlFile"), extensions: ["xml", "opml"] }],
-                    properties: ["openFile"]
-                }
-            ).then(result => {
-                if (!result.canceled && result.filePaths.length > 0) dispatch(importOPML(result.filePaths[0]))
-            })
-        },
-        exportOPML: () => {
-            remote.dialog.showSaveDialog(
-                remote.getCurrentWindow(),
-                {
-                    defaultPath: "*/Fluent_Reader_Export.opml",
-                    filters: [{ name: intl.get("sources.opmlFile"), extensions: ["opml"] }]
-                }
-            ).then(result => {
-                if (!result.canceled) dispatch(exportOPML(result.filePath))
-            })
-        }
+        importOPML: () => dispatch(importOPML()),
+        exportOPML: () => dispatch(exportOPML())
     }
 }
 

@@ -1,0 +1,85 @@
+import { ipcRenderer } from "electron"
+
+const utilsBridge = {
+    getVersion: (): string => {
+        return ipcRenderer.sendSync("get-version")
+    },
+
+    openExternal: (url: string) => {
+        ipcRenderer.invoke("open-external", url)
+    },
+
+    showErrorBox: (title: string, content: string) => {
+        ipcRenderer.invoke("show-error-box", title, content)
+    },
+
+    showMessageBox: async (title: string, message: string, confirm: string, cancel: string, defaultCancel=false, type="none") => {
+        return await ipcRenderer.invoke("show-message-box", title, message, confirm, cancel, defaultCancel, type) as boolean
+    },
+
+    showSaveDialog: async (filters: Electron.FileFilter[], path: string) => {
+        let result = await ipcRenderer.invoke("show-save-dialog", filters, path) as boolean
+        if (result) {
+            return (result: string, errmsg: string) => {
+                ipcRenderer.invoke("write-save-result", result, errmsg)
+            }
+        } else {
+            return null
+        }
+    },
+
+    showOpenDialog: async (filters: Electron.FileFilter[]) => {
+        return await ipcRenderer.invoke("show-open-dialog", filters) as string
+    },
+
+    getCacheSize: async (): Promise<number> => {
+        return await ipcRenderer.invoke("get-cache")
+    },
+
+    clearCache: async () => {
+        await ipcRenderer.invoke("clear-cache")
+    },
+
+    addWebviewKeydownListener: (id: number, callback: (event: Electron.Input) => any) => {
+        ipcRenderer.invoke("add-webview-keydown-listener", id)
+        ipcRenderer.removeAllListeners("webview-keydown")
+        ipcRenderer.on("webview-keydown", (_, input) => {
+            callback(input)
+        })
+    },
+
+    writeClipboard: (text: string) => {
+        ipcRenderer.invoke("write-clipboard", text)
+    },
+
+    closeWindow: () => {
+        ipcRenderer.invoke("close-window")
+    },
+    minimizeWindow: () => {
+        ipcRenderer.invoke("minimize-window")
+    },
+    maximizeWindow: () => {
+        ipcRenderer.invoke("maximize-window")
+    },
+    isMaximized: () => {
+        return ipcRenderer.sendSync("is-maximized") as boolean
+    },
+    addWindowStateListener: (callback: (state: boolean) => any) => {
+        ipcRenderer.removeAllListeners("maximized")
+        ipcRenderer.on("maximized", () => {
+            callback(true)
+        })
+        ipcRenderer.removeAllListeners("unmaximized")
+        ipcRenderer.on("unmaximized", () => {
+            callback(false)
+        })
+    },
+}
+
+declare global { 
+    interface Window {
+        utils: typeof utilsBridge
+    }
+}
+
+export default utilsBridge
