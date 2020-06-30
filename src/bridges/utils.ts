@@ -40,6 +40,13 @@ const utilsBridge = {
         await ipcRenderer.invoke("clear-cache")
     },
 
+    addWebviewContextListener: (callback: (pos: [number, number], text: string) => any) => {
+        ipcRenderer.removeAllListeners("webview-context-menu")
+        ipcRenderer.on("webview-context-menu", (_, pos, text) => {
+            callback(pos, text)
+        })
+    },
+
     addWebviewKeydownListener: (id: number, callback: (event: Electron.Input) => any) => {
         ipcRenderer.invoke("add-webview-keydown-listener", id)
         ipcRenderer.removeAllListeners("webview-keydown")

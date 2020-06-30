@@ -105,6 +105,14 @@ ipcMain.on("get-locale", (event) => {
     event.returnValue = locale
 })
 
+const FONT_SIZE_STORE_KEY = "fontSize"
+ipcMain.on("get-font-size", (event) => {
+    event.returnValue = store.get(FONT_SIZE_STORE_KEY, 16)
+})
+ipcMain.handle("set-font-size", (_, size: number) => {
+    store.set(FONT_SIZE_STORE_KEY, size)
+})
+
 ipcMain.on("get-all-settings", (event) => {
     let output = {}
     for (let [key, value] of store) {

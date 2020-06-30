@@ -61,6 +61,13 @@ const settingsBridge = {
         return ipcRenderer.sendSync("get-locale")
     },
 
+    getFontSize: (): number => {
+        return ipcRenderer.sendSync("get-font-size")
+    },
+    setFontSize: (size: number) => {
+        ipcRenderer.invoke("set-font-size", size)
+    },
+
     getAll: () => {
         return ipcRenderer.sendSync("get-all-settings") as Object
     },

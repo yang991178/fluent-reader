@@ -1,10 +1,7 @@
 import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
-import Store = require("electron-store")
-import { ThemeSettings, SchemaTypes } from "../schema-types"
+import { ThemeSettings } from "../schema-types"
 import intl from "react-intl-universal"
-
-export const store = new Store<SchemaTypes>()
 
 const lightTheme: IPartialTheme = { 
     defaultFontStyle: { fontFamily: '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' } 
@@ -39,7 +36,6 @@ const darkTheme: IPartialTheme = {
     }
 }
 
-const THEME_STORE_KEY = "theme"
 export function setThemeSettings(theme: ThemeSettings) {
     window.settings.setThemeSettings(theme)
     applyThemeSettings()

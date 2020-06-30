@@ -3,6 +3,7 @@ import { ThemeSettings, SchemaTypes } from "./schema-types"
 import { store } from "./main/settings"
 import performUpdate from "./main/update-scripts"
 import { WindowManager } from "./main/window"
+import { openExternal } from "./main/utils"
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -70,4 +71,15 @@ ipcMain.handle("import-all-settings", (_, configs: SchemaTypes) => {
     performUpdate(store)
     nativeTheme.themeSource = store.get("theme", ThemeSettings.Default)
     winManager.mainWindow.close()
+})
+
+app.on("web-contents-created", (_, contents) => {
+    contents.on("new-window", (event, url) => {
+        if (winManager.hasWindow()) event.preventDefault()
+        if (contents.getType() === "webview") openExternal(url)
+    })
+    contents.on("will-navigate", (event, url) => {
+        event.preventDefault()
+        if (contents.getType() === "webview") openExternal(url)
+    })
 })

@@ -16,6 +16,7 @@ module.exports = [
       }]
     },
     output: {
+      devtoolModuleFilenameTemplate: '[absolute-resource-path]',
       path: __dirname + '/dist',
       filename: 'electron.js'
     }
@@ -42,8 +43,11 @@ module.exports = [
   {
     mode: 'production',
     entry: './src/index.tsx',
-    target: 'electron-renderer',
+    target: 'web',
     devtool: 'source-map',
+    performance: {
+      hints: false
+    },
     module: {
       rules: [{
         test: /\.ts(x?)$/,

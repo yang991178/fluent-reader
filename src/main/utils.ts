@@ -2,14 +2,18 @@ import { ipcMain, shell, dialog, app, session, webContents, clipboard } from "el
 import { WindowManager } from "./window"
 import fs = require("fs")
 
+export function openExternal(url: string) {
+    if (url.startsWith("https://") || url.startsWith("http://"))
+        shell.openExternal(url)
+}
+
 export function setUtilsListeners(manager: WindowManager) {
     ipcMain.on("get-version", (event) => {
         event.returnValue = app.getVersion()
     })
 
     ipcMain.handle("open-external", (_, url: string) => {
-        if (url.startsWith("https://") || url.startsWith("http://"))
-            shell.openExternal(url)
+        openExternal(url)
     })
 
     ipcMain.handle("show-error-box", (_, title, content) => {
@@ -74,6 +78,12 @@ export function setUtilsListeners(manager: WindowManager) {
 
     ipcMain.handle("clear-cache", async () => {
         await session.defaultSession.clearCache()
+    })
+
+    ipcMain.handle("webview-context-menu", (_, pos, text) => {
+        if (manager.hasWindow()) {
+            manager.mainWindow.webContents.send("webview-context-menu", pos, text)
+        }
     })
 
     ipcMain.handle("add-webview-keydown-listener", (_, id) => {

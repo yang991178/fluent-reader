@@ -57,9 +57,9 @@ export class WindowManager {
                 fullscreenable: false,
                 show: false,
                 webPreferences: {
-                    nodeIntegration: true,
                     webviewTag: true,
-                    enableRemoteModule: true,
+                    enableRemoteModule: false,
+                    contextIsolation: true,
                     preload: path.join(app.getAppPath(), (app.isPackaged ? "dist/" : "") + "preload.js")
                 }
             })

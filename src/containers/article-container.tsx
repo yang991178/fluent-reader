@@ -5,7 +5,7 @@ import { RSSItem, markUnread, markRead, toggleStarred, toggleHidden, itemShortcu
 import { AppDispatch } from "../scripts/utils"
 import { dismissItem, showOffsetItem } from "../scripts/models/page"
 import Article from "../components/article"
-import { openTextMenu } from "../scripts/models/app"
+import { openTextMenu, closeContextMenu } from "../scripts/models/app"
 
 type ArticleContainerProps = {
     itemId: string
@@ -34,7 +34,8 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         toggleHasRead: (item: RSSItem) => dispatch(item.hasRead ? markUnread(item) : markRead(item)),
         toggleStarred: (item: RSSItem) => dispatch(toggleStarred(item)),
         toggleHidden: (item: RSSItem) => dispatch(toggleHidden(item)),
-        textMenu: (text: string, position: [number, number]) => dispatch(openTextMenu(text, position))
+        textMenu: (text: string, position: [number, number]) => dispatch(openTextMenu(text, position)),
+        dismissContextMenu: () => dispatch(closeContextMenu())
     }
 }
 

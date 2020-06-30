@@ -4,9 +4,7 @@ import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
 import { Stack, CommandBarButton, IContextualMenuProps, FocusZone } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
-import { store } from "../scripts/settings"
 
-const FONT_SIZE_STORE_KEY = "fontSize"
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
 type ArticleProps = {
@@ -20,6 +18,7 @@ type ArticleProps = {
     toggleStarred: (item: RSSItem) => void
     toggleHidden: (item: RSSItem) => void
     textMenu: (text: string, position: [number, number]) => void
+    dismissContextMenu: () => void
 }
 
 type ArticleState = {
@@ -36,13 +35,14 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             fontSize: this.getFontSize(),
             loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage
         }
+        window.utils.addWebviewContextListener(this.contextMenuHandler)
     }
 
     getFontSize = () => {
-        return store.get(FONT_SIZE_STORE_KEY, 16)
+        return window.settings.getFontSize()
     }
     setFontSize = (size: number) => {
-        store.set(FONT_SIZE_STORE_KEY, size)
+        window.settings.setFontSize(size)
         this.setState({fontSize: size})
     }
 
@@ -79,27 +79,16 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         ]
     })
 
-    ipcHandler = event => {
-        switch (event.channel) {
-            case "request-navigation": {
-                window.utils.openExternal(event.args[0])
-                break
-            }
-            case "context-menu": {
-                let articlePos = document.getElementById("article").getBoundingClientRect()
-                let [x, y] = event.args[0]
-                this.props.textMenu(event.args[1], [x + articlePos.x, y + articlePos.y])
-                break
-            }
+    contextMenuHandler = (pos: [number, number], text: string) => {
+        if (pos) {
+            let articlePos = document.getElementById("article").getBoundingClientRect()
+            let [x, y] = pos
+            this.props.textMenu(text, [x + articlePos.x, y + articlePos.y])
+        } else {
+            this.props.dismissContextMenu()
         }
     }
-    popUpHandler = event => {
-        window.utils.openExternal(event.url)
-    }
-    navigationHandler = event => {
-        window.utils.openExternal(event.url)
-        this.props.dismiss()
-    }
+
     keyDownHandler = (input: Electron.Input) => {
         if (input.type === "keyDown") {
             switch (input.key) {
@@ -134,11 +123,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     componentDidMount = () => {
         let webview = document.getElementById("article") as Electron.WebviewTag
         if (webview != this.webview) {
-            webview.addEventListener("ipc-message", this.ipcHandler)
-            webview.addEventListener("new-window", this.popUpHandler)
-            webview.addEventListener("will-navigate", this.navigationHandler)
             webview.addEventListener("dom-ready", () => {
-                window.utils.addWebviewKeydownListener(webview.getWebContentsId(), this.keyDownHandler)
+                let id = webview.getWebContentsId()
+                window.utils.addWebviewKeydownListener(id, this.keyDownHandler)
             })
             this.webview = webview
             webview.focus()
@@ -227,7 +214,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 preload={this.state.loadWebpage ? null : "article/preload.js"}
-                webpreferences="contextIsolation,sandbox,disableDialogs,autoplayPolicy=document-user-activation-required"
+                webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
                 partition="sandbox" />
         </FocusZone>
     )

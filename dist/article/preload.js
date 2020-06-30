@@ -1,10 +1,10 @@
 const { contextBridge, ipcRenderer } = require("electron")
 
 contextBridge.exposeInMainWorld("renderer",{
-    requestNavigation: (href) => {
-        ipcRenderer.sendToHost("request-navigation", href)
+    dismissContextMenu: () => {
+        ipcRenderer.invoke("webview-context-menu", null, null)
     },
     contextMenu: (pos, text) => {
-        ipcRenderer.sendToHost("context-menu", pos, text)
+        ipcRenderer.invoke("webview-context-menu", pos, text)
     }
 })
