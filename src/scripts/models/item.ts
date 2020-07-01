@@ -161,9 +161,10 @@ export function fetchItems(): AppThunk<Promise<void>> {
         let promises = new Array<Promise<RSSItem[]>>()
         if (!getState().app.fetchingItems) {
             let timenow = new Date().getTime()
-            let sources = <RSSSource[]>Object.values(getState().sources).filter(s =>
-                ((s.lastFetched ? s.lastFetched.getTime() : 0) + (s.fetchFrequency || 0) * 60000) <= timenow
-            )
+            let sources = <RSSSource[]>Object.values(getState().sources).filter(s => {
+                let last = s.lastFetched ? s.lastFetched.getTime() : 0
+                return (last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow)
+            })
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
                 promise.finally(() => dispatch(fetchItemsIntermediate()))
@@ -185,6 +186,8 @@ export function fetchItems(): AppThunk<Promise<void>> {
                     resolve()
                 })
                 .catch(err => {
+                    dispatch(fetchItemsSuccess([], getState().items))
+                    window.utils.showErrorBox("A database error has occurred.", String(err))
                     console.log(err)
                     reject(err)
                 })
