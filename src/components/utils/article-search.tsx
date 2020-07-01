@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { connect } from "react-redux"
 import { RootState } from "../../scripts/reducer"
 import { SearchBox, ISearchBox, Async } from "@fluentui/react"

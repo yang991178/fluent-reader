@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "A simplistic, modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -55,7 +55,13 @@
       "target": [
         "dmg"
       ],
-      "category": "public.app-category.news"
+      "category": "public.app-category.news",
+      "electronLanguages": [
+        "zh_CN",
+        "en_US",
+        "fr_FR",
+        "es"
+      ]
     },
     "mas": {
       "appId": "DevHYLiu.FluentReader",

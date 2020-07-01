@@ -2,8 +2,9 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import GroupsTab from "../../components/settings/groups"
-import { createSourceGroup, SourceGroup, updateSourceGroup, addSourceToGroup,
+import { createSourceGroup, updateSourceGroup, addSourceToGroup,
     deleteSourceGroup, removeSourceFromGroup, reorderSourceGroups } from "../../scripts/models/group"
+import { SourceGroup } from "../../schema-types"
 
 const getSources = (state: RootState) => state.sources
 const getGroups = (state: RootState) => state.groups

@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AnimationClassNames } from "@fluentui/react/lib/Styling"
 import AboutTab from "./settings/about"

@@ -1,14 +1,10 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
-import { openExternal } from "../scripts/utils"
 import { Stack, CommandBarButton, IContextualMenuProps, FocusZone } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
-import { store } from "../scripts/settings"
-import { clipboard, remote } from "electron"
 
-const FONT_SIZE_STORE_KEY = "fontSize"
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
 type ArticleProps = {
@@ -22,6 +18,7 @@ type ArticleProps = {
     toggleStarred: (item: RSSItem) => void
     toggleHidden: (item: RSSItem) => void
     textMenu: (text: string, position: [number, number]) => void
+    dismissContextMenu: () => void
 }
 
 type ArticleState = {
@@ -38,13 +35,14 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             fontSize: this.getFontSize(),
             loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage
         }
+        window.utils.addWebviewContextListener(this.contextMenuHandler)
     }
 
     getFontSize = () => {
-        return store.get(FONT_SIZE_STORE_KEY, 16)
+        return window.settings.getFontSize()
     }
     setFontSize = (size: number) => {
-        store.set(FONT_SIZE_STORE_KEY, size)
+        window.settings.setFontSize(size)
         this.setState({fontSize: size})
     }
 
@@ -70,7 +68,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key: "copyURL",
                 text: intl.get("context.copyURL"),
                 iconProps: { iconName: "Link" },
-                onClick: () => { clipboard.writeText(this.props.item.link) }
+                onClick: () => { window.utils.writeClipboard(this.props.item.link) }
             },
             {
                 key: "toggleHidden",
@@ -81,28 +79,17 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         ]
     })
 
-    ipcHandler = event => {
-        switch (event.channel) {
-            case "request-navigation": {
-                openExternal(event.args[0])
-                break
-            }
-            case "context-menu": {
-                let articlePos = document.getElementById("article").getBoundingClientRect()
-                let [x, y] = event.args[0]
-                this.props.textMenu(event.args[1], [x + articlePos.x, y + articlePos.y])
-                break
-            }
+    contextMenuHandler = (pos: [number, number], text: string) => {
+        if (pos) {
+            let articlePos = document.getElementById("article").getBoundingClientRect()
+            let [x, y] = pos
+            this.props.textMenu(text, [x + articlePos.x, y + articlePos.y])
+        } else {
+            this.props.dismissContextMenu()
         }
     }
-    popUpHandler = event => {
-        openExternal(event.url)
-    }
-    navigationHandler = event => {
-        openExternal(event.url)
-        this.props.dismiss()
-    }
-    keyDownHandler = (_, input) => {
+
+    keyDownHandler = (input: Electron.Input) => {
         if (input.type === "keyDown") {
             switch (input.key) {
                 case "Escape": 
@@ -136,16 +123,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     componentDidMount = () => {
         let webview = document.getElementById("article") as Electron.WebviewTag
         if (webview != this.webview) {
-            webview.addEventListener("ipc-message", this.ipcHandler)
-            webview.addEventListener("new-window", this.popUpHandler)
-            webview.addEventListener("will-navigate", this.navigationHandler)
             webview.addEventListener("dom-ready", () => {
-                let webContents = remote.webContents.fromId(webview.getWebContentsId())
-                webContents.on("before-input-event", this.keyDownHandler)
+                let id = webview.getWebContentsId()
+                window.utils.addWebviewKeydownListener(id, this.keyDownHandler)
             })
             this.webview = webview
             webview.focus()
-            let card = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
+            let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
             // @ts-ignore
             if (card) card.scrollIntoViewIfNeeded()
         }
@@ -158,12 +142,12 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     componentWillUnmount = () => {
-        let refocus = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
+        let refocus = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
         if (refocus) refocus.focus()
     }
 
     openInBrowser = () => {
-        openExternal(this.props.item.link)
+        window.utils.openExternal(this.props.item.link)
     }
 
     toggleWebpage = () => {
@@ -230,6 +214,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 preload={this.state.loadWebpage ? null : "article/preload.js"}
+                webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
                 partition="sandbox" />
         </FocusZone>
     )

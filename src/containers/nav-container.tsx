@@ -1,11 +1,11 @@
-import { remote } from "electron"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { fetchItems, markAllRead } from "../scripts/models/item"
 import { toggleMenu, toggleLogMenu, toggleSettings, openViewMenu } from "../scripts/models/app"
-import { ViewType, toggleSearch } from "../scripts/models/page"
+import { toggleSearch } from "../scripts/models/page"
+import { ViewType } from "../schema-types"
 import Nav from "../components/nav"
 
 const getState = (state: RootState) => state.app
@@ -27,14 +27,12 @@ const mapDispatchToProps = (dispatch) => ({
     settings: () => dispatch(toggleSettings()),
     search: () => dispatch(toggleSearch()),
     markAllRead: () => {
-        remote.dialog.showMessageBox(remote.getCurrentWindow(), {
-            title: intl.get("nav.markAllRead"),
-            message: intl.get("confirmMarkAll"),
-            buttons: process.platform === "win32" ? ["Yes", "No"] : [intl.get("confirm"), intl.get("cancel")],
-            defaultId: 0,
-            cancelId: 1
-        }).then(response => {
-            if (response.response === 0) {
+        window.utils.showMessageBox(
+            intl.get("nav.markAllRead"),
+            intl.get("confirmMarkAll"),
+            intl.get("confirm"), intl.get("cancel")
+        ).then(response => {
+            if (response) {
                 dispatch(markAllRead())
             }
         })

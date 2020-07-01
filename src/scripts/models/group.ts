@@ -1,42 +1,9 @@
-import fs = require("fs")
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource, RSSSource } from "./source"
-
-import { ActionStatus, AppThunk, domParser, AppDispatch } from "../utils"
+import { SourceGroup } from "../../schema-types"
+import { ActionStatus, AppThunk, domParser } from "../utils"
 import { saveSettings } from "./app"
-import { store } from "../settings"
 import { fetchItemsIntermediate, fetchItemsRequest, fetchItemsSuccess } from "./item"
-import { remote } from "electron"
-
-const GROUPS_STORE_KEY = "sourceGroups"
-
-export class SourceGroup {
-    isMultiple: boolean
-    sids: number[]
-    name?: string
-    expanded?: boolean
-    index?: number // available only from groups tab container
-
-    constructor(sids: number[], name: string = null) {
-        name = (name && name.trim()) || "订阅源组"
-        if (sids.length == 1) {
-            this.isMultiple = false
-        } else {
-            this.isMultiple = true
-            this.name = name
-            this.expanded = true
-        }
-        this.sids = sids
-    }
-
-    static save(groups: SourceGroup[]) {
-        store.set(GROUPS_STORE_KEY, groups)
-    }
-
-    static load(): SourceGroup[] {
-        return store.get(GROUPS_STORE_KEY, [])
-    }
-}
 
 export const CREATE_SOURCE_GROUP = "CREATE_SOURCE_GROUP"
 export const ADD_SOURCE_TO_GROUP = "ADD_SOURCE_TO_GROUP"
@@ -100,7 +67,7 @@ export function createSourceGroup(name: string): AppThunk<number> {
         let group = new SourceGroup([], name)
         dispatch(createSourceGroupDone(group))
         let groups = getState().groups
-        SourceGroup.save(groups)
+        window.settings.saveGroups(groups)
         return groups.length - 1
     }
 }
@@ -116,7 +83,7 @@ function addSourceToGroupDone(groupIndex: number, sid: number): SourceGroupActio
 export function addSourceToGroup(groupIndex: number, sid: number): AppThunk {
     return (dispatch, getState) => {
         dispatch(addSourceToGroupDone(groupIndex, sid))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -131,7 +98,7 @@ function removeSourceFromGroupDone(groupIndex: number, sids: number[]): SourceGr
 export function removeSourceFromGroup(groupIndex: number, sids: number[]): AppThunk {
     return (dispatch, getState) => {
         dispatch(removeSourceFromGroupDone(groupIndex, sids))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -145,7 +112,7 @@ function deleteSourceGroupDone(groupIndex: number): SourceGroupActionTypes {
 export function deleteSourceGroup(groupIndex: number): AppThunk {
     return (dispatch, getState) => {
         dispatch(deleteSourceGroupDone(groupIndex))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -160,7 +127,7 @@ function updateSourceGroupDone(group: SourceGroup): SourceGroupActionTypes {
 export function updateSourceGroup(group: SourceGroup): AppThunk {
     return (dispatch, getState) => {
         dispatch(updateSourceGroupDone(group))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -174,7 +141,7 @@ function reorderSourceGroupsDone(groups: SourceGroup[]): SourceGroupActionTypes 
 export function reorderSourceGroups(groups: SourceGroup[]): AppThunk {
     return (dispatch, getState) => {
         dispatch(reorderSourceGroupsDone(groups))
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -184,7 +151,7 @@ export function toggleGroupExpansion(groupIndex: number): AppThunk {
             type: TOGGLE_GROUP_EXPANSION,
             groupIndex: groupIndex
         })
-        SourceGroup.save(getState().groups)
+        window.settings.saveGroups(getState().groups)
     }
 }
 
@@ -198,12 +165,11 @@ function outlineToSource(outline: Element): [ReturnType<typeof addSource>, strin
     }
 }
 
-export function importOPML(path: string): AppThunk {
+export function importOPML(): AppThunk {
     return async (dispatch) => {
-        fs.readFile(path, "utf-8", async (err, data) => {
-            if (err) {
-                console.log(err)
-            } else {
+        const filters = [{ name: intl.get("sources.opmlFile"), extensions: ["xml", "opml"] }]
+        window.utils.showOpenDialog(filters).then(data => {
+            if (data) {
                 dispatch(saveSettings())
                 let doc = domParser.parseFromString(data, "text/xml").getElementsByTagName("body")
                 if (doc.length == 0) {
@@ -213,7 +179,7 @@ export function importOPML(path: string): AppThunk {
                 let parseError = doc[0].getElementsByTagName("parsererror")
                 if (parseError.length > 0) {
                     dispatch(saveSettings())
-                    remote.dialog.showErrorBox(intl.get("sources.errorParse"), intl.get("sources.errorParseHint"))
+                    window.utils.showErrorBox(intl.get("sources.errorParse"), intl.get("sources.errorParseHint"))
                     return
                 }
                 let sources: [ReturnType<typeof addSource>, number, string][] = []
@@ -245,7 +211,7 @@ export function importOPML(path: string): AppThunk {
                     dispatch(fetchItemsSuccess([], {}))
                     dispatch(saveSettings())
                     if (errors.length > 0) {
-                        remote.dialog.showErrorBox(
+                        window.utils.showErrorBox(
                             intl.get("sources.errorImport", { count: errors.length }), 
                             errors.map(e => {
                                 return e[0] + "\n" + String(e[1])
@@ -267,39 +233,41 @@ function sourceToOutline(source: RSSSource, xml: Document) {
     return outline
 }
 
-export function exportOPML(path: string): AppThunk {
+export function exportOPML(): AppThunk {
     return (_, getState) => {
-        let state = getState()
-        let xml = domParser.parseFromString(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><opml version=\"1.0\"><head><title>Fluent Reader Export</title></head><body></body></opml>", 
-            "text/xml"
-        )
-        let body = xml.getElementsByTagName("body")[0]
-        for (let group of state.groups) {
-            if (group.isMultiple) {
-                let outline = xml.createElement("outline")
-                outline.setAttribute("text", group.name)
-                outline.setAttribute("name", group.name)
-                for (let sid of group.sids) {
-                    outline.appendChild(sourceToOutline(state.sources[sid], xml))
+        const filters = [{ name: intl.get("sources.opmlFile"), extensions: ["opml"] }]
+        window.utils.showSaveDialog(filters, "*/Fluent_Reader_Export.opml").then(write => {
+            if (write) {
+                let state = getState()
+                let xml = domParser.parseFromString(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><opml version=\"1.0\"><head><title>Fluent Reader Export</title></head><body></body></opml>", 
+                    "text/xml"
+                )
+                let body = xml.getElementsByTagName("body")[0]
+                for (let group of state.groups) {
+                    if (group.isMultiple) {
+                        let outline = xml.createElement("outline")
+                        outline.setAttribute("text", group.name)
+                        outline.setAttribute("name", group.name)
+                        for (let sid of group.sids) {
+                            outline.appendChild(sourceToOutline(state.sources[sid], xml))
+                        }
+                        body.appendChild(outline)
+                    } else {
+                        body.appendChild(sourceToOutline(state.sources[group.sids[0]], xml))
+                    }
                 }
-                body.appendChild(outline)
-            } else {
-                body.appendChild(sourceToOutline(state.sources[group.sids[0]], xml))
+                let serializer = new XMLSerializer()
+                write(serializer.serializeToString(xml), intl.get("settings.writeError"))
             }
-        }
-        let serializer = new XMLSerializer()
-        fs.writeFile(path, serializer.serializeToString(xml), (err) => {
-            if (err) remote.dialog.showErrorBox(intl.get("settings.writeError"), String(err))
         })
     }
-    
 }
 
 export type GroupState = SourceGroup[]
 
 export function groupReducer(
-    state = SourceGroup.load(),
+    state = window.settings.loadGroups(),
     action: SourceActionTypes | SourceGroupActionTypes
 ): GroupState {
     switch(action.type) {

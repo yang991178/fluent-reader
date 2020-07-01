@@ -1,9 +1,9 @@
 import { ALL, SOURCE, loadMore, FeedFilter, FilterType, initFeeds, FeedActionTypes, INIT_FEED } from "./feed"
 import { getWindowBreakpoint, AppThunk, ActionStatus } from "../utils"
-import { getDefaultView } from "../settings"
 import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
 import { toggleMenu } from "./app"
+import { ViewType } from "../../schema-types"
 
 export const SELECT_PAGE = "SELECT_PAGE"
 export const SWITCH_VIEW = "SWITCH_VIEW"
@@ -15,10 +15,6 @@ export const TOGGLE_SEARCH = "TOGGLE_SEARCH"
 
 export enum PageType {
     AllArticles, Sources, Page
-}
-
-export enum ViewType {
-    Cards, List, Customized
 }
 
 interface SelectPageAction {
@@ -205,7 +201,7 @@ export function performSearch(query: string): AppThunk {
 }
 
 export class PageState {
-    viewType = getDefaultView()
+    viewType = window.settings.getDefaultView()
     filter = new FeedFilter()
     feedId = ALL
     itemId = null as string

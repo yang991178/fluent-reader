@@ -1,7 +1,9 @@
-import { app, ipcMain, BrowserWindow, Menu, nativeTheme } from "electron"
-import windowStateKeeper = require("electron-window-state")
-import Store = require("electron-store")
-import performUpdate from "./scripts/update-scripts"
+import { app, ipcMain, Menu, nativeTheme } from "electron"
+import { ThemeSettings, SchemaTypes } from "./schema-types"
+import { store } from "./main/settings"
+import performUpdate from "./main/update-scripts"
+import { WindowManager } from "./main/window"
+import { openExternal } from "./main/utils"
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -10,54 +12,14 @@ if (!process.mas) {
     }
 }
 
-let mainWindow: BrowserWindow
-let store: Store
-let restarting: boolean
+let restarting = false
 
-function init(setTheme = true) {
-    restarting = false
-    store = new Store()
+function init() {
     performUpdate(store)
-    if (setTheme) nativeTheme.themeSource = store.get("theme", "system")
+    nativeTheme.themeSource = store.get("theme", ThemeSettings.Default)
 }
 
 init()
-
-function createWindow() {
-    let mainWindowState = windowStateKeeper({
-        defaultWidth: 1200,
-        defaultHeight: 700,
-    })
-    // Create the browser window.
-    mainWindow = new BrowserWindow({
-        title: "Fluent Reader",
-        backgroundColor: process.platform === "darwin" ? "#00000000" : (nativeTheme.shouldUseDarkColors ? "#282828" : "#faf9f8"),
-        vibrancy: "sidebar",
-        x: mainWindowState.x,
-        y: mainWindowState.y,
-        width: mainWindowState.width,
-        height: mainWindowState.height,
-        minWidth: 992,
-        minHeight: 600,
-        frame: process.platform === "darwin",
-        titleBarStyle: "hiddenInset",
-        fullscreenable: false,
-        show: false,
-        webPreferences: {
-            nodeIntegration: true,
-            webviewTag: true,
-            enableRemoteModule: true
-        }
-    })
-    mainWindowState.manage(mainWindow)
-    mainWindow.on("ready-to-show", () => {
-        mainWindow.show()
-        mainWindow.focus()
-        if (!app.isPackaged) mainWindow.webContents.openDevTools()
-    });
-    // and load the index.html of the app.
-    mainWindow.loadFile((app.isPackaged ? "dist/" : "") + "index.html")
-}
 
 if (process.platform === "darwin") {
     const template = [
@@ -84,34 +46,40 @@ if (process.platform === "darwin") {
     Menu.setApplicationMenu(null)
 }
 
-app.on("ready", createWindow)
+const winManager = new WindowManager()
 
-app.on("second-instance", () => {
-    if (mainWindow !== null) {
-        mainWindow.focus()
+app.on("window-all-closed", () => {
+    if (winManager.hasWindow()) {
+        winManager.mainWindow.webContents.session.clearStorageData({ storages: ["cookies"] })
     }
-})
-
-app.on("window-all-closed", function () {
-    if (mainWindow) {
-        mainWindow.webContents.session.clearStorageData({ storages: ["cookies"] })
-    }
-    mainWindow = null
+    winManager.mainWindow = null
     if (restarting) {
-        init(false)
-        createWindow()
+        restarting = false
+        winManager.createWindow()
     } else if (process.platform !== "darwin") {
         app.quit()
     }
 })
 
-app.on("activate", function () {
-    if (mainWindow === null) {
-        createWindow()
+ipcMain.handle("import-all-settings", (_, configs: SchemaTypes) => {
+    restarting = true
+    store.clear()
+    for (let [key, value] of Object.entries(configs)) {
+        // @ts-ignore
+        store.set(key, value)
     }
+    performUpdate(store)
+    nativeTheme.themeSource = store.get("theme", ThemeSettings.Default)
+    winManager.mainWindow.close()
 })
 
-ipcMain.on("restart", () => {
-    restarting = true
-    mainWindow.close()
+app.on("web-contents-created", (_, contents) => {
+    contents.on("new-window", (event, url) => {
+        if (winManager.hasWindow()) event.preventDefault()
+        if (contents.getType() === "webview") openExternal(url)
+    })
+    contents.on("will-navigate", (event, url) => {
+        event.preventDefault()
+        if (contents.getType() === "webview") openExternal(url)
+    })
 })

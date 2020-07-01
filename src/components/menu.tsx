@@ -1,8 +1,8 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
-import { SourceGroup } from "../scripts/models/group"
+import { SourceGroup } from "../schema-types"
 import { SourceState, RSSSource } from "../scripts/models/source"
 import { ALL } from "../scripts/models/feed"
 import { AnimationClassNames, Stack } from "@fluentui/react"
@@ -120,7 +120,7 @@ export class Menu extends React.Component<MenuProps> {
                     <div className="btn-group">
                         <a className="btn hide-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
                         <a className="btn inline-block-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}>
-                            <Icon iconName={process.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
+                            <Icon iconName={window.utils.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
                         </a>
                     </div>
                     <div className="nav-wrapper">

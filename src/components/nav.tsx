@@ -1,6 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
-import { remote } from "electron"
+import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AppState } from "../scripts/models/app"
 import { ProgressIndicator } from "@fluentui/react"
@@ -20,23 +19,19 @@ type NavProps = {
 
 type NavState = {
     maximized: boolean,
-    window: Electron.BrowserWindow
 }
 
 class Nav extends React.Component<NavProps, NavState> {
     constructor(props) {
         super(props)
-        let window = remote.getCurrentWindow()
-        window.on("maximize", () => {
-            this.setState({ maximized: true })
-        })
-        window.on("unmaximize", () => {
-            this.setState({ maximized: false })
-        })
+        window.utils.addWindowStateListener(this.setMaximizeState)
         this.state = {
-            maximized: remote.getCurrentWindow().isMaximized(),
-            window: window
+            maximized: window.utils.isMaximized()
         }
+    }
+
+    setMaximizeState = (state: boolean) => {
+        this.setState({ maximized: state })
     }
 
     navShortcutsHandler = (e: KeyboardEvent) => {
@@ -77,18 +72,14 @@ class Nav extends React.Component<NavProps, NavState> {
     }
 
     minimize = () => {
-        this.state.window.minimize()
+        window.utils.minimizeWindow()
     }
     maximize = () => {
-        if (this.state.maximized) {
-            this.state.window.unmaximize()
-        } else {
-            this.state.window.maximize()
-        }
+        window.utils.maximizeWindow()
         this.setState({ maximized: !this.state.maximized })
     }
     close = () => {
-        this.state.window.close()
+        window.utils.closeWindow()
     }
 
     canFetch = () => this.props.state.sourceInit && this.props.state.feedInit && !this.props.state.fetchingItems
@@ -120,7 +111,7 @@ class Nav extends React.Component<NavProps, NavState> {
                     <a className="btn hide-wide" 
                         title={intl.get("nav.menu")} 
                         onClick={this.props.menu}>
-                        <Icon iconName={process.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
+                        <Icon iconName={window.utils.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
                     </a>
                 </div>
                 <span className="title">{this.props.state.title}</span>

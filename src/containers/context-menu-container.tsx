@@ -4,8 +4,8 @@ import { RootState } from "../scripts/reducer"
 import { ContextMenuType, closeContextMenu, toggleSettings } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
 import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden, markAllRead } from "../scripts/models/item"
-import { showItem, switchView, ViewType, switchFilter, toggleFilter } from "../scripts/models/page"
-import { setDefaultView } from "../scripts/settings"
+import { showItem, switchView, switchFilter, toggleFilter } from "../scripts/models/page"
+import { ViewType } from "../schema-types"
 import { FilterType } from "../scripts/models/feed"
 
 const getContext = (state: RootState) => state.app.contextMenu
@@ -57,7 +57,7 @@ const mapDispatchToProps = dispatch => {
             dispatch(toggleHidden(item))
         },
         switchView: (viewType: ViewType) => {
-            setDefaultView(viewType)
+            window.settings.setDefaultView(viewType)
             dispatch(switchView(viewType))
         },
         switchFilter: (filter: FilterType) => dispatch(switchFilter(filter)),

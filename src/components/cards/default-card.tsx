@@ -1,38 +1,33 @@
 import * as React from "react"
 import { Card } from "./card"
-import { AnimationClassNames } from "@fluentui/react"
 import CardInfo from "./info"
 
-class DefaultCard extends Card {
-    className = () => {
-        let cn = ["card", AnimationClassNames.slideUpIn10]
-        if (this.props.item.snippet && this.props.item.thumb) cn.push("transform")
-        if (this.props.item.hidden) cn.push("hidden")
-        return cn.join(" ")
-    }
-
-    render() {
-        return (
-            <div 
-                className={this.className()} 
-                onClick={this.onClick} 
-                onMouseUp={this.onMouseUp}
-                onKeyDown={this.onKeyDown}
-                data-iid={this.props.item._id}
-                data-is-focusable>
-                {this.props.item.thumb ? (
-                    <img className="bg" src={this.props.item.thumb} />
-                ) : null}
-                <div className="bg"></div>
-                {this.props.item.thumb ? (
-                    <img className="head" src={this.props.item.thumb} />
-                ) : null}
-                <CardInfo source={this.props.source} item={this.props.item} />
-                <h3 className="title">{this.props.item.title}</h3>
-                <p className={"snippet"+(this.props.item.thumb?"":" show")}>{this.props.item.snippet.slice(0, 325)}</p>
-            </div>
-        )
-    }
+const className = (props: Card.Props) => {
+    let cn = ["card"]
+    if (props.item.snippet && props.item.thumb) cn.push("transform")
+    if (props.item.hidden) cn.push("hidden")
+    return cn.join(" ")
 }
+
+const DefaultCard: React.FunctionComponent<Card.Props> = (props) => (
+    <div
+        className={className(props)}
+        onClick={e => Card.onClick(props, e)}
+        onMouseUp={e => Card.onMouseUp(props, e)}
+        onKeyDown={e => Card.onKeyDown(props, e)}
+        data-iid={props.item._id}
+        data-is-focusable>
+        {props.item.thumb ? (
+            <img className="bg" src={props.item.thumb} />
+        ) : null}
+        <div className="bg"></div>
+        {props.item.thumb ? (
+            <img className="head" src={props.item.thumb} />
+        ) : null}
+        <CardInfo source={props.source} item={props.item} />
+        <h3 className="title">{props.item.title}</h3>
+        <p className={"snippet" + (props.item.thumb ? "" : " show")}>{props.item.snippet.slice(0, 325)}</p>
+    </div>
+)
 
 export default DefaultCard

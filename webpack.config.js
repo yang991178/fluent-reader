@@ -16,15 +16,38 @@ module.exports = [
       }]
     },
     output: {
+      devtoolModuleFilenameTemplate: '[absolute-resource-path]',
       path: __dirname + '/dist',
       filename: 'electron.js'
     }
   },
   {
     mode: 'production',
+    entry: './src/preload.ts',
+    target: 'electron-preload',
+    module: {
+      rules: [{
+        test: /\.ts$/,
+        include: /src/,
+        resolve: {
+          extensions: ['.ts', '.js']
+        },
+        use: [{ loader: 'ts-loader' }]
+      }]
+    },
+    output: {
+      path: __dirname + '/dist',
+      filename: 'preload.js'
+    }
+  },
+  {
+    mode: 'production',
     entry: './src/index.tsx',
-    target: 'electron-renderer',
+    target: 'web',
     devtool: 'source-map',
+    performance: {
+      hints: false
+    },
     module: {
       rules: [{
         test: /\.ts(x?)$/,

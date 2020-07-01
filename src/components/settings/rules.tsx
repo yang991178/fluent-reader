@@ -1,5 +1,5 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { Stack, Label, Dropdown, IDropdownOption, TextField, PrimaryButton, Icon, DropdownMenuItemType, 
     DefaultButton, DetailsList, IColumn, CommandBar, ICommandBarItemProps, Selection, SelectionMode, MarqueeSelection, IDragDropEvents } from "@fluentui/react"
@@ -7,7 +7,7 @@ import { SourceRule, RuleActions } from "../../scripts/models/rule"
 import { FilterType } from "../../scripts/models/feed"
 import { validateRegex } from "../../scripts/utils"
 import { RSSItem } from "../../scripts/models/item"
-import Parser = require("@yang991178/rss-parser")
+import Parser from "@yang991178/rss-parser"
 
 const actionKeyMap = {
     "r-true": "article.markRead",

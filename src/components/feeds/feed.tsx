@@ -2,7 +2,7 @@ import * as React from "react"
 import { RSSItem } from "../../scripts/models/item"
 import { FeedReduxProps } from "../../containers/feed-container"
 import { RSSFeed } from "../../scripts/models/feed"
-import { ViewType } from "../../scripts/models/page"
+import { ViewType } from "../../schema-types"
 import CardsFeed from "./cards-feed"
 import ListFeed from "./list-feed"
 

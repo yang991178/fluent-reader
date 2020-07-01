@@ -1,11 +1,9 @@
-import Parser = require("@yang991178/rss-parser")
-import intl = require("react-intl-universal")
+import Parser from "@yang991178/rss-parser"
+import intl from "react-intl-universal"
 import * as db from "../db"
 import { fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
-import { SourceGroup } from "./group"
 import { saveSettings } from "./app"
-import { remote } from "electron"
 import { SourceRule } from "./rule"
 
 export enum SourceOpenTarget {
@@ -249,7 +247,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                             return RSSSource.checkItems(inserted, feed.items)
                                 .then(items => insertItems(items))
                                 .then(() => {
-                                    SourceGroup.save(getState().groups)
+                                    window.settings.saveGroups(getState().groups)
                                     return inserted.sid
                                 })
                         })
@@ -257,7 +255,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                 .catch(e => {
                     dispatch(addSourceFailure(e, batch))
                     if (!batch) {
-                        remote.dialog.showErrorBox(intl.get("sources.errorAdd"), String(e))
+                        window.utils.showErrorBox(intl.get("sources.errorAdd"), String(e))
                     }
                     return Promise.reject(e)
                 })
@@ -310,7 +308,7 @@ export function deleteSource(source: RSSSource, batch = false): AppThunk<Promise
                             resolve()
                         } else {
                             dispatch(deleteSourceDone(source))
-                            SourceGroup.save(getState().groups)
+                            window.settings.saveGroups(getState().groups)
                             if (!batch) dispatch(saveSettings())
                             resolve()
                         }

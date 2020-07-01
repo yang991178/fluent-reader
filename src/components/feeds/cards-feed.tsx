@@ -1,51 +1,68 @@
 import * as React from "react"
-import intl = require("react-intl-universal")
+import intl from "react-intl-universal"
 import { FeedProps } from "./feed"
 import DefaultCard from "../cards/default-card"
 import { PrimaryButton, FocusZone } from 'office-ui-fabric-react';
+import { RSSItem } from "../../scripts/models/item";
+import { List, AnimationClassNames } from "@fluentui/react";
 
 class CardsFeed extends React.Component<FeedProps> {
-    state = { width: window.innerWidth - 12 }
+    observer: ResizeObserver
+    state = { width: window.innerWidth, height: window.innerHeight }
 
-    updateWidth = () => {
-        this.setState({ width: window.innerWidth - 12 });
+    updateWindowSize = (entries: ResizeObserverEntry[]) => {
+        if (entries) {
+            this.setState({ width: entries[0].contentRect.width - 40, height: window.innerHeight })
+        }
     };
 
     componentDidMount() {
-        window.addEventListener('resize', this.updateWidth);
+        this.setState({ width: document.querySelector(".main").clientWidth - 40 })
+        this.observer = new ResizeObserver(this.updateWindowSize)
+        this.observer.observe(document.querySelector(".main"))
     }
-
     componentWillUnmount() {
-        window.removeEventListener('resize', this.updateWidth);
+        this.observer.disconnect()
     }
 
-    flexFix = () => {
+    getItemCountForPage = () => {
         let elemPerRow = Math.floor(this.state.width / 280)
-        //let elemLastRow = this.props.items.length % elemPerRow
-        let fixes = new Array<JSX.Element>()
-        for (let i = 0; i < elemPerRow; i += 1) {
-            fixes.push(<div className="flex-fix" key={"f-"+i}></div>)
-        }
-        return fixes
+        let rows = Math.ceil(this.state.height / 304)
+        return elemPerRow * rows
     }
+    getPageHeight = () => {
+        return this.state.height + (304 - this.state.height % 304)
+    }
+
+    flexFixItems = () => {
+        let elemPerRow = Math.floor(this.state.width / 280)
+        let elemLastRow = this.props.items.length % elemPerRow
+        let items = [ ...this.props.items ]
+        for (let i = 0; i < (elemPerRow - elemLastRow); i += 1) items.push(null)
+        return items
+    }
+    onRenderItem = (item: RSSItem, index: number) => item ? (
+        <DefaultCard
+            feedId={this.props.feed._id}
+            key={item._id}
+            item={item}
+            source={this.props.sourceMap[item.source]}
+            shortcuts={this.props.shortcuts}
+            markRead={this.props.markRead}
+            contextMenu={this.props.contextMenu}
+            showItem={this.props.showItem} />
+    ) : (<div className="flex-fix" key={"f-"+index}></div>)
 
     render() {
         return this.props.feed.loaded && (
-            <FocusZone as="div" id="refocus" className="cards-feed-container">
-                {
-                    this.props.items.map((item) => (
-                        <DefaultCard 
-                            feedId={this.props.feed._id}
-                            key={item._id}
-                            item={item} 
-                            source={this.props.sourceMap[item.source]} 
-                            shortcuts={this.props.shortcuts}
-                            markRead={this.props.markRead}
-                            contextMenu={this.props.contextMenu}
-                            showItem={this.props.showItem} />
-                    ))
-                }
-                { this.flexFix() }
+            <FocusZone as="div" id="refocus" className="cards-feed-container" data-is-scrollable>
+                <List 
+                    className={AnimationClassNames.slideUpIn10}
+                    items={this.flexFixItems()} 
+                    onRenderCell={this.onRenderItem} 
+                    getItemCountForPage={this.getItemCountForPage}
+                    getPageHeight={this.getPageHeight}
+                    usePageCache />
                 {
                     (this.props.feed.loaded && !this.props.feed.allLoaded)
                     ? <div className="load-more-wrapper"><PrimaryButton 

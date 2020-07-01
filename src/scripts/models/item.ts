@@ -1,9 +1,9 @@
 import * as db from "../db"
-import intl = require("react-intl-universal")
-import { domParser, htmlDecode, ActionStatus, AppThunk, openExternal } from "../utils"
+import intl from "react-intl-universal"
+import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
-import Parser = require("@yang991178/rss-parser")
+import Parser from "@yang991178/rss-parser"
 
 export class RSSItem {
     _id: string
@@ -39,7 +39,13 @@ export class RSSItem {
             item.snippet = htmlDecode(parsed.contentSnippet || "")
         }
         if (parsed.thumb) item.thumb = parsed.thumb
-        else if (parsed.image) item.thumb = parsed.image
+        else if (parsed.image) {
+            if (parsed.image.$ && parsed.image.$.url) {
+                item.thumb = parsed.image.$.url
+            } else if (typeof parsed.image === "string") {
+                item.thumb = parsed.image
+            }
+        }
         else if (parsed.mediaContent) {
             let images = parsed.mediaContent.filter(c => c.$ && c.$.medium === "image" && c.$.url)
             if (images.length > 0) item.thumb = images[0].$.url
@@ -155,9 +161,10 @@ export function fetchItems(): AppThunk<Promise<void>> {
         let promises = new Array<Promise<RSSItem[]>>()
         if (!getState().app.fetchingItems) {
             let timenow = new Date().getTime()
-            let sources = <RSSSource[]>Object.values(getState().sources).filter(s =>
-                ((s.lastFetched ? s.lastFetched.getTime() : 0) + (s.fetchFrequency || 0) * 60000) <= timenow
-            )
+            let sources = <RSSSource[]>Object.values(getState().sources).filter(s => {
+                let last = s.lastFetched ? s.lastFetched.getTime() : 0
+                return (last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow)
+            })
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
                 promise.finally(() => dispatch(fetchItemsIntermediate()))
@@ -179,6 +186,8 @@ export function fetchItems(): AppThunk<Promise<void>> {
                     resolve()
                 })
                 .catch(err => {
+                    dispatch(fetchItemsSuccess([], getState().items))
+                    window.utils.showErrorBox("A database error has occurred.", String(err))
                     console.log(err)
                     reject(err)
                 })
@@ -279,7 +288,7 @@ export function itemShortcuts(item: RSSItem, key: string): AppThunk {
                 break
             case "b": case "B":
                 if (!item.hasRead) dispatch(markRead(item))
-                openExternal(item.link)
+                window.utils.openExternal(item.link)
                 break
             case "s": case "S":
                 dispatch(toggleStarred(item))

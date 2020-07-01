@@ -17,11 +17,20 @@ for (let s of dom.querySelectorAll("script")) {
 }
 let main = document.getElementById("main")
 main.innerHTML = dom.body.innerHTML
-document.addEventListener("click", event => {
-    event.preventDefault()
-    if (event.target.href) post("request-navigation", event.target.href)
-})
+
+let contextOn = false
+const dismissListener = () => {
+    if (contextOn) {
+        contextOn = false
+        window.renderer.dismissContextMenu()
+    }
+}
+document.addEventListener("mousedown", dismissListener)
+document.addEventListener("scroll", dismissListener)
 document.addEventListener("contextmenu", event => {
     let text = document.getSelection().toString()
-    if (text) post("context-menu", [event.clientX, event.clientY], text)
+    if (text) {
+        contextOn = true
+        window.renderer.contextMenu([event.clientX, event.clientY], text)
+    }
 })
