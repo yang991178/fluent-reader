@@ -4,6 +4,7 @@ import { store } from "./main/settings"
 import performUpdate from "./main/update-scripts"
 import { WindowManager } from "./main/window"
 import { openExternal } from "./main/utils"
+import Time from "./components/utils/time"
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -70,7 +71,9 @@ ipcMain.handle("import-all-settings", (_, configs: SchemaTypes) => {
     }
     performUpdate(store)
     nativeTheme.themeSource = store.get("theme", ThemeSettings.Default)
-    winManager.mainWindow.close()
+    setTimeout(() => {
+        winManager.mainWindow.close()
+    }, process.platform === "darwin" ? 1000 : 0); // Why ???
 })
 
 app.on("web-contents-created", (_, contents) => {
