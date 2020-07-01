@@ -120,7 +120,7 @@ export class Menu extends React.Component<MenuProps> {
                     <div className="btn-group">
                         <a className="btn hide-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
                         <a className="btn inline-block-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}>
-                            <Icon iconName={process.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
+                            <Icon iconName={window.utils.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
                         </a>
                     </div>
                     <div className="nav-wrapper">

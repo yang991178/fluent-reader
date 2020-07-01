@@ -1,6 +1,8 @@
 import { ipcRenderer } from "electron"
 
 const utilsBridge = {
+    platform: process.platform,
+
     getVersion: (): string => {
         return ipcRenderer.sendSync("get-version")
     },

@@ -129,7 +129,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             })
             this.webview = webview
             webview.focus()
-            let card = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
+            let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
             // @ts-ignore
             if (card) card.scrollIntoViewIfNeeded()
         }
@@ -142,7 +142,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     componentWillUnmount = () => {
-        let refocus = document.querySelector(`#refocus>div[data-iid="${this.props.item._id}"]`) as HTMLElement
+        let refocus = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
         if (refocus) refocus.focus()
     }
 

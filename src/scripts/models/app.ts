@@ -1,5 +1,5 @@
 import intl from "react-intl-universal"
-import { RSSSource, INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources } from "./source"
+import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
@@ -199,7 +199,7 @@ export function initIntl(): AppThunk<Promise<void>> {
 
 export function initApp(): AppThunk {
     return (dispatch) => {
-        document.body.classList.add(process.platform)
+        document.body.classList.add(window.utils.platform)
         dispatch(initIntl()).then(() =>
             dispatch(initSources())
         ).then(() => 

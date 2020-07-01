@@ -8,7 +8,7 @@ type CardInfoProps = {
     item: RSSItem
 }
 
-const CardInfo = (props: CardInfoProps) => (
+const CardInfo: React.FunctionComponent<CardInfoProps> = (props) => (
     <p className="info">
         {props.source.iconurl ? <img src={props.source.iconurl} /> : null}
         <span className="name">{props.source.name}</span>

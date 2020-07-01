@@ -635,6 +635,11 @@ body.darwin .list-main .article-search {
     overflow: hidden scroll;
     margin-top: var(--navHeight);
 }
+.cards-feed-container .ms-List-page {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
 .cards-feed-container > div.load-more-wrapper, .flex-fix {
     text-align: center;
 }

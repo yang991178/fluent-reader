@@ -39,7 +39,13 @@ export class RSSItem {
             item.snippet = htmlDecode(parsed.contentSnippet || "")
         }
         if (parsed.thumb) item.thumb = parsed.thumb
-        else if (parsed.image) item.thumb = parsed.image
+        else if (parsed.image) {
+            if (parsed.image.$ && parsed.image.$.url) {
+                item.thumb = parsed.image.$.url
+            } else if (typeof parsed.image === "string") {
+                item.thumb = parsed.image
+            }
+        }
         else if (parsed.mediaContent) {
             let images = parsed.mediaContent.filter(c => c.$ && c.$.medium === "image" && c.$.url)
             if (images.length > 0) item.thumb = images[0].$.url
