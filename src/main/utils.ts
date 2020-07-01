@@ -111,13 +111,7 @@ export function setUtilsListeners(manager: WindowManager) {
     })
 
     ipcMain.handle("maximize-window", () => {
-        if (manager.hasWindow) {
-            if (manager.mainWindow.isMaximized()) {
-                manager.mainWindow.unmaximize()
-            } else {
-                manager.mainWindow.maximize()
-            }
-        }
+        manager.zoom()
     })
 
     ipcMain.on("is-maximized", (event) => {

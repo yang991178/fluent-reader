@@ -27,7 +27,7 @@ if (process.platform === "darwin") {
         {
             label: "Application",
             submenu: [
-                { label: "Quit", accelerator: "Command+Q", click: () => { app.quit() } }
+                { label: "Quit", accelerator: "Command+Q", click: () => { if (winManager.hasWindow) winManager.mainWindow.close() } }
             ]
         },
         {
@@ -39,6 +39,14 @@ if (process.platform === "darwin") {
                 { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
                 { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
                 { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+            ]
+        },
+        {
+            label: "Window",
+            submenu: [
+                { label: "Close", accelerator: "Command+W", click: () => { if (winManager.hasWindow) winManager.mainWindow.close() } },
+                { label: "Minimize", accelerator: "Command+M", click: () => { if (winManager.hasWindow()) winManager.mainWindow.minimize() } },
+                { label: "Zoom", click: () => winManager.zoom() }
             ]
         }
     ]
@@ -57,7 +65,7 @@ app.on("window-all-closed", () => {
     if (restarting) {
         restarting = false
         winManager.createWindow()
-    } else if (process.platform !== "darwin") {
+    } else {
         app.quit()
     }
 })

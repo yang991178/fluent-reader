@@ -80,6 +80,16 @@ export class WindowManager {
         }
     }
 
+    zoom = () => {
+        if (this.hasWindow()) {
+            if (this.mainWindow.isMaximized()) {
+                this.mainWindow.unmaximize()
+            } else {
+                this.mainWindow.maximize()
+            }
+        }
+    }
+
     hasWindow = () => {
         return this.mainWindow !== null && !this.mainWindow.isDestroyed()
     }
