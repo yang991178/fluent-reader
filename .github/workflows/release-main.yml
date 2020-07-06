@@ -1,4 +1,4 @@
-name: CI/CD Release Linux
+name: CI/CD Release Main
 
 on:
   push:
