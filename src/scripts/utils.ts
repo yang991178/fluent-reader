@@ -1,3 +1,4 @@
+import intl from "react-intl-universal"
 import { ThunkAction, ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
 import { RootState } from "./reducer"
@@ -27,15 +28,20 @@ const rssParser = new Parser({
 })
 
 export async function parseRSS(url: string) {
+    let result: Response
     try {
-        let result = await fetch(url, { credentials: "omit" })
-        if (result.ok) {
-            return await rssParser.parseString(await result.text())
-        } else {
-            throw new Error(result.statusText)
-        }
+        result = await fetch(url, { credentials: "omit" })
     } catch {
-        throw new Error("A network error has occurred.")
+        throw new Error(intl.get("log.networkError"))
+    }
+    if (result && result.ok) {
+        try {
+            return await rssParser.parseString(await result.text())
+        } catch {
+            throw new Error(intl.get("log.parseError"))
+        }
+    } else {
+        throw new Error(result.statusText)
     }
 }
 
@@ -60,14 +66,26 @@ export async function fetchFavicon(url: string) {
             }
         }
         url = url + "/favicon.ico"
-        result = await fetch(url, { credentials: "omit" })
-        if (result.status == 200 && result.headers.has("Content-Type")
-            && result.headers.get("Content-Type").startsWith("image")) {
+        if (await validateFavicon(url)) { 
             return url
+        } else {
+            return null
         }
-        return null
     } catch {
         return null
+    }
+}
+
+export async function validateFavicon(url: string) {
+    let flag = false
+    try {
+        const result = await fetch(url, { credentials: "omit" })
+        if (result.status == 200 && result.headers.has("Content-Type")
+            && result.headers.get("Content-Type").startsWith("image")) {
+            flag = true
+        }
+    } finally {
+        return flag
     }
 }
 

@@ -30,7 +30,9 @@
     "log": {
         "empty": "无消息",
         "fetchFailure": "无法加载订阅源“{name}”",
-        "fetchSuccess": "成功加载 {count} 篇文章"
+        "fetchSuccess": "成功加载 {count} 篇文章",
+        "networkError": "连接订阅源时出错",
+        "parseError": "解析XML信息流时出错"
     },
     "nav": {
         "menu": "菜单",
@@ -108,6 +110,7 @@
         "rssText": "RSS正文",
         "loadWebpage": "加载网页",
         "inputUrl": "输入URL",
+        "badIcon": "图标不存在或非图片",
         "badUrl": "请正确输入URL",
         "deleteWarning": "这将移除订阅源与所有已保存的文章",
         "selected": "选中订阅源",

@@ -1,10 +1,12 @@
+import intl from "react-intl-universal"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import SourcesTab from "../../components/settings/sources"
 import { addSource, RSSSource, updateSource, deleteSource, SourceOpenTarget, deleteSources } from "../../scripts/models/source"
 import { importOPML, exportOPML } from "../../scripts/models/group"
-import { AppDispatch } from "../../scripts/utils"
+import { AppDispatch, validateFavicon } from "../../scripts/utils"
+import { saveSettings } from "../../scripts/models/app"
 
 const getSources = (state: RootState) => state.sources
 
@@ -20,6 +22,15 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         addSource: (url: string) => dispatch(addSource(url)),
         updateSourceName: (source: RSSSource, name: string) => {
             dispatch(updateSource({ ...source, name: name } as RSSSource))
+        },
+        updateSourceIcon: async (source: RSSSource, iconUrl: string) => {
+            dispatch(saveSettings())
+            if (await validateFavicon(iconUrl)) {
+                dispatch(updateSource({ ...source, iconurl: iconUrl }))
+            } else {
+                window.utils.showErrorBox(intl.get("sources.badIcon"), "")
+            }
+            dispatch(saveSettings())
         },
         updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => {
             dispatch(updateSource({ ...source, openTarget: target } as RSSSource))

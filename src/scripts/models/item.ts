@@ -2,7 +2,7 @@ import * as db from "../db"
 import intl from "react-intl-universal"
 import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
-import { FeedActionTypes, INIT_FEED, LOAD_MORE } from "./feed"
+import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
 
 export class RSSItem {
@@ -38,25 +38,26 @@ export class RSSItem {
             item.content = parsed.content || ""
             item.snippet = htmlDecode(parsed.contentSnippet || "")
         }
-        if (parsed.thumb) item.thumb = parsed.thumb
-        else if (parsed.image) {
-            if (parsed.image.$ && parsed.image.$.url) {
-                item.thumb = parsed.image.$.url
-            } else if (typeof parsed.image === "string") {
-                item.thumb = parsed.image
-            }
-        }
-        else if (parsed.mediaContent) {
+        if (parsed.thumb) { 
+            item.thumb = parsed.thumb
+        } else if (parsed.image && parsed.image.$ && parsed.image.$.url) {
+            item.thumb = parsed.image.$.url
+        } else if (parsed.image && typeof parsed.image === "string") {
+            item.thumb = parsed.image
+        } else if (parsed.mediaContent) {
             let images = parsed.mediaContent.filter(c => c.$ && c.$.medium === "image" && c.$.url)
             if (images.length > 0) item.thumb = images[0].$.url
         }
-        if(!item.thumb) {
+        if (!item.thumb) {
             let dom = domParser.parseFromString(item.content, "text/html")
             let baseEl = dom.createElement('base')
             baseEl.setAttribute('href', item.link.split("/").slice(0, 3).join("/"))
             dom.head.append(baseEl)
             let img = dom.querySelector("img")
             if (img && img.src) item.thumb = img.src
+        }
+        if (item.thumb && !item.thumb.startsWith("https:") && !item.thumb.startsWith("http:")) {
+            delete item.thumb
         }
     }
 }
@@ -65,7 +66,7 @@ export type ItemState = {
     [_id: string]: RSSItem
 }
 
-export const FETCH_ITEMS = 'FETCH_ITEMS'
+export const FETCH_ITEMS = "FETCH_ITEMS"
 export const MARK_READ = "MARK_READ"
 export const MARK_ALL_READ = "MARK_ALL_READ"
 export const MARK_UNREAD = "MARK_UNREAD"
@@ -223,8 +224,8 @@ export function markRead(item: RSSItem): AppThunk {
 
 export function markAllRead(sids: number[] = null): AppThunk {
     return (dispatch, getState) => {
+        let state = getState()
         if (sids === null) {
-            let state = getState()
             let feed = state.feeds[state.page.feedId]
             sids = feed.sids
         }
@@ -235,6 +236,9 @@ export function markAllRead(sids: number[] = null): AppThunk {
             }
         })
         dispatch(markAllReadDone(sids))
+        if (!(state.page.filter.type & FilterType.ShowRead)) {
+            dispatch(initFeeds(true))
+        }
     }
 }
 

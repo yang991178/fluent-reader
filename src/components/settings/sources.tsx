@@ -10,6 +10,7 @@ type SourcesTabProps = {
     sources: SourceState
     addSource: (url: string) => void
     updateSourceName: (source: RSSSource, name: string) => void
+    updateSourceIcon: (source: RSSSource, iconUrl: string) => Promise<void>
     updateSourceOpenTarget: (source: RSSSource, target: SourceOpenTarget) => void
     updateFetchFrequency: (source: RSSSource, frequency: number) => void
     deleteSource: (source: RSSSource) => void
@@ -23,6 +24,12 @@ type SourcesTabState = {
 } & {
     selectedSource: RSSSource,
     selectedSources: RSSSource[]
+}
+
+const enum EditDropdownKeys {
+    Name = "n",
+    Icon = "i",
+    Url = "u",
 }
 
 class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
@@ -44,7 +51,9 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                 this.setState({
                     selectedSource: count === 1 ? sources[0] : null,
                     selectedSources: count > 1 ? sources : null,
-                    newSourceName: count === 1 ? sources[0].name : ""
+                    newSourceName: count === 1 ? sources[0].name : "",
+                    newSourceIcon: count === 1 ? (sources[0].iconurl || "") : "",
+                    sourceEditOption: EditDropdownKeys.Name,
                 })
             }
         })
@@ -80,6 +89,16 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
         }
     ]
 
+    sourceEditOptions = (): IDropdownOption[] => [
+        { key: EditDropdownKeys.Name, text: intl.get("name") },
+        { key: EditDropdownKeys.Icon, text: intl.get("icon") },
+        { key: EditDropdownKeys.Url, text: "URL" },
+    ]
+
+    onSourceEditOptionChange = (_, option: IDropdownOption) => {
+        this.setState({sourceEditOption: option.key as string})
+    }
+
     fetchFrequencyOptions = (): IDropdownOption[] => [
         { key: "0", text: intl.get("sources.unlimited") },
         { key: "15", text: intl.get("time.minute", { m: 15 }) },
@@ -108,6 +127,12 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
         let newName = this.state.newSourceName.trim()
         this.props.updateSourceName(this.state.selectedSource, newName)
         this.setState({selectedSource: {...this.state.selectedSource, name: newName} as RSSSource})
+    }
+
+    updateSourceIcon = () => {
+        let newIcon = this.state.newSourceIcon.trim()
+        this.props.updateSourceIcon(this.state.selectedSource, newIcon)
+        this.setState({selectedSource: {...this.state.selectedSource, iconurl: newIcon}})
     }
 
     handleInputChange = (event) => {
@@ -173,21 +198,58 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
             {this.state.selectedSource && <>
                 <Label>{intl.get("sources.selected")}</Label>
                 <Stack horizontal>
-                    <Stack.Item grow>
-                        <TextField
-                            onGetErrorMessage={v => v.trim().length == 0 ? intl.get("emptyName") : ""}
-                            validateOnLoad={false}
-                            placeholder={intl.get("sources.name")}
-                            value={this.state.newSourceName}
-                            name="newSourceName"
-                            onChange={this.handleInputChange} />
-                    </Stack.Item>
                     <Stack.Item>
-                        <DefaultButton
-                            disabled={this.state.newSourceName.trim().length == 0}
-                            onClick={this.updateSourceName}
-                            text={intl.get("sources.editName")} />
+                        <Dropdown 
+                            options={this.sourceEditOptions()}
+                            selectedKey={this.state.sourceEditOption}
+                            onChange={this.onSourceEditOptionChange}
+                            style={{width: 120}} />
                     </Stack.Item>
+                    {this.state.sourceEditOption === EditDropdownKeys.Name && <>
+                        <Stack.Item grow>
+                            <TextField
+                                onGetErrorMessage={v => v.trim().length == 0 ? intl.get("emptyName") : ""}
+                                validateOnLoad={false}
+                                placeholder={intl.get("sources.name")}
+                                value={this.state.newSourceName}
+                                name="newSourceName"
+                                onChange={this.handleInputChange} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <DefaultButton
+                                disabled={this.state.newSourceName.trim().length == 0}
+                                onClick={this.updateSourceName}
+                                text={intl.get("sources.editName")} />
+                        </Stack.Item>
+                    </>}
+                    {this.state.sourceEditOption === EditDropdownKeys.Icon && <>
+                        <Stack.Item grow>
+                            <TextField
+                                onGetErrorMessage={v => urlTest(v.trim()) ? "" : intl.get("sources.badUrl")} 
+                                validateOnLoad={false}
+                                placeholder={intl.get("sources.inputUrl")}
+                                value={this.state.newSourceIcon}
+                                name="newSourceIcon"
+                                onChange={this.handleInputChange} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <DefaultButton
+                                disabled={!urlTest(this.state.newSourceIcon.trim())}
+                                onClick={this.updateSourceIcon}
+                                text={intl.get("edit")} />
+                        </Stack.Item>
+                    </>}
+                    {this.state.sourceEditOption === EditDropdownKeys.Url && <>
+                        <Stack.Item grow>
+                            <TextField disabled value={this.state.selectedSource.url} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <DefaultButton
+                                onClick={() => window.utils.writeClipboard(this.state.selectedSource.url)}
+                                text={intl.get("context.copy")} />
+                        </Stack.Item>
+                    </>}
+
                 </Stack>
                 <Label>{intl.get("sources.fetchFrequency")}</Label>
                 <Stack>
