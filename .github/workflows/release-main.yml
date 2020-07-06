@@ -18,7 +18,8 @@ jobs:
       run: |
         npm install
         npm run build
-        npm run package-win
+        electron-builder -w --x64 -p never
+        electron-builder -w --ia32 -p never
 
     - name: Get app version
       id: package-version
