@@ -30,7 +30,9 @@
     "log": {
         "empty": "No notifications",
         "fetchFailure": "Failed to load source \"{name}\".",
-        "fetchSuccess": "Successfully fetched {count, plural, =1 {# article} other {# articles}}."
+        "fetchSuccess": "Successfully fetched {count, plural, =1 {# article} other {# articles}}.",
+        "networkError": "A network error has occurred.",
+        "parseError": "An error has occurred when parsing the XML feed."
     },
     "nav": {
         "menu": "Menu",

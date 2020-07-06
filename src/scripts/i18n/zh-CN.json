@@ -30,7 +30,9 @@
     "log": {
         "empty": "无消息",
         "fetchFailure": "无法加载订阅源“{name}”",
-        "fetchSuccess": "成功加载 {count} 篇文章"
+        "fetchSuccess": "成功加载 {count} 篇文章",
+        "networkError": "连接订阅源时出错",
+        "parseError": "解析XML信息流时出错"
     },
     "nav": {
         "menu": "菜单",
