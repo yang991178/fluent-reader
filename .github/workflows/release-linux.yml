@@ -16,7 +16,7 @@ jobs:
       run: |
         sudo npm install --unsafe-perm=true --allow-root
         npm run build
-        electron-builder --linux -p never
+        npm run package-linux
 
     - name: Get app version
       id: package-version

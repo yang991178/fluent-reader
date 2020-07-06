@@ -2,8 +2,6 @@ name: CI/CD Release Main
 
 on:
   push:
-    branches:
-      - master
     tags:
       - 'v*'
   
@@ -18,8 +16,7 @@ jobs:
       run: |
         npm install
         npm run build
-        electron-builder -w --x64 -p never
-        electron-builder -w --ia32 -p never
+        npm run package-win-ci
 
     - name: Get app version
       id: package-version
