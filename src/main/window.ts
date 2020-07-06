@@ -60,6 +60,7 @@ export class WindowManager {
                     webviewTag: true,
                     enableRemoteModule: false,
                     contextIsolation: true,
+                    spellcheck: false,
                     preload: path.join(app.getAppPath(), (app.isPackaged ? "dist/" : "") + "preload.js")
                 }
             })

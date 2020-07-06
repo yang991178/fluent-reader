@@ -110,6 +110,7 @@
         "rssText": "RSS正文",
         "loadWebpage": "加载网页",
         "inputUrl": "输入URL",
+        "badIcon": "图标不存在或非图片",
         "badUrl": "请正确输入URL",
         "deleteWarning": "这将移除订阅源与所有已保存的文章",
         "selected": "选中订阅源",

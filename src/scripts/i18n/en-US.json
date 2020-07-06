@@ -110,6 +110,7 @@
         "rssText": "RSS full text",
         "loadWebpage": "Load webpage",
         "inputUrl": "Enter URL",
+        "badIcon": "Invalid icon",
         "badUrl": "Invalid URL",
         "deleteWarning": "The source and all saved articles will be removed.",
         "selected": "Selected source",

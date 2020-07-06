@@ -66,14 +66,26 @@ export async function fetchFavicon(url: string) {
             }
         }
         url = url + "/favicon.ico"
-        result = await fetch(url, { credentials: "omit" })
-        if (result.status == 200 && result.headers.has("Content-Type")
-            && result.headers.get("Content-Type").startsWith("image")) {
+        if (await validateFavicon(url)) { 
             return url
+        } else {
+            return null
         }
-        return null
     } catch {
         return null
+    }
+}
+
+export async function validateFavicon(url: string) {
+    let flag = false
+    try {
+        const result = await fetch(url, { credentials: "omit" })
+        if (result.status == 200 && result.headers.has("Content-Type")
+            && result.headers.get("Content-Type").startsWith("image")) {
+            flag = true
+        }
+    } finally {
+        return flag
     }
 }
 
