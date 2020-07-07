@@ -21,6 +21,7 @@ jobs:
     - name: Get app version
       id: package-version
       uses: martinbeentjes/npm-get-version-action@master
+      shell: bash
 
     - name: Create release
       id: create_release

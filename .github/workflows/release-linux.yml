@@ -16,7 +16,7 @@ jobs:
       run: |
         sudo npm install --unsafe-perm=true --allow-root
         npm run build
-        npm run package-linux
+        sudo npm run package-linux
 
     - name: Get app version
       id: package-version

@@ -38,8 +38,8 @@
       "backgroundColor": "transparent",
       "languages": [
         "zh-CN",
-        "en",
-        "fr",
+        "en-US",
+        "fr-FR",
         "es"
       ],
       "showNameOnTiles": true,
@@ -59,8 +59,8 @@
       "category": "public.app-category.news",
       "electronLanguages": [
         "zh_CN",
-        "en_US",
-        "fr_FR",
+        "en",
+        "fr",
         "es"
       ]
     },
