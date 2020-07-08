@@ -55,6 +55,7 @@ html, body {
 .ms-ContextualMenu-link, .ms-Button {
     cursor: default;
     font-size: 13px;
+    user-select: none;
 }
 .ms-Nav-link, .ms-Nav-chevronButton {
     font-size: 12px;
@@ -233,6 +234,12 @@ nav.item-on .btn-group .btn.system {
 }
 body.darwin .btn-group .btn.system {
     display: none;
+}
+.qr-container {
+    height: 150px;
+    padding: 7px;
+    margin: 8px;
+    background: #fff;
 }
 
 .menu-container, .article-container {

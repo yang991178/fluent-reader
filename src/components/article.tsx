@@ -2,8 +2,9 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
-import { Stack, CommandBarButton, IContextualMenuProps, FocusZone } from "@fluentui/react"
+import { Stack, CommandBarButton, IContextualMenuProps, FocusZone, ContextualMenuItemType } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
+import { shareSubmenu } from "./context-menu"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -75,7 +76,12 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 text:　this.props.item.hidden ? intl.get("article.unhide") : intl.get("article.hide"),
                 iconProps: { iconName: this.props.item.hidden ? "View" : "Hide3" },
                 onClick: () => { this.props.toggleHidden(this.props.item) }
-            }
+            },
+            {
+                key: "divider_1",
+                itemType: ContextualMenuItemType.Divider,
+            },
+            ...shareSubmenu(this.props.item)
         ]
     })
 

@@ -61,6 +61,7 @@
         "loadWebpage": "加载网页"
     },
     "context": {
+        "share": "分享",
         "read": "阅读",
         "copyTitle": "复制标题",
         "copyURL": "复制链接",

@@ -1,5 +1,6 @@
 import * as React from "react"
 import intl from "react-intl-universal"
+import QRCode from "qrcode.react"
 import { cutText, googleSearch } from "../scripts/utils"
 import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, DirectionalHint } from "office-ui-fabric-react/lib/ContextualMenu"
 import { ContextMenuType } from "../scripts/models/app"
@@ -30,6 +31,19 @@ export type ContextMenuProps = ContextReduxProps & {
     settings: () => void
     close: () => void
 }
+
+export const shareSubmenu = (item: RSSItem): IContextualMenuItem[] => [
+    { key: "qr", url: item.link, onRender: renderShareQR }
+]
+
+const renderShareQR = (item: IContextualMenuItem) => (
+    <div className="qr-container">
+        <QRCode
+            value={item.url}
+            size={150}
+            renderAs="svg" />
+    </div>
+)
 
 export class ContextMenu extends React.Component<ContextMenuProps> {
     getItems = (): IContextualMenuItem[] => {
@@ -75,11 +89,20 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 {
                     key: "toggleHidden",
                     text:　this.props.item.hidden ? intl.get("article.unhide") : intl.get("article.hide"),
+                    iconProps: { iconName: this.props.item.hidden ? "View" : "Hide3" },
                     onClick: () => { this.props.toggleHidden(this.props.item) }
                 },
                 {
                     key: "divider_1",
                     itemType: ContextualMenuItemType.Divider,
+                },
+                {
+                    key: "share",
+                    text: intl.get("context.share"),
+                    iconProps: { iconName: "Share" },
+                    subMenuProps: {
+                        items: shareSubmenu(this.props.item)
+                    }
                 },
                 {
                     key: "copyTitle",

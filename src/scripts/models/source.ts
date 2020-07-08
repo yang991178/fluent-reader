@@ -244,10 +244,10 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                         .then(inserted => {
                             inserted.unreadCount = feed.items.length
                             dispatch(addSourceSuccess(inserted, batch))
+                            window.settings.saveGroups(getState().groups)
                             return RSSSource.checkItems(inserted, feed.items)
                                 .then(items => insertItems(items))
                                 .then(() => {
-                                    window.settings.saveGroups(getState().groups)
                                     return inserted.sid
                                 })
                         })

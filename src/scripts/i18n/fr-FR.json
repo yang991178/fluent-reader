@@ -59,6 +59,7 @@
         "loadWebpage": "Charger la page web"
     },
     "context": {
+        "share": "Partager",
         "read": "Lu",
         "copyTitle": "Copier le titre",
         "copyURL": "Copier le lien",

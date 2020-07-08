@@ -61,6 +61,7 @@
         "loadWebpage": "Load webpage"
     },
     "context": {
+        "share": "Share",
         "read": "Read",
         "copyTitle": "Copy title",
         "copyURL": "Copy link",
