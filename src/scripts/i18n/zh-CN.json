@@ -55,6 +55,8 @@
         "unhide": "取消隐藏",
         "markRead": "标为已读",
         "markUnread": "标为未读",
+        "markAbove": "将以上标为已读",
+        "markBelow": "将以下标为已读",
         "star": "标为星标",
         "unstar": "取消星标",
         "fontSize": "字体大小",

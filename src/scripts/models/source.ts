@@ -397,19 +397,15 @@ export function sourceReducer(
             } as RSSSource
         }
         case MARK_ALL_READ: {
-            let nextState = {} as SourceState
-            let sids = new Set(action.sids)
-            for (let [s, source] of Object.entries(state)) {
-                let sid = parseInt(s)
-                if (sids.has(sid) && source.unreadCount > 0) {
-                    nextState[sid] = {
-                        ...source,
-                        unreadCount: 0
-                    } as RSSSource
-                } else {
-                    nextState[sid] = source
+            let nextState = { ...state }
+            action.sids.map((sid, i) => {
+                nextState[sid] = {
+                    ...state[sid],
+                    unreadCount: action.counts 
+                        ? state[sid].unreadCount - action.counts[i]
+                        : 0
                 }
-            }
+            })
             return nextState
         }
         default: return state

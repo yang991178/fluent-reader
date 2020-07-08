@@ -27,7 +27,7 @@ export type ContextMenuProps = ContextReduxProps & {
     switchView: (viewType: ViewType) => void
     switchFilter: (filter: FilterType) => void
     toggleFilter: (filter: FilterType) => void
-    markAllRead: (sids: number[]) =>  void
+    markAllRead: (sids: number[], date?: Date, before?: boolean) =>  void
     settings: () => void
     close: () => void
 }
@@ -67,18 +67,33 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                         window.utils.openExternal(this.props.item.link)
                     }
                 },
-                this.props.item.hasRead
-                ? {
-                    key: "markAsUnread",
-                    text: intl.get("article.markUnread"),
-                    iconProps: { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } },
-                    onClick: () => { this.props.markUnread(this.props.item) }
-                }
-                : {
+                {
                     key: "markAsRead",
-                    text: intl.get("article.markRead"),
-                    iconProps: { iconName: "StatusCircleRing" },
-                    onClick: () => { this.props.markRead(this.props.item) }
+                    text: this.props.item.hasRead ? intl.get("article.markUnread") : intl.get("article.markRead"),
+                    iconProps: this.props.item.hasRead 
+                        ? { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } }
+                        : { iconName: "StatusCircleRing" },
+                    onClick: () => { 
+                        if (this.props.item.hasRead) this.props.markUnread(this.props.item) 
+                        else this.props.markRead(this.props.item)
+                    },
+                    split: true,
+                    subMenuProps: {
+                        items: [
+                            { 
+                                key: "markBelow", 
+                                text: intl.get("article.markBelow"),
+                                iconProps: { iconName: "Down", style: { fontSize: 14 } },
+                                onClick: () => this.props.markAllRead(null, this.props.item.date)
+                            },
+                            { 
+                                key: "markAbove", 
+                                text: intl.get("article.markAbove"),
+                                iconProps: { iconName: "Up", style: { fontSize: 14 } },
+                                onClick: () => this.props.markAllRead(null, this.props.item.date, false)
+                            }
+                        ]
+                    }
                 },
                 {
                     key: "toggleStarred",

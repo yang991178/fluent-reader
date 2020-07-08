@@ -91,6 +91,9 @@ interface MarkReadAction {
 interface MarkAllReadAction {
     type: typeof MARK_ALL_READ,
     sids: number[]
+    counts?: number[]
+    time?: number
+    before?: boolean
 }
 
 interface MarkUnreadAction {
@@ -203,11 +206,6 @@ const markReadDone = (item: RSSItem): ItemActionTypes => ({
     item: item 
 })
 
-const markAllReadDone = (sids: number[]): ItemActionTypes => ({
-    type: MARK_ALL_READ,
-    sids: sids
-})
-
 const markUnreadDone = (item: RSSItem): ItemActionTypes => ({ 
     type: MARK_UNREAD, 
     item: item 
@@ -222,23 +220,52 @@ export function markRead(item: RSSItem): AppThunk {
     }
 }
 
-export function markAllRead(sids: number[] = null): AppThunk {
+export function markAllRead(sids: number[] = null, date: Date = null, before = true): AppThunk {
     return (dispatch, getState) => {
         let state = getState()
         if (sids === null) {
             let feed = state.feeds[state.page.feedId]
             sids = feed.sids
         }
-        let query = { source: { $in: sids } }
-        db.idb.update(query, { $set: { hasRead: true } }, { multi: true }, (err) => {
-            if (err) {
-                console.log(err)
-            }
-        })
-        dispatch(markAllReadDone(sids))
-        if (!(state.page.filter.type & FilterType.ShowRead)) {
-            dispatch(initFeeds(true))
+        let query = { 
+            source: { $in: sids },
+            hasRead: false,
+         } as any
+        if (date) {
+            query.date = before ? { $lte: date } : { $gte: date }
         }
+        const callback = (items: RSSItem[] = null) => {
+            if (items) {
+                const counts = new Map<number, number>()
+                for (let sid of sids) {
+                    counts.set(sid, 0)
+                }
+                for (let item of items) {
+                    counts.set(item.source, counts.get(item.source) + 1)
+                }
+                dispatch({
+                    type: MARK_ALL_READ,
+                    sids: sids,
+                    counts: sids.map(i => counts.get(i)),
+                    time: date.getTime(),
+                    before: before
+                })
+            } else {
+                dispatch({
+                    type: MARK_ALL_READ,
+                    sids: sids
+                })
+            }
+            if (!(state.page.filter.type & FilterType.ShowRead)) {
+                dispatch(initFeeds(true))
+            }
+        }
+        db.idb.update(query, { $set: { hasRead: true } }, { multi: true, returnUpdatedDocs: Boolean(date) }, 
+            (err, _, affectedDocuments) => {
+                if (err) console.log(err)
+                if (date) callback(affectedDocuments as unknown as RSSItem[])
+        })
+        if (!date) callback()
     }
 }
 
@@ -352,16 +379,19 @@ export function itemReducer(
             }
         }
         case MARK_ALL_READ: {
-            let nextState = {} as ItemState
+            let nextState = { ...state }
             let sids = new Set(action.sids)
             for (let [id, item] of Object.entries(state)) {
                 if (sids.has(item.source) && !item.hasRead) {
-                    nextState[id] = {
-                        ...item,
-                        hasRead: true
+                    if (!action.time || (action.before 
+                        ? item.date.getTime() <= action.time 
+                        : item.date.getTime() >= action.time)
+                    ) {
+                        nextState[id] = {
+                            ...item,
+                            hasRead: true
+                        }
                     }
-                } else {
-                    nextState[id] = item
                 }
             }
             return nextState

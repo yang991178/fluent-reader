@@ -62,7 +62,9 @@ const mapDispatchToProps = dispatch => {
         },
         switchFilter: (filter: FilterType) => dispatch(switchFilter(filter)),
         toggleFilter: (filter: FilterType) => dispatch(toggleFilter(filter)),
-        markAllRead: (sids: number[]) => dispatch(markAllRead(sids)),
+        markAllRead: (sids: number[], date?: Date, before?: boolean) => {
+            dispatch(markAllRead(sids, date, before))
+        },
         settings: () => dispatch(toggleSettings()),
         close: () => dispatch(closeContextMenu())
     }

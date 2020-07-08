@@ -55,6 +55,8 @@
         "unhide": "Unhide article",
         "markRead": "Mark as read",
         "markUnread": "Mark as unread",
+        "markAbove": "Mark above as read",
+        "markBelow": "Mark below as read",
         "star": "Star",
         "unstar": "Remove star",
         "fontSize": "Font size",
