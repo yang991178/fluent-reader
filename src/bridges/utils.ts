@@ -72,6 +72,15 @@ const utilsBridge = {
     isMaximized: () => {
         return ipcRenderer.sendSync("is-maximized") as boolean
     },
+    isFocused: () => {
+        return ipcRenderer.sendSync("is-focused") as boolean
+    },
+    focus: () => {
+        ipcRenderer.invoke("request-focus")
+    },
+    requestAttention: () => {
+        ipcRenderer.invoke("request-attention")
+    },
     addWindowStateListener: (callback: (state: boolean) => any) => {
         ipcRenderer.removeAllListeners("maximized")
         ipcRenderer.on("maximized", () => {

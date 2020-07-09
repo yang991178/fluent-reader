@@ -384,6 +384,13 @@ img.favicon.dropdown {
     margin: 0 !important;
     -webkit-user-drag: none;
 }
+.settings-rules-icons i {
+    color: var(--black);
+    user-select: none;
+}
+.settings-rules-icons i:last-of-type {
+    color: var(--neutralSecondary);
+}
 
 .main {
     margin-top: calc(-1 * var(--navHeight));

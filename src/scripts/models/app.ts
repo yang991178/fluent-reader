@@ -4,29 +4,31 @@ import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
 import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS } from "./group"
-import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles } from "./page"
+import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, showItem } from "./page"
 import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
 import * as db from "../db"
 
-export enum ContextMenuType {
+export const enum ContextMenuType {
     Hidden, Item, Text, View, Group
 }
 
-export enum AppLogType {
-    Info, Warning, Failure
+export const enum AppLogType {
+    Info, Warning, Failure, Article
 }
 
 export class AppLog {
     type: AppLogType
     title: string
-    details: string
+    details?: string
+    iid?: string
     time: Date
 
-    constructor(type: AppLogType, title: string, details: string=null) {
+    constructor(type: AppLogType, title: string, details: string=null, iid: string = null) {
         this.type = type
         this.title = title
         this.details = details
+        this.iid = iid
         this.time = new Date()
     }
 }
@@ -38,6 +40,7 @@ export class AppState {
     fetchingItems = false
     fetchingProgress = 0
     fetchingTotal = 0
+    lastFetched = new Date()
     menu = getWindowBreakpoint() && window.settings.getDefaultMenu()
     menuKey = ALL
     title = ""
@@ -103,7 +106,18 @@ export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction
     | OpenTextMenuAction | OpenViewMenuAction | OpenGroupMenuAction
 
 export const TOGGLE_LOGS = "TOGGLE_LOGS"
-export interface LogMenuActionType { type: typeof TOGGLE_LOGS }
+export const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
+
+interface ToggleLogMenuAction { type: typeof TOGGLE_LOGS }
+
+interface PushNotificationAction {
+    type: typeof PUSH_NOTIFICATION
+    iid: string
+    title: string
+    source: string
+}
+
+export type LogMenuActionType = ToggleLogMenuAction | PushNotificationAction
 
 export const TOGGLE_MENU = "TOGGLE_MENU"
 
@@ -173,6 +187,51 @@ export function exitSettings(): AppThunk {
                 dispatch(toggleSettings())
             }
         }
+    }
+}
+
+let fetchTimeout: NodeJS.Timeout
+export function setupAutoFetch(): AppThunk {
+    return (dispatch, getState) => {
+        clearTimeout(fetchTimeout)
+        const setupTimeout = (inteval?: number) => {
+            if (!inteval) inteval = window.settings.getFetchInteval()
+            if (inteval) {
+                fetchTimeout = setTimeout(() => {
+                    let state = getState()
+                    if (!state.app.settings.display) {
+                        if (!state.app.fetchingItems) dispatch(fetchItems(true))
+                    } else {
+                        setupTimeout(1)
+                    }
+                }, inteval * 60000)
+            }
+        }
+        setupTimeout()
+    }
+}
+
+export function pushNotification(item: RSSItem): AppThunk {
+    return (dispatch, getState) => {
+        const state = getState()
+        const sourceName = state.sources[item.source].name
+        if (!window.utils.isFocused()) {
+            const options = { body: sourceName } as any
+            if (item.thumb) options.icon = item.thumb
+            const notification = new Notification(item.title, options)
+            notification.onclick = () => {
+                if (!getState().app.settings.display) {
+                    window.utils.focus()
+                    dispatch(showItem(null, item))
+                }
+            }
+        }
+        dispatch({
+            type: PUSH_NOTIFICATION,
+            iid: item._id,
+            title: item.title,
+            source: sourceName
+        })
     }
 }
 
@@ -388,6 +447,17 @@ export function appReducer(
                 ...state.logMenu,
                 display: !state.logMenu.display,
                 notify: false
+            }
+        }
+        case PUSH_NOTIFICATION: return {
+            ...state,
+            logMenu: {
+                ...state.logMenu,
+                notify: true,
+                logs: [
+                    ...state.logMenu.logs,
+                    new AppLog(AppLogType.Article, action.title, action.source, action.iid)
+                ]
             }
         }
         default: return state

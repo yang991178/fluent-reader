@@ -4,6 +4,7 @@ import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
+import { pushNotification, setupAutoFetch } from "./app"
 
 export class RSSItem {
     _id: string
@@ -19,8 +20,13 @@ export class RSSItem {
     hasRead: boolean
     starred?: true
     hidden?: true
+    notify?: true
 
     constructor (item: Parser.Item, source: RSSSource) {
+        for (let field of ["title", "link", "creator"]) {
+            const content = item[field]
+            if (content && typeof content !== "string") delete item[field]
+        }
         this.source = source.sid
         this.title = item.title || intl.get("article.untitled")
         this.link = item.link || ""
@@ -31,6 +37,10 @@ export class RSSItem {
     }
 
     static parseContent(item: RSSItem, parsed: Parser.Item) {
+        for (let field of ["thumb", "content", "fullContent"]) {
+            const content = parsed[field]
+            if (content && typeof content !== "string") delete parsed[field]
+        }
         if (parsed.fullContent) {
             item.content = parsed.fullContent
             item.snippet = htmlDecode(parsed.fullContent)
@@ -58,10 +68,6 @@ export class RSSItem {
         }
         if (item.thumb && !item.thumb.startsWith("https://") && !item.thumb.startsWith("http://")) {
             delete item.thumb
-        }
-        for (let field of ["title", "link", "thumb", "content", "snippet", "creator"]) {
-            const content = item[field]
-            if (content && typeof content !== "string") item[field] = ""
         }
     }
 }
@@ -164,7 +170,7 @@ export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     })
 }
 
-export function fetchItems(): AppThunk<Promise<void>> {
+export function fetchItems(background = false): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
         let promises = new Array<Promise<RSSItem[]>>()
         if (!getState().app.fetchingItems) {
@@ -192,6 +198,17 @@ export function fetchItems(): AppThunk<Promise<void>> {
                 .then(inserted => {
                     dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
                     resolve()
+                    if (background) {
+                        for (let item of inserted) {
+                            if (item.notify) {
+                                dispatch(pushNotification(item))
+                            }
+                        }
+                        if (inserted.length > 0) {
+                            window.utils.requestAttention()
+                        }
+                    }
+                    dispatch(setupAutoFetch())
                 })
                 .catch(err => {
                     dispatch(fetchItemsSuccess([], getState().items))

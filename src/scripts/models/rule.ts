@@ -5,6 +5,7 @@ export const enum ItemAction {
     Read = "r", 
     Star = "s", 
     Hide = "h",
+    Notify = "n",
 }
 
 export type RuleActions = {
@@ -49,7 +50,14 @@ const actionTransform: ActionTransformType = {
         } else if (i.hidden) {
             delete i.hidden
         }
-    }
+    },
+    [ItemAction.Notify]: (i, f) => {
+        if (f) {
+            i.notify = true
+        } else if (i.notify) {
+            delete i.notify
+        }
+    },
 }
 
 export class SourceRule {

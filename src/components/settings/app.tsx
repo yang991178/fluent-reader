@@ -8,6 +8,7 @@ import DangerButton from "../utils/danger-button"
 
 type AppTabProps = {
     setLanguage: (option: string) => void
+    setFetchInteval: (inteval: number) => void
     deleteArticles: (days: number) => Promise<void>
     importAll: () => Promise<void>
 }
@@ -58,6 +59,19 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         { key: ThemeSettings.Light, text: intl.get("app.lightTheme") },
         { key: ThemeSettings.Dark, text: intl.get("app.darkTheme") }
     ]
+
+    fetchIntevalOptions = (): IDropdownOption[] => [
+        { key: 0, text: intl.get("app.never") },
+        { key: 10, text: intl.get("time.minute", { m: 10 }) },
+        { key: 15, text: intl.get("time.minute", { m: 15 }) },
+        { key: 20, text: intl.get("time.minute", { m: 20 }) },
+        { key: 30, text: intl.get("time.minute", { m: 30 }) },
+        { key: 45, text: intl.get("time.minute", { m: 45 }) },
+        { key: 60, text: intl.get("time.hour", { h: 1 }) },
+    ]
+    onFetchIntevalChanged = (item: IDropdownOption) => {
+        this.props.setFetchInteval(item.key as number)
+    }
 
     deleteOptions = (): IDropdownOption[] => [
         { key: "7", text: intl.get("app.daysAgo", { days: 7 }) },
@@ -127,6 +141,17 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                 options={this.themeChoices()}
                 onChange={this.onThemeChange}
                 selectedKey={this.state.themeSettings} />
+
+            <Label>{intl.get("app.fetchInteval")}</Label>
+            <Stack horizontal>
+                <Stack.Item>
+                    <Dropdown 
+                        defaultSelectedKey={window.settings.getFetchInteval()}
+                        options={this.fetchIntevalOptions()}
+                        onChanged={this.onFetchIntevalChanged}
+                        style={{width: 200}} />
+                </Stack.Item>
+            </Stack>
 
             <Stack horizontal verticalAlign="baseline">
                 <Stack.Item grow>

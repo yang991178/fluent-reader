@@ -1,23 +1,39 @@
 import * as React from "react"
 import intl from "react-intl-universal"
-import { Callout, ActivityItem, Icon, DirectionalHint } from "@fluentui/react"
+import { Callout, ActivityItem, Icon, DirectionalHint, Link } from "@fluentui/react"
 import { AppLog, AppLogType } from "../scripts/models/app"
 import Time from "./utils/time"
 
 type LogMenuProps = {
-    display: boolean,
+    display: boolean
     logs: AppLog[]
-    close: Function
+    close: () => void
+    showItem: (iid: string) => void
+}
+
+function getLogIcon(log: AppLog) {
+    switch (log.type) {
+        case AppLogType.Info: return "Info"
+        case AppLogType.Article: return "KnowledgeArticle"
+        default: return "Warning"
+    }
 }
 
 class LogMenu extends React.Component<LogMenuProps> {
     activityItems = () => this.props.logs.map((l, i) => ({
         key: i,
-        activityDescription: <b>{l.title}</b>,
+        activityDescription: l.iid 
+            ? <b><Link onClick={() => this.handleArticleClick(l)}>{l.title}</Link></b> 
+            : <b>{l.title}</b>,
         comments: l.details,
-        activityIcon: <Icon iconName={l.type == AppLogType.Info ? "Info" : "Warning"} />,
+        activityIcon: <Icon iconName={getLogIcon(l)} />,
         timeStamp: <Time date={l.time} />,
     })).reverse()
+
+    handleArticleClick = (log: AppLog) => {
+        this.props.close()
+        this.props.showItem(log.iid)
+    }
 
     render () {
         return this.props.display && ( 
@@ -27,7 +43,7 @@ class LogMenu extends React.Component<LogMenuProps> {
                 directionalHint={DirectionalHint.bottomCenter}
                 calloutWidth={320}
                 calloutMaxHeight={240}
-                onDismiss={() => this.props.close()}
+                onDismiss={this.props.close}
             >
                 { this.props.logs.length == 0 
                 ? <p style={{ textAlign: "center" }}>{intl.get("log.empty")}</p>

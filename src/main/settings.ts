@@ -120,3 +120,11 @@ ipcMain.on("get-all-settings", (event) => {
     }
     event.returnValue = output
 })
+
+const FETCH_INTEVAL_STORE_KEY = "fetchInteval"
+ipcMain.on("get-fetch-inteval", (event) => {
+    event.returnValue = store.get(FETCH_INTEVAL_STORE_KEY, 0)
+})
+ipcMain.handle("set-fetch-inteval", (_, inteval: number) => {
+    store.set(FETCH_INTEVAL_STORE_KEY, inteval)
+})

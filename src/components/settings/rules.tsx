@@ -2,7 +2,7 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { Stack, Label, Dropdown, IDropdownOption, TextField, PrimaryButton, Icon, DropdownMenuItemType, 
-    DefaultButton, DetailsList, IColumn, CommandBar, ICommandBarItemProps, Selection, SelectionMode, MarqueeSelection, IDragDropEvents } from "@fluentui/react"
+    DefaultButton, DetailsList, IColumn, CommandBar, ICommandBarItemProps, Selection, SelectionMode, MarqueeSelection, IDragDropEvents, Link } from "@fluentui/react"
 import { SourceRule, RuleActions } from "../../scripts/models/rule"
 import { FilterType } from "../../scripts/models/feed"
 import { validateRegex } from "../../scripts/utils"
@@ -16,6 +16,8 @@ const actionKeyMap = {
     "s-false": "article.unstar",
     "h-true": "article.hide",
     "h-false": "article.unhide",
+    "n-true": "article.notify",
+    "n-false": "article.dontNotify",
 }
 
 type RulesTabProps = {
@@ -263,6 +265,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
         result.push(intl.get(item.hasRead ? "article.markRead" : "article.markUnread"))
         if (item.starred) result.push(intl.get("article.star"))
         if (item.hidden) result.push(intl.get("article.hide"))
+        if (item.notify) result.push(intl.get("article.notify"))
         this.setState({ mockResult: result.join(", ") })
     }
 
@@ -283,107 +286,125 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
                 </Stack.Item>
             </Stack>
 
-            {this.state.sid && (
-            this.state.editIndex > -1 || !this.getSourceRules() || this.getSourceRules().length === 0 
-            ? <>
-                <Label>
-                    {intl.get((this.state.editIndex >= 0 && this.state.editIndex < this.getSourceRules().length) ? "edit" : "rules.new")}
-                </Label>
-                <Stack horizontal>
-                    <Stack.Item>
-                        <Label>{intl.get("rules.if")}</Label>
-                    </Stack.Item>
-                    <Stack.Item>
-                        <Dropdown
-                            options={this.searchOptions()}
-                            selectedKey={this.state.fullSearch ? 1 : 0}
-                            onChange={this.onSearchOptionChange}
-                            style={{width: 140}} />
-                    </Stack.Item>
-                    <Stack.Item>
-                        <Dropdown
-                            options={this.matchOptions()}
-                            selectedKey={this.state.match ? 1 : 0}
-                            onChange={this.onMatchOptionChange}
-                            style={{width: 130}} />
-                    </Stack.Item>
-                    <Stack.Item grow>
-                        <TextField
-                            name="regex"
-                            placeholder={intl.get("rules.regex")}
-                            value={this.state.regex}
-                            onGetErrorMessage={this.validateRegexField} 
-                            validateOnLoad={false} 
-                            onChange={this.handleInputChange} />
-                    </Stack.Item>
-                </Stack>
-                <Stack horizontal>
-                    <Stack.Item>
-                        <Label>{intl.get("rules.then")}</Label>
-                    </Stack.Item>
-                    <Stack.Item grow>
-                        <Dropdown multiSelect
-                            placeholder={intl.get("rules.selectAction")}
-                            options={this.actionOptions()}
-                            selectedKeys={this.state.actionKeys}
-                            onChange={this.onActionOptionChange}
-                            onRenderCaretDown={() => <Icon iconName="CirclePlus" />} />
-                    </Stack.Item>
-                </Stack>
-                <Stack horizontal>
-                    <Stack.Item>
-                        <PrimaryButton
-                            disabled={this.state.regex.length == 0 || validateRegex(this.state.regex) === null || this.state.actionKeys.length == 0}
-                            text={intl.get("confirm")}
-                            onClick={this.saveRule} />
-                    </Stack.Item>
-                    {this.state.editIndex > -1 && <Stack.Item>
-                        <DefaultButton
-                            text={intl.get("cancel")}
-                            onClick={() => this.setState({ editIndex: -1 })} />
-                    </Stack.Item>}
-                </Stack>
-            </>
-            : <>
-                <CommandBar
-                    items={this.commandBarItems()}
-                    farItems={this.commandBarFarItems()} />
-                <MarqueeSelection selection={this.rulesSelection} isDraggingConstrainedToRoot>
-                    <DetailsList compact
-                        columns={this.ruleColumns()}
-                        items={this.getSourceRules()}
-                        onItemInvoked={this.editRule}
-                        dragDropEvents={this.rulesDragDropEvents}
-                        setKey="selected"
-                        selection={this.rulesSelection}
-                        selectionMode={SelectionMode.multiple} />
-                </MarqueeSelection>
-                <span className="settings-hint up">{intl.get("rules.hint")}</span>
+            {this.state.sid 
+            ? (this.state.editIndex > -1 || !this.getSourceRules() || this.getSourceRules().length === 0 
+                ? <>
+                    <Label>
+                        {intl.get((this.state.editIndex >= 0 && this.state.editIndex < this.getSourceRules().length) ? "edit" : "rules.new")}
+                    </Label>
+                    <Stack horizontal>
+                        <Stack.Item>
+                            <Label>{intl.get("rules.if")}</Label>
+                        </Stack.Item>
+                        <Stack.Item>
+                            <Dropdown
+                                options={this.searchOptions()}
+                                selectedKey={this.state.fullSearch ? 1 : 0}
+                                onChange={this.onSearchOptionChange}
+                                style={{width: 140}} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <Dropdown
+                                options={this.matchOptions()}
+                                selectedKey={this.state.match ? 1 : 0}
+                                onChange={this.onMatchOptionChange}
+                                style={{width: 130}} />
+                        </Stack.Item>
+                        <Stack.Item grow>
+                            <TextField
+                                name="regex"
+                                placeholder={intl.get("rules.regex")}
+                                value={this.state.regex}
+                                onGetErrorMessage={this.validateRegexField} 
+                                validateOnLoad={false} 
+                                onChange={this.handleInputChange} />
+                        </Stack.Item>
+                    </Stack>
+                    <Stack horizontal>
+                        <Stack.Item>
+                            <Label>{intl.get("rules.then")}</Label>
+                        </Stack.Item>
+                        <Stack.Item grow>
+                            <Dropdown multiSelect
+                                placeholder={intl.get("rules.selectAction")}
+                                options={this.actionOptions()}
+                                selectedKeys={this.state.actionKeys}
+                                onChange={this.onActionOptionChange}
+                                onRenderCaretDown={() => <Icon iconName="CirclePlus" />} />
+                        </Stack.Item>
+                    </Stack>
+                    <Stack horizontal>
+                        <Stack.Item>
+                            <PrimaryButton
+                                disabled={this.state.regex.length == 0 || validateRegex(this.state.regex) === null || this.state.actionKeys.length == 0}
+                                text={intl.get("confirm")}
+                                onClick={this.saveRule} />
+                        </Stack.Item>
+                        {this.state.editIndex > -1 && <Stack.Item>
+                            <DefaultButton
+                                text={intl.get("cancel")}
+                                onClick={() => this.setState({ editIndex: -1 })} />
+                        </Stack.Item>}
+                    </Stack>
+                </>
+                : <>
+                    <CommandBar
+                        items={this.commandBarItems()}
+                        farItems={this.commandBarFarItems()} />
+                    <MarqueeSelection selection={this.rulesSelection} isDraggingConstrainedToRoot>
+                        <DetailsList compact
+                            columns={this.ruleColumns()}
+                            items={this.getSourceRules()}
+                            onItemInvoked={this.editRule}
+                            dragDropEvents={this.rulesDragDropEvents}
+                            setKey="selected"
+                            selection={this.rulesSelection}
+                            selectionMode={SelectionMode.multiple} />
+                    </MarqueeSelection>
+                    <span className="settings-hint up">{intl.get("rules.hint")}</span>
 
-                <Label>{intl.get("rules.test")}</Label>
-                <Stack horizontal>
-                    <Stack.Item grow>
-                        <TextField
-                            name="mockTitle"
-                            placeholder={intl.get("rules.title")}
-                            value={this.state.mockTitle}
-                            onChange={this.handleInputChange} />
-                    </Stack.Item>
-                    <Stack.Item grow>
-                        <TextField
-                            name="mockContent"
-                            placeholder={intl.get("rules.content")}
-                            value={this.state.mockContent}
-                            onChange={this.handleInputChange} />
-                    </Stack.Item>
-                    <Stack.Item>
-                        <PrimaryButton
-                            text={intl.get("confirm")}
-                            onClick={this.testMockItem} />
-                    </Stack.Item>
+                    <Label>{intl.get("rules.test")}</Label>
+                    <Stack horizontal>
+                        <Stack.Item grow>
+                            <TextField
+                                name="mockTitle"
+                                placeholder={intl.get("rules.title")}
+                                value={this.state.mockTitle}
+                                onChange={this.handleInputChange} />
+                        </Stack.Item>
+                        <Stack.Item grow>
+                            <TextField
+                                name="mockContent"
+                                placeholder={intl.get("rules.content")}
+                                value={this.state.mockContent}
+                                onChange={this.handleInputChange} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <PrimaryButton
+                                text={intl.get("confirm")}
+                                onClick={this.testMockItem} />
+                        </Stack.Item>
+                    </Stack>
+                    <span className="settings-hint up">{this.state.mockResult}</span>
+                </>)
+            : (
+                <Stack horizontalAlign="center" style={{marginTop: 64}}>
+                    <Stack className="settings-rules-icons" horizontal tokens={{childrenGap: 12}}>
+                        <Icon iconName="Filter" />
+                        <Icon iconName="FavoriteStar" />
+                        <Icon iconName="Ringer" />
+                        <Icon iconName="More" />
+                    </Stack>
+                    <span className="settings-hint">
+                        {intl.get("rules.intro")}
+                        <Link 
+                            onClick={() => window.utils.openExternal("https://github.com/yang991178/fluent-reader/wiki/Support#rules")}
+                            style={{marginLeft: 6}}>
+                            {intl.get("rules.help")}
+                        </Link>
+                    </span>
                 </Stack>
-                <span className="settings-hint up">{this.state.mockResult}</span>
-            </>)}
+            )}
         </div>
     )
 }

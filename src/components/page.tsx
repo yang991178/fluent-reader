@@ -11,6 +11,7 @@ type PageProps = {
     settingsOn: boolean
     feeds: string[]
     itemId: string
+    itemFromFeed: boolean
     viewType: ViewType
     dismissItem: () => void
     offsetItem: (offset: number) => void
@@ -44,8 +45,10 @@ class Page extends React.Component<PageProps> {
                     <div className={"article-wrapper " + AnimationClassNames.slideUpIn20} onClick={e => e.stopPropagation()}>
                         <ArticleContainer itemId={this.props.itemId} />
                     </div>
-                    <div className="btn-group prev"><a className="btn" onClick={this.prevItem}><Icon iconName="Back" /></a></div>
-                    <div className="btn-group next"><a className="btn" onClick={this.nextItem}><Icon iconName="Forward" /></a></div>
+                    {this.props.itemFromFeed && <>
+                        <div className="btn-group prev"><a className="btn" onClick={this.prevItem}><Icon iconName="Back" /></a></div>
+                        <div className="btn-group next"><a className="btn" onClick={this.nextItem}><Icon iconName="Forward" /></a></div>
+                    </>}
                 </FocusTrapZone>
             )}
         </>

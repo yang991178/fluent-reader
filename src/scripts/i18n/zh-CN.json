@@ -60,7 +60,9 @@
         "star": "标为星标",
         "unstar": "取消星标",
         "fontSize": "字体大小",
-        "loadWebpage": "加载网页"
+        "loadWebpage": "加载网页",
+        "notify": "后台抓取时发送通知",
+        "dontNotify": "不发送通知"
     },
     "context": {
         "share": "分享",
@@ -138,6 +140,8 @@
         "groupHint": "双击分组以修改订阅源，可通过拖拽排序"
     },
     "rules": {
+        "intro": "通过正则表达式自动标记文章或推送通知",
+        "help": "了解更多",
         "source": "订阅源",
         "selectSource": "选择一个订阅源",
         "new": "新建规则",
@@ -178,6 +182,8 @@
         "badUrl": "请正确输入URL",
         "pac": "PAC地址",
         "setPac": "设置PAC",
-        "pacHint": "对于Socks代理建议PAC返回“SOCKS5”以启用代理端解析。关闭代理需重启应用后生效。"
+        "pacHint": "对于Socks代理建议PAC返回“SOCKS5”以启用代理端解析。关闭代理需重启应用后生效。",
+        "fetchInteval": "自动抓取频率",
+        "never": "从不"
     }
 }

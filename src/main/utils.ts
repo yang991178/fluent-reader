@@ -128,4 +128,25 @@ export function setUtilsListeners(manager: WindowManager) {
     ipcMain.on("is-maximized", (event) => {
         event.returnValue = Boolean(manager.mainWindow) && manager.mainWindow.isMaximized()
     })
+
+    ipcMain.on("is-focused", (event) => {
+        event.returnValue = manager.hasWindow() && manager.mainWindow.isFocused()
+    })
+
+    ipcMain.handle("request-focus", () => {
+        if (manager.hasWindow()) manager.mainWindow.focus()
+    })
+
+    ipcMain.handle("request-attention", () => {
+        if (manager.hasWindow() && !manager.mainWindow.isFocused()) {
+            if (process.platform === "win32") {
+                manager.mainWindow.flashFrame(true)
+                manager.mainWindow.once("focus", () => {
+                    manager.mainWindow.flashFrame(false)
+                })
+            } else if (process.platform === "darwin") {
+                app.dock.bounce()
+            }
+        }
+    })
 }

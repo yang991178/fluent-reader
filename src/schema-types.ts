@@ -38,4 +38,5 @@ export type SchemaTypes = {
     sourceGroups: SourceGroup[]
     fontSize: number
     menuOn: boolean
+    fetchInteval: number
 }
