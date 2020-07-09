@@ -396,7 +396,7 @@ export function itemReducer(
         case TOGGLE_HIDDEN: {
             return {
                 ...state,
-                [action.item._id]: applyItemReduction(action.item, action.type)
+                [action.item._id]: applyItemReduction(state[action.item._id], action.type)
             }
         }
         case MARK_ALL_READ: {

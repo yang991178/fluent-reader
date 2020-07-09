@@ -4,7 +4,7 @@ import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
 import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS } from "./group"
-import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, showItem } from "./page"
+import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, showItemFromId } from "./page"
 import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
 import * as db from "../db"
@@ -222,7 +222,7 @@ export function pushNotification(item: RSSItem): AppThunk {
             notification.onclick = () => {
                 if (!getState().app.settings.display) {
                     window.utils.focus()
-                    dispatch(showItem(null, item))
+                    dispatch(showItemFromId(item._id))
                 }
             }
         }
