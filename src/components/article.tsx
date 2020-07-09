@@ -37,6 +37,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage
         }
         window.utils.addWebviewContextListener(this.contextMenuHandler)
+        window.utils.addWebviewKeydownListener(this.keyDownHandler)
     }
 
     getFontSize = () => {
@@ -87,9 +88,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
 
     contextMenuHandler = (pos: [number, number], text: string) => {
         if (pos) {
-            let articlePos = document.getElementById("article").getBoundingClientRect()
-            let [x, y] = pos
-            this.props.textMenu(text, [x + articlePos.x, y + articlePos.y])
+            this.props.textMenu(text, pos)
         } else {
             this.props.dismissContextMenu()
         }
@@ -129,10 +128,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     componentDidMount = () => {
         let webview = document.getElementById("article") as Electron.WebviewTag
         if (webview != this.webview) {
-            webview.addEventListener("dom-ready", () => {
-                let id = webview.getWebContentsId()
-                window.utils.addWebviewKeydownListener(id, this.keyDownHandler)
-            })
             this.webview = webview
             webview.focus()
             let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
@@ -219,7 +214,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 id="article"
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
-                preload={this.state.loadWebpage ? null : "article/preload.js"}
                 webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
                 partition="sandbox" />
         </FocusZone>

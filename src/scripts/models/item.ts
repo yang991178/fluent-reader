@@ -56,8 +56,12 @@ export class RSSItem {
             let img = dom.querySelector("img")
             if (img && img.src) item.thumb = img.src
         }
-        if (item.thumb && !item.thumb.startsWith("https:") && !item.thumb.startsWith("http:")) {
+        if (item.thumb && !item.thumb.startsWith("https://") && !item.thumb.startsWith("http://")) {
             delete item.thumb
+        }
+        for (let field of ["title", "link", "thumb", "content", "snippet", "creator"]) {
+            const content = item[field]
+            if (content && typeof content !== "string") item[field] = ""
         }
     }
 }

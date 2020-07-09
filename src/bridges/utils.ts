@@ -49,8 +49,7 @@ const utilsBridge = {
         })
     },
 
-    addWebviewKeydownListener: (id: number, callback: (event: Electron.Input) => any) => {
-        ipcRenderer.invoke("add-webview-keydown-listener", id)
+    addWebviewKeydownListener: (callback: (event: Electron.Input) => any) => {
         ipcRenderer.removeAllListeners("webview-keydown")
         ipcRenderer.on("webview-keydown", (_, input) => {
             callback(input)
