@@ -10,8 +10,8 @@ const mapDispatchToProps = dispatch => ({
         window.settings.setLocaleSettings(option)
         dispatch(initIntl())
     },
-    setFetchInteval: (inteval: number) => {
-        window.settings.setFetchInteval(inteval)
+    setFetchInterval: (interval: number) => {
+        window.settings.setFetchInterval(interval)
         dispatch(setupAutoFetch())
     },
     deleteArticles: (days: number) => new Promise((resolve) => {

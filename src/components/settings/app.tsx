@@ -8,7 +8,7 @@ import DangerButton from "../utils/danger-button"
 
 type AppTabProps = {
     setLanguage: (option: string) => void
-    setFetchInteval: (inteval: number) => void
+    setFetchInterval: (interval: number) => void
     deleteArticles: (days: number) => Promise<void>
     importAll: () => Promise<void>
 }
@@ -60,7 +60,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         { key: ThemeSettings.Dark, text: intl.get("app.darkTheme") }
     ]
 
-    fetchIntevalOptions = (): IDropdownOption[] => [
+    fetchIntervalOptions = (): IDropdownOption[] => [
         { key: 0, text: intl.get("app.never") },
         { key: 10, text: intl.get("time.minute", { m: 10 }) },
         { key: 15, text: intl.get("time.minute", { m: 15 }) },
@@ -69,8 +69,8 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         { key: 45, text: intl.get("time.minute", { m: 45 }) },
         { key: 60, text: intl.get("time.hour", { h: 1 }) },
     ]
-    onFetchIntevalChanged = (item: IDropdownOption) => {
-        this.props.setFetchInteval(item.key as number)
+    onFetchIntervalChanged = (item: IDropdownOption) => {
+        this.props.setFetchInterval(item.key as number)
     }
 
     deleteOptions = (): IDropdownOption[] => [
@@ -142,13 +142,13 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                 onChange={this.onThemeChange}
                 selectedKey={this.state.themeSettings} />
 
-            <Label>{intl.get("app.fetchInteval")}</Label>
+            <Label>{intl.get("app.fetchInterval")}</Label>
             <Stack horizontal>
                 <Stack.Item>
                     <Dropdown 
-                        defaultSelectedKey={window.settings.getFetchInteval()}
-                        options={this.fetchIntevalOptions()}
-                        onChanged={this.onFetchIntevalChanged}
+                        defaultSelectedKey={window.settings.getFetchInterval()}
+                        options={this.fetchIntervalOptions()}
+                        onChanged={this.onFetchIntervalChanged}
                         style={{width: 200}} />
                 </Stack.Item>
             </Stack>

@@ -183,7 +183,7 @@
         "pac": "PAC Address",
         "setPac": "Set PAC",
         "pacHint": "For Socks proxies, it is recommended for PAC to return \"SOCKS5\" for proxy-side DNS. Turning off proxy requires restart.",
-        "fetchInteval": "Automatic fetch inteval",
+        "fetchInterval": "Automatic fetch interval",
         "never": "Never"
     }
 }

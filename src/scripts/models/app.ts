@@ -194,9 +194,9 @@ let fetchTimeout: NodeJS.Timeout
 export function setupAutoFetch(): AppThunk {
     return (dispatch, getState) => {
         clearTimeout(fetchTimeout)
-        const setupTimeout = (inteval?: number) => {
-            if (!inteval) inteval = window.settings.getFetchInteval()
-            if (inteval) {
+        const setupTimeout = (interval?: number) => {
+            if (!interval) interval = window.settings.getFetchInterval()
+            if (interval) {
                 fetchTimeout = setTimeout(() => {
                     let state = getState()
                     if (!state.app.settings.display) {
@@ -204,7 +204,7 @@ export function setupAutoFetch(): AppThunk {
                     } else {
                         setupTimeout(1)
                     }
-                }, inteval * 60000)
+                }, interval * 60000)
             }
         }
         setupTimeout()
