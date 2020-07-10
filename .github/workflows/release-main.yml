@@ -1,4 +1,4 @@
-name: CI/CD Release Main
+name: CI/CD Release
 
 on:
   push:
@@ -20,7 +20,9 @@ jobs:
 
     - name: Get app version
       id: package-version
-      uses: martinbeentjes/npm-get-version-action@master
+      run: |
+        PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+        echo ::set-output name=current-version::$PACKAGE_VERSION
       shell: bash
 
     - name: Create release
