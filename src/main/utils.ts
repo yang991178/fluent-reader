@@ -134,7 +134,11 @@ export function setUtilsListeners(manager: WindowManager) {
     })
 
     ipcMain.handle("request-focus", () => {
-        if (manager.hasWindow()) manager.mainWindow.focus()
+        if (manager.hasWindow()) {
+            const win = manager.mainWindow
+            if (win.isMinimized()) win.restore()
+            win.focus()
+        }
     })
 
     ipcMain.handle("request-attention", () => {
