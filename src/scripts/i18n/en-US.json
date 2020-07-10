@@ -55,12 +55,17 @@
         "unhide": "Unhide article",
         "markRead": "Mark as read",
         "markUnread": "Mark as unread",
+        "markAbove": "Mark above as read",
+        "markBelow": "Mark below as read",
         "star": "Star",
         "unstar": "Remove star",
         "fontSize": "Font size",
-        "loadWebpage": "Load webpage"
+        "loadWebpage": "Load webpage",
+        "notify": "Notify if fetched in background",
+        "dontNotify": "Don't notify"
     },
     "context": {
+        "share": "Share",
         "read": "Read",
         "copyTitle": "Copy title",
         "copyURL": "Copy link",
@@ -135,6 +140,8 @@
         "groupHint": "Double click on group to edit sources. Drag and drop to reorder."
     },
     "rules": {
+        "intro": "Automatically mark articles or send notifications with regular expressions.",
+        "help": "Learn more",
         "source": "Source",
         "selectSource": "Select a source",
         "new": "New Rule",
@@ -175,6 +182,8 @@
         "badUrl": "Invalid URL",
         "pac": "PAC Address",
         "setPac": "Set PAC",
-        "pacHint": "For Socks proxies, it is recommended for PAC to return \"SOCKS5\" for proxy-side DNS. Turning off proxy requires restart."
+        "pacHint": "For Socks proxies, it is recommended for PAC to return \"SOCKS5\" for proxy-side DNS. Turning off proxy requires restart.",
+        "fetchInterval": "Automatic fetch interval",
+        "never": "Never"
     }
 }

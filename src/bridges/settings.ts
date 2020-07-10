@@ -68,6 +68,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-font-size", size)
     },
 
+    getFetchInterval: (): number => {
+        return ipcRenderer.sendSync("get-fetch-interval")
+    },
+    setFetchInterval: (interval: number) => {
+        ipcRenderer.invoke("set-fetch-interval", interval)
+    },
+
     getAll: () => {
         return ipcRenderer.sendSync("get-all-settings") as Object
     },

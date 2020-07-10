@@ -4,6 +4,7 @@ import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
+import { pushNotification, setupAutoFetch } from "./app"
 
 export class RSSItem {
     _id: string
@@ -19,8 +20,13 @@ export class RSSItem {
     hasRead: boolean
     starred?: true
     hidden?: true
+    notify?: true
 
     constructor (item: Parser.Item, source: RSSSource) {
+        for (let field of ["title", "link", "creator"]) {
+            const content = item[field]
+            if (content && typeof content !== "string") delete item[field]
+        }
         this.source = source.sid
         this.title = item.title || intl.get("article.untitled")
         this.link = item.link || ""
@@ -31,6 +37,10 @@ export class RSSItem {
     }
 
     static parseContent(item: RSSItem, parsed: Parser.Item) {
+        for (let field of ["thumb", "content", "fullContent"]) {
+            const content = parsed[field]
+            if (content && typeof content !== "string") delete parsed[field]
+        }
         if (parsed.fullContent) {
             item.content = parsed.fullContent
             item.snippet = htmlDecode(parsed.fullContent)
@@ -56,7 +66,7 @@ export class RSSItem {
             let img = dom.querySelector("img")
             if (img && img.src) item.thumb = img.src
         }
-        if (item.thumb && !item.thumb.startsWith("https:") && !item.thumb.startsWith("http:")) {
+        if (item.thumb && !item.thumb.startsWith("https://") && !item.thumb.startsWith("http://")) {
             delete item.thumb
         }
     }
@@ -91,6 +101,9 @@ interface MarkReadAction {
 interface MarkAllReadAction {
     type: typeof MARK_ALL_READ,
     sids: number[]
+    counts?: number[]
+    time?: number
+    before?: boolean
 }
 
 interface MarkUnreadAction {
@@ -157,7 +170,7 @@ export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     })
 }
 
-export function fetchItems(): AppThunk<Promise<void>> {
+export function fetchItems(background = false): AppThunk<Promise<void>> {
     return (dispatch, getState) => {
         let promises = new Array<Promise<RSSItem[]>>()
         if (!getState().app.fetchingItems) {
@@ -185,6 +198,17 @@ export function fetchItems(): AppThunk<Promise<void>> {
                 .then(inserted => {
                     dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
                     resolve()
+                    if (background) {
+                        for (let item of inserted) {
+                            if (item.notify) {
+                                dispatch(pushNotification(item))
+                            }
+                        }
+                        if (inserted.length > 0) {
+                            window.utils.requestAttention()
+                        }
+                    }
+                    dispatch(setupAutoFetch())
                 })
                 .catch(err => {
                     dispatch(fetchItemsSuccess([], getState().items))
@@ -203,11 +227,6 @@ const markReadDone = (item: RSSItem): ItemActionTypes => ({
     item: item 
 })
 
-const markAllReadDone = (sids: number[]): ItemActionTypes => ({
-    type: MARK_ALL_READ,
-    sids: sids
-})
-
 const markUnreadDone = (item: RSSItem): ItemActionTypes => ({ 
     type: MARK_UNREAD, 
     item: item 
@@ -222,23 +241,52 @@ export function markRead(item: RSSItem): AppThunk {
     }
 }
 
-export function markAllRead(sids: number[] = null): AppThunk {
+export function markAllRead(sids: number[] = null, date: Date = null, before = true): AppThunk {
     return (dispatch, getState) => {
         let state = getState()
         if (sids === null) {
             let feed = state.feeds[state.page.feedId]
             sids = feed.sids
         }
-        let query = { source: { $in: sids } }
-        db.idb.update(query, { $set: { hasRead: true } }, { multi: true }, (err) => {
-            if (err) {
-                console.log(err)
-            }
-        })
-        dispatch(markAllReadDone(sids))
-        if (!(state.page.filter.type & FilterType.ShowRead)) {
-            dispatch(initFeeds(true))
+        let query = { 
+            source: { $in: sids },
+            hasRead: false,
+         } as any
+        if (date) {
+            query.date = before ? { $lte: date } : { $gte: date }
         }
+        const callback = (items: RSSItem[] = null) => {
+            if (items) {
+                const counts = new Map<number, number>()
+                for (let sid of sids) {
+                    counts.set(sid, 0)
+                }
+                for (let item of items) {
+                    counts.set(item.source, counts.get(item.source) + 1)
+                }
+                dispatch({
+                    type: MARK_ALL_READ,
+                    sids: sids,
+                    counts: sids.map(i => counts.get(i)),
+                    time: date.getTime(),
+                    before: before
+                })
+            } else {
+                dispatch({
+                    type: MARK_ALL_READ,
+                    sids: sids
+                })
+            }
+            if (!(state.page.filter.type & FilterType.ShowRead)) {
+                dispatch(initFeeds(true))
+            }
+        }
+        db.idb.update(query, { $set: { hasRead: true } }, { multi: true, returnUpdatedDocs: Boolean(date) }, 
+            (err, _, affectedDocuments) => {
+                if (err) console.log(err)
+                if (date) callback(affectedDocuments as unknown as RSSItem[])
+        })
+        if (!date) callback()
     }
 }
 
@@ -348,20 +396,23 @@ export function itemReducer(
         case TOGGLE_HIDDEN: {
             return {
                 ...state,
-                [action.item._id]: applyItemReduction(action.item, action.type)
+                [action.item._id]: applyItemReduction(state[action.item._id], action.type)
             }
         }
         case MARK_ALL_READ: {
-            let nextState = {} as ItemState
+            let nextState = { ...state }
             let sids = new Set(action.sids)
             for (let [id, item] of Object.entries(state)) {
                 if (sids.has(item.source) && !item.hasRead) {
-                    nextState[id] = {
-                        ...item,
-                        hasRead: true
+                    if (!action.time || (action.before 
+                        ? item.date.getTime() <= action.time 
+                        : item.date.getTime() >= action.time)
+                    ) {
+                        nextState[id] = {
+                            ...item,
+                            hasRead: true
+                        }
                     }
-                } else {
-                    nextState[id] = item
                 }
             }
             return nextState

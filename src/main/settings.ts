@@ -120,3 +120,11 @@ ipcMain.on("get-all-settings", (event) => {
     }
     event.returnValue = output
 })
+
+const FETCH_INTEVAL_STORE_KEY = "fetchInterval"
+ipcMain.on("get-fetch-interval", (event) => {
+    event.returnValue = store.get(FETCH_INTEVAL_STORE_KEY, 0)
+})
+ipcMain.handle("set-fetch-interval", (_, interval: number) => {
+    store.set(FETCH_INTEVAL_STORE_KEY, interval)
+})

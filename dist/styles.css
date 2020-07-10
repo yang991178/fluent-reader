@@ -52,9 +52,10 @@ html, body {
     height: 100%;
 }
 
-.ms-ContextualMenu-link, .ms-Button {
+.ms-ContextualMenu-link, .ms-Button, .ms-ContextualMenu-item button {
     cursor: default;
     font-size: 13px;
+    user-select: none;
 }
 .ms-Nav-link, .ms-Nav-chevronButton {
     font-size: 12px;
@@ -234,6 +235,12 @@ nav.item-on .btn-group .btn.system {
 body.darwin .btn-group .btn.system {
     display: none;
 }
+.qr-container {
+    height: 150px;
+    padding: 7px;
+    margin: 8px;
+    background: #fff;
+}
 
 .menu-container, .article-container {
     position: fixed;
@@ -376,6 +383,13 @@ img.favicon.dropdown {
 .settings-about > * {
     margin: 0 !important;
     -webkit-user-drag: none;
+}
+.settings-rules-icons i {
+    color: var(--black);
+    user-select: none;
+}
+.settings-rules-icons i:last-of-type {
+    color: var(--neutralSecondary);
 }
 
 .main {

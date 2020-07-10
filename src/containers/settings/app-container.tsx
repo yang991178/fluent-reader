@@ -1,5 +1,5 @@
 import { connect } from "react-redux"
-import { initIntl, saveSettings } from "../../scripts/models/app"
+import { initIntl, saveSettings, setupAutoFetch } from "../../scripts/models/app"
 import * as db from "../../scripts/db"
 import AppTab from "../../components/settings/app"
 import { initFeeds } from "../../scripts/models/feed"
@@ -9,6 +9,10 @@ const mapDispatchToProps = dispatch => ({
     setLanguage: (option: string) => {
         window.settings.setLocaleSettings(option)
         dispatch(initIntl())
+    },
+    setFetchInterval: (interval: number) => {
+        window.settings.setFetchInterval(interval)
+        dispatch(setupAutoFetch())
     },
     deleteArticles: (days: number) => new Promise((resolve) => {
         dispatch(saveSettings())

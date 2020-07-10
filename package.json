@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "A simplistic, modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -85,9 +85,6 @@
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
-    "@types/redux": "^3.6.0",
-    "@types/redux-thunk": "^2.1.0",
-    "@types/reselect": "^2.2.0",
     "@yang991178/rss-parser": "^3.8.1",
     "electron": "^9.0.5",
     "electron-builder": "^22.7.0",
@@ -96,6 +93,7 @@
     "electron-window-state": "^5.0.3",
     "html-webpack-plugin": "^4.3.0",
     "nedb": "^1.8.0",
+    "qrcode.react": "^1.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-intl-universal": "^2.2.5",

@@ -49,8 +49,7 @@ const utilsBridge = {
         })
     },
 
-    addWebviewKeydownListener: (id: number, callback: (event: Electron.Input) => any) => {
-        ipcRenderer.invoke("add-webview-keydown-listener", id)
+    addWebviewKeydownListener: (callback: (event: Electron.Input) => any) => {
         ipcRenderer.removeAllListeners("webview-keydown")
         ipcRenderer.on("webview-keydown", (_, input) => {
             callback(input)
@@ -72,6 +71,15 @@ const utilsBridge = {
     },
     isMaximized: () => {
         return ipcRenderer.sendSync("is-maximized") as boolean
+    },
+    isFocused: () => {
+        return ipcRenderer.sendSync("is-focused") as boolean
+    },
+    focus: () => {
+        ipcRenderer.invoke("request-focus")
+    },
+    requestAttention: () => {
+        ipcRenderer.invoke("request-attention")
     },
     addWindowStateListener: (callback: (state: boolean) => any) => {
         ipcRenderer.removeAllListeners("maximized")

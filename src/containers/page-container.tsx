@@ -19,6 +19,7 @@ const mapStateToProps = createSelector(
         menuOn: menuOn,
         contextOn: contextOn,
         itemId: page.itemId,
+        itemFromFeed: page.itemFromFeed,
         viewType: page.viewType
     })
 )

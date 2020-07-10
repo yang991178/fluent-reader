@@ -93,6 +93,14 @@ export function showItem(feedId: string, item: RSSItem): PageActionTypes {
         item: item
     }
 }
+export function showItemFromId(iid: string): AppThunk {
+    return (dispatch, getState) => {
+        const state = getState()
+        const item = state.items[iid]
+        if (!item.hasRead) dispatch(markRead(item))
+        if (item) dispatch(showItem(null, item))
+    }
+}
 
 export const dismissItem = (): PageActionTypes => ({ type: DISMISS_ITEM })
 
@@ -115,6 +123,7 @@ export const toggleSearch = (): AppThunk => {
 export function showOffsetItem(offset: number): AppThunk {
     return (dispatch, getState) => {
         let state = getState()
+        if (!state.page.itemFromFeed) return
         let [itemId, feedId] = [state.page.itemId, state.page.feedId]
         let feed = state.feeds[feedId]
         let iids = feed.iids
@@ -205,6 +214,7 @@ export class PageState {
     filter = new FeedFilter()
     feedId = ALL
     itemId = null as string
+    itemFromFeed = true
     searchOn = false
 }
 
@@ -238,7 +248,8 @@ export function pageReducer(
         }
         case SHOW_ITEM: return {
             ...state,
-            itemId: action.item._id
+            itemId: action.item._id,
+            itemFromFeed: Boolean(action.feedId)
         }
         case INIT_FEED: switch (action.status) {
             case ActionStatus.Success: return {

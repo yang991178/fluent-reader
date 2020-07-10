@@ -80,22 +80,33 @@ export function setUtilsListeners(manager: WindowManager) {
         await session.defaultSession.clearCache()
     })
 
-    ipcMain.handle("webview-context-menu", (_, pos, text) => {
-        if (manager.hasWindow()) {
-            manager.mainWindow.webContents.send("webview-context-menu", pos, text)
-        }
-    })
-
-    ipcMain.handle("add-webview-keydown-listener", (_, id) => {
-        let contents = webContents.fromId(id)
-        contents.on("before-input-event", (_, input) => {
-            if (manager.hasWindow()) {
-                let contents = manager.mainWindow.webContents
-                if (!contents.isDestroyed()) {
+    app.on("web-contents-created", (_, contents) => {
+        if (contents.getType() === "webview") {
+            contents.on("context-menu", (_, params) => {
+                if (params.selectionText && manager.hasWindow()) {
+                    manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y], params.selectionText)
+                    contents.executeJavaScript(`new Promise(resolve => {
+                        const dismiss = () => {
+                            document.removeEventListener("mousedown", dismiss)
+                            document.removeEventListener("scroll", dismiss)                            
+                            resolve()
+                        }
+                        document.addEventListener("mousedown", dismiss)
+                        document.addEventListener("scroll", dismiss)
+                    })`).then(() => {
+                        if (manager.hasWindow()) {
+                            manager.mainWindow.webContents.send("webview-context-menu")
+                        }
+                    })
+                }
+            })
+            contents.on("before-input-event", (_, input) => {
+                if (manager.hasWindow()) {
+                    let contents = manager.mainWindow.webContents
                     contents.send("webview-keydown", input)
                 }
-            }
-        })
+            })
+        }
     })
 
     ipcMain.handle("write-clipboard", (_, text) => {
@@ -116,5 +127,30 @@ export function setUtilsListeners(manager: WindowManager) {
 
     ipcMain.on("is-maximized", (event) => {
         event.returnValue = Boolean(manager.mainWindow) && manager.mainWindow.isMaximized()
+    })
+
+    ipcMain.on("is-focused", (event) => {
+        event.returnValue = manager.hasWindow() && manager.mainWindow.isFocused()
+    })
+
+    ipcMain.handle("request-focus", () => {
+        if (manager.hasWindow()) {
+            const win = manager.mainWindow
+            if (win.isMinimized()) win.restore()
+            win.focus()
+        }
+    })
+
+    ipcMain.handle("request-attention", () => {
+        if (manager.hasWindow() && !manager.mainWindow.isFocused()) {
+            if (process.platform === "win32") {
+                manager.mainWindow.flashFrame(true)
+                manager.mainWindow.once("focus", () => {
+                    manager.mainWindow.flashFrame(false)
+                })
+            } else if (process.platform === "darwin") {
+                app.dock.bounce()
+            }
+        }
     })
 }

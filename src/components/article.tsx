@@ -2,8 +2,9 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
-import { Stack, CommandBarButton, IContextualMenuProps, FocusZone } from "@fluentui/react"
+import { Stack, CommandBarButton, IContextualMenuProps, FocusZone, ContextualMenuItemType } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
+import { shareSubmenu } from "./context-menu"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -36,6 +37,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage
         }
         window.utils.addWebviewContextListener(this.contextMenuHandler)
+        window.utils.addWebviewKeydownListener(this.keyDownHandler)
     }
 
     getFontSize = () => {
@@ -75,15 +77,18 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 text:　this.props.item.hidden ? intl.get("article.unhide") : intl.get("article.hide"),
                 iconProps: { iconName: this.props.item.hidden ? "View" : "Hide3" },
                 onClick: () => { this.props.toggleHidden(this.props.item) }
-            }
+            },
+            {
+                key: "divider_1",
+                itemType: ContextualMenuItemType.Divider,
+            },
+            ...shareSubmenu(this.props.item)
         ]
     })
 
     contextMenuHandler = (pos: [number, number], text: string) => {
         if (pos) {
-            let articlePos = document.getElementById("article").getBoundingClientRect()
-            let [x, y] = pos
-            this.props.textMenu(text, [x + articlePos.x, y + articlePos.y])
+            this.props.textMenu(text, pos)
         } else {
             this.props.dismissContextMenu()
         }
@@ -123,10 +128,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     componentDidMount = () => {
         let webview = document.getElementById("article") as Electron.WebviewTag
         if (webview != this.webview) {
-            webview.addEventListener("dom-ready", () => {
-                let id = webview.getWebContentsId()
-                window.utils.addWebviewKeydownListener(id, this.keyDownHandler)
-            })
             this.webview = webview
             webview.focus()
             let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
@@ -213,7 +214,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 id="article"
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
-                preload={this.state.loadWebpage ? null : "article/preload.js"}
                 webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
                 partition="sandbox" />
         </FocusZone>

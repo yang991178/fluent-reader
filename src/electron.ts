@@ -4,7 +4,6 @@ import { store } from "./main/settings"
 import performUpdate from "./main/update-scripts"
 import { WindowManager } from "./main/window"
 import { openExternal } from "./main/utils"
-import Time from "./components/utils/time"
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -12,6 +11,9 @@ if (!process.mas) {
         app.quit()
     }
 }
+
+if (!app.isPackaged) app.setAppUserModelId(process.execPath)
+else if (process.platform === "win32") app.setAppUserModelId("me.hyliu.fluentreader")
 
 let restarting = false
 
