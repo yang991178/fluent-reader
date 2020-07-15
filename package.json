@@ -107,5 +107,8 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   },
-  "dependencies": {}
+  "dependencies": {
+    "iconv-lite": "^0.6.2",
+    "jschardet": "^2.2.1"
+  }
 }

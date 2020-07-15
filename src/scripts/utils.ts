@@ -4,6 +4,8 @@ import { AnyAction } from "redux"
 import { RootState } from "./reducer"
 import Parser from "@yang991178/rss-parser"
 import Url from "url"
+import iconv from "iconv-lite"
+import jschardet from "jschardet"
 
 export enum ActionStatus {
     Request, Success, Failure, Intermediate
@@ -36,7 +38,15 @@ export async function parseRSS(url: string) {
     }
     if (result && result.ok) {
         try {
-            return await rssParser.parseString(await result.text())
+            try {
+                const buffer = Buffer.from(await result.arrayBuffer())
+                const { encoding } = jschardet.detect(buffer)
+                const text = iconv.decode(buffer, encoding)
+                return await rssParser.parseString(text)
+            } catch (e) {
+                console.error(e)
+                return await rssParser.parseString(await result.text())
+            }
         } catch {
             throw new Error(intl.get("log.parseError"))
         }
