@@ -1,0 +1,205 @@
+.info {
+    position: relative;
+    margin: 10px 12px;
+    line-height: 16px;
+}
+.info img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+.info span.name {
+    font-size: 12px;
+    vertical-align: top;
+    display: inline-block;
+    max-width: 144px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.info span.time {
+    float: right;
+    font-size: 12px;
+}
+
+.read-indicator, .starred-indicator {
+    display: block;
+    width: 16px;
+    height: 16px;
+    float: right;
+    text-align: center;
+}
+.read-indicator::after {
+    content: "";
+    vertical-align: top;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 5px;
+    border-radius: 3px;
+    background-color: #ffaa44;
+    font-size: 10px;
+    box-sizing: border-box;
+}
+.starred-indicator::after {
+    content: "★";
+    vertical-align: top;
+    color: #ffaa44;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.card {
+    display: inline-block;
+    position: relative;
+    width: 256px;
+    height: 264px;
+    border-radius: 4px;
+    background-color: var(--white);
+    overflow: hidden;
+    box-shadow: #0004 0px 5px 20px;
+    margin: 18px 12px;
+    color: var(--neutralDarker);
+    user-select: none;
+    transition: box-shadow linear .08s;
+    transform: scale(1);
+    cursor: pointer;
+    animation-fill-mode: none;
+}
+.card:focus, .list-card:focus {
+    outline: none;
+}
+.card:hover, .ms-Fabric--isFocusVisible .card:focus {
+    box-shadow: #0006 0px 5px 40px;
+}
+.ms-Fabric--isFocusVisible .card:focus::after, .ms-Fabric--isFocusVisible .list-card:focus::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc(100% - 6px);
+    height: calc(100% - 6px);
+    border: 1px solid var(--white);
+    outline: 2px solid #0078d4;
+}
+.card:active {
+    transform: scale(.97);
+}
+
+.card .bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+.card img.bg {
+    object-fit: cover;
+    filter: saturate(150%) blur(20px);
+}
+.card div.bg {
+    background-color: #fffb;
+}
+.card img.head {
+    display: block;
+    object-fit: cover;
+    position: relative;
+    width: 100%;
+    height: 144px;
+    -webkit-user-drag: none;
+}
+.card img.head, .card p, .card h3 {
+    transition: transform ease-out .12s;
+}
+.card.transform:hover img.head, .card.transform:hover p, .card.transform:hover h3,
+.ms-Fabric--isFocusVisible .card.transform:focus img.head,
+.ms-Fabric--isFocusVisible .card.transform:focus p,
+.ms-Fabric--isFocusVisible .card.transform:focus h3 {
+    transform: translateY(-144px);
+}
+.card h3.title {
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 600;
+    margin: 10px 12px;
+    position: relative;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+.card p.snippet {
+    font-size: 14px;
+    line-height: 20px;
+    margin: 10px 12px;
+    display: -webkit-box;
+    position: relative;
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transform: translateY(64px);
+}
+.card:hover p.snippet {
+    transform: translateY(-144px);
+}
+.card p.snippet.show {
+    transform: none;
+}
+.card.hidden::after, .list-card.hidden::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #0004;
+}
+
+.list-card {
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    color: var(--neutralDarker);
+    user-select: none;
+    transition: box-shadow linear .08s;
+    border-bottom: 1px solid var(--neutralQuaternaryAlt);
+    transform: scale(1);
+    cursor: pointer;
+    box-shadow: #0000 0px 5px 15px;
+}
+.list-card:hover, .ms-Fabric--isFocusVisible .list-card:focus {
+    box-shadow: #0004 0px 5px 15px;
+}
+.list-card:active {
+    box-shadow: #0000 0px 5px 15px, inset #0004 0px 0px 15px;
+}
+.list-card div.head {
+    width: 80px;
+    height: 80px;
+    margin: 8px 0 8px 10px;
+}
+.list-card div.head img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    -webkit-user-drag: none;
+}
+.list-card .data {
+    flex-grow: 1;
+}
+.list-card .info {
+    margin: 8px 10px;
+    height: 16px;
+}
+.list-card h3.title {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    margin: 8px 10px;
+    position: relative;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
