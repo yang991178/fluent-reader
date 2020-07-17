@@ -24,6 +24,8 @@ export class Feed extends React.Component<FeedProps> {
             case (ViewType.Cards): return (
                 <CardsFeed {...this.props} />
             )
+            case (ViewType.Magazine):
+            case (ViewType.Compact):
             case (ViewType.List): return (
                 <ListFeed {...this.props} />
             )

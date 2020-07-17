@@ -68,6 +68,8 @@
         "view": "Ver",
         "cardView": "Vista en modo tarjeta",
         "listView": "Vista en modo listado",
+        "magazineView": "Vista en modo revista",
+        "compactView": "Vista en modo compacta",
         "filter": "Filtrando",
         "unreadOnly": "Solo no leídos",
         "starredOnly": "Solo destacados",

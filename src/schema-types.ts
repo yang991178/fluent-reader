@@ -18,11 +18,11 @@ export class SourceGroup {
     }
 }
 
-export enum ViewType {
-    Cards, List, Customized
+export const enum ViewType {
+    Cards, List, Magazine, Compact, Customized
 }
 
-export enum ThemeSettings {
+export const enum ThemeSettings {
     Default = "system", 
     Light = "light", 
     Dark = "dark"

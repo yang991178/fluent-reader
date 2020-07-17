@@ -126,9 +126,23 @@
     overflow: hidden scroll;
     position: relative;
 }
-.list-feed > div.load-more-wrapper {
+.list-feed > div.load-more-wrapper,
+.magazine-feed > div.load-more-wrapper,
+.compact-feed > div.load-more-wrapper {
     text-align: center;
     padding: 16px 0;
+}
+
+.magazine-feed, .compact-feed {
+    padding-top: 28px;
+    height: calc(100% - 60px);
+    overflow: hidden scroll;
+    margin-top: var(--navHeight);
+}
+.magazine-feed .ms-List-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .cards-feed-container {
@@ -155,7 +169,10 @@
 .flex-fix {
     min-width: 280px;
 }
-.cards-feed-container > .empty, .list-feed > .empty {
+.cards-feed-container > .empty,
+.list-feed > .empty,
+.magazine-feed > .empty,
+.compact-feed > .empty {
     width: 100%;
     height: calc(100vh - 64px);
     display: flex;

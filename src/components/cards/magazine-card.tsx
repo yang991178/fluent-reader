@@ -3,12 +3,13 @@ import { Card } from "./card"
 import CardInfo from "./info"
 
 const className = (props: Card.Props) => {
-    let cn = ["card", "list-card"]
+    let cn = ["card", "magazine-card"]
+    if (props.item.hasRead) cn.push("read")
     if (props.item.hidden) cn.push("hidden")
     return cn.join(" ")
 }
 
-const ListCard: React.FunctionComponent<Card.Props> = (props) => (
+const MagazineCard: React.FunctionComponent<Card.Props> = (props) => (
     <div
         className={className(props)}
         onClick={e => Card.onClick(props, e)}
@@ -20,10 +21,13 @@ const ListCard: React.FunctionComponent<Card.Props> = (props) => (
             <div className="head"><img src={props.item.thumb} /></div>
         ) : null}
         <div className="data">
+            <div>
+                <h3 className="title">{props.item.title}</h3>
+                <p className={"snippet" + (props.item.thumb ? "" : " show")}>{props.item.snippet.slice(0, 325)}</p>
+            </div>
             <CardInfo source={props.source} item={props.item} />
-            <h3 className="title">{props.item.title}</h3>
         </div>
     </div>
 )
 
-export default ListCard
+export default MagazineCard
