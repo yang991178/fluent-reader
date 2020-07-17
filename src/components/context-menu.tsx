@@ -168,6 +168,22 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                                 checked: this.props.viewType === ViewType.List,
                                 onClick: () => this.props.switchView(ViewType.List)
                             },
+                            {
+                                key: "magazineView",
+                                text: intl.get("context.magazineView"),
+                                iconProps: { iconName: "Articles" },
+                                canCheck: true,
+                                checked: this.props.viewType === ViewType.Magazine,
+                                onClick: () => this.props.switchView(ViewType.Magazine)
+                            },
+                            {
+                                key: "compactView",
+                                text: intl.get("context.compactView"),
+                                iconProps: { iconName: "BulletedList" },
+                                canCheck: true,
+                                checked: this.props.viewType === ViewType.Compact,
+                                onClick: () => this.props.switchView(ViewType.Compact)
+                            },
                         ]
                     }
                 },

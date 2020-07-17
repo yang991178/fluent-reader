@@ -27,6 +27,7 @@ const rssParser = new Parser({
     }
 })
 
+const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
 export async function parseRSS(url: string) {
     let result: Response
     try {
@@ -36,7 +37,11 @@ export async function parseRSS(url: string) {
     }
     if (result && result.ok) {
         try {
-            return await rssParser.parseString(await result.text())
+            const buffer = await result.arrayBuffer()
+            const ctype = result.headers.has("content-type") && result.headers.get("content-type")
+            const charset = (ctype && CHARSET_RE.test(ctype)) ? CHARSET_RE.exec(ctype)[1] : "utf-8"
+            const decoder = new TextDecoder(charset)
+            return await rssParser.parseString(decoder.decode(buffer))
         } catch {
             throw new Error(intl.get("log.parseError"))
         }

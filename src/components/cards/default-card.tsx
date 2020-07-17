@@ -3,7 +3,7 @@ import { Card } from "./card"
 import CardInfo from "./info"
 
 const className = (props: Card.Props) => {
-    let cn = ["card"]
+    let cn = ["card", "default-card"]
     if (props.item.snippet && props.item.thumb) cn.push("transform")
     if (props.item.hidden) cn.push("hidden")
     return cn.join(" ")

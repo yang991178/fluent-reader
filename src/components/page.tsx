@@ -25,14 +25,14 @@ class Page extends React.Component<PageProps> {
     prevItem = (event: React.MouseEvent) => this.offsetItem(event, -1)
     nextItem = (event: React.MouseEvent) => this.offsetItem(event, 1)
 
-    render = () => this.props.viewType == ViewType.Cards 
+    render = () => this.props.viewType !== ViewType.List
     ? (
         <>
             {this.props.settingsOn ? null :
             <div key="card" className={"main" + (this.props.menuOn ? " menu-on" : "")}>
                 <ArticleSearch />
                 {this.props.feeds.map(fid => (
-                    <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid} />
+                    <FeedContainer viewType={this.props.viewType} feedId={fid} key={fid + this.props.viewType} />
                 ))}
             </div>}
             {this.props.itemId && (

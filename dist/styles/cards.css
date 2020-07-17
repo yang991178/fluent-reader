@@ -1,0 +1,317 @@
+.info {
+    position: relative;
+    margin: 10px 12px;
+    line-height: 16px;
+}
+.info img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+.info span.name {
+    font-size: 12px;
+    vertical-align: top;
+    display: inline-block;
+    max-width: 144px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.info span.time {
+    float: right;
+    font-size: 12px;
+}
+
+.read-indicator, .starred-indicator {
+    display: block;
+    width: 16px;
+    height: 16px;
+    float: right;
+    text-align: center;
+}
+.read-indicator::after {
+    content: "";
+    vertical-align: top;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 5px;
+    border-radius: 3px;
+    background-color: #ffaa44;
+    font-size: 10px;
+    box-sizing: border-box;
+}
+.starred-indicator::after {
+    content: "★";
+    vertical-align: top;
+    color: #ffaa44;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.card {
+    position: relative;
+    color: var(--neutralDarker);
+    user-select: none;
+    transform: scale(1);
+    cursor: pointer;
+    overflow: hidden;
+}
+.card:focus {
+    outline: none;
+}
+.ms-Fabric--isFocusVisible .card:focus::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc(100% - 6px);
+    height: calc(100% - 6px);
+    border: 1px solid var(--white);
+    outline: 2px solid #0078d4;
+}
+.card.hidden::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #0004;
+}
+
+.default-card {
+    display: inline-block;
+    width: 256px;
+    height: 264px;
+    border-radius: 4px;
+    background-color: var(--white);
+    box-shadow: #0004 0 5px 20px;
+    margin: 18px 12px;
+    transition: box-shadow linear .08s, transform linear .08s;
+    animation-fill-mode: none;
+}
+.default-card:hover, .ms-Fabric--isFocusVisible .default-card:focus {
+    box-shadow: #0006 0 5px 40px;
+}
+.default-card:active {
+    transform: scale(.97);
+    box-shadow: #0004 0 5px 20px;
+}
+
+.default-card .bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+.default-card img.bg {
+    object-fit: cover;
+    filter: saturate(150%) blur(20px);
+}
+.default-card div.bg {
+    background-color: #fffb;
+}
+.default-card img.head {
+    display: block;
+    object-fit: cover;
+    position: relative;
+    width: 100%;
+    height: 144px;
+    -webkit-user-drag: none;
+}
+.default-card img.head, .default-card p, .default-card h3 {
+    transition: transform ease-out .12s;
+}
+.default-card.transform:hover img.head, .default-card.transform:hover p, .default-card.transform:hover h3,
+.ms-Fabric--isFocusVisible .default-card.transform:focus img.head,
+.ms-Fabric--isFocusVisible .default-card.transform:focus p,
+.ms-Fabric--isFocusVisible .default-card.transform:focus h3 {
+    transform: translateY(-144px);
+}
+.default-card h3.title {
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 600;
+    margin: 10px 12px;
+    position: relative;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+.default-card p.snippet {
+    font-size: 14px;
+    line-height: 20px;
+    margin: 10px 12px;
+    display: -webkit-box;
+    position: relative;
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transform: translateY(64px);
+}
+.default-card:hover p.snippet {
+    transform: translateY(-144px);
+}
+.default-card p.snippet.show {
+    transform: none;
+}
+
+.list-card {
+    display: flex;
+    transition: box-shadow linear .08s;
+    border-bottom: 1px solid var(--neutralQuaternaryAlt);
+    box-shadow: #0000 0 5px 15px;
+}
+.list-card:hover, .ms-Fabric--isFocusVisible .list-card:focus {
+    box-shadow: #0004 0 5px 15px;
+}
+.list-card:active {
+    box-shadow: #0000 0 5px 15px, inset #0004 0 0 15px;
+}
+.list-card div.head {
+    width: 80px;
+    height: 80px;
+    margin: 8px 0 8px 10px;
+}
+.list-card div.head img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    -webkit-user-drag: none;
+}
+.list-card .data {
+    flex-grow: 1;
+}
+.list-card .info {
+    margin: 8px 10px;
+    height: 16px;
+}
+.list-card h3.title {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    margin: 8px 10px;
+    position: relative;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.magazine-card {
+    width: 700px;
+    padding: 24px;
+    max-height: 160px;
+    display: flex;
+    transition: box-shadow linear .08s, background-color linear .08s, transform linear .08s;
+    border-bottom: 1px solid var(--neutralQuaternaryAlt);
+    box-shadow: #0000 0 5px 20px;
+}
+.magazine-card.read {
+    color: var(--neutralSecondaryAlt);
+}
+.magazine-card:hover, .ms-Fabric--isFocusVisible .magazine-card:focus {
+    box-shadow: #0004 0 5px 20px;
+    background-color: var(--white);
+}
+.magazine-card:active {
+    box-shadow: #0000 0 5px 20px;
+    transform: scale(.97);
+    background-color: unset;
+}
+.magazine-card div.head {
+    width: 200px;
+    height: 160px;
+    margin-right: 25px;
+}
+.magazine-card div.head img {
+    width: 200px;
+    height: 160px;
+    object-fit: cover;
+    -webkit-user-drag: none;
+}
+.magazine-card .data {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.magazine-card .data > *:first-child {
+    flex-grow: 1;
+}
+.magazine-card .info {
+    height: 16px;
+    margin: 0;
+}
+.magazine-card h3.title, .magazine-card p.snippet {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    margin: 0 0 12px;
+}
+.magazine-card h3.title {
+    font-size: 18px;
+    line-height: 27px;
+    font-weight: 600;
+    -webkit-line-clamp: 2;
+}
+.magazine-card p.snippet {
+    font-size: 14px;
+    line-height: 21px;
+    -webkit-line-clamp: 3;
+}
+
+.compact-card {
+    height: 31px;
+    display: flex;
+    border-bottom: 1px solid var(--neutralQuaternaryAlt);
+    font-size: 14px;
+    line-height: 31px;
+    padding: 0 9px;
+    transition: box-shadow linear .08s, background-color linear .08s;
+}
+.compact-card:hover, .ms-Fabric--isFocusVisible .compact-card:focus {
+    box-shadow: #0004 0 0 10px;
+    background-color: var(--white);
+}
+.compact-card:active {
+    box-shadow: #0000 0 0 10px;
+}
+.compact-card > * {
+    margin: 0 3px;
+    flex-shrink: 0;
+}
+.compact-card .info {
+    display: flex;
+    line-height: 31px;
+    width: 140px;
+}
+.compact-card .info .name {
+    flex-grow: 1;
+}
+.compact-card .info img,
+.compact-card .info .read-indicator,
+.compact-card .info .starred-indicator {
+    margin: 7.5px 5px 7.5px 0;
+}
+.compact-card .data {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.compact-card .data .title {
+    font-weight: 600;
+    margin-right: 6px;
+}
+.compact-card .data .snippet {
+    color: var(--neutralSecondaryAlt);
+}
+.compact-card .time {
+    font-size: 12px;
+}

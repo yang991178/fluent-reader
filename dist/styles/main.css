@@ -1,0 +1,271 @@
+.qr-container {
+    height: 150px;
+    padding: 7px;
+    margin: 8px;
+    background: #fff;
+}
+
+.menu-container, .article-container {
+    position: fixed;
+    z-index: 5;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0008;
+    backdrop-filter: saturate(150%) blur(20px);
+}
+.article-container {
+    z-index: 6;
+}
+.menu-container .menu {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100%;
+    background-color: var(--neutralLighterAlt);
+}
+body.darwin .menu .btn-group {
+    display: flex;
+    flex-direction: row-reverse;
+}
+.menu-container .menu .nav-wrapper {
+    max-height: calc(100% - var(--navHeight));
+    overflow: hidden auto;
+}
+.menu-container .menu p.subs-header {
+    font-size: 12px;
+    color: var(--neutralSecondaryAlt);
+    margin: 2px 8px;
+    user-select: none;
+}
+.menu .link-stack {
+    overflow: hidden;
+}
+.menu .link-text {
+    margin-top: 0px;
+    margin-right: 4px;
+    margin-bottom: 0px;
+    margin-left: 4px;
+    text-align: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    flex-grow: 1;
+}
+.menu .unread-count {
+    color: var(--neutralSecondary);
+}
+
+.settings-container {
+    position: fixed;
+    z-index: 7;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--neutralLight);
+    overflow: hidden;
+}
+.settings-container .settings {
+    margin: 64px auto 0;
+    width: 680px;
+    height: calc(100% - 64px);
+    background-color: var(--white);
+    box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,.132), 0 1.2px 3.6px 0 rgba(0,0,0,.108);
+    overflow: hidden;
+}
+div[role="toolbar"] {
+    height: 100%;
+}
+div[role="tabpanel"] {
+    height: calc(100% - 44px);
+    padding: 12px 16px;
+    overflow-y: auto;
+    position: relative;
+}
+.settings .loading {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fffa;
+    z-index: 8;
+}
+.settings .loading .ms-Spinner {
+    margin-top: 180px;
+}
+.tab-body {
+    margin-bottom: 24px;
+}
+.tab-body .ms-StackItem {
+    margin-right: 6px;
+    margin-bottom: 12px;
+}
+.tab-body .ms-StackItem:last-child {
+    margin-right: 0;
+}
+.tab-body .ms-ChoiceFieldGroup {
+    margin-bottom: 20px;
+}
+.tab-body .ms-CommandBar {
+    padding: 0;
+}
+img.favicon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    user-select: none;
+}
+img.favicon.dropdown {
+    margin-right: 8px;
+    vertical-align: sub;
+}
+.ms-DetailsList-contentWrapper {
+    max-height: 400px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+.settings-hint {
+    user-select: none;
+    line-height: 32px;
+    font-size: 12px;
+    color: var(--neutralSecondary);
+}
+.settings-hint.up {
+    position: relative;
+    top: -12px;
+    line-height: unset;
+}
+.settings-about {
+    margin: 72px 0;
+    color: var(--black);
+}
+.settings-about > * {
+    margin: 0 !important;
+    -webkit-user-drag: none;
+}
+.settings-rules-icons i {
+    color: var(--black);
+    user-select: none;
+}
+.settings-rules-icons i:last-of-type {
+    color: var(--neutralSecondary);
+}
+
+.main {
+    margin-top: calc(-1 * var(--navHeight));
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--neutralLighterAlt);
+}
+.main::before {
+    content: "";
+    display: block;
+    position: sticky;
+    top: var(--navHeight);
+    left: 0;
+    width: calc(100% - 16px);
+    height: var(--navHeight);
+    margin-bottom: calc(-1 * var(--navHeight));
+    background: linear-gradient(var(--neutralLighterAlt), #faf9f800);
+    z-index: 1;
+}
+.article-search {
+    z-index: 4;
+    position: absolute;
+    top:0;
+    left: 36px;
+    width: 100%;
+    max-width: calc(100% - 484px);
+    margin: 4px 16px;
+    border: none;
+    -webkit-app-region: none;
+    height: calc(var(--navHeight) - 4px);
+    box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132), 0 0.3px 0.9px 0 rgba(0,0,0,.108);
+}
+body.darwin .article-search {
+    left: 108px;
+    max-width: calc(100% - 384px);
+}
+.list-main .article-search {
+    max-width: 294px;
+    margin: 4px 10px;
+}
+body.darwin .list-main .article-search {
+    max-width: 314px;
+    left: 0;
+    top: var(--navHeight);
+    margin: 0 10px;
+}
+
+@media (min-width: 1441px) {
+    #root > nav.menu-on {
+        padding-left: 296px;
+    }
+    #root > nav.menu-on span.title, body.darwin #root > nav.menu-on span.title {
+        max-width: 300px;
+    }
+    nav.menu-on .btn-group .btn {
+        display: inline-block;
+    }
+    nav.menu-on .btn-group .btn.system {
+        color: var(--black);
+    }
+    nav.item-on .btn-group .btn.system {
+        color: var(--whiteConstant);
+    }
+    .menu-container {
+        width: 280px;
+        background: none;
+        backdrop-filter: none;
+    }
+    .menu-container .menu {
+        background-color: var(--neutralLight);
+    }
+    body.darwin .menu-container .menu {
+        background: none;
+    }
+    body.darwin .menu-container .menu.item-on {
+        background-color: var(--neutralLight);
+    }
+    .menu-container .menu::after {
+        content: "";
+        display: block;
+        pointer-events: none;
+        position: absolute;
+        top: -10%;
+        right: 0;
+        width: 120%;
+        height: 120%;
+        box-shadow: inset 5px 0 25px #0004;
+    }
+    .main.menu-on, .list-main.menu-on {
+        margin-left: 280px;
+    }
+    .menu-on .article-search {
+        left: 280px;
+        max-width: calc(100% - 728px);
+    }
+    body.darwin .menu-on .article-search {
+        left: 280px;
+        max-width: calc(100% - 556px);
+    }
+    .list-main.menu-on .article-search {
+        left: 0;
+        width: 330px;
+    }
+    body.darwin .list-main.menu-on .article-search {
+        left: 0;
+        top: 4px;
+    }
+
+    nav.hide-btns .btn-group .btn, nav.menu-on .btn-group .btn.hide-wide, .menu .btn-group .btn.hide-wide {
+        display: none;
+    }
+    .btn-group .btn.inline-block-wide {
+        display: inline-block;
+    }
+}

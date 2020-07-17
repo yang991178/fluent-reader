@@ -74,6 +74,8 @@
         "view": "视图",
         "cardView": "卡片视图",
         "listView": "列表视图",
+        "magazineView": "杂志视图",
+        "compactView": "紧凑视图",
         "filter": "筛选",
         "unreadOnly": "仅未读文章",
         "starredOnly": "仅星标文章",

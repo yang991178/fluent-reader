@@ -74,6 +74,8 @@
         "view": "View",
         "cardView": "Card view",
         "listView": "List view",
+        "magazineView": "Magazine view",
+        "compactView": "Compact view",
         "filter": "Filtering",
         "unreadOnly": "Unread only",
         "starredOnly": "Starred only",

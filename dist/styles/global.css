@@ -1,0 +1,237 @@
+:root {
+    --neutralLighterAlt: #faf9f8;
+    --neutralLighter: #f3f2f1;
+    --neutralLight: #edebe9;
+    --neutralQuaternaryAlt: #e1dfdd;
+    --neutralQuaternary: #d2d0ce;
+    --neutralTertiaryAlt: #c8c6c4;
+    --neutralTertiary: #a19f9d;
+    --neutralSecondaryAlt: #8a8886;
+    --neutralSecondary: #605e5c;
+    --neutralPrimaryAlt: #3b3a39;
+    --neutralPrimary: #323130;
+    --neutralDark: #201f1e;
+    --neutralDarker: #161514;
+    --black: #000;
+    --white: #fff;
+    --whiteConstant: #fff;
+    --navHeight: 32px;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --neutralLighterAlt: #282828;
+        --neutralLighter: #313131;
+        --neutralLight: #3f3f3f;
+        --neutralQuaternaryAlt: #484848;
+        --neutralQuaternary: #4f4f4f;
+        --neutralTertiaryAlt: #6d6d6d;
+        --neutralTertiary: #c8c8c8;
+        --neutralSecondaryAlt: #d2d0ce;
+        --neutralSecondary: #d0d0d0;
+        --neutralPrimaryAlt: #dadada;
+        --neutralPrimary: #ffffff;
+        --neutralDark: #f4f4f4;
+        --neutralDarker: #f4f4f4;
+        --black: #f8f8f8;
+        --white: #1f1f1f;
+        --whiteConstant: #f8f8f8;
+    }
+}
+body.darwin {
+    --navHeight: 38px;
+}
+
+html, body {
+    background-color: transparent;
+    font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+}
+#root {
+    height: 100%;
+}
+
+.ms-ContextualMenu-link, .ms-Button, .ms-ContextualMenu-item button {
+    cursor: default;
+    font-size: 13px;
+    user-select: none;
+}
+.ms-Nav-link, .ms-Nav-chevronButton {
+    font-size: 12px;
+    line-height: 32px;
+    height: 32px;
+    background-color: transparent;
+    color: var(--neutralPrimary);
+}
+.ms-Button--primary.danger {
+    background: #d13438;
+    border-color: #d13438;
+}
+.ms-Button--primary.danger:hover {
+    background: #ba2d32;
+    border-color: #ba2d32;
+}
+.ms-Button--primary.danger:active {
+    background: #a4262c;
+    border-color: #a4262c;
+}
+.ms-Button--primary.danger.is-disabled {
+    background: var(--neutralLighter);
+    border-color: var(--neutralLighter);
+}
+.ms-Button--commandBar.active {
+    background-color: var(--neutralLight);
+    color: var(--neutralDark);
+}
+.ms-Button--commandBar.active .ms-Button-icon {
+    color: #005a9e;
+}
+i.ms-Nav-chevron {
+    line-height: 32px;
+    height: 32px;
+}
+.ms-Nav-groupContent {
+    margin-bottom: 24px;
+}
+.ms-ActivityItem-activityTypeIcon, .ms-ActivityItem-timeStamp {
+    user-select: none;
+}
+.ms-Label, .ms-Spinner-label {
+    user-select: none;
+}
+.ms-ActivityItem, .ms-ActivityItem-commentText {
+    color: var(--neutralSecondary);
+}
+.ms-ActivityItem-timeStamp {
+    color: var(--neutralSecondaryAlt);
+}
+
+#root > nav {
+    height: var(--navHeight);
+    -webkit-app-region: drag;
+    user-select: none;
+    overflow: hidden;
+}
+#root > nav .btn, #root > nav span {
+    z-index: 1;
+    position: relative;
+}
+nav .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    height: 2px;
+    overflow: hidden;
+}
+.ms-ProgressIndicator-itemProgress {
+    padding: 0;
+}
+.ms-ProgressIndicator-progressTrack {
+    background: none;
+}
+#root > nav span.title {
+    font-size: 12px;
+    line-height: var(--navHeight);
+    vertical-align: top;
+    letter-spacing: 2px;
+    margin: 0 4px;
+    display: inline-block;
+    max-width: 280px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: var(--black);
+}
+body.darwin #root > nav span.title {
+    max-width: 220px;
+}
+.btn-group {
+    display: inline-block;
+    user-select: none;
+    -webkit-app-region: none;
+}
+.btn-group .seperator {
+    display: inline-block;
+    width: var(--navHeight);
+    font-size: 12px;
+    color: #c8c6c4;
+    text-align: center;
+    vertical-align: middle;
+}
+body.darwin .btn-group .seperator {
+    display: none;
+}
+.btn-group .seperator::before {
+    content: "|";
+}
+.btn-group .btn {
+    display: inline-block;
+    width: 48px;
+    height: 32px;
+    text-decoration: none;
+    text-align: center;
+    line-height: 32px;
+    color: var(--black);
+    font-size: 14px;
+    vertical-align: top;
+}
+#root > nav .btn-group .btn, .menu .btn-group .btn {
+    height: var(--navHeight);
+    line-height: var(--navHeight);
+}
+body.darwin #root > nav .btn-group .btn:first-of-type {
+    margin-left: 72px;
+}
+#root > nav .btn-group .btn.system {
+    position: relative;
+    z-index: 10;
+}
+nav.menu-on .btn-group .btn, nav.hide-btns .btn-group .btn {
+    display: none;
+}
+nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
+    display: inline-block;
+}
+nav.menu-on .btn-group .btn.system {
+    color: var(--white);
+}
+nav.item-on .btn-group .btn.system {
+    color: var(--whiteConstant);
+}
+.btn-group .btn:hover, .ms-Nav-compositeLink:hover {
+    background-color: #0001;
+}
+.btn-group .btn:active, .ms-Nav-compositeLink:active {
+    background-color: #0002;
+}
+.ms-Nav-compositeLink:hover .ms-Nav-link {
+    background: none;
+}
+.btn-group .btn.disabled, .btn-group .btn.fetching {
+    background-color: unset !important;
+    color: var(--neutralSecondaryAlt);
+}
+.btn-group .btn.fetching {
+    animation: rotating linear 1.5s infinite;
+}
+@keyframes rotating {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.btn-group .btn.close:hover {
+    background-color: #e81123;
+    color: var(--whiteConstant) !important;
+}
+.btn-group .btn.close:active {
+    background-color: #f1707a;
+    color: var(--whiteConstant) !important;
+}
+.btn-group .btn.inline-block-wide { 
+    display: none;
+}
+body.darwin .btn-group .btn.system {
+    display: none;
+}
