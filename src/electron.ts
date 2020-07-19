@@ -61,7 +61,7 @@ const winManager = new WindowManager()
 
 app.on("window-all-closed", () => {
     if (winManager.hasWindow()) {
-        winManager.mainWindow.webContents.session.clearStorageData({ storages: ["cookies"] })
+        winManager.mainWindow.webContents.session.clearStorageData({ storages: ["cookies", "localstorage"] })
     }
     winManager.mainWindow = null
     if (restarting) {

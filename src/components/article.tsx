@@ -215,7 +215,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
-                partition="sandbox" />
+                partition={this.state.loadWebpage ? "sandbox" : undefined} />
         </FocusZone>
     )
 }
