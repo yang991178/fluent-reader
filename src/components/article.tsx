@@ -2,7 +2,7 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { renderToString } from "react-dom/server"
 import { RSSItem } from "../scripts/models/item"
-import { Stack, CommandBarButton, IContextualMenuProps, FocusZone, ContextualMenuItemType } from "@fluentui/react"
+import { Stack, CommandBarButton, IContextualMenuProps, FocusZone, ContextualMenuItemType, Spinner, Icon, Link } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
 
@@ -25,6 +25,8 @@ type ArticleProps = {
 type ArticleState = {
     fontSize: number
     loadWebpage: boolean
+    loaded: boolean
+    error: boolean
 }
 
 class Article extends React.Component<ArticleProps, ArticleState> {
@@ -34,7 +36,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         super(props)
         this.state = {
             fontSize: this.getFontSize(),
-            loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage
+            loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage,
+            loaded: false,
+            error: false,
         }
         window.utils.addWebviewContextListener(this.contextMenuHandler)
         window.utils.addWebviewKeydownListener(this.keyDownHandler)
@@ -125,11 +129,27 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         }
     }
 
+    webviewLoaded = () => {
+        this.setState({loaded: true})
+    }
+    webviewError = () => {
+        this.setState({error: true})
+    }
+    webviewReload = () => {
+        if (this.webview) {
+            this.setState({loaded: false, error: false})
+            this.webview.reload()
+        }
+    }
+
     componentDidMount = () => {
         let webview = document.getElementById("article") as Electron.WebviewTag
         if (webview != this.webview) {
             this.webview = webview
             webview.focus()
+            this.setState({loaded: false, error: false})
+            webview.addEventListener("did-stop-loading", this.webviewLoaded)
+            webview.addEventListener("did-fail-load", this.webviewError)
             let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
             // @ts-ignore
             if (card) card.scrollIntoViewIfNeeded()
@@ -172,8 +192,11 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 <Stack className="actions" grow horizontal tokens={{childrenGap: 12}}>
                     <Stack.Item grow>
                         <span className="source-name">
-                            {this.props.source.iconurl && <img className="favicon" src={this.props.source.iconurl} />}
+                            {this.state.loaded
+                                ? (this.props.source.iconurl && <img className="favicon" src={this.props.source.iconurl} />)
+                                : <Spinner size={1} />}
                             {this.props.source.name}
+                            {this.props.item.creator && <span className="creator">{this.props.item.creator}</span>}
                         </span>
                     </Stack.Item>
                     <CommandBarButton
@@ -212,10 +235,20 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             </Stack>
             <webview 
                 id="article"
+                className={this.state.error ? "error" : ""}
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
                 partition={this.state.loadWebpage ? "sandbox" : undefined} />
+            {this.state.error && (
+                <Stack className="error-prompt" verticalAlign="center" horizontalAlign="center" tokens={{childrenGap: 12}}>
+                    <Icon iconName="HeartBroken" style={{fontSize: 32}} />
+                    <Stack horizontal horizontalAlign="center" tokens={{childrenGap: 7}}>
+                        <small>{intl.get("article.error")}</small>
+                        <small><Link onClick={this.webviewReload}>{intl.get("article.reload")}</Link></small>
+                    </Stack>
+                </Stack>
+            )}
         </FocusZone>
     )
 }

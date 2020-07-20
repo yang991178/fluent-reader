@@ -12,11 +12,7 @@ import { RootState } from "../scripts/reducer"
 const Root = ({ locale, dispatch }) => locale && (
     <div id="root" 
         key={locale}
-        onMouseDown={() => dispatch(closeContextMenu())}
-        onContextMenu={event => {
-            let text = document.getSelection().toString()
-            if (text) dispatch(openTextMenu(text, [event.clientX, event.clientY]))
-        }}>
+        onMouseDown={() => dispatch(closeContextMenu())}>
         <NavContainer />
         <PageContainer />
         <LogMenuContainer />

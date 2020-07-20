@@ -49,6 +49,8 @@
         "subscriptions": "Subscriptions"
     },
     "article": {
+        "error": "Failed to load article.",
+        "reload": "Reload?",
         "empty": "No articles",
         "untitled": "(Untitled)",
         "hide": "Hide article",

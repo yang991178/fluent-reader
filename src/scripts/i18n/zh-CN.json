@@ -49,6 +49,8 @@
         "subscriptions": "订阅源"
     },
     "article": {
+        "error": "文章加载失败",
+        "reload": "重新加载",
         "empty": "无文章",
         "untitled": "（无标题）",
         "hide": "隐藏文章",

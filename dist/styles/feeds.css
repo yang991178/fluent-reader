@@ -22,11 +22,16 @@
 }
 .article {
     height: 100%;
+    user-select: none;
 }
-.article webview {
+.article webview, .article .error-prompt {
     width: 100%;
     height: calc(100% - 36px);
     border: none;
+    color: var(--black);
+}
+.article webview.error {
+    display: none;
 }
 .article i.ms-Icon {
     color: var(--neutralDarker);
@@ -35,17 +40,30 @@
     color: var(--black);
     border-bottom: 1px solid var(--neutralQuaternaryAlt);
 }
-.article .actions .favicon {
-    margin-right: 8px;
+.article .actions .favicon, .article .actions .ms-Spinner {
+    margin: 8px 8px 11px 0;
+}
+.article .actions .ms-Spinner {
+    display: inline-block;
+    vertical-align: middle;
 }
 .article .actions .source-name {
     line-height: 35px;
     user-select: none;
-    max-width: 280px;
+    max-width: 320px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
+}
+.article .actions .creator {
+    color: var(--neutralSecondaryAlt);
+    user-select: text;
+}
+.article .actions .creator::before {
+    display: inline-block;
+    content: "/";
+    margin: 0 6px;
 }
 .side-article-wrapper, .side-logo-wrapper {
     flex-grow: 1;

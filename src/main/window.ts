@@ -78,6 +78,11 @@ export class WindowManager {
             this.mainWindow.on("unmaximize", () => {
                 this.mainWindow.webContents.send("unmaximized")
             })
+            this.mainWindow.webContents.on("context-menu", (_, params) => {
+                if (params.selectionText) {
+                    this.mainWindow.webContents.send("window-context-menu", [params.x, params.y], params.selectionText)
+                }
+            })
         }
     }
 
