@@ -62,6 +62,13 @@ const utilsBridge = {
         })
     },
 
+    addWebviewErrorListener: (callback: (reason: string) => any) => {
+        ipcRenderer.removeAllListeners("webview-error")
+        ipcRenderer.on("webview-error", (_, reason) => {
+            callback(reason)
+        })
+    },
+
     writeClipboard: (text: string) => {
         ipcRenderer.invoke("write-clipboard", text)
     },

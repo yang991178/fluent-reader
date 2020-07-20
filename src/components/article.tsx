@@ -27,6 +27,7 @@ type ArticleState = {
     loadWebpage: boolean
     loaded: boolean
     error: boolean
+    errorDescription: string
 }
 
 class Article extends React.Component<ArticleProps, ArticleState> {
@@ -39,9 +40,11 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage,
             loaded: false,
             error: false,
+            errorDescription: "",
         }
         window.utils.addWebviewContextListener(this.contextMenuHandler)
         window.utils.addWebviewKeydownListener(this.keyDownHandler)
+        window.utils.addWebviewErrorListener(this.webviewError)
     }
 
     getFontSize = () => {
@@ -132,8 +135,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     webviewLoaded = () => {
         this.setState({loaded: true})
     }
-    webviewError = () => {
-        this.setState({error: true})
+    webviewError = (reason: string) => {
+        this.setState({error: true, errorDescription: reason})
     }
     webviewReload = () => {
         if (this.webview) {
@@ -149,7 +152,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             webview.focus()
             this.setState({loaded: false, error: false})
             webview.addEventListener("did-stop-loading", this.webviewLoaded)
-            webview.addEventListener("did-fail-load", this.webviewError)
             let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
             // @ts-ignore
             if (card) card.scrollIntoViewIfNeeded()
@@ -247,6 +249,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         <small>{intl.get("article.error")}</small>
                         <small><Link onClick={this.webviewReload}>{intl.get("article.reload")}</Link></small>
                     </Stack>
+                    <span style={{fontSize: 11}}>{this.state.errorDescription}</span>
                 </Stack>
             )}
         </FocusZone>
