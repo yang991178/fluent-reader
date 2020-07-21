@@ -64,7 +64,7 @@
         "copyTitle": "Copier le titre",
         "copyURL": "Copier le lien",
         "copy": "Copier",
-        "search": "Rechercher \"{text}\" sur Google",
+        "search": "Rechercher \"{text}\" sur {engine}",
         "view": "Affichage",
         "cardView": "Vue par carte",
         "listView": "Vue par liste",

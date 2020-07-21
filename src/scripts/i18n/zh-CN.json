@@ -72,7 +72,7 @@
         "copyTitle": "复制标题",
         "copyURL": "复制链接",
         "copy": "复制",
-        "search": "使用 Google 搜索“{text}”",
+        "search": "使用 {engine} 搜索“{text}”",
         "view": "视图",
         "cardView": "卡片视图",
         "listView": "列表视图",
@@ -84,6 +84,11 @@
         "fullSearch": "在正文中搜索",
         "showHidden": "显示隐藏文章",
         "manageSources": "管理订阅源"
+    },
+    "searchEngine": {
+        "name": "搜索引擎",
+        "bing": "必应",
+        "baidu": "百度"
     },
     "settings": {
         "writeError": "写入文件时发生错误",

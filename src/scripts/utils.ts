@@ -4,6 +4,7 @@ import { AnyAction } from "redux"
 import { RootState } from "./reducer"
 import Parser from "@yang991178/rss-parser"
 import Url from "url"
+import { SearchEngines } from "../schema-types"
 
 export enum ActionStatus {
     Request, Success, Failure, Intermediate
@@ -108,7 +109,30 @@ export const cutText = (s: string, length: number) => {
     return (s.length <= length) ? s : s.slice(0, length) + "…"
 }
 
-export const googleSearch = (text: string) => window.utils.openExternal("https://www.google.com/search?q=" + encodeURIComponent(text))
+export function getSearchEngineName(engine: SearchEngines) {
+    switch (engine) {
+        case SearchEngines.Google: 
+            return intl.get("searchEngine.google")
+        case SearchEngines.Bing: 
+            return intl.get("searchEngine.bing")
+        case SearchEngines.Baidu: 
+            return intl.get("searchEngine.baidu")
+        case SearchEngines.DuckDuckGo: 
+            return intl.get("searchEngine.duckduckgo")
+    }
+}
+export function webSearch(text: string, engine=SearchEngines.Google) {
+    switch (engine) {
+        case SearchEngines.Google:
+            return window.utils.openExternal("https://www.google.com/search?q=" + encodeURIComponent(text))
+        case SearchEngines.Bing:
+            return window.utils.openExternal("https://www.bing.com/search?q=" + encodeURIComponent(text))
+        case SearchEngines.Baidu:
+            return window.utils.openExternal("https://www.baidu.com/s?wd=" + encodeURIComponent(text))
+        case SearchEngines.DuckDuckGo:
+            return window.utils.openExternal("https://duckduckgo.com/?q=" + encodeURIComponent(text))
+    }
+}
 
 export function mergeSortedArrays<T>(a: T[], b: T[], cmp: ((x: T, y: T) => number)): T[] {
     let merged = new Array<T>()

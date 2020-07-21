@@ -1,7 +1,7 @@
 import * as React from "react"
 import intl from "react-intl-universal"
 import QRCode from "qrcode.react"
-import { cutText, googleSearch } from "../scripts/utils"
+import { cutText, webSearch, getSearchEngineName } from "../scripts/utils"
 import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, DirectionalHint } from "office-ui-fabric-react/lib/ContextualMenu"
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
@@ -44,6 +44,19 @@ const renderShareQR = (item: IContextualMenuItem) => (
             renderAs="svg" />
     </div>
 )
+
+function getSearchItem(text: string): IContextualMenuItem {
+    const engine = window.settings.getSearchEngine()
+    return {
+        key: "searchText",
+        text: intl.get("context.search", {
+            text: cutText(text, 15),
+            engine: getSearchEngineName(engine)
+        }),
+        iconProps: { iconName: "Search" },
+        onClick: () => webSearch(text, engine)
+    }
+}
 
 export class ContextMenu extends React.Component<ContextMenuProps> {
     getItems = (): IContextualMenuItem[] => {
@@ -137,12 +150,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     iconProps: { iconName: "Copy" },
                     onClick: () => { window.utils.writeClipboard(this.props.text) }
                 },
-                {
-                    key: "searchText",
-                    text: intl.get("context.search", { text: cutText(this.props.text, 15) }),
-                    iconProps: { iconName: "Search" },
-                    onClick: () => { googleSearch(this.props.text) }
-                }
+                getSearchItem(this.props.text)
             ]
             case ContextMenuType.View: return [
                 {

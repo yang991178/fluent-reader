@@ -72,7 +72,7 @@
         "copyTitle": "Copy title",
         "copyURL": "Copy link",
         "copy": "Copy",
-        "search": "Search \"{text}\" on Google",
+        "search": "Search \"{text}\" on {engine}",
         "view": "View",
         "cardView": "Card view",
         "listView": "List view",
@@ -84,6 +84,13 @@
         "fullSearch": "Search in full text",
         "showHidden": "Show hidden articles",
         "manageSources": "Manage sources"
+    },
+    "searchEngine": {
+        "name": "Search engine",
+        "google": "Google",
+        "bing": "Bing",
+        "baidu": "Baidu",
+        "duckduckgo": "DuckDuckGo"
     },
     "settings": {
         "writeError": "An error has occurred while writing the file.",

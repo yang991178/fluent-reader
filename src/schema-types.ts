@@ -28,6 +28,10 @@ export const enum ThemeSettings {
     Dark = "dark"
 }
 
+export const enum SearchEngines {
+    Google, Bing, Baidu, DuckDuckGo
+}
+
 export type SchemaTypes = {
     version: string
     theme: ThemeSettings
@@ -39,4 +43,5 @@ export type SchemaTypes = {
     fontSize: number
     menuOn: boolean
     fetchInterval: number
+    searchEngine: SearchEngines
 }
