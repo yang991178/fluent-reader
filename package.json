@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "A simplistic, modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -20,7 +20,10 @@
     "appId": "me.hyliu.fluentreader",
     "productName": "Fluent Reader",
     "copyright": "Copyright © 2020 Haoyuan Liu",
-    "files": "./dist/**/*",
+    "files": [
+      "./dist/**/*",
+      "!**/*.js.map"
+    ],
     "directories": {
       "output": "./bin/${platform}/${arch}/"
     },
@@ -91,6 +94,7 @@
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
     "electron-window-state": "^5.0.3",
+    "hard-source-webpack-plugin": "^0.13.1",
     "html-webpack-plugin": "^4.3.0",
     "nedb": "^1.8.0",
     "qrcode.react": "^1.0.0",

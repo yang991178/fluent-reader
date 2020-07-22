@@ -42,6 +42,12 @@ const utilsBridge = {
         await ipcRenderer.invoke("clear-cache")
     },
 
+    addMainContextListener: (callback: (pos: [number, number], text: string) => any) => {
+        ipcRenderer.removeAllListeners("window-context-menu")
+        ipcRenderer.on("window-context-menu", (_, pos, text) => {
+            callback(pos, text)
+        })
+    },
     addWebviewContextListener: (callback: (pos: [number, number], text: string) => any) => {
         ipcRenderer.removeAllListeners("webview-context-menu")
         ipcRenderer.on("webview-context-menu", (_, pos, text) => {
@@ -53,6 +59,13 @@ const utilsBridge = {
         ipcRenderer.removeAllListeners("webview-keydown")
         ipcRenderer.on("webview-keydown", (_, input) => {
             callback(input)
+        })
+    },
+
+    addWebviewErrorListener: (callback: (reason: string) => any) => {
+        ipcRenderer.removeAllListeners("webview-error")
+        ipcRenderer.on("webview-error", (_, reason) => {
+            callback(reason)
         })
     },
 

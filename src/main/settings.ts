@@ -1,6 +1,6 @@
 import Store = require("electron-store")
-import { SchemaTypes, SourceGroup, ViewType, ThemeSettings } from "../schema-types"
-import { ipcMain, session, nativeTheme, BrowserWindow, app } from "electron"
+import { SchemaTypes, SourceGroup, ViewType, ThemeSettings, SearchEngines } from "../schema-types"
+import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
 
 export const store = new Store<SchemaTypes>()
@@ -127,4 +127,12 @@ ipcMain.on("get-fetch-interval", (event) => {
 })
 ipcMain.handle("set-fetch-interval", (_, interval: number) => {
     store.set(FETCH_INTEVAL_STORE_KEY, interval)
+})
+
+const SEARCH_ENGINE_STORE_KEY = "searchEngine"
+ipcMain.on("get-search-engine", (event) => {
+    event.returnValue = store.get(SEARCH_ENGINE_STORE_KEY, SearchEngines.Google)
+})
+ipcMain.handle("set-search-engine", (_, engine: SearchEngines) => {
+    store.set(SEARCH_ENGINE_STORE_KEY, engine)
 })

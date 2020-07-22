@@ -82,6 +82,11 @@ export function setUtilsListeners(manager: WindowManager) {
 
     app.on("web-contents-created", (_, contents) => {
         if (contents.getType() === "webview") {
+            contents.on("did-fail-load", (event, code, desc, validated, isMainFrame) => {
+                if (isMainFrame && manager.hasWindow()) {
+                    manager.mainWindow.webContents.send("webview-error", desc)
+                }
+            })
             contents.on("context-menu", (_, params) => {
                 if (params.selectionText && manager.hasWindow()) {
                     manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y], params.selectionText)

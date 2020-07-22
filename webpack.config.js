@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 module.exports = [
   {
@@ -19,7 +20,10 @@ module.exports = [
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
       path: __dirname + '/dist',
       filename: 'electron.js'
-    }
+    },
+    plugins: [
+      new HardSourceWebpackPlugin()
+    ]
   },
   {
     mode: 'production',
@@ -38,7 +42,10 @@ module.exports = [
     output: {
       path: __dirname + '/dist',
       filename: 'preload.js'
-    }
+    },
+    plugins: [
+      new HardSourceWebpackPlugin()
+    ]
   },
   {
     mode: 'production',
@@ -63,6 +70,7 @@ module.exports = [
       filename: 'index.js'
     },
     plugins: [
+      new HardSourceWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: './src/index.html'
       })

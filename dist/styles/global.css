@@ -52,6 +52,9 @@ html, body {
     height: 100%;
 }
 
+.ms-Link {
+    user-select: none;
+}
 .ms-ContextualMenu-link, .ms-Button, .ms-ContextualMenu-item button {
     cursor: default;
     font-size: 13px;

@@ -1,4 +1,4 @@
-import { SourceGroup, ViewType, ThemeSettings, SchemaTypes } from "../schema-types"
+import { SourceGroup, ViewType, ThemeSettings, SearchEngines } from "../schema-types"
 import { ipcRenderer } from "electron"
 
 const settingsBridge = {
@@ -73,6 +73,13 @@ const settingsBridge = {
     },
     setFetchInterval: (interval: number) => {
         ipcRenderer.invoke("set-fetch-interval", interval)
+    },
+
+    getSearchEngine: (): SearchEngines => {
+        return ipcRenderer.sendSync("get-search-engine")
+    },
+    setSearchEngine: (engine: SearchEngines) => {
+        ipcRenderer.invoke("set-search-engine", engine)
     },
 
     getAll: () => {

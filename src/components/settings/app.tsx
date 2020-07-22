@@ -1,7 +1,7 @@
 import * as React from "react"
 import intl from "react-intl-universal"
-import { urlTest, byteToMB, calculateItemSize } from "../../scripts/utils"
-import { ThemeSettings } from "../../schema-types"
+import { urlTest, byteToMB, calculateItemSize, getSearchEngineName } from "../../scripts/utils"
+import { ThemeSettings, SearchEngines } from "../../schema-types"
 import { getThemeSettings, setThemeSettings, exportAll } from "../../scripts/settings"
 import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption, PrimaryButton } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
@@ -71,6 +71,16 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     ]
     onFetchIntervalChanged = (item: IDropdownOption) => {
         this.props.setFetchInterval(item.key as number)
+    }
+
+    searchEngineOptions = (): IDropdownOption[] => [
+        SearchEngines.Google, SearchEngines.Bing, SearchEngines.Baidu, SearchEngines.DuckDuckGo
+    ].map(engine => ({
+        key: engine,
+        text: getSearchEngineName(engine)
+    }))
+    onSearchEngineChanged = (item: IDropdownOption) => {
+        window.settings.setSearchEngine(item.key as number)
     }
 
     deleteOptions = (): IDropdownOption[] => [
@@ -149,6 +159,17 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                         defaultSelectedKey={window.settings.getFetchInterval()}
                         options={this.fetchIntervalOptions()}
                         onChanged={this.onFetchIntervalChanged}
+                        style={{width: 200}} />
+                </Stack.Item>
+            </Stack>
+
+            <Label>{intl.get("searchEngine.name")}</Label>
+            <Stack horizontal>
+                <Stack.Item>
+                    <Dropdown 
+                        defaultSelectedKey={window.settings.getSearchEngine()}
+                        options={this.searchEngineOptions()}
+                        onChanged={this.onSearchEngineChanged}
                         style={{width: 200}} />
                 </Stack.Item>
             </Stack>

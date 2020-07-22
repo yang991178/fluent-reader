@@ -8,7 +8,7 @@ import { rootReducer, RootState } from "./scripts/reducer"
 import Root from "./components/root"
 import { AppDispatch } from "./scripts/utils"
 import { applyThemeSettings } from "./scripts/settings"
-import { initApp } from "./scripts/models/app"
+import { initApp, openTextMenu } from "./scripts/models/app"
 
 window.settings.setProxy()
 
@@ -21,6 +21,10 @@ const store = createStore(
 )
 
 store.dispatch(initApp())
+
+window.utils.addMainContextListener((pos, text) => {
+    store.dispatch(openTextMenu(text, pos))
+})
 
 ReactDOM.render(
     <Provider store={store}>

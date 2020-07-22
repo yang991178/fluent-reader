@@ -5,7 +5,7 @@ import Time from "../utils/time"
 
 const className = (props: Card.Props) => {
     let cn = ["card", "compact-card"]
-    if (props.item.hasRead) cn.push("read")
+    if (props.item.hidden) cn.push("hidden")
     return cn.join(" ")
 }
 
