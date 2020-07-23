@@ -80,6 +80,9 @@
     left: 0;
     background: #0003;
 }
+.card span.h {
+    background: #fce100b0;
+}
 
 .default-card {
     display: inline-block;

@@ -182,9 +182,9 @@ export function calculateItemSize(): Promise<number> {
     })
 }
 
-export function validateRegex(regex: string): RegExp {
+export function validateRegex(regex: string, flags = ""): RegExp {
     try {
-        return new RegExp(regex)
+        return new RegExp(regex, flags)
     } catch {
         return null
     }

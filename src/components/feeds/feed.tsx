@@ -11,6 +11,7 @@ export type FeedProps = FeedReduxProps & {
     viewType: ViewType
     items: RSSItem[]
     sourceMap: Object
+    keyword: string
     shortcuts: (item: RSSItem, key: string) => void
     markRead: (item: RSSItem) => void
     contextMenu: (feedId: string, item: RSSItem, e) => void
