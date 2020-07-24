@@ -24,7 +24,7 @@ const MagazineCard: React.FunctionComponent<Card.Props> = (props) => (
                 <h3 className="title"><Highlights text={props.item.title} keyword={props.keyword} title /></h3>
                 <p className="snippet"><Highlights text={props.item.snippet} keyword={props.keyword} /></p>
             </div>
-            <CardInfo source={props.source} item={props.item} />
+            <CardInfo source={props.source} item={props.item} showCreator />
         </div>
     </div>
 )
