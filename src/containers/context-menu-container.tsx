@@ -38,6 +38,10 @@ const mapStateToProps = createSelector(
                 event: context.event,
                 sids: context.target
             }
+            case ContextMenuType.Image: return {
+                type: context.type,
+                position: context.position
+            }
             default: return { type: ContextMenuType.Hidden }
         }
     }

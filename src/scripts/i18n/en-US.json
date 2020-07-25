@@ -83,7 +83,10 @@
         "starredOnly": "Starred only",
         "fullSearch": "Search in full text",
         "showHidden": "Show hidden articles",
-        "manageSources": "Manage sources"
+        "manageSources": "Manage sources",
+        "saveImageAs": "Save image as …",
+        "copyImage": "Copy image",
+        "copyImageURL": "Copy image link"
     },
     "searchEngine": {
         "name": "Search engine",

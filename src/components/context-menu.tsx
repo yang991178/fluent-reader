@@ -6,7 +6,7 @@ import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, Directiona
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
-import { ViewType } from "../schema-types"
+import { ViewType, ImageCallbackTypes } from "../schema-types"
 import { FilterType } from "../scripts/models/feed"
 
 export type ContextMenuProps = ContextReduxProps & {
@@ -151,6 +151,32 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     onClick: () => { window.utils.writeClipboard(this.props.text) }
                 },
                 getSearchItem(this.props.text)
+            ]
+            case ContextMenuType.Image: return [
+                {
+                    key: "openInBrowser",
+                    text: intl.get("openExternal"),
+                    iconProps: { iconName: "NavigateExternalInline" },
+                    onClick: () => { window.utils.imageCallback(ImageCallbackTypes.OpenExternal) }
+                },
+                {
+                    key: "saveImageAs",
+                    text: intl.get("context.saveImageAs"),
+                    iconProps: { iconName: "SaveTemplate" },
+                    onClick: () => { window.utils.imageCallback(ImageCallbackTypes.SaveAs) }
+                },
+                {
+                    key: "copyImage",
+                    text: intl.get("context.copyImage"),
+                    iconProps: { iconName: "FileImage" },
+                    onClick: () => { window.utils.imageCallback(ImageCallbackTypes.Copy) }
+                },
+                {
+                    key: "copyImageURL",
+                    text: intl.get("context.copyImageURL"),
+                    iconProps: { iconName: "Link" },
+                    onClick: () => { window.utils.imageCallback(ImageCallbackTypes.CopyLink) }
+                }
             ]
             case ContextMenuType.View: return [
                 {

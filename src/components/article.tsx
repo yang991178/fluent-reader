@@ -19,6 +19,7 @@ type ArticleProps = {
     toggleStarred: (item: RSSItem) => void
     toggleHidden: (item: RSSItem) => void
     textMenu: (text: string, position: [number, number]) => void
+    imageMenu: (position: [number, number]) => void
     dismissContextMenu: () => void
 }
 
@@ -95,7 +96,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
 
     contextMenuHandler = (pos: [number, number], text: string) => {
         if (pos) {
-            this.props.textMenu(text, pos)
+            if (text) this.props.textMenu(text, pos)
+            else this.props.imageMenu(pos)
         } else {
             this.props.dismissContextMenu()
         }

@@ -1,4 +1,5 @@
 import { ipcRenderer } from "electron"
+import { ImageCallbackTypes } from "../schema-types"
 
 const utilsBridge = {
     platform: process.platform,
@@ -53,6 +54,9 @@ const utilsBridge = {
         ipcRenderer.on("webview-context-menu", (_, pos, text) => {
             callback(pos, text)
         })
+    },
+    imageCallback: (type: ImageCallbackTypes) => {
+        ipcRenderer.invoke("image-callback", type)
     },
 
     addWebviewKeydownListener: (callback: (event: Electron.Input) => any) => {

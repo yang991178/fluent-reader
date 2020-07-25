@@ -10,7 +10,7 @@ import locales from "../i18n/_locales"
 import * as db from "../db"
 
 export const enum ContextMenuType {
-    Hidden, Item, Text, View, Group
+    Hidden, Item, Text, View, Group, Image
 }
 
 export const enum AppLogType {
@@ -74,6 +74,7 @@ export const OPEN_ITEM_MENU = "OPEN_ITEM_MENU"
 export const OPEN_TEXT_MENU = "OPEN_TEXT_MENU"
 export const OPEN_VIEW_MENU = "OPEN_VIEW_MENU"
 export const OPEN_GROUP_MENU = "OPEN_GROUP_MENU"
+export const OPEN_IMAGE_MENU = "OPEN_IMAGE_MENU"
 
 interface CloseContextMenuAction {
     type: typeof CLOSE_CONTEXT_MENU
@@ -102,8 +103,13 @@ interface OpenGroupMenuAction {
     sids: number[]
 }
 
+interface OpenImageMenuAction {
+    type: typeof OPEN_IMAGE_MENU
+    position: [number, number]
+}
+
 export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction 
-    | OpenTextMenuAction | OpenViewMenuAction | OpenGroupMenuAction
+    | OpenTextMenuAction | OpenViewMenuAction | OpenGroupMenuAction | OpenImageMenuAction
 
 export const TOGGLE_LOGS = "TOGGLE_LOGS"
 export const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
@@ -160,6 +166,13 @@ export function openGroupMenu(sids: number[], event: React.MouseEvent): ContextM
         type: OPEN_GROUP_MENU,
         event: event.nativeEvent,
         sids: sids
+    }
+}
+
+export function openImageMenu(position: [number, number]): ContextMenuActionTypes {
+    return {
+        type: OPEN_IMAGE_MENU,
+        position: position
     }
 }
 
@@ -420,6 +433,13 @@ export function appReducer(
                 type: ContextMenuType.Group,
                 event: action.event,
                 target: action.sids
+            }
+        }
+        case OPEN_IMAGE_MENU: return {
+            ...state,
+            contextMenu: {
+                type: ContextMenuType.Image,
+                position: action.position
             }
         }
         case TOGGLE_MENU: return {

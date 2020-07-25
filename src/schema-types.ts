@@ -32,6 +32,10 @@ export const enum SearchEngines {
     Google, Bing, Baidu, DuckDuckGo
 }
 
+export const enum ImageCallbackTypes {
+    OpenExternal, SaveAs, Copy, CopyLink
+}
+
 export type SchemaTypes = {
     version: string
     theme: ThemeSettings

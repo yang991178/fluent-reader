@@ -83,7 +83,10 @@
         "starredOnly": "仅星标文章",
         "fullSearch": "在正文中搜索",
         "showHidden": "显示隐藏文章",
-        "manageSources": "管理订阅源"
+        "manageSources": "管理订阅源",
+        "saveImageAs": "将图像另存为",
+        "copyImage": "复制图像",
+        "copyImageURL": "复制图像链接"
     },
     "searchEngine": {
         "name": "搜索引擎",

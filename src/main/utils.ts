@@ -1,6 +1,7 @@
 import { ipcMain, shell, dialog, app, session, webContents, clipboard } from "electron"
 import { WindowManager } from "./window"
 import fs = require("fs")
+import { ImageCallbackTypes } from "../schema-types"
 
 export function openExternal(url: string) {
     if (url.startsWith("https://") || url.startsWith("http://"))
@@ -88,8 +89,29 @@ export function setUtilsListeners(manager: WindowManager) {
                 }
             })
             contents.on("context-menu", (_, params) => {
-                if (params.selectionText && manager.hasWindow()) {
-                    manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y], params.selectionText)
+                if ((params.hasImageContents || params.selectionText) && manager.hasWindow()) {
+                    if (params.hasImageContents) {
+                        ipcMain.removeHandler("image-callback")
+                        ipcMain.handleOnce("image-callback", (_, type: ImageCallbackTypes) => {
+                            switch (type) {
+                                case ImageCallbackTypes.OpenExternal:
+                                    openExternal(params.srcURL)
+                                    break
+                                case ImageCallbackTypes.SaveAs: 
+                                    contents.session.downloadURL(params.srcURL)
+                                    break
+                                case ImageCallbackTypes.Copy:
+                                    contents.copyImageAt(params.x, params.y)
+                                    break
+                                case ImageCallbackTypes.CopyLink: 
+                                    clipboard.writeText(params.srcURL)
+                                    break
+                            }
+                        })
+                        manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y])
+                    } else {
+                        manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y], params.selectionText)
+                    }
                     contents.executeJavaScript(`new Promise(resolve => {
                         const dismiss = () => {
                             document.removeEventListener("mousedown", dismiss)
