@@ -1,5 +1,5 @@
 import intl from "react-intl-universal"
-import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources } from "./source"
+import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources, SourceOpenTarget } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
@@ -226,14 +226,16 @@ export function setupAutoFetch(): AppThunk {
 
 export function pushNotification(item: RSSItem): AppThunk {
     return (dispatch, getState) => {
-        const state = getState()
-        const sourceName = state.sources[item.source].name
+        const sourceName = getState().sources[item.source].name
         if (!window.utils.isFocused()) {
             const options = { body: sourceName } as any
             if (item.thumb) options.icon = item.thumb
             const notification = new Notification(item.title, options)
             notification.onclick = () => {
-                if (!getState().app.settings.display) {
+                const state = getState()
+                if (state.sources[item.source].openTarget === SourceOpenTarget.External) {
+                    window.utils.openExternal(item.link)
+                } else if (!state.app.settings.display) {
                     window.utils.focus()
                     dispatch(showItemFromId(item._id))
                 }
