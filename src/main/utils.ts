@@ -1,20 +1,41 @@
-import { ipcMain, shell, dialog, app, session, webContents, clipboard } from "electron"
+import { ipcMain, shell, dialog, app, session, clipboard } from "electron"
 import { WindowManager } from "./window"
 import fs = require("fs")
 import { ImageCallbackTypes } from "../schema-types"
 
-export function openExternal(url: string) {
-    if (url.startsWith("https://") || url.startsWith("http://"))
-        shell.openExternal(url)
-}
-
 export function setUtilsListeners(manager: WindowManager) {
+    async function openExternal(url: string, background=false) {
+        if (url.startsWith("https://") || url.startsWith("http://")) {
+            if (background && process.platform === "darwin") {
+                shell.openExternal(url, { activate: false })
+            } else if (background && manager.hasWindow()) {
+                manager.mainWindow.setAlwaysOnTop(true)
+                await shell.openExternal(url)
+                setTimeout(() => manager.mainWindow.setAlwaysOnTop(false), 1000)
+            } else {
+                shell.openExternal(url)
+            }
+        }
+    }
+    
+    app.on("web-contents-created", (_, contents) => {
+        contents.on("new-window", (event, url, _, disposition) => {
+            if (manager.hasWindow()) event.preventDefault()
+            if (contents.getType() === "webview") openExternal(url, disposition === "background-tab")
+        })
+        contents.on("will-navigate", (event, url) => {
+            event.preventDefault()
+            if (contents.getType() === "webview") openExternal(url)
+        })
+    })
+    
+
     ipcMain.on("get-version", (event) => {
         event.returnValue = app.getVersion()
     })
 
-    ipcMain.handle("open-external", (_, url: string) => {
-        openExternal(url)
+    ipcMain.handle("open-external", (_, url: string, background: boolean) => {
+        openExternal(url, background)
     })
 
     ipcMain.handle("show-error-box", (_, title, content) => {
@@ -95,7 +116,8 @@ export function setUtilsListeners(manager: WindowManager) {
                         ipcMain.handleOnce("image-callback", (_, type: ImageCallbackTypes) => {
                             switch (type) {
                                 case ImageCallbackTypes.OpenExternal:
-                                    openExternal(params.srcURL)
+                                case ImageCallbackTypes.OpenExternalBg:
+                                    openExternal(params.srcURL, type === ImageCallbackTypes.OpenExternalBg)
                                     break
                                 case ImageCallbackTypes.SaveAs: 
                                     contents.session.downloadURL(params.srcURL)
@@ -164,6 +186,10 @@ export function setUtilsListeners(manager: WindowManager) {
         if (manager.hasWindow()) {
             const win = manager.mainWindow
             if (win.isMinimized()) win.restore()
+            if (process.platform === "win32") { 
+                win.setAlwaysOnTop(true)
+                win.setAlwaysOnTop(false)
+            }
             win.focus()
         }
     })

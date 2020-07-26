@@ -75,9 +75,9 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     key: "openInBrowser",
                     text: intl.get("openExternal"),
                     iconProps: { iconName: "NavigateExternalInline" },
-                    onClick: () => {
+                    onClick: (e) => {
                         this.props.markRead(this.props.item)
-                        window.utils.openExternal(this.props.item.link)
+                        window.utils.openExternal(this.props.item.link, window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey)
                     }
                 },
                 {
@@ -157,7 +157,13 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     key: "openInBrowser",
                     text: intl.get("openExternal"),
                     iconProps: { iconName: "NavigateExternalInline" },
-                    onClick: () => { window.utils.imageCallback(ImageCallbackTypes.OpenExternal) }
+                    onClick: (e) => { 
+                        if (window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey) {
+                            window.utils.imageCallback(ImageCallbackTypes.OpenExternalBg)
+                        } else {
+                            window.utils.imageCallback(ImageCallbackTypes.OpenExternal)
+                        }
+                    }
                 },
                 {
                     key: "saveImageAs",

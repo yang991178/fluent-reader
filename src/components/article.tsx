@@ -72,7 +72,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key: "openInBrowser",
                 text: intl.get("openExternal"),
                 iconProps: { iconName: "NavigateExternalInline" },
-                onClick: this.openInBrowser
+                onClick: e => { window.utils.openExternal(this.props.item.link, window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey) }
             },
             {
                 key: "copyURL",
@@ -169,10 +169,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     componentWillUnmount = () => {
         let refocus = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
         if (refocus) refocus.focus()
-    }
-
-    openInBrowser = () => {
-        window.utils.openExternal(this.props.item.link)
     }
 
     toggleWebpage = () => {

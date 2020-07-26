@@ -14,9 +14,9 @@ export namespace Card {
         showItem: (fid: string, item: RSSItem) => void
     }
 
-    const openInBrowser = (props: Props) => {
+    const openInBrowser = (props: Props, e: React.MouseEvent) => {
         props.markRead(props.item)
-        window.utils.openExternal(props.item.link)
+        window.utils.openExternal(props.item.link, window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey)
     }
 
     export const bindEventsToProps = (props: Props) => ({
@@ -36,7 +36,7 @@ export namespace Card {
                 break
             }
             case SourceOpenTarget.External: {
-                openInBrowser(props)
+                openInBrowser(props, e)
                 break
             }
         }
@@ -47,7 +47,7 @@ export namespace Card {
         e.stopPropagation()
         switch (e.button) {
             case 1:
-                openInBrowser(props)
+                openInBrowser(props, e)
                 break
             case 2:
                 props.contextMenu(props.feedId, props.item, e)

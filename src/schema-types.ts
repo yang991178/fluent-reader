@@ -33,7 +33,7 @@ export const enum SearchEngines {
 }
 
 export const enum ImageCallbackTypes {
-    OpenExternal, SaveAs, Copy, CopyLink
+    OpenExternal, OpenExternalBg, SaveAs, Copy, CopyLink
 }
 
 export type SchemaTypes = {

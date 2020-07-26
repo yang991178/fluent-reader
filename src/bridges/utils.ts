@@ -8,8 +8,8 @@ const utilsBridge = {
         return ipcRenderer.sendSync("get-version")
     },
 
-    openExternal: (url: string) => {
-        ipcRenderer.invoke("open-external", url)
+    openExternal: (url: string, background=false) => {
+        ipcRenderer.invoke("open-external", url, background)
     },
 
     showErrorBox: (title: string, content: string) => {
