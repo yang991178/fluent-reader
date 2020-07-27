@@ -25,6 +25,8 @@ jobs:
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload AppImage to release assets
       uses: actions/upload-release-asset@v1
