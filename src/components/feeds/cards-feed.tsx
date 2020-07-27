@@ -47,6 +47,7 @@ class CardsFeed extends React.Component<FeedProps> {
             key={item._id}
             item={item}
             source={this.props.sourceMap[item.source]}
+            keyword={this.props.keyword}
             shortcuts={this.props.shortcuts}
             markRead={this.props.markRead}
             contextMenu={this.props.contextMenu}

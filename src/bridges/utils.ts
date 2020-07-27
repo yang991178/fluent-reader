@@ -1,4 +1,5 @@
 import { ipcRenderer } from "electron"
+import { ImageCallbackTypes } from "../schema-types"
 
 const utilsBridge = {
     platform: process.platform,
@@ -7,8 +8,8 @@ const utilsBridge = {
         return ipcRenderer.sendSync("get-version")
     },
 
-    openExternal: (url: string) => {
-        ipcRenderer.invoke("open-external", url)
+    openExternal: (url: string, background=false) => {
+        ipcRenderer.invoke("open-external", url, background)
     },
 
     showErrorBox: (title: string, content: string) => {
@@ -53,6 +54,9 @@ const utilsBridge = {
         ipcRenderer.on("webview-context-menu", (_, pos, text) => {
             callback(pos, text)
         })
+    },
+    imageCallback: (type: ImageCallbackTypes) => {
+        ipcRenderer.invoke("image-callback", type)
     },
 
     addWebviewKeydownListener: (callback: (event: Electron.Input) => any) => {

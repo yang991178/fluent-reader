@@ -47,7 +47,7 @@ export async function parseRSS(url: string) {
             throw new Error(intl.get("log.parseError"))
         }
     } else {
-        throw new Error(result.statusText)
+        throw new Error(result.status + " " + result.statusText)
     }
 }
 
@@ -182,9 +182,9 @@ export function calculateItemSize(): Promise<number> {
     })
 }
 
-export function validateRegex(regex: string): RegExp {
+export function validateRegex(regex: string, flags = ""): RegExp {
     try {
-        return new RegExp(regex)
+        return new RegExp(regex, flags)
     } catch {
         return null
     }

@@ -16,15 +16,17 @@ interface FeedContainerProps {
 const getSources = (state: RootState) => state.sources
 const getItems = (state: RootState) => state.items
 const getFeed = (state: RootState, props: FeedContainerProps) => state.feeds[props.feedId]
+const getKeyword = (state: RootState) => state.page.filter.search
 const getView = (_, props: FeedContainerProps) => props.viewType
 
 const makeMapStateToProps = () => {
     return createSelector(
-        [getSources, getItems, getFeed, getView],
-        (sources, items, feed, viewType) => ({
+        [getSources, getItems, getFeed, getView, getKeyword],
+        (sources, items, feed, viewType, keyword) => ({
             feed: feed,
             items: feed.iids.map(iid => items[iid]),
             sourceMap: sources,
+            keyword: keyword,
             viewType: viewType
         })
     )

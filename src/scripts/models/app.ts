@@ -1,5 +1,5 @@
 import intl from "react-intl-universal"
-import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources } from "./source"
+import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources, SourceOpenTarget } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
@@ -10,7 +10,7 @@ import locales from "../i18n/_locales"
 import * as db from "../db"
 
 export const enum ContextMenuType {
-    Hidden, Item, Text, View, Group
+    Hidden, Item, Text, View, Group, Image
 }
 
 export const enum AppLogType {
@@ -74,6 +74,7 @@ export const OPEN_ITEM_MENU = "OPEN_ITEM_MENU"
 export const OPEN_TEXT_MENU = "OPEN_TEXT_MENU"
 export const OPEN_VIEW_MENU = "OPEN_VIEW_MENU"
 export const OPEN_GROUP_MENU = "OPEN_GROUP_MENU"
+export const OPEN_IMAGE_MENU = "OPEN_IMAGE_MENU"
 
 interface CloseContextMenuAction {
     type: typeof CLOSE_CONTEXT_MENU
@@ -102,8 +103,13 @@ interface OpenGroupMenuAction {
     sids: number[]
 }
 
+interface OpenImageMenuAction {
+    type: typeof OPEN_IMAGE_MENU
+    position: [number, number]
+}
+
 export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction 
-    | OpenTextMenuAction | OpenViewMenuAction | OpenGroupMenuAction
+    | OpenTextMenuAction | OpenViewMenuAction | OpenGroupMenuAction | OpenImageMenuAction
 
 export const TOGGLE_LOGS = "TOGGLE_LOGS"
 export const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
@@ -163,6 +169,13 @@ export function openGroupMenu(sids: number[], event: React.MouseEvent): ContextM
     }
 }
 
+export function openImageMenu(position: [number, number]): ContextMenuActionTypes {
+    return {
+        type: OPEN_IMAGE_MENU,
+        position: position
+    }
+}
+
 export function toggleMenu(): AppThunk {
     return (dispatch, getState) => {
         dispatch({ type: TOGGLE_MENU })
@@ -213,14 +226,16 @@ export function setupAutoFetch(): AppThunk {
 
 export function pushNotification(item: RSSItem): AppThunk {
     return (dispatch, getState) => {
-        const state = getState()
-        const sourceName = state.sources[item.source].name
+        const sourceName = getState().sources[item.source].name
         if (!window.utils.isFocused()) {
             const options = { body: sourceName } as any
             if (item.thumb) options.icon = item.thumb
             const notification = new Notification(item.title, options)
             notification.onclick = () => {
-                if (!getState().app.settings.display) {
+                const state = getState()
+                if (state.sources[item.source].openTarget === SourceOpenTarget.External) {
+                    window.utils.openExternal(item.link)
+                } else if (!state.app.settings.display) {
                     window.utils.focus()
                     dispatch(showItemFromId(item._id))
                 }
@@ -420,6 +435,13 @@ export function appReducer(
                 type: ContextMenuType.Group,
                 event: action.event,
                 target: action.sids
+            }
+        }
+        case OPEN_IMAGE_MENU: return {
+            ...state,
+            contextMenu: {
+                type: ContextMenuType.Image,
+                position: action.position
             }
         }
         case TOGGLE_MENU: return {

@@ -204,29 +204,26 @@ export function addSourceFailure(err, batch: boolean): SourceActionTypes {
     }
 }
 
-function insertSource(source: RSSSource, trials = 0): AppThunk<Promise<RSSSource>> {
-    return (dispatch, getState) => {
+let insertPromises = Promise.resolve()
+function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
+    return (_, getState) => {
         return new Promise((resolve, reject) => {
-            if (trials >= 25) {
-                reject("Failed to insert the source into NeDB.")
-                return
-            }
-            let sids = Object.values(getState().sources).map(s => s.sid)
-            source.sid = Math.max(...sids, -1) + 1
-            db.sdb.insert(source, (err, inserted) => {
-                if (err) {
-                    if (/^Can't insert key [0-9]+,/.test(err.message)) {
-                        console.log("sid conflict")
-                        dispatch(insertSource(source, trials + 1))
-                            .then(inserted => resolve(inserted))
-                            .catch(err => reject(err))
+            insertPromises = insertPromises.then(() => new Promise(innerResolve => {
+                let sids = Object.values(getState().sources).map(s => s.sid)
+                source.sid = Math.max(...sids, -1) + 1
+                db.sdb.insert(source, (err, inserted) => {
+                    if (err) {
+                        if ((new RegExp(`^Can't insert key ${source.url},`)).test(err.message)) {
+                            reject(intl.get("sources.exist"))
+                        } else {
+                            reject(err)
+                        }
                     } else {
-                        reject(err)
+                        resolve(inserted)
                     }
-                } else {
-                    resolve(inserted)
-                }
-            })
+                    innerResolve()
+                })
+            }))
         })
     }
 

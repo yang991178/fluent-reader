@@ -7,18 +7,25 @@ export namespace Card {
         feedId: string
         item: RSSItem
         source: RSSSource
+        keyword: string
         shortcuts: (item: RSSItem, key: string) => void
         markRead: (item: RSSItem) => void
         contextMenu: (feedId: string, item: RSSItem, e) => void
         showItem: (fid: string, item: RSSItem) => void
     }
 
-    export const openInBrowser = (props: Props) => {
+    const openInBrowser = (props: Props, e: React.MouseEvent) => {
         props.markRead(props.item)
-        window.utils.openExternal(props.item.link)
+        window.utils.openExternal(props.item.link, window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey)
     }
 
-    export const onClick = (props: Props, e: React.MouseEvent) => {
+    export const bindEventsToProps = (props: Props) => ({
+        onClick: (e: React.MouseEvent) => onClick(props, e),
+        onMouseUp: (e: React.MouseEvent) => onMouseUp(props, e),
+        onKeyDown: (e: React.KeyboardEvent) => onKeyDown(props, e),
+    })
+
+    const onClick = (props: Props, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
         switch (props.source.openTarget) {
@@ -29,25 +36,25 @@ export namespace Card {
                 break
             }
             case SourceOpenTarget.External: {
-                openInBrowser(props)
+                openInBrowser(props, e)
                 break
             }
         }
     }
 
-    export const onMouseUp = (props: Props, e: React.MouseEvent) => {
+    const onMouseUp = (props: Props, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
         switch (e.button) {
             case 1:
-                openInBrowser(props)
+                openInBrowser(props, e)
                 break
             case 2:
                 props.contextMenu(props.feedId, props.item, e)
         }
     }
 
-    export const onKeyDown = (props: Props, e: React.KeyboardEvent) => {
+    const onKeyDown = (props: Props, e: React.KeyboardEvent) => {
         props.shortcuts(props.item, e.key)
     }
 }

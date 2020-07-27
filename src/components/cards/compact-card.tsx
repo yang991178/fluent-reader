@@ -2,6 +2,7 @@ import * as React from "react"
 import { Card } from "./card"
 import CardInfo from "./info"
 import Time from "../utils/time"
+import Highlights from "./highlights"
 
 const className = (props: Card.Props) => {
     let cn = ["card", "compact-card"]
@@ -12,15 +13,13 @@ const className = (props: Card.Props) => {
 const CompactCard: React.FunctionComponent<Card.Props> = (props) => (
     <div
         className={className(props)}
-        onClick={e => Card.onClick(props, e)}
-        onMouseUp={e => Card.onMouseUp(props, e)}
-        onKeyDown={e => Card.onKeyDown(props, e)}
+        {...Card.bindEventsToProps(props)}
         data-iid={props.item._id}
         data-is-focusable>
         <CardInfo source={props.source} item={props.item} hideTime />
         <div className="data">
-            <span className="title">{props.item.title}</span>
-            <span className={"snippet" + (props.item.thumb ? "" : " show")}>{props.item.snippet.slice(0, 325)}</span>
+            <span className="title"><Highlights text={props.item.title} keyword={props.keyword} title /></span>
+            <span className="snippet"><Highlights text={props.item.snippet} keyword={props.keyword} /></span>
         </div>
         <Time date={props.item.date} />
     </div>
