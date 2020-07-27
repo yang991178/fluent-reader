@@ -47,7 +47,7 @@ export async function parseRSS(url: string) {
             throw new Error(intl.get("log.parseError"))
         }
     } else {
-        throw new Error(result.statusText)
+        throw new Error(result.status + " " + result.statusText)
     }
 }
 
