@@ -1,6 +1,6 @@
 import * as db from "../db"
 import intl from "react-intl-universal"
-import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
+import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
@@ -331,21 +331,22 @@ export function toggleHidden(item: RSSItem): AppThunk {
     }
 }
 
-export function itemShortcuts(item: RSSItem, key: string): AppThunk {
+export function itemShortcuts(item: RSSItem, e: KeyboardEvent): AppThunk {
     return (dispatch) => {
-        switch (key) {
+        switch (e.key) {
             case "m": case "M":
                 if (item.hasRead) dispatch(markUnread(item))
                 else dispatch(markRead(item))
                 break
             case "b": case "B":
                 if (!item.hasRead) dispatch(markRead(item))
-                window.utils.openExternal(item.link)
+                window.utils.openExternal(item.link, platformCtrl(e))
                 break
             case "s": case "S":
                 dispatch(toggleStarred(item))
                 break
             case "h": case "H":
+                if (!item.hasRead) dispatch(markRead(item))
                 dispatch(toggleHidden(item))
                 break
         }

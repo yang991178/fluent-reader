@@ -1,6 +1,7 @@
 import * as React from "react"
 import { RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { RSSItem } from "../../scripts/models/item"
+import { platformCtrl } from "../../scripts/utils"
 
 export namespace Card {
     export type Props = {
@@ -8,7 +9,7 @@ export namespace Card {
         item: RSSItem
         source: RSSSource
         keyword: string
-        shortcuts: (item: RSSItem, key: string) => void
+        shortcuts: (item: RSSItem, e: KeyboardEvent) => void
         markRead: (item: RSSItem) => void
         contextMenu: (feedId: string, item: RSSItem, e) => void
         showItem: (fid: string, item: RSSItem) => void
@@ -16,7 +17,7 @@ export namespace Card {
 
     const openInBrowser = (props: Props, e: React.MouseEvent) => {
         props.markRead(props.item)
-        window.utils.openExternal(props.item.link, window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey)
+        window.utils.openExternal(props.item.link, platformCtrl(e))
     }
 
     export const bindEventsToProps = (props: Props) => ({
@@ -55,6 +56,6 @@ export namespace Card {
     }
 
     const onKeyDown = (props: Props, e: React.KeyboardEvent) => {
-        props.shortcuts(props.item, e.key)
+        props.shortcuts(props.item, e.nativeEvent)
     }
 }

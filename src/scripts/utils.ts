@@ -189,3 +189,7 @@ export function validateRegex(regex: string, flags = ""): RegExp {
         return null
     }
 }
+
+export function platformCtrl(e: React.MouseEvent | React.KeyboardEvent | MouseEvent | KeyboardEvent) {
+    return window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey
+}

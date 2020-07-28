@@ -28,7 +28,7 @@ const makeMapStateToProps = () => {
 
 const mapDispatchToProps = (dispatch: AppDispatch) => {
     return {
-        shortcuts: (item: RSSItem, key: string) => dispatch(itemShortcuts(item, key)),
+        shortcuts: (item: RSSItem, e: KeyboardEvent) => dispatch(itemShortcuts(item, e)),
         dismiss: () => dispatch(dismissItem()),
         offsetItem: (offset: number) => dispatch(showOffsetItem(offset)),
         toggleHasRead: (item: RSSItem) => dispatch(item.hasRead ? markUnread(item) : markRead(item)),

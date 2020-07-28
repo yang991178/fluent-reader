@@ -226,7 +226,6 @@ function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
             }))
         })
     }
-
 }
 
 export function addSource(url: string, name: string = null, batch = false): AppThunk<Promise<number>> {
