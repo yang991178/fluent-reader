@@ -9,8 +9,8 @@ let dom = domParser.parseFromString(html, "text/html")
 let baseEl = dom.createElement('base')
 baseEl.setAttribute('href', get("u").split("/").slice(0, 3).join("/"))
 dom.head.append(baseEl)
-for (let i of dom.querySelectorAll("img")) {
-    i.src = i.src
+for (let e of dom.querySelectorAll("*[src]")) {
+    e.src = e.src
 }
 for (let s of dom.querySelectorAll("script")) {
     s.parentNode.removeChild(s)
