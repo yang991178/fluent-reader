@@ -18,11 +18,10 @@ macOS users can also get Fluent Reader from the [Mac App Store](https://apps.app
 
 If you are using Linux or an older version of Windows, you can [get Fluent Reader from GitHub releases](https://github.com/yang991178/fluent-reader/releases).
 
-Also, you can get Fluent Reader from a [Scoop](https://scoop.sh) bucket [peach](https://github.com/ChungZH/peach):
+Also, you can get Fluent Reader from [Scoop](https://scoop.sh):
 
 ```powershell
-scoop bucket add peach https://github.com/ChungZH/peach
-scoop install peach/fluent-reader
+scoop install fluent-reader # in extras bucket
 ```
 
 ## Features
