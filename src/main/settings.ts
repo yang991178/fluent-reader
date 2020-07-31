@@ -1,5 +1,6 @@
 import Store = require("electron-store")
-import { SchemaTypes, SourceGroup, ViewType, ThemeSettings, SearchEngines } from "../schema-types"
+import { SchemaTypes, SourceGroup, ViewType, ThemeSettings, SearchEngines,
+    SyncService, ServiceConfigs } from "../schema-types"
 import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
 
@@ -135,4 +136,12 @@ ipcMain.on("get-search-engine", (event) => {
 })
 ipcMain.handle("set-search-engine", (_, engine: SearchEngines) => {
     store.set(SEARCH_ENGINE_STORE_KEY, engine)
+})
+
+const SERVICE_CONFIGS_STORE_KEY = "serviceConfigs"
+ipcMain.on("get-service-configs", (event) => {
+    event.returnValue = store.get(SERVICE_CONFIGS_STORE_KEY, { type: SyncService.None })
+})
+ipcMain.handle("set-service-configs", (_, configs: ServiceConfigs) => {
+    store.set(SERVICE_CONFIGS_STORE_KEY, configs)
 })

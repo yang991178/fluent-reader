@@ -103,6 +103,7 @@
         "sources": "Sources",
         "grouping": "Groups",
         "rules": "Rules",
+        "service": "Service",
         "app": "Preferences",
         "about": "About",
         "version": "Version",
@@ -174,6 +175,11 @@
         "selectAction": "Select actions",
         "hint": "Rules will be applied in order. Drag and drop to reorder.",
         "test": "Test rules"
+    },
+    "service": {
+        "intro": "Sync across devices with RSS services.",
+        "select": "Select a service",
+        "suggest": "Suggest a new service"
     },
     "app": {
         "cleanup": "Clean up",

@@ -18,6 +18,7 @@ export class RSSSource {
     openTarget: SourceOpenTarget
     unreadCount: number
     lastFetched: Date
+    isRemote?: true
     fetchFrequency?: number // in minutes
     rules?: SourceRule[]
 

@@ -101,6 +101,7 @@
         "sources": "订阅源",
         "grouping": "分组与排序",
         "rules": "规则",
+        "service": "服务",
         "app": "应用偏好",
         "about": "关于",
         "version": "版本",
@@ -172,6 +173,11 @@
         "selectAction": "选择行为",
         "hint": "规则将按顺序执行，拖拽以排序",
         "test": "测试规则"
+    },
+    "service": {
+        "intro": "通过 RSS 服务跨设备保持同步",
+        "select": "选择服务",
+        "suggest": "建议一项新服务"
     },
     "app": {
         "cleanup": "清理",

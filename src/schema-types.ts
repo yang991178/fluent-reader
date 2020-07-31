@@ -36,6 +36,13 @@ export const enum ImageCallbackTypes {
     OpenExternal, OpenExternalBg, SaveAs, Copy, CopyLink
 }
 
+export const enum SyncService {
+    None, Fever
+}
+export interface ServiceConfigs {
+    type: SyncService
+}
+
 export type SchemaTypes = {
     version: string
     theme: ThemeSettings
@@ -48,4 +55,5 @@ export type SchemaTypes = {
     menuOn: boolean
     fetchInterval: number
     searchEngine: SearchEngines
+    serviceConfigs: ServiceConfigs
 }

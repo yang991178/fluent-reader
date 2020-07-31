@@ -3,7 +3,7 @@ import intl from "react-intl-universal"
 import { SourceGroup } from "../../schema-types"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
-     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, IDragDropContext } from "@fluentui/react"
+     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
 
 type GroupsTabProps = {
@@ -233,7 +233,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
     createGroup = (event: React.FormEvent) => {
         event.preventDefault()
         let trimmed = this.state.newGroupName.trim()
-        if (trimmed.length > 0) this.props.createGroup(trimmed)
+        if (this.validateNewGroupName(trimmed) === "") this.props.createGroup(trimmed)
     }
 
     addToGroup = () => {

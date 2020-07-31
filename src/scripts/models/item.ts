@@ -5,6 +5,7 @@ import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
 import { pushNotification, setupAutoFetch } from "./app"
+import { getServiceHooks, syncWithService } from "./service"
 
 export class RSSItem {
     _id: string
@@ -171,13 +172,18 @@ export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
 }
 
 export function fetchItems(background = false): AppThunk<Promise<void>> {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
+        try {
+            await dispatch(syncWithService())
+        } catch (err) {
+            console.log(err)
+        }
         let promises = new Array<Promise<RSSItem[]>>()
         if (!getState().app.fetchingItems) {
             let timenow = new Date().getTime()
             let sources = <RSSSource[]>Object.values(getState().sources).filter(s => {
                 let last = s.lastFetched ? s.lastFetched.getTime() : 0
-                return (last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow)
+                return !s.isRemote && ((last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow))
             })
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
@@ -185,7 +191,8 @@ export function fetchItems(background = false): AppThunk<Promise<void>> {
                 promises.push(promise)
             }
             dispatch(fetchItemsRequest(promises.length))
-            return Promise.allSettled(promises).then(results => new Promise<void>((resolve, reject) => { 
+            const results = await Promise.allSettled(promises)
+            return await new Promise<void>((resolve, reject) => {
                 let items = new Array<RSSItem>()
                 results.map((r, i) => {
                     if (r.status === "fulfilled") items.push(...r.value)
@@ -216,9 +223,8 @@ export function fetchItems(background = false): AppThunk<Promise<void>> {
                     console.log(err)
                     reject(err)
                 })
-            }))
+            })
         }
-        return new Promise((resolve) => { resolve() })
     }
 }
 
@@ -233,10 +239,13 @@ const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
 })
 
 export function markRead(item: RSSItem): AppThunk {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         if (!item.hasRead) {
             db.idb.update({ _id: item._id }, { $set: { hasRead: true } })
             dispatch(markReadDone(item))
+            if (getState().sources[item.source].isRemote) {
+                dispatch(getServiceHooks()).markRead?.(item)
+            }
         }
     }
 }
@@ -287,14 +296,18 @@ export function markAllRead(sids: number[] = null, date: Date = null, before = t
                 if (date) callback(affectedDocuments as unknown as RSSItem[])
         })
         if (!date) callback()
+        dispatch(getServiceHooks()).markAllRead?.(sids, date, before)
     }
 }
 
 export function markUnread(item: RSSItem): AppThunk {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         if (item.hasRead) {
             db.idb.update({ _id: item._id }, { $set: { hasRead: false } })
             dispatch(markUnreadDone(item))
+            if (getState().sources[item.source].isRemote) {
+                dispatch(getServiceHooks()).markUnread?.(item)
+            }
         }
     }
 }
@@ -305,13 +318,18 @@ const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
 })
 
 export function toggleStarred(item: RSSItem): AppThunk {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         if (item.starred === true) {
             db.idb.update({ _id: item._id }, { $unset: { starred: true } })
         } else {
             db.idb.update({ _id: item._id }, { $set: { starred: true } })
         }
         dispatch(toggleStarredDone(item))
+        if (getState().sources[item.source].isRemote) {
+            const hooks = dispatch(getServiceHooks())
+            if (item.starred) hooks.unstar?.(item)
+            else hooks.star?.(item)
+        }
     }
 }
 
