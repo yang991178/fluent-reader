@@ -101,7 +101,7 @@
         "fetching": "Updating sources, please wait …",
         "exit": "Exit settings",
         "sources": "Sources",
-        "grouping": "Grouping",
+        "grouping": "Groups",
         "rules": "Rules",
         "app": "Preferences",
         "about": "About",
@@ -137,6 +137,7 @@
         "selectedMulti": "Selected multiple sources"
     },
     "groups": {
+        "exist": "This group already exists.",
         "type": "Type",
         "group": "Group",
         "source": "Source",

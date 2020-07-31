@@ -64,9 +64,16 @@ export function createSourceGroupDone(group: SourceGroup): SourceGroupActionType
 
 export function createSourceGroup(name: string): AppThunk<number> {
     return (dispatch, getState) => {
+        let groups = getState().groups
+        for (let i = 0; i < groups.length; i += 1) {
+            const g = groups[i]
+            if (g.isMultiple && g.name === name) {
+                return i
+            }
+        }
         let group = new SourceGroup([], name)
         dispatch(createSourceGroupDone(group))
-        let groups = getState().groups
+        groups = getState().groups
         window.settings.saveGroups(groups)
         return groups.length - 1
     }

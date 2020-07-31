@@ -86,11 +86,16 @@ export function switchView(viewType: ViewType): PageActionTypes {
     }
 }
 
-export function showItem(feedId: string, item: RSSItem): PageActionTypes {
-    return {
-        type: SHOW_ITEM,
-        feedId: feedId,
-        item: item
+export function showItem(feedId: string, item: RSSItem): AppThunk {
+    return (dispatch, getState) => {
+        const state = getState()
+        if (state.items.hasOwnProperty(item._id) && state.sources.hasOwnProperty(item.source)) {
+            dispatch({
+                type: SHOW_ITEM,
+                feedId: feedId,
+                item: item
+            })
+        }
     }
 }
 export function showItemFromId(iid: string): AppThunk {

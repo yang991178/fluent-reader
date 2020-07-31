@@ -217,6 +217,19 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         this.setState({[name]: event.target.value})
     }
 
+    validateNewGroupName = (v: string) => {
+        const name = v.trim()
+        if (name.length == 0) {
+            return intl.get("emptyName")
+        }
+        for (let group of this.props.groups) {
+            if (group.isMultiple && group.name === name) {
+                return intl.get("groups.exist")
+            }
+        }
+        return ""
+    }
+
     createGroup = (event: React.FormEvent) => {
         event.preventDefault()
         let trimmed = this.state.newGroupName.trim()
@@ -283,7 +296,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                     <Stack horizontal>
                         <Stack.Item grow>
                             <TextField 
-                                onGetErrorMessage={v => v.trim().length == 0 ? intl.get("emptyName") : ""} 
+                                onGetErrorMessage={this.validateNewGroupName} 
                                 validateOnLoad={false} 
                                 placeholder={intl.get("groups.enterName")}
                                 value={this.state.newGroupName}
@@ -293,7 +306,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         </Stack.Item>
                         <Stack.Item>
                             <PrimaryButton 
-                                disabled={this.state.newGroupName.trim().length == 0}
+                                disabled={this.validateNewGroupName(this.state.newGroupName) !== ""}
                                 type="sumbit"
                                 text={intl.get("create")} />
                         </Stack.Item>

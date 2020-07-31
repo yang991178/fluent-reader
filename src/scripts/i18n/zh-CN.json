@@ -135,6 +135,7 @@
         "selectedMulti": "选中多个订阅源"
     },
     "groups": {
+        "exist": "该分组已存在",
         "type": "类型",
         "group": "分组",
         "source": "订阅源",
