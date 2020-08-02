@@ -102,7 +102,7 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
                 <MessageBar messageBarType={MessageBarType.info}>{intl.get("service.groupsWarning")}</MessageBar>
             )}
             <Stack horizontalAlign="center" style={{marginTop: 48}}>
-                <Icon iconName="Calories" style={{fontSize: 32, userSelect: "none"}} />
+                <Icon iconName="Calories" style={{color: "var(--black)", fontSize: 32, userSelect: "none"}} />
                 <Label style={{margin: "8px 0 36px"}}>Fever API</Label>
                 <Stack className="login-form" horizontal>
                     <Stack.Item>

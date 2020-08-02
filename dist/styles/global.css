@@ -113,6 +113,13 @@ i.ms-Nav-chevron {
     user-select: none;
     margin-bottom: 8px;
 }
+.ms-MessageBar:not(.ms-MessageBar--warning) {
+    background: var(--neutralLighter);
+    color: var(--neutralPrimary);
+}
+.ms-MessageBar:not(.ms-MessageBar--warning) i[data-icon-name="Info"] {
+    color: var(--neutralPrimary);
+}
 
 #root > nav {
     height: var(--navHeight);

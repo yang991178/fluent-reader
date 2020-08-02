@@ -264,7 +264,7 @@ export const feverServiceHooks: ServiceHooks = {
         const configs = state.service as FeverConfigs
         if (date && !before) {
             const iids = state.feeds[state.page.feedId].iids
-            const items = iids.map(iid => state.items[iid]).filter(i => i.date.getTime() >= date.getTime())
+            const items = iids.map(iid => state.items[iid]).filter(i => !i.hasRead && i.date.getTime() >= date.getTime())
             for (let item of items) {
                 if (item.serviceRef) {
                     markItem(configs, item, "read")

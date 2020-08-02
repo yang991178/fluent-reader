@@ -255,7 +255,8 @@ export function markAllRead(sids: number[] = null, date: Date = null, before = t
             let feed = state.feeds[state.page.feedId]
             sids = feed.sids
         }
-        dispatch(dispatch(getServiceHooks()).markAllRead?.(sids, date, before))
+        const action = dispatch(getServiceHooks()).markAllRead?.(sids, date, before)
+        if (action) dispatch(action)
         let query = { 
             source: { $in: sids },
             hasRead: false,
