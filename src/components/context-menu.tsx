@@ -1,7 +1,7 @@
 import * as React from "react"
 import intl from "react-intl-universal"
 import QRCode from "qrcode.react"
-import { cutText, webSearch, getSearchEngineName } from "../scripts/utils"
+import { cutText, webSearch, getSearchEngineName, platformCtrl } from "../scripts/utils"
 import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, DirectionalHint } from "office-ui-fabric-react/lib/ContextualMenu"
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
@@ -77,7 +77,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     iconProps: { iconName: "NavigateExternalInline" },
                     onClick: (e) => {
                         this.props.markRead(this.props.item)
-                        window.utils.openExternal(this.props.item.link, window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey)
+                        window.utils.openExternal(this.props.item.link, platformCtrl(e))
                     }
                 },
                 {
@@ -158,7 +158,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     text: intl.get("openExternal"),
                     iconProps: { iconName: "NavigateExternalInline" },
                     onClick: (e) => { 
-                        if (window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey) {
+                        if (platformCtrl(e)) {
                             window.utils.imageCallback(ImageCallbackTypes.OpenExternalBg)
                         } else {
                             window.utils.imageCallback(ImageCallbackTypes.OpenExternal)

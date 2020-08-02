@@ -3,12 +3,13 @@ import intl from "react-intl-universal"
 import { SourceGroup } from "../../schema-types"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
-     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, IDragDropContext } from "@fluentui/react"
+     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, MessageBar, MessageBarType } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
 
 type GroupsTabProps = {
     sources: SourceState,
     groups: SourceGroup[],
+    serviceOn: boolean,
     createGroup: (name: string) => void,
     updateGroup: (group: SourceGroup) => void,
     addToGroup: (groupIndex: number, sid: number) => void,
@@ -217,10 +218,23 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         this.setState({[name]: event.target.value})
     }
 
+    validateNewGroupName = (v: string) => {
+        const name = v.trim()
+        if (name.length == 0) {
+            return intl.get("emptyName")
+        }
+        for (let group of this.props.groups) {
+            if (group.isMultiple && group.name === name) {
+                return intl.get("groups.exist")
+            }
+        }
+        return ""
+    }
+
     createGroup = (event: React.FormEvent) => {
         event.preventDefault()
         let trimmed = this.state.newGroupName.trim()
-        if (trimmed.length > 0) this.props.createGroup(trimmed)
+        if (this.validateNewGroupName(trimmed) === "") this.props.createGroup(trimmed)
     }
 
     addToGroup = () => {
@@ -250,6 +264,9 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
 
     render = () => (
         <div className="tab-body">
+            {this.props.serviceOn && (
+                <MessageBar messageBarType={MessageBarType.info}>{intl.get("service.groupsWarning")}</MessageBar>
+            )}
             {this.state.manageGroup && this.state.selectedGroup &&
             <>
                 <Stack horizontal horizontalAlign="space-between" style={{height: 40}}>
@@ -283,7 +300,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                     <Stack horizontal>
                         <Stack.Item grow>
                             <TextField 
-                                onGetErrorMessage={v => v.trim().length == 0 ? intl.get("emptyName") : ""} 
+                                onGetErrorMessage={this.validateNewGroupName} 
                                 validateOnLoad={false} 
                                 placeholder={intl.get("groups.enterName")}
                                 value={this.state.newGroupName}
@@ -293,7 +310,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                         </Stack.Item>
                         <Stack.Item>
                             <PrimaryButton 
-                                disabled={this.state.newGroupName.trim().length == 0}
+                                disabled={this.validateNewGroupName(this.state.newGroupName) !== ""}
                                 type="sumbit"
                                 text={intl.get("create")} />
                         </Stack.Item>

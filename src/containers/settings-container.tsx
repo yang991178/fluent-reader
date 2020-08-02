@@ -10,7 +10,7 @@ const mapStateToProps = createSelector(
     [getApp],
     (app) => ({
     display: app.settings.display,
-    blocked: !app.sourceInit || app.fetchingItems || app.settings.saving,
+    blocked: !app.sourceInit || app.syncing || app.fetchingItems || app.settings.saving,
     exitting: app.settings.saving
 }))
 

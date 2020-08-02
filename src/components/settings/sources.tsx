@@ -1,13 +1,15 @@
 import * as React from "react"
 import intl from "react-intl-universal"
 import { Label, DefaultButton, TextField, Stack, PrimaryButton, DetailsList, 
-    IColumn, SelectionMode, Selection, IChoiceGroupOption, ChoiceGroup, IDropdownOption, Dropdown } from "@fluentui/react"
+    IColumn, SelectionMode, Selection, IChoiceGroupOption, ChoiceGroup, IDropdownOption, 
+    Dropdown, MessageBar, MessageBarType } from "@fluentui/react"
 import { SourceState, RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { urlTest } from "../../scripts/utils"
 import DangerButton from "../utils/danger-button"
 
 type SourcesTabProps = {
     sources: SourceState
+    serviceOn: boolean
     addSource: (url: string) => void
     updateSourceName: (source: RSSSource, name: string) => void
     updateSourceIcon: (source: RSSSource, iconUrl: string) => Promise<void>
@@ -154,6 +156,9 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
 
     render = () => (
         <div className="tab-body">
+            {this.props.serviceOn && (
+                <MessageBar messageBarType={MessageBarType.info}>{intl.get("sources.serviceWarning")}</MessageBar>
+            )}
             <Label>{intl.get("sources.opmlFile")}</Label>
             <Stack horizontal>
                 <Stack.Item>
@@ -196,6 +201,9 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                 selectionMode={SelectionMode.multiple} />
 
             {this.state.selectedSource && <>
+                {this.state.selectedSource.serviceRef && (
+                    <MessageBar messageBarType={MessageBarType.info}>{intl.get("sources.serviceManaged")}</MessageBar>
+                )}
                 <Label>{intl.get("sources.selected")}</Label>
                 <Stack horizontal>
                     <Stack.Item>
@@ -251,34 +259,39 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                     </>}
 
                 </Stack>
-                <Label>{intl.get("sources.fetchFrequency")}</Label>
-                <Stack>
-                    <Stack.Item>
-                        <Dropdown
-                            options={this.fetchFrequencyOptions()}
-                            selectedKey={this.state.selectedSource.fetchFrequency ? String(this.state.selectedSource.fetchFrequency) : "0"}
-                            onChange={this.onFetchFrequencyChange}
-                            style={{width: 200}} />
-                    </Stack.Item>
-                </Stack>
+                {!this.state.selectedSource.serviceRef && <>
+                    <Label>{intl.get("sources.fetchFrequency")}</Label>
+                    <Stack>
+                        <Stack.Item>
+                            <Dropdown
+                                options={this.fetchFrequencyOptions()}
+                                selectedKey={this.state.selectedSource.fetchFrequency ? String(this.state.selectedSource.fetchFrequency) : "0"}
+                                onChange={this.onFetchFrequencyChange}
+                                style={{width: 200}} />
+                        </Stack.Item>
+                    </Stack>
+                </>}
                 <ChoiceGroup 
                     label={intl.get("sources.openTarget")} 
                     options={this.sourceOpenTargetChoices()}
                     selectedKey={String(this.state.selectedSource.openTarget)}
                     onChange={this.onOpenTargetChange} />
-                <Stack horizontal>
-                    <Stack.Item>
-                        <DangerButton
-                            onClick={() => this.props.deleteSource(this.state.selectedSource)}
-                            key={this.state.selectedSource.sid}
-                            text={intl.get("sources.delete")} />
-                    </Stack.Item>
-                    <Stack.Item>
-                        <span className="settings-hint">{intl.get("sources.deleteWarning")}</span>
-                    </Stack.Item>
-                </Stack>
+                {!this.state.selectedSource.serviceRef && (
+                    <Stack horizontal>
+                        <Stack.Item>
+                            <DangerButton
+                                onClick={() => this.props.deleteSource(this.state.selectedSource)}
+                                key={this.state.selectedSource.sid}
+                                text={intl.get("sources.delete")} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <span className="settings-hint">{intl.get("sources.deleteWarning")}</span>
+                        </Stack.Item>
+                    </Stack>
+                )}
             </>}
-            {this.state.selectedSources && <>
+            {this.state.selectedSources && (this.state.selectedSources.filter(s => s.serviceRef).length === 0
+            ? <>
                 <Label>{intl.get("sources.selectedMulti")}</Label>
                 <Stack horizontal>
                     <Stack.Item>
@@ -290,7 +303,10 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                         <span className="settings-hint">{intl.get("sources.deleteWarning")}</span>
                     </Stack.Item>
                 </Stack>
-            </>}
+            </>
+            : (
+                <MessageBar messageBarType={MessageBarType.info}>{intl.get("sources.serviceManaged")}</MessageBar>
+            ))}
         </div>
     )
 }

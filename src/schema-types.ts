@@ -6,7 +6,7 @@ export class SourceGroup {
     index?: number // available only from groups tab container
 
     constructor(sids: number[], name: string = null) {
-        name = (name && name.trim()) || "订阅源组"
+        name = (name && name.trim()) || "Source group"
         if (sids.length == 1) {
             this.isMultiple = false
         } else {
@@ -36,6 +36,13 @@ export const enum ImageCallbackTypes {
     OpenExternal, OpenExternalBg, SaveAs, Copy, CopyLink
 }
 
+export const enum SyncService {
+    None, Fever
+}
+export interface ServiceConfigs {
+    type: SyncService
+}
+
 export type SchemaTypes = {
     version: string
     theme: ThemeSettings
@@ -48,4 +55,5 @@ export type SchemaTypes = {
     menuOn: boolean
     fetchInterval: number
     searchEngine: SearchEngines
+    serviceConfigs: ServiceConfigs
 }

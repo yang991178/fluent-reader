@@ -1,4 +1,4 @@
-import { SourceGroup, ViewType, ThemeSettings, SearchEngines } from "../schema-types"
+import { SourceGroup, ViewType, ThemeSettings, SearchEngines, ServiceConfigs } from "../schema-types"
 import { ipcRenderer } from "electron"
 
 const settingsBridge = {
@@ -80,6 +80,13 @@ const settingsBridge = {
     },
     setSearchEngine: (engine: SearchEngines) => {
         ipcRenderer.invoke("set-search-engine", engine)
+    },
+
+    getServiceConfigs: (): ServiceConfigs => {
+        return ipcRenderer.sendSync("get-service-configs")
+    },
+    setServiceConfigs: (configs: ServiceConfigs) => {
+        ipcRenderer.invoke("set-service-configs", configs)
     },
 
     getAll: () => {

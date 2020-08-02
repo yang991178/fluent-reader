@@ -5,6 +5,7 @@ import { RSSItem } from "../scripts/models/item"
 import { Stack, CommandBarButton, IContextualMenuProps, FocusZone, ContextualMenuItemType, Spinner, Icon, Link } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
+import { platformCtrl } from "../scripts/utils"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -12,7 +13,7 @@ type ArticleProps = {
     item: RSSItem
     source: RSSSource
     locale: string
-    shortcuts: (item: RSSItem, key: string) => void
+    shortcuts: (item: RSSItem, e: KeyboardEvent) => void
     dismiss: () => void
     offsetItem: (offset: number) => void
     toggleHasRead: (item: RSSItem) => void
@@ -72,7 +73,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 key: "openInBrowser",
                 text: intl.get("openExternal"),
                 iconProps: { iconName: "NavigateExternalInline" },
-                onClick: e => { window.utils.openExternal(this.props.item.link, window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey) }
+                onClick: e => { window.utils.openExternal(this.props.item.link, platformCtrl(e)) }
             },
             {
                 key: "copyURL",
@@ -117,7 +118,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     this.toggleWebpage()
                     break
                 default:
-                    this.props.shortcuts(this.props.item, input.key)
                     const keyboardEvent = new KeyboardEvent("keydown", {
                         code: input.code,
                         key: input.key,
@@ -128,6 +128,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         repeat: input.isAutoRepeat,
                         bubbles: true
                     })
+                    this.props.shortcuts(this.props.item, keyboardEvent)
                     document.dispatchEvent(keyboardEvent)
                     break
             }

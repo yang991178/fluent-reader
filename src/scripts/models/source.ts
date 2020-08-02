@@ -13,11 +13,12 @@ export enum SourceOpenTarget {
 export class RSSSource {
     sid: number
     url: string
-    iconurl: string
+    iconurl?: string
     name: string
     openTarget: SourceOpenTarget
     unreadCount: number
     lastFetched: Date
+    serviceRef?: string | number
     fetchFrequency?: number // in minutes
     rules?: SourceRule[]
 
@@ -156,6 +157,14 @@ function unreadCount(source: RSSSource): Promise<RSSSource> {
     })
 }
 
+export function updateUnreadCounts(): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        await Promise.all(Object.values(getState().sources).map(async s => {
+            dispatch(updateSourceDone(await unreadCount(s)))
+        }))
+    }
+}
+
 export function initSources(): AppThunk<Promise<void>> {
     return (dispatch) => {
         dispatch(initSourcesRequest())
@@ -205,7 +214,7 @@ export function addSourceFailure(err, batch: boolean): SourceActionTypes {
 }
 
 let insertPromises = Promise.resolve()
-function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
+export function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
     return (_, getState) => {
         return new Promise((resolve, reject) => {
             insertPromises = insertPromises.then(() => new Promise(innerResolve => {
@@ -226,7 +235,6 @@ function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
             }))
         })
     }
-
 }
 
 export function addSource(url: string, name: string = null, batch = false): AppThunk<Promise<number>> {
@@ -268,8 +276,8 @@ export function updateSourceDone(source: RSSSource): SourceActionTypes {
     }
 }
 
-export function updateSource(source: RSSSource): AppThunk {
-    return (dispatch) => {
+export function updateSource(source: RSSSource): AppThunk<Promise<void>> {
+    return (dispatch) => new Promise((resolve) => {
         let sourceCopy = { ...source }
         delete sourceCopy.sid
         delete sourceCopy.unreadCount
@@ -277,8 +285,9 @@ export function updateSource(source: RSSSource): AppThunk {
             if (!err) {
                 dispatch(updateSourceDone(source))
             }
+            resolve()
         })
-    }
+    })
 }
 
 export function deleteSourceDone(source: RSSSource): SourceActionTypes {

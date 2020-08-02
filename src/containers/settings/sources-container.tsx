@@ -7,13 +7,16 @@ import { addSource, RSSSource, updateSource, deleteSource, SourceOpenTarget, del
 import { importOPML, exportOPML } from "../../scripts/models/group"
 import { AppDispatch, validateFavicon } from "../../scripts/utils"
 import { saveSettings } from "../../scripts/models/app"
+import { SyncService } from "../../schema-types"
 
 const getSources = (state: RootState) => state.sources
+const getServiceOn = (state: RootState) => state.service.type !== SyncService.None
 
 const mapStateToProps = createSelector(
-    [getSources],
-    (sources) => ({
-        sources: sources
+    [getSources, getServiceOn],
+    (sources, serviceOn) => ({
+        sources: sources,
+        serviceOn: serviceOn
     })
 )
 

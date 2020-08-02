@@ -8,6 +8,7 @@ import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, showItemFrom
 import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
 import * as db from "../db"
+import { SYNC_SERVICE, ServiceActionTypes } from "./service"
 
 export const enum ContextMenuType {
     Hidden, Item, Text, View, Group, Image
@@ -37,6 +38,7 @@ export class AppState {
     locale = null as string
     sourceInit = false
     feedInit = false
+    syncing = false
     fetchingItems = false
     fetchingProgress = 0
     fetchingTotal = 0
@@ -292,6 +294,7 @@ export function appReducer(
     state = new AppState(),
     action: SourceActionTypes | ItemActionTypes | ContextMenuActionTypes | SettingsActionTypes | InitIntlAction
         | MenuActionTypes | LogMenuActionType | FeedActionTypes | PageActionTypes | SourceGroupActionTypes
+        | ServiceActionTypes
 ): AppState {
     switch (action.type) {
         case INIT_INTL: return {
@@ -345,6 +348,30 @@ export function appReducer(
                 default: return {
                     ...state,
                     feedInit: true
+                }
+            }
+        case SYNC_SERVICE:
+            switch (action.status) {
+                case ActionStatus.Request: return {
+                    ...state,
+                    syncing: true
+                }
+                case ActionStatus.Failure: return {
+                    ...state,
+                    syncing: false,
+                    logMenu: {
+                        ...state.logMenu,
+                        notify: true,
+                        logs: [...state.logMenu.logs, new AppLog(
+                            AppLogType.Failure,
+                            intl.get("log.syncFailure"),
+                            String(action.err)
+                        )]
+                    }
+                }
+                default: return {
+                    ...state,
+                    syncing: false
                 }
             }
         case FETCH_ITEMS:
@@ -452,6 +479,8 @@ export function appReducer(
             ...state,
             settings: {
                 ...state.settings,
+                display: true,
+                changed: true,
                 saving: !state.settings.saving
             }
         }

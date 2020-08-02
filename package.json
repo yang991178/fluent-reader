@@ -1,7 +1,7 @@
 {
   "name": "fluent-reader",
-  "version": "0.6.3",
-  "description": "A simplistic, modern desktop RSS reader",
+  "version": "0.7.0",
+  "description": "Modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
     "build": "webpack --config ./webpack.config.js",
@@ -96,6 +96,7 @@
     "electron-window-state": "^5.0.3",
     "hard-source-webpack-plugin": "^0.13.1",
     "html-webpack-plugin": "^4.3.0",
+    "js-md5": "^0.7.3",
     "nedb": "^1.8.0",
     "qrcode.react": "^1.0.0",
     "react": "^16.13.1",

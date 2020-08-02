@@ -32,7 +32,8 @@
         "fetchFailure": "Failed to load source \"{name}\".",
         "fetchSuccess": "Successfully fetched {count, plural, =1 {# article} other {# articles}}.",
         "networkError": "A network error has occurred.",
-        "parseError": "An error has occurred when parsing the XML feed."
+        "parseError": "An error has occurred when parsing the XML feed.",
+        "syncFailure": "Failed to sync with service"
     },
     "nav": {
         "menu": "Menu",
@@ -101,8 +102,9 @@
         "fetching": "Updating sources, please wait …",
         "exit": "Exit settings",
         "sources": "Sources",
-        "grouping": "Grouping",
+        "grouping": "Groups",
         "rules": "Rules",
+        "service": "Service",
         "app": "Preferences",
         "about": "About",
         "version": "Version",
@@ -111,6 +113,8 @@
         "feedback": "Feedback"
     },
     "sources": {
+        "serviceWarning": "Sources imported or added here will not be synced with your service.",
+        "serviceManaged": "This source is managed by your service.",
         "untitled": "Source",
         "errorAdd": "An error has occured when adding the source.",
         "errorParse": "An error has occurred when parsing the OPML file.",
@@ -137,6 +141,7 @@
         "selectedMulti": "Selected multiple sources"
     },
     "groups": {
+        "exist": "This group already exists.",
         "type": "Type",
         "group": "Group",
         "source": "Source",
@@ -173,6 +178,22 @@
         "selectAction": "Select actions",
         "hint": "Rules will be applied in order. Drag and drop to reorder.",
         "test": "Test rules"
+    },
+    "service": {
+        "intro": "Sync across devices with RSS services.",
+        "select": "Select a service",
+        "suggest": "Suggest a new service",
+        "overwriteWarning": "Local sources will be deleted if they exist in the service.",
+        "groupsWarning": "Groups are only imported on the first sync and will not stay synced.",
+        "endpoint": "Endpoint",
+        "username": "Username",
+        "password": "Password",
+        "unchanged": "Unchanged",
+        "fetchLimit": "Sync limit",
+        "fetchLimitNum": "{count} latest articles",
+        "importGroups": "Import groups",
+        "failure": "Cannot connect to service",
+        "failureHint": "Please check the service configuration or network status."
     },
     "app": {
         "cleanup": "Clean up",

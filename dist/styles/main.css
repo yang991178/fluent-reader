@@ -79,7 +79,7 @@ div[role="toolbar"] {
     height: 100%;
 }
 div[role="tabpanel"] {
-    height: calc(100% - 44px);
+    height: calc(100% - 68px);
     padding: 12px 16px;
     overflow-y: auto;
     position: relative;
@@ -95,9 +95,6 @@ div[role="tabpanel"] {
 }
 .settings .loading .ms-Spinner {
     margin-top: 180px;
-}
-.tab-body {
-    margin-bottom: 24px;
 }
 .tab-body .ms-StackItem {
     margin-right: 6px;
@@ -153,6 +150,12 @@ img.favicon.dropdown {
 }
 .settings-rules-icons i:last-of-type {
     color: var(--neutralSecondary);
+}
+.login-form {
+    width: 300px;
+}
+.login-form .ms-Label {
+    width: 72px;
 }
 
 .main {

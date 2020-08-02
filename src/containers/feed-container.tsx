@@ -33,7 +33,7 @@ const makeMapStateToProps = () => {
 }
 const mapDispatchToProps = dispatch => {
     return {
-        shortcuts: (item: RSSItem, key: string) => dispatch(itemShortcuts(item, key)),
+        shortcuts: (item: RSSItem, e: KeyboardEvent) => dispatch(itemShortcuts(item, e)),
         markRead: (item: RSSItem) => dispatch(markRead(item)),
         contextMenu: (feedId: string, item: RSSItem, e) => dispatch(openItemMenu(item, feedId, e)),
         loadMore: (feed: RSSFeed) => dispatch(loadMore(feed)),

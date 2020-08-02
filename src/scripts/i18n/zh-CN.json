@@ -32,7 +32,8 @@
         "fetchFailure": "无法加载订阅源“{name}”",
         "fetchSuccess": "成功加载 {count} 篇文章",
         "networkError": "连接订阅源时出错",
-        "parseError": "解析XML信息流时出错"
+        "parseError": "解析XML信息流时出错",
+        "syncFailure": "无法与服务同步"
     },
     "nav": {
         "menu": "菜单",
@@ -101,6 +102,7 @@
         "sources": "订阅源",
         "grouping": "分组与排序",
         "rules": "规则",
+        "service": "服务",
         "app": "应用偏好",
         "about": "关于",
         "version": "版本",
@@ -109,6 +111,8 @@
         "feedback": "反馈"
     },
     "sources": {
+        "serviceWarning": "此处导入或添加的订阅源将不会与服务端同步",
+        "serviceManaged": "该订阅源由服务端管理",
         "untitled": "订阅源",
         "errorAdd": "添加订阅源时出错",
         "errorParse": "解析OPML文件时出错",
@@ -135,6 +139,7 @@
         "selectedMulti": "选中多个订阅源"
     },
     "groups": {
+        "exist": "该分组已存在",
         "type": "类型",
         "group": "分组",
         "source": "订阅源",
@@ -171,6 +176,22 @@
         "selectAction": "选择行为",
         "hint": "规则将按顺序执行，拖拽以排序",
         "test": "测试规则"
+    },
+    "service": {
+        "intro": "通过 RSS 服务跨设备保持同步",
+        "select": "选择服务",
+        "suggest": "建议一项新服务",
+        "overwriteWarning": "若本地与服务端存在URL相同的订阅源，则本地订阅源将被删除",
+        "groupsWarning": "分组仅在第一次同步时导入而不会与服务端保持同步",
+        "endpoint": "端点",
+        "username": "用户名",
+        "password": "密码",
+        "unchanged": "未更改",
+        "fetchLimit": "同步数量",
+        "fetchLimitNum": "最近 {count} 篇文章",
+        "importGroups": "导入分组",
+        "failure": "连接到服务时出错",
+        "failureHint": "请检查服务配置或网络连接"
     },
     "app": {
         "cleanup": "清理",

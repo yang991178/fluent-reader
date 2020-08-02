@@ -82,7 +82,8 @@ class Nav extends React.Component<NavProps, NavState> {
         window.utils.closeWindow()
     }
 
-    canFetch = () => this.props.state.sourceInit && this.props.state.feedInit && !this.props.state.fetchingItems
+    canFetch = () => this.props.state.sourceInit && this.props.state.feedInit 
+        && !this.props.state.syncing && !this.props.state.fetchingItems
     fetching = () => !this.canFetch() ? " fetching" : ""
     menuOn = () => this.props.state.menu ? " menu-on" : ""
     itemOn = () => this.props.itemShown ? " item-on" : ""

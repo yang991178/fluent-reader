@@ -1,10 +1,11 @@
 import * as db from "../db"
 import intl from "react-intl-universal"
-import { domParser, htmlDecode, ActionStatus, AppThunk } from "../utils"
+import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../utils"
 import { RSSSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
 import { pushNotification, setupAutoFetch } from "./app"
+import { getServiceHooks, syncWithService, ServiceActionTypes, SYNC_LOCAL_ITEMS } from "./service"
 
 export class RSSItem {
     _id: string
@@ -21,6 +22,7 @@ export class RSSItem {
     starred?: true
     hidden?: true
     notify?: true
+    serviceRef?: string | number
 
     constructor (item: Parser.Item, source: RSSSource) {
         for (let field of ["title", "link", "creator"]) {
@@ -171,13 +173,15 @@ export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
 }
 
 export function fetchItems(background = false): AppThunk<Promise<void>> {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         let promises = new Array<Promise<RSSItem[]>>()
-        if (!getState().app.fetchingItems) {
+        const initState = getState()
+        if (!initState.app.fetchingItems && !initState.app.syncing) {
+            await dispatch(syncWithService())
             let timenow = new Date().getTime()
             let sources = <RSSSource[]>Object.values(getState().sources).filter(s => {
                 let last = s.lastFetched ? s.lastFetched.getTime() : 0
-                return (last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow)
+                return !s.serviceRef && ((last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow))
             })
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
@@ -185,7 +189,8 @@ export function fetchItems(background = false): AppThunk<Promise<void>> {
                 promises.push(promise)
             }
             dispatch(fetchItemsRequest(promises.length))
-            return Promise.allSettled(promises).then(results => new Promise<void>((resolve, reject) => { 
+            const results = await Promise.allSettled(promises)
+            return await new Promise<void>((resolve, reject) => {
                 let items = new Array<RSSItem>()
                 results.map((r, i) => {
                     if (r.status === "fulfilled") items.push(...r.value)
@@ -216,9 +221,8 @@ export function fetchItems(background = false): AppThunk<Promise<void>> {
                     console.log(err)
                     reject(err)
                 })
-            }))
+            })
         }
-        return new Promise((resolve) => { resolve() })
     }
 }
 
@@ -237,6 +241,9 @@ export function markRead(item: RSSItem): AppThunk {
         if (!item.hasRead) {
             db.idb.update({ _id: item._id }, { $set: { hasRead: true } })
             dispatch(markReadDone(item))
+            if (item.serviceRef) {
+                dispatch(dispatch(getServiceHooks()).markRead?.(item))
+            }
         }
     }
 }
@@ -248,6 +255,8 @@ export function markAllRead(sids: number[] = null, date: Date = null, before = t
             let feed = state.feeds[state.page.feedId]
             sids = feed.sids
         }
+        const action = dispatch(getServiceHooks()).markAllRead?.(sids, date, before)
+        if (action) dispatch(action)
         let query = { 
             source: { $in: sids },
             hasRead: false,
@@ -295,6 +304,9 @@ export function markUnread(item: RSSItem): AppThunk {
         if (item.hasRead) {
             db.idb.update({ _id: item._id }, { $set: { hasRead: false } })
             dispatch(markUnreadDone(item))
+            if (item.serviceRef) {
+                dispatch(dispatch(getServiceHooks()).markUnread?.(item))
+            }
         }
     }
 }
@@ -312,6 +324,11 @@ export function toggleStarred(item: RSSItem): AppThunk {
             db.idb.update({ _id: item._id }, { $set: { starred: true } })
         }
         dispatch(toggleStarredDone(item))
+        if (item.serviceRef) {
+            const hooks = dispatch(getServiceHooks())
+            if (item.starred) dispatch(hooks.unstar?.(item))
+            else dispatch(hooks.star?.(item))
+        }
     }
 }
 
@@ -331,21 +348,22 @@ export function toggleHidden(item: RSSItem): AppThunk {
     }
 }
 
-export function itemShortcuts(item: RSSItem, key: string): AppThunk {
+export function itemShortcuts(item: RSSItem, e: KeyboardEvent): AppThunk {
     return (dispatch) => {
-        switch (key) {
+        switch (e.key) {
             case "m": case "M":
                 if (item.hasRead) dispatch(markUnread(item))
                 else dispatch(markRead(item))
                 break
             case "b": case "B":
                 if (!item.hasRead) dispatch(markRead(item))
-                window.utils.openExternal(item.link)
+                window.utils.openExternal(item.link, platformCtrl(e))
                 break
             case "s": case "S":
                 dispatch(toggleStarred(item))
                 break
             case "h": case "H":
+                if (!item.hasRead) dispatch(markRead(item))
                 dispatch(toggleHidden(item))
                 break
         }
@@ -376,7 +394,7 @@ export function applyItemReduction(item: RSSItem, type: string) {
 
 export function itemReducer(
     state: ItemState = {},
-    action: ItemActionTypes | FeedActionTypes
+    action: ItemActionTypes | FeedActionTypes | ServiceActionTypes
 ): ItemState {
     switch (action.type) {
         case FETCH_ITEMS:
@@ -429,6 +447,24 @@ export function itemReducer(
                 }
                 default: return state
             }
+        }
+        case SYNC_LOCAL_ITEMS: {
+            const unreadSet = new Set(action.unreadIds)
+            const starredSet = new Set(action.starredIds)
+            let nextState = { ...state }
+            for (let [id, item] of Object.entries(state)) {
+                if (item.hasOwnProperty("serviceRef")) {
+                    const nextItem = { ...item }
+                    nextItem.hasRead = !unreadSet.has(nextItem.serviceRef as number)
+                    if (starredSet.has(item.serviceRef as number)) {
+                        nextItem.starred = true
+                    } else {
+                        delete nextItem.starred
+                    }
+                    nextState[id] = nextItem
+                }
+            }
+            return nextState
         }
         default: return state
     }
