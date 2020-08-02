@@ -32,7 +32,8 @@
         "fetchFailure": "无法加载订阅源“{name}”",
         "fetchSuccess": "成功加载 {count} 篇文章",
         "networkError": "连接订阅源时出错",
-        "parseError": "解析XML信息流时出错"
+        "parseError": "解析XML信息流时出错",
+        "syncFailure": "无法与服务同步"
     },
     "nav": {
         "menu": "菜单",
@@ -110,6 +111,8 @@
         "feedback": "反馈"
     },
     "sources": {
+        "serviceWarning": "此处导入或添加的订阅源将不会与服务端同步",
+        "serviceManaged": "该订阅源由服务端管理",
         "untitled": "订阅源",
         "errorAdd": "添加订阅源时出错",
         "errorParse": "解析OPML文件时出错",
@@ -187,7 +190,7 @@
         "fetchLimit": "同步数量",
         "fetchLimitNum": "最近 {count} 篇文章",
         "importGroups": "导入分组",
-        "failure": "无法连接到服务",
+        "failure": "连接到服务时出错",
         "failureHint": "请检查服务配置或网络连接"
     },
     "app": {

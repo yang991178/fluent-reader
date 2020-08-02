@@ -356,6 +356,19 @@ export function appReducer(
                     ...state,
                     syncing: true
                 }
+                case ActionStatus.Failure: return {
+                    ...state,
+                    syncing: false,
+                    logMenu: {
+                        ...state.logMenu,
+                        notify: true,
+                        logs: [...state.logMenu.logs, new AppLog(
+                            AppLogType.Failure,
+                            intl.get("log.syncFailure"),
+                            String(action.err)
+                        )]
+                    }
+                }
                 default: return {
                     ...state,
                     syncing: false
@@ -467,6 +480,7 @@ export function appReducer(
             settings: {
                 ...state.settings,
                 display: true,
+                changed: true,
                 saving: !state.settings.saving
             }
         }

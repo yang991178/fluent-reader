@@ -32,7 +32,8 @@
         "fetchFailure": "Failed to load source \"{name}\".",
         "fetchSuccess": "Successfully fetched {count, plural, =1 {# article} other {# articles}}.",
         "networkError": "A network error has occurred.",
-        "parseError": "An error has occurred when parsing the XML feed."
+        "parseError": "An error has occurred when parsing the XML feed.",
+        "syncFailure": "Failed to sync with service"
     },
     "nav": {
         "menu": "Menu",
@@ -112,6 +113,8 @@
         "feedback": "Feedback"
     },
     "sources": {
+        "serviceWarning": "Sources imported or added here will not be synced with your service.",
+        "serviceManaged": "This source is managed by your service.",
         "untitled": "Source",
         "errorAdd": "An error has occured when adding the source.",
         "errorParse": "An error has occurred when parsing the OPML file.",

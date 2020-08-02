@@ -109,6 +109,10 @@ i.ms-Nav-chevron {
 .ms-ActivityItem-timeStamp {
     color: var(--neutralSecondaryAlt);
 }
+.ms-MessageBar {
+    user-select: none;
+    margin-bottom: 8px;
+}
 
 #root > nav {
     height: var(--navHeight);

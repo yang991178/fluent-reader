@@ -95,14 +95,12 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
 
     render() {
         return <>
-            <Stack tokens={{childrenGap: 8}}>
-                {!this.state.existing && (
-                    <MessageBar messageBarType={MessageBarType.warning}>{intl.get("service.overwriteWarning")}</MessageBar>
-                )}
-                {!this.state.existing && this.state.importGroups && (
-                    <MessageBar messageBarType={MessageBarType.info}>{intl.get("service.groupsWarning")}</MessageBar>
-                )}
-            </Stack>
+            {!this.state.existing && (
+                <MessageBar messageBarType={MessageBarType.warning}>{intl.get("service.overwriteWarning")}</MessageBar>
+            )}
+            {!this.state.existing && this.state.importGroups && (
+                <MessageBar messageBarType={MessageBarType.info}>{intl.get("service.groupsWarning")}</MessageBar>
+            )}
             <Stack horizontalAlign="center" style={{marginTop: 48}}>
                 <Icon iconName="Calories" style={{fontSize: 32, userSelect: "none"}} />
                 <Label style={{margin: "8px 0 36px"}}>Fever API</Label>

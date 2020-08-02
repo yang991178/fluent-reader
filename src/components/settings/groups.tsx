@@ -3,12 +3,13 @@ import intl from "react-intl-universal"
 import { SourceGroup } from "../../schema-types"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
-     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents } from "@fluentui/react"
+     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, MessageBar, MessageBarType } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
 
 type GroupsTabProps = {
     sources: SourceState,
     groups: SourceGroup[],
+    serviceOn: boolean,
     createGroup: (name: string) => void,
     updateGroup: (group: SourceGroup) => void,
     addToGroup: (groupIndex: number, sid: number) => void,
@@ -263,6 +264,9 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
 
     render = () => (
         <div className="tab-body">
+            {this.props.serviceOn && (
+                <MessageBar messageBarType={MessageBarType.info}>{intl.get("service.groupsWarning")}</MessageBar>
+            )}
             {this.state.manageGroup && this.state.selectedGroup &&
             <>
                 <Stack horizontal horizontalAlign="space-between" style={{height: 40}}>
