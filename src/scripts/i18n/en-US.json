@@ -179,7 +179,18 @@
     "service": {
         "intro": "Sync across devices with RSS services.",
         "select": "Select a service",
-        "suggest": "Suggest a new service"
+        "suggest": "Suggest a new service",
+        "overwriteWarning": "Local sources will be deleted if they exist in the service.",
+        "groupsWarning": "Groups are only imported on the first sync and will not stay synced.",
+        "endpoint": "Endpoint",
+        "username": "Username",
+        "password": "Password",
+        "unchanged": "Unchanged",
+        "fetchLimit": "Sync limit",
+        "fetchLimitNum": "{count} latest articles",
+        "importGroups": "Import groups",
+        "failure": "Cannot connect to service",
+        "failureHint": "Please check the service configuration or network status."
     },
     "app": {
         "cleanup": "Clean up",

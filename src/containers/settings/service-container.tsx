@@ -3,6 +3,9 @@ import { createSelector } from "reselect"
 import { RootState } from "../../scripts/reducer"
 import { ServiceTab } from "../../components/settings/service"
 import { AppDispatch } from "../../scripts/utils"
+import { ServiceConfigs } from "../../schema-types"
+import { saveServiceConfigs, getServiceHooksFromType, removeService, syncWithService } from "../../scripts/models/service"
+import { saveSettings } from "../../scripts/models/app"
 
 const getService = (state: RootState) => state.service
 
@@ -14,7 +17,15 @@ const mapStateToProps = createSelector(
 )
 
 const mapDispatchToProps = (dispatch: AppDispatch) => ({
-    
+    save: (configs: ServiceConfigs) => dispatch(saveServiceConfigs(configs)),
+    remove: () => dispatch(removeService()),
+    blockActions: () => dispatch(saveSettings()),
+    sync: () => dispatch(syncWithService()),
+    authenticate: async (configs: ServiceConfigs) => {
+        const hooks = getServiceHooksFromType(configs.type)
+        if (hooks.authenticate) return await hooks.authenticate(configs)
+        else return true
+    }
 })
 
 const ServiceTabContainer = connect(mapStateToProps, mapDispatchToProps)(ServiceTab)

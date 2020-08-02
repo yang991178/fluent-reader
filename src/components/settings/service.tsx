@@ -2,9 +2,19 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { ServiceConfigs, SyncService } from "../../schema-types"
 import { Stack, Icon, Link, Dropdown, IDropdownOption } from "@fluentui/react"
+import FeverConfigsTab from "./services/fever"
 
-export type ServiceTabProps = {
+type ServiceTabProps = {
     configs: ServiceConfigs
+    save: (configs: ServiceConfigs) => void
+    sync: () => Promise<void>
+    remove: () => Promise<void>
+    blockActions: () => void
+    authenticate: (configs: ServiceConfigs) => Promise<boolean>
+}
+
+export type ServiceConfigsTabProps = ServiceTabProps & {
+    exit: () => void
 }
 
 type ServiceTabState = {
@@ -28,8 +38,12 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
         if (option.key === -1) {
             window.utils.openExternal("https://github.com/yang991178/fluent-reader/issues/23")
         } else {
-
+            this.setState({ type: option.key as number })
         }
+    }
+
+    exitConfigsTab = () => {
+        this.setState({ type: SyncService.None })
     }
 
     render = () => (
@@ -58,7 +72,7 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
                         style={{marginTop: 32, width: 180}} />
                 </Stack>
             )
-            : null}
+            : <FeverConfigsTab {...this.props} exit={this.exitConfigsTab} />}
         </div>
     )
 }

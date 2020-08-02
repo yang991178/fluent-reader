@@ -177,7 +177,18 @@
     "service": {
         "intro": "通过 RSS 服务跨设备保持同步",
         "select": "选择服务",
-        "suggest": "建议一项新服务"
+        "suggest": "建议一项新服务",
+        "overwriteWarning": "若本地与服务端存在URL相同的订阅源，则本地订阅源将被删除",
+        "groupsWarning": "分组仅在第一次同步时导入而不会与服务端保持同步",
+        "endpoint": "端点",
+        "username": "用户名",
+        "password": "密码",
+        "unchanged": "未更改",
+        "fetchLimit": "同步数量",
+        "fetchLimitNum": "最近 {count} 篇文章",
+        "importGroups": "导入分组",
+        "failure": "无法连接到服务",
+        "failureHint": "请检查服务配置或网络连接"
     },
     "app": {
         "cleanup": "清理",

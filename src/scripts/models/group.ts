@@ -207,7 +207,7 @@ export function importOPML(): AppThunk {
                 dispatch(fetchItemsRequest(sources.length))
                 let promises = sources.map(([s, gid, url]) => {
                     return dispatch(s).then(sid => {
-                        if (sid !== null) dispatch(addSourceToGroup(gid, sid))
+                        if (sid !== null && gid > -1) dispatch(addSourceToGroup(gid, sid))
                     }).catch(err => {
                         errors.push([url, err])
                     }).finally(() => {
@@ -293,10 +293,12 @@ export function groupReducer(
             })).filter(g => g.isMultiple || g.sids.length == 1)
         ]
         case CREATE_SOURCE_GROUP: return [ ...state, action.group ]
-        case ADD_SOURCE_TO_GROUP: return state.map((g, i) => i == action.groupIndex ? ({
+        case ADD_SOURCE_TO_GROUP: return state.map((g, i) => ({
             ...g,
-            sids: [ ...g.sids, action.sid ]
-        }) : g).filter(g => g.isMultiple || !g.sids.includes(action.sid))
+            sids: i == action.groupIndex 
+                ? [ ...g.sids.filter(sid => sid !== action.sid), action.sid ] 
+                : g.sids.filter(sid => sid !== action.sid)
+        })).filter(g => g.isMultiple || g.sids.length > 0)
         case REMOVE_SOURCE_FROM_GROUP: return [
             ...state.slice(0, action.groupIndex),
             { 

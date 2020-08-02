@@ -1,13 +1,15 @@
 import { SyncService, ServiceConfigs } from "../../schema-types"
-import { AppThunk } from "../utils"
+import { AppThunk, ActionStatus } from "../utils"
 import { RSSItem } from "./item"
 
 import { feverServiceHooks } from "./services/fever"
+import { saveSettings } from "./app"
+import { deleteSource } from "./source"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
     updateSources?: () => AppThunk<Promise<void>>
-    fetchItems?: () => AppThunk<Promise<void>>
+    fetchItems?: (background: boolean) => AppThunk<Promise<void>>
     syncItems?: () => AppThunk<Promise<void>>
     markRead?: (item: RSSItem) => AppThunk
     markUnread?: (item: RSSItem) => AppThunk
@@ -29,25 +31,71 @@ export function getServiceHooks(): AppThunk<ServiceHooks> {
     }
 }
 
-export function syncWithService(): AppThunk<Promise<void>> {
-    return async (dispatch) => {
+export function syncWithService(background = false): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
         const hooks = dispatch(getServiceHooks())
         if (hooks.updateSources && hooks.fetchItems && hooks.syncItems) {
-            await dispatch(hooks.updateSources())
-            await dispatch(hooks.fetchItems())
-            await dispatch(hooks.syncItems())
+            try {
+                dispatch({
+                    type: SYNC_SERVICE,
+                    status: ActionStatus.Request
+                })
+                await dispatch(hooks.updateSources())
+                await dispatch(hooks.syncItems())
+                await dispatch(hooks.fetchItems(background))
+                dispatch({
+                    type: SYNC_SERVICE,
+                    status: ActionStatus.Success
+                })
+            } catch (err) {
+                console.log(err)
+                dispatch({
+                    type: SYNC_SERVICE,
+                    status: ActionStatus.Failure,
+                    err: err
+                })
+            } finally {
+                if (getState().app.settings.saving) dispatch(saveSettings())
+            }
         }
     }
 }
 
+export function removeService(): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        dispatch(saveSettings())
+        const state = getState()
+        const promises = Object.values(state.sources).filter(s => s.serviceRef).map(async s => {
+            await dispatch(deleteSource(s, true))
+        })
+        await Promise.all(promises)
+        dispatch(saveServiceConfigs({ type: SyncService.None }))
+        dispatch(saveSettings())
+    }
+}
+
 export const SAVE_SERVICE_CONFIGS = "SAVE_SERVICE_CONFIGS"
+export const SYNC_SERVICE = "SYNC_SERVICE"
+export const SYNC_LOCAL_ITEMS = "SYNC_LOCAL_ITEMS"
 
 interface SaveServiceConfigsAction {
     type: typeof SAVE_SERVICE_CONFIGS
     configs: ServiceConfigs
 }
 
-export type ServiceActionTypes = SaveServiceConfigsAction
+interface SyncWithServiceAction {
+    type: typeof SYNC_SERVICE
+    status: ActionStatus
+    err?
+}
+
+interface SyncLocalItemsAction {
+    type: typeof SYNC_LOCAL_ITEMS
+    unreadIds: number[]
+    starredIds: number[]
+}
+
+export type ServiceActionTypes = SaveServiceConfigsAction | SyncWithServiceAction | SyncLocalItemsAction
 
 export function saveServiceConfigs(configs: ServiceConfigs): AppThunk {
     return (dispatch) => {
@@ -56,6 +104,14 @@ export function saveServiceConfigs(configs: ServiceConfigs): AppThunk {
             type: SAVE_SERVICE_CONFIGS,
             configs: configs
         })
+    }
+}
+
+export function syncLocalItems(unread: number[], starred: number[]): ServiceActionTypes {
+    return {
+        type: SYNC_LOCAL_ITEMS,
+        unreadIds: unread,
+        starredIds: starred
     }
 }
 
