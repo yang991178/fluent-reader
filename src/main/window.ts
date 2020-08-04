@@ -57,6 +57,7 @@ export class WindowManager {
                 fullscreenable: false,
                 show: false,
                 webPreferences: {
+                    sandbox: true,
                     webviewTag: true,
                     enableRemoteModule: false,
                     contextIsolation: true,

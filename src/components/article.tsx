@@ -180,11 +180,11 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         }
     }
 
-    articleView = () => "article/article.html?h=" + window.btoa(encodeURIComponent(renderToString(<>
+    articleView = () => "article/article.html?h=" + encodeURIComponent(renderToString(<>
         <p className="title">{this.props.item.title}</p>
         <p className="date">{this.props.item.date.toLocaleString(this.props.locale, {hour12: !this.props.locale.startsWith("zh")})}</p>
         <article dangerouslySetInnerHTML={{__html: this.props.item.content}}></article>
-    </>))) + `&s=${this.state.fontSize}&u=${this.props.item.link}`
+    </>)) + `&s=${this.state.fontSize}&u=${this.props.item.link}`
     
     render = () => (
         <FocusZone className="article">

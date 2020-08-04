@@ -3,7 +3,7 @@ function get(name) {
         return decodeURIComponent(name[1]);
 }
 document.documentElement.style.fontSize = get("s") + "px"
-let html = decodeURIComponent(window.atob(get("h")))
+let html = get("h")
 let domParser = new DOMParser()
 let dom = domParser.parseFromString(html, "text/html")
 let baseEl = dom.createElement('base')

@@ -177,7 +177,7 @@ export function fetchItems(background = false): AppThunk<Promise<void>> {
         let promises = new Array<Promise<RSSItem[]>>()
         const initState = getState()
         if (!initState.app.fetchingItems && !initState.app.syncing) {
-            await dispatch(syncWithService())
+            await dispatch(syncWithService(background))
             let timenow = new Date().getTime()
             let sources = <RSSSource[]>Object.values(getState().sources).filter(s => {
                 let last = s.lastFetched ? s.lastFetched.getTime() : 0
