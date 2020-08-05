@@ -6,8 +6,8 @@ import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNR
 import { saveSettings } from "./app"
 import { SourceRule } from "./rule"
 
-export enum SourceOpenTarget {
-    Local, Webpage, External
+export const enum SourceOpenTarget {
+    Local, Webpage, External, FullContent
 }
 
 export class RSSSource {

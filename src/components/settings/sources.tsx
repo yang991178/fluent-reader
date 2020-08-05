@@ -121,6 +121,7 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
 
     sourceOpenTargetChoices = (): IChoiceGroupOption[] => [
         { key: String(SourceOpenTarget.Local), text: intl.get("sources.rssText") },
+        { key: String(SourceOpenTarget.FullContent), text: intl.get("article.loadFull") },
         { key: String(SourceOpenTarget.Webpage), text: intl.get("sources.loadWebpage") },
         { key: String(SourceOpenTarget.External), text: intl.get("openExternal") }
     ]

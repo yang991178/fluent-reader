@@ -64,6 +64,7 @@
         "unstar": "取消星标",
         "fontSize": "字体大小",
         "loadWebpage": "加载网页",
+        "loadFull": "抓取全文",
         "notify": "后台抓取时发送通知",
         "dontNotify": "不发送通知"
     },

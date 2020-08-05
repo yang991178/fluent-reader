@@ -30,14 +30,13 @@ export namespace Card {
         e.preventDefault()
         e.stopPropagation()
         switch (props.source.openTarget) {
-            case SourceOpenTarget.Local:
-            case SourceOpenTarget.Webpage: {
-                props.markRead(props.item)
-                props.showItem(props.feedId, props.item)
-                break
-            }
             case SourceOpenTarget.External: {
                 openInBrowser(props, e)
+                break
+            }
+            default: {
+                props.markRead(props.item)
+                props.showItem(props.feedId, props.item)
                 break
             }
         }

@@ -64,6 +64,7 @@
         "unstar": "Remove star",
         "fontSize": "Font size",
         "loadWebpage": "Load webpage",
+        "loadFull": "Load full content",
         "notify": "Notify if fetched in background",
         "dontNotify": "Don't notify"
     },

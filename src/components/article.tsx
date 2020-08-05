@@ -27,6 +27,8 @@ type ArticleProps = {
 type ArticleState = {
     fontSize: number
     loadWebpage: boolean
+    loadFull: boolean
+    fullContent: string
     loaded: boolean
     error: boolean
     errorDescription: string
@@ -35,11 +37,13 @@ type ArticleState = {
 class Article extends React.Component<ArticleProps, ArticleState> {
     webview: Electron.WebviewTag
     
-    constructor(props) {
+    constructor(props: ArticleProps) {
         super(props)
         this.state = {
             fontSize: this.getFontSize(),
-            loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage,
+            loadWebpage: props.source.openTarget === SourceOpenTarget.Webpage,
+            loadFull: props.source.openTarget === SourceOpenTarget.FullContent,
+            fullContent: "",
             loaded: false,
             error: false,
             errorDescription: "",
@@ -47,6 +51,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         window.utils.addWebviewContextListener(this.contextMenuHandler)
         window.utils.addWebviewKeydownListener(this.keyDownHandler)
         window.utils.addWebviewErrorListener(this.webviewError)
+        if (props.source.openTarget === SourceOpenTarget.FullContent) this.loadFull()
     }
 
     getFontSize = () => {
@@ -88,6 +93,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 onClick: () => { this.props.toggleHidden(this.props.item) }
             },
             {
+                key: "fontMenu",
+                text: intl.get("article.fontSize"),
+                iconProps: { iconName: "FontSize" },
+                disabled: this.state.loadWebpage,
+                subMenuProps: this.fontMenuProps()
+            },
+            {
                 key: "divider_1",
                 itemType: ContextualMenuItemType.Divider,
             },
@@ -117,6 +129,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 case "l": case "L":
                     this.toggleWebpage()
                     break
+                case "w": case "W":
+                    this.toggleFull()
+                    break
                 default:
                     const keyboardEvent = new KeyboardEvent("keydown", {
                         code: input.code,
@@ -145,6 +160,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         if (this.webview) {
             this.setState({loaded: false, error: false})
             this.webview.reload()
+        } else if (this.state.loadFull) {
+            this.loadFull()
         }
     }
 
@@ -152,17 +169,23 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         let webview = document.getElementById("article") as Electron.WebviewTag
         if (webview != this.webview) {
             this.webview = webview
-            webview.focus()
-            this.setState({loaded: false, error: false})
-            webview.addEventListener("did-stop-loading", this.webviewLoaded)
-            let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
-            // @ts-ignore
-            if (card) card.scrollIntoViewIfNeeded()
+            if (webview) {
+                webview.focus()
+                this.setState({loaded: false, error: false})
+                webview.addEventListener("did-stop-loading", this.webviewLoaded)
+                let card = document.querySelector(`#refocus div[data-iid="${this.props.item._id}"]`) as HTMLElement
+                // @ts-ignore
+                if (card) card.scrollIntoViewIfNeeded()
+            }
         }
     }
     componentDidUpdate = (prevProps: ArticleProps) => {
         if (prevProps.item._id != this.props.item._id) {
-            this.setState({loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage})
+            this.setState({
+                loadWebpage: this.props.source.openTarget === SourceOpenTarget.Webpage,
+                loadFull: this.props.source.openTarget === SourceOpenTarget.FullContent,
+            })
+            if (this.props.source.openTarget === SourceOpenTarget.FullContent) this.loadFull()
         }
         this.componentDidMount()
     }
@@ -174,17 +197,39 @@ class Article extends React.Component<ArticleProps, ArticleState> {
 
     toggleWebpage = () => {
         if (this.state.loadWebpage) {
-            this.setState({loadWebpage: false})
+            this.setState({ loadWebpage: false })
         } else if (this.props.item.link.startsWith("https://") || this.props.item.link.startsWith("http://")) {
-            this.setState({loadWebpage: true})
+            this.setState({ loadWebpage: true, loadFull: false })
         }
     }
 
-    articleView = () => "article/article.html?h=" + encodeURIComponent(renderToString(<>
-        <p className="title">{this.props.item.title}</p>
-        <p className="date">{this.props.item.date.toLocaleString(this.props.locale, {hour12: !this.props.locale.startsWith("zh")})}</p>
-        <article dangerouslySetInnerHTML={{__html: this.props.item.content}}></article>
-    </>)) + `&s=${this.state.fontSize}&u=${this.props.item.link}`
+    toggleFull = () => {
+        if (this.state.loadFull) {
+            this.setState({ loadFull: false })
+        } else if (this.props.item.link.startsWith("https://") || this.props.item.link.startsWith("http://")) {
+            this.setState({ loadFull: true, loadWebpage: false })
+            this.loadFull()
+        }
+    }
+    loadFull = async () => {
+        this.setState({ fullContent: "", loaded: false, error: false })
+        try {
+            const html = await (await fetch(this.props.item.link)).text()
+            this.setState({ fullContent: html })
+        } catch {
+            this.setState({ loaded: true, error: true, errorDescription: "MERCURY_PARSER_FAILURE" })
+        }
+    }
+
+    articleView = () => {
+        const a = encodeURIComponent(this.state.loadFull ? this.state.fullContent : this.props.item.content)
+        const h = encodeURIComponent(renderToString(<>
+            <p className="title">{this.props.item.title}</p>
+            <p className="date">{this.props.item.date.toLocaleString(this.props.locale, {hour12: !this.props.locale.startsWith("zh")})}</p>
+            <article></article>
+        </>))
+        return `article/article.html?a=${a}&h=${h}&s=${this.state.fontSize}&u=${this.props.item.link}&m=${this.state.loadFull?1:0}`
+    }
     
     render = () => (
         <FocusZone className="article">
@@ -211,11 +256,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         iconProps={{iconName: this.props.item.starred ? "FavoriteStarFill" : "FavoriteStar"}}
                         onClick={() => this.props.toggleStarred(this.props.item)} />
                     <CommandBarButton
-                        title={intl.get("article.fontSize")}
-                        disabled={this.state.loadWebpage}
-                        iconProps={{iconName: "FontSize"}}
-                        menuIconProps={{style: {display: "none"}}}
-                        menuProps={this.fontMenuProps()} />
+                        title={intl.get("article.loadFull")}
+                        className={this.state.loadFull ? "active" : ""}
+                        iconProps={{iconName: "RawSource"}} 
+                        onClick={this.toggleFull} />
                     <CommandBarButton
                         title={intl.get("article.loadWebpage")}
                         className={this.state.loadWebpage ? "active" : ""}
@@ -234,13 +278,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         onClick={this.props.dismiss} />
                 </Stack>  
             </Stack>
-            <webview 
+            {(!this.state.loadFull || this.state.fullContent) && <webview 
                 id="article"
                 className={this.state.error ? "error" : ""}
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}
                 src={this.state.loadWebpage ? this.props.item.link : this.articleView()}
                 webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
-                partition={this.state.loadWebpage ? "sandbox" : undefined} />
+                partition={this.state.loadWebpage ? "sandbox" : undefined} />}
             {this.state.error && (
                 <Stack className="error-prompt" verticalAlign="center" horizontalAlign="center" tokens={{childrenGap: 12}}>
                     <Icon iconName="HeartBroken" style={{fontSize: 32}} />

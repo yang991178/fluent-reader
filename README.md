@@ -72,6 +72,7 @@ npm run package-win
 - [Redux](https://github.com/reduxjs/redux)
 - [Fluent UI](https://github.com/microsoft/fluentui)
 - [NeDB](https://github.com/louischatriot/nedb)
+- [Mercury Parser](https://github.com/postlight/mercury-parser)
 
 ### License
 
