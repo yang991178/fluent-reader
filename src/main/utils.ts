@@ -110,7 +110,7 @@ export function setUtilsListeners(manager: WindowManager) {
                 }
             })
             contents.on("context-menu", (_, params) => {
-                if ((params.hasImageContents || params.selectionText) && manager.hasWindow()) {
+                if ((params.hasImageContents || params.selectionText || params.linkURL) && manager.hasWindow()) {
                     if (params.hasImageContents) {
                         ipcMain.removeHandler("image-callback")
                         ipcMain.handleOnce("image-callback", (_, type: ImageCallbackTypes) => {
@@ -132,7 +132,7 @@ export function setUtilsListeners(manager: WindowManager) {
                         })
                         manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y])
                     } else {
-                        manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y], params.selectionText)
+                        manager.mainWindow.webContents.send("webview-context-menu", [params.x, params.y], params.selectionText, params.linkURL)
                     }
                     contents.executeJavaScript(`new Promise(resolve => {
                         const dismiss = () => {

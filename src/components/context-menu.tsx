@@ -16,6 +16,7 @@ export type ContextMenuProps = ContextReduxProps & {
     item?: RSSItem
     feedId?: string
     text?: string
+    url?: string
     viewType?: ViewType
     filter?: FilterType
     sids?: number[]
@@ -143,15 +144,41 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     onClick: () => { window.utils.writeClipboard(this.props.item.link) }
                 }
             ]
-            case ContextMenuType.Text: return [
-                {
-                    key: "copyText",
-                    text: intl.get("context.copy"),
-                    iconProps: { iconName: "Copy" },
-                    onClick: () => { window.utils.writeClipboard(this.props.text) }
-                },
-                getSearchItem(this.props.text)
-            ]
+            case ContextMenuType.Text: {
+                const items: IContextualMenuItem[] = this.props.text? [
+                    {
+                        key: "copyText",
+                        text: intl.get("context.copy"),
+                        iconProps: { iconName: "Copy" },
+                        onClick: () => { window.utils.writeClipboard(this.props.text) }
+                    },
+                    getSearchItem(this.props.text)
+                ] : []
+                if (this.props.url) {
+                    items.push({
+                        key: "urlSection",
+                        itemType: ContextualMenuItemType.Section,
+                        sectionProps: {
+                            topDivider: items.length > 0,
+                            items: [
+                                {
+                                    key: "openInBrowser",
+                                    text: intl.get("openExternal"),
+                                    iconProps: { iconName: "NavigateExternalInline" },
+                                    onClick: (e) => { window.utils.openExternal(this.props.url, platformCtrl(e)) }
+                                },
+                                {
+                                    key: "copyURL",
+                                    text: intl.get("context.copyURL"),
+                                    iconProps: { iconName: "Link" },
+                                    onClick: () => { window.utils.writeClipboard(this.props.url) }
+                                }
+                            ]
+                        }
+                    })
+                }
+                return items
+            }
             case ContextMenuType.Image: return [
                 {
                     key: "openInBrowser",

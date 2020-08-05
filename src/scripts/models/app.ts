@@ -61,7 +61,7 @@ export class AppState {
         type: ContextMenuType,
         event?: MouseEvent | string,
         position?: [number, number],
-        target?: [RSSItem, string] | number[] | string
+        target?: [RSSItem, string] | number[] | [string, string]
     }
 
     constructor() {
@@ -92,7 +92,7 @@ interface OpenItemMenuAction {
 interface OpenTextMenuAction {
     type: typeof OPEN_TEXT_MENU
     position: [number, number]
-    item: string
+    item: [string, string]
 }
 
 interface OpenViewMenuAction {
@@ -153,11 +153,11 @@ export function openItemMenu(item: RSSItem, feedId: string, event: React.MouseEv
     }
 }
 
-export function openTextMenu(text: string, position: [number, number]): ContextMenuActionTypes {
+export function openTextMenu(position: [number, number], text: string, url: string = null): ContextMenuActionTypes {
     return {
         type: OPEN_TEXT_MENU,
         position: position,
-        item: text
+        item: [text, url]
     }
 }
 
