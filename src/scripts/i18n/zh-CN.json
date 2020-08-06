@@ -64,6 +64,7 @@
         "unstar": "取消星标",
         "fontSize": "字体大小",
         "loadWebpage": "加载网页",
+        "loadFull": "抓取全文",
         "notify": "后台抓取时发送通知",
         "dontNotify": "不发送通知"
     },
@@ -182,7 +183,7 @@
         "select": "选择服务",
         "suggest": "建议一项新服务",
         "overwriteWarning": "若本地与服务端存在URL相同的订阅源，则本地订阅源将被删除",
-        "groupsWarning": "分组仅在第一次同步时导入而不会与服务端保持同步",
+        "groupsWarning": "分组不会自动与服务端保持同步",
         "endpoint": "端点",
         "username": "用户名",
         "password": "密码",

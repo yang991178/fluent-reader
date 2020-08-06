@@ -25,7 +25,8 @@ const mapStateToProps = createSelector(
             case ContextMenuType.Text: return {
                 type: context.type,
                 position: context.position,
-                text: context.target as string
+                text: context.target[0],
+                url: context.target[1]
             }
             case ContextMenuType.View: return {
                 type: context.type,

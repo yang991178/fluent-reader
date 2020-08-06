@@ -64,6 +64,7 @@
         "unstar": "Remove star",
         "fontSize": "Font size",
         "loadWebpage": "Load webpage",
+        "loadFull": "Load full content",
         "notify": "Notify if fetched in background",
         "dontNotify": "Don't notify"
     },
@@ -184,7 +185,7 @@
         "select": "Select a service",
         "suggest": "Suggest a new service",
         "overwriteWarning": "Local sources will be deleted if they exist in the service.",
-        "groupsWarning": "Groups are only imported on the first sync and will not stay synced.",
+        "groupsWarning": "Groups aren't automatically synced with the service.",
         "endpoint": "Endpoint",
         "username": "Username",
         "password": "Password",

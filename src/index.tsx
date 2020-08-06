@@ -23,7 +23,7 @@ const store = createStore(
 store.dispatch(initApp())
 
 window.utils.addMainContextListener((pos, text) => {
-    store.dispatch(openTextMenu(text, pos))
+    store.dispatch(openTextMenu(pos, text))
 })
 
 ReactDOM.render(

@@ -34,7 +34,7 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         toggleHasRead: (item: RSSItem) => dispatch(item.hasRead ? markUnread(item) : markRead(item)),
         toggleStarred: (item: RSSItem) => dispatch(toggleStarred(item)),
         toggleHidden: (item: RSSItem) => dispatch(toggleHidden(item)),
-        textMenu: (text: string, position: [number, number]) => dispatch(openTextMenu(text, position)),
+        textMenu: (position: [number, number], text: string, url: string) => dispatch(openTextMenu(position, text, url)),
         imageMenu: (position: [number, number]) => dispatch(openImageMenu(position)),
         dismissContextMenu: () => dispatch(closeContextMenu())
     }

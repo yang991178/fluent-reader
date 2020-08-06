@@ -49,10 +49,10 @@ const utilsBridge = {
             callback(pos, text)
         })
     },
-    addWebviewContextListener: (callback: (pos: [number, number], text: string) => any) => {
+    addWebviewContextListener: (callback: (pos: [number, number], text: string, url: string) => any) => {
         ipcRenderer.removeAllListeners("webview-context-menu")
-        ipcRenderer.on("webview-context-menu", (_, pos, text) => {
-            callback(pos, text)
+        ipcRenderer.on("webview-context-menu", (_, pos, text, url) => {
+            callback(pos, text, url)
         })
     },
     imageCallback: (type: ImageCallbackTypes) => {

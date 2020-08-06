@@ -3,19 +3,20 @@ import intl from "react-intl-universal"
 import { SourceGroup } from "../../schema-types"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { IColumn, Selection, SelectionMode, DetailsList, Label, Stack,
-     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, MessageBar, MessageBarType } from "@fluentui/react"
+     TextField, PrimaryButton, DefaultButton, Dropdown, IDropdownOption, CommandBarButton, MarqueeSelection, IDragDropEvents, MessageBar, MessageBarType, MessageBarButton } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
 
 type GroupsTabProps = {
-    sources: SourceState,
-    groups: SourceGroup[],
-    serviceOn: boolean,
-    createGroup: (name: string) => void,
-    updateGroup: (group: SourceGroup) => void,
-    addToGroup: (groupIndex: number, sid: number) => void,
-    deleteGroup: (groupIndex: number) => void,
-    removeFromGroup: (groupIndex: number, sids: number[]) => void,
+    sources: SourceState
+    groups: SourceGroup[]
+    serviceOn: boolean
+    createGroup: (name: string) => void
+    updateGroup: (group: SourceGroup) => void
+    addToGroup: (groupIndex: number, sid: number) => void
+    deleteGroup: (groupIndex: number) => void
+    removeFromGroup: (groupIndex: number, sids: number[]) => void
     reorderGroups: (groups: SourceGroup[]) => void
+    importGroups: () => Promise<void>
 }
 
 type GroupsTabState = {
@@ -264,9 +265,6 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
 
     render = () => (
         <div className="tab-body">
-            {this.props.serviceOn && (
-                <MessageBar messageBarType={MessageBarType.info}>{intl.get("service.groupsWarning")}</MessageBar>
-            )}
             {this.state.manageGroup && this.state.selectedGroup &&
             <>
                 <Stack horizontal horizontalAlign="space-between" style={{height: 40}}>
@@ -295,6 +293,14 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
             </>}
             {(!this.state.manageGroup || !this.state.selectedGroup) 
             ?<>
+                {this.props.serviceOn && (
+                    <MessageBar 
+                        messageBarType={MessageBarType.info}
+                        isMultiline={false}
+                        actions={<MessageBarButton text={intl.get("service.importGroups")} onClick={this.props.importGroups} />}>
+                        {intl.get("service.groupsWarning")}
+                    </MessageBar>
+                )}
                 <form onSubmit={this.createGroup}>
                     <Label htmlFor="newGroupName">{intl.get("groups.create")}</Label>
                     <Stack horizontal>

@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect } from 'react-redux'
 import { ContextMenuContainer } from "../containers/context-menu-container"
-import { closeContextMenu, openTextMenu } from "../scripts/models/app"
+import { closeContextMenu } from "../scripts/models/app"
 import PageContainer from "../containers/page-container"
 import MenuContainer from "../containers/menu-container"
 import NavContainer from "../containers/nav-container"
