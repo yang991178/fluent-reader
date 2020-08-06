@@ -36,7 +36,7 @@ export class FeedFilter {
         if (type & FilterType.ShowNotStarred) delete query.starred
         if (type & FilterType.ShowHidden) delete query.hidden
         if (filter.search !== "") {
-            let regex = RegExp(filter.search)
+            let regex = RegExp(filter.search, 'i')
             if (type & FilterType.FullSearch) {
                 query.$or = [
                     { title: { $regex: regex } },
