@@ -3,7 +3,7 @@ import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AnimationClassNames } from "@fluentui/react/lib/Styling"
 import AboutTab from "./settings/about"
-import { Pivot, PivotItem, Spinner } from "@fluentui/react"
+import { Pivot, PivotItem, Spinner, FocusTrapZone } from "@fluentui/react"
 import SourcesTabContainer from "../containers/settings/sources-container"
 import GroupsTabContainer from "../containers/settings/groups-container"
 import AppTabContainer from "../containers/settings/app-container"
@@ -30,9 +30,11 @@ class Settings extends React.Component<SettingsProps> {
                 </a>
             </div>
             <div className={"settings " + AnimationClassNames.slideUpIn20}>
-                {this.props.blocked && <div className="loading">
-                    <Spinner label={intl.get("settings.fetching")} />
-                </div>}
+                {this.props.blocked && (
+                    <FocusTrapZone isClickableOutsideFocusTrap={true} className="loading">
+                        <Spinner label={intl.get("settings.fetching")} tabIndex={0} />
+                    </FocusTrapZone>
+                )}
                 <Pivot>
                     <PivotItem headerText={intl.get("settings.sources")} itemIcon="Source">
                         <SourcesTabContainer />

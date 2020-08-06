@@ -96,6 +96,9 @@ div[role="tabpanel"] {
 .settings .loading .ms-Spinner {
     margin-top: 180px;
 }
+.settings .loading .ms-Spinner:focus {
+    outline: none;
+}
 .tab-body .ms-StackItem {
     margin-right: 6px;
     margin-bottom: 12px;

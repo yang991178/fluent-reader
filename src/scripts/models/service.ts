@@ -61,6 +61,18 @@ export function syncWithService(background = false): AppThunk<Promise<void>> {
     }
 }
 
+export function importGroups(): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        const configs = getState().service
+        if (configs.type !== SyncService.None) {
+            dispatch(saveSettings())
+            configs.importGroups = true
+            dispatch(saveServiceConfigs(configs))
+            await dispatch(syncWithService())
+        }
+    }
+}
+
 export function removeService(): AppThunk<Promise<void>> {
     return async (dispatch, getState) => {
         dispatch(saveSettings())

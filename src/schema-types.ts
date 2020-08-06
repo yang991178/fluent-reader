@@ -41,6 +41,7 @@ export const enum SyncService {
 }
 export interface ServiceConfigs {
     type: SyncService
+    importGroups?: boolean
 }
 
 export type SchemaTypes = {

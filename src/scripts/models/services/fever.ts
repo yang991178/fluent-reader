@@ -17,7 +17,7 @@ export interface FeverConfigs extends ServiceConfigs {
     apiKey: string
     fetchLimit: number
     lastId?: number
-    importGroups?: boolean
+    useInt32?: boolean
 }
 
 async function fetchAPI(configs: FeverConfigs, params="", postparams="") {
@@ -150,14 +150,24 @@ export const feverServiceHooks: ServiceHooks = {
         const configs = state.service as FeverConfigs
         const items = new Array()
         configs.lastId = configs.lastId || 0
-        let min = 2147483647
+        let min = configs.useInt32 ? 2147483647 : Number.MAX_SAFE_INTEGER
         let response
         do {
             response = await fetchAPI(configs, `&items&max_id=${min}`)
             if (response.items === undefined) throw APIError()
             items.push(...response.items.filter(i => i.id > configs.lastId))
-            min = response.items.reduce((m, n) => Math.min(m, n.id), min)
-        } while (min > configs.lastId && response.items.length >= 50 && items.length < configs.fetchLimit)
+            if (response.items.length === 0 && min === Number.MAX_SAFE_INTEGER) {
+                configs.useInt32 = true
+                min = 2147483647
+                response = undefined
+            } else {
+                min = response.items.reduce((m, n) => Math.min(m, n.id), min)
+            }
+        } while (
+            min > configs.lastId && 
+            (response === undefined || response.items.length >= 50) && 
+            items.length < configs.fetchLimit
+        )
         configs.lastId = items.reduce((m, n) => Math.max(m, n.id), configs.lastId)
         if (items.length > 0) {
             const fidMap = new Map<number, RSSSource>()
@@ -178,7 +188,7 @@ export const feverServiceHooks: ServiceHooks = {
                     snippet: htmlDecode(i.html).trim(),
                     creator: i.author,
                     hasRead: Boolean(i.is_read),
-                    serviceRef: i.id
+                    serviceRef: typeof i.id === "string" ? parseInt(i.id) : i.id,
                 } as RSSItem
                 if (i.is_saved) item.starred = true
                 // Try to get the thumbnail of the item
