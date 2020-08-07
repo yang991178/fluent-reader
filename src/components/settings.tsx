@@ -9,6 +9,7 @@ import GroupsTabContainer from "../containers/settings/groups-container"
 import AppTabContainer from "../containers/settings/app-container"
 import RulesTabContainer from "../containers/settings/rules-container"
 import ServiceTabContainer from "../containers/settings/service-container"
+import { initTouchBarWithTexts } from "../scripts/utils"
 
 type SettingsProps = {
     display: boolean,
@@ -20,6 +21,13 @@ type SettingsProps = {
 class Settings extends React.Component<SettingsProps> { 
     constructor(props){ 
         super(props)
+    }
+
+    componentDidUpdate=  (prevProps: SettingsProps) => {
+        if (this.props.display !== prevProps.display) {
+            if (this.props.display) window.utils.destroyTouchBar()
+            else initTouchBarWithTexts()
+        }
     }
 
     render = () => this.props.display && (

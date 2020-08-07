@@ -2,7 +2,7 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AppState } from "../scripts/models/app"
-import { ProgressIndicator } from "@fluentui/react"
+import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
 import { getWindowBreakpoint } from "../scripts/utils"
 
 type NavProps = {
@@ -34,7 +34,7 @@ class Nav extends React.Component<NavProps, NavState> {
         this.setState({ maximized: state })
     }
 
-    navShortcutsHandler = (e: KeyboardEvent) => {
+    navShortcutsHandler = (e: KeyboardEvent | IObjectWithKey) => {
         if (!this.props.state.settings.display) {
             switch (e.key) {
                 case "F1":
@@ -66,6 +66,7 @@ class Nav extends React.Component<NavProps, NavState> {
 
     componentDidMount() {
         document.addEventListener("keydown", this.navShortcutsHandler)
+        if (window.utils.platform === "darwin") window.utils.addTouchBarEventsListener(this.navShortcutsHandler)
     }
     componentWillUnmount() {
         document.removeEventListener("keydown", this.navShortcutsHandler)

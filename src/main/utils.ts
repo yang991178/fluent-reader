@@ -1,7 +1,8 @@
-import { ipcMain, shell, dialog, app, session, clipboard } from "electron"
+import { ipcMain, shell, dialog, app, session, clipboard, TouchBar } from "electron"
 import { WindowManager } from "./window"
 import fs = require("fs")
-import { ImageCallbackTypes } from "../schema-types"
+import { ImageCallbackTypes, TouchBarTexts } from "../schema-types"
+import { initMainTouchBar } from "./touchbar"
 
 export function setUtilsListeners(manager: WindowManager) {
     async function openExternal(url: string, background=false) {
@@ -205,5 +206,12 @@ export function setUtilsListeners(manager: WindowManager) {
                 app.dock.bounce()
             }
         }
+    })
+
+    ipcMain.handle("touchbar-init", (_, texts: TouchBarTexts) => {
+        if (manager.hasWindow()) initMainTouchBar(texts, manager.mainWindow)
+    })
+    ipcMain.handle("touchbar-destroy", () => {
+        if (manager.hasWindow()) manager.mainWindow.setTouchBar(null)
     })
 }

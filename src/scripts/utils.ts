@@ -193,3 +193,13 @@ export function validateRegex(regex: string, flags = ""): RegExp {
 export function platformCtrl(e: React.MouseEvent | React.KeyboardEvent | MouseEvent | KeyboardEvent) {
     return window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey
 }
+
+export function initTouchBarWithTexts() {
+    window.utils.initTouchBar({
+        menu: intl.get("nav.menu"),
+        search: intl.get("search"),
+        refresh: intl.get("nav.refresh"),
+        markAll: intl.get("nav.markAllRead"),
+        notifications: intl.get("nav.notifications")
+    })
+}

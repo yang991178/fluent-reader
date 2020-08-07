@@ -1,5 +1,6 @@
 import { ipcRenderer } from "electron"
-import { ImageCallbackTypes } from "../schema-types"
+import { ImageCallbackTypes, TouchBarTexts } from "../schema-types"
+import { IObjectWithKey } from "@fluentui/react"
 
 const utilsBridge = {
     platform: process.platform,
@@ -107,6 +108,19 @@ const utilsBridge = {
         ipcRenderer.on("unmaximized", () => {
             callback(false)
         })
+    },
+
+    addTouchBarEventsListener: (callback: (IObjectWithKey) => any) => {
+        ipcRenderer.removeAllListeners("touchbar-event")
+        ipcRenderer.on("touchbar-event", (_, key: string) => {
+            callback({ key: key} )
+        })
+    },
+    initTouchBar: (texts: TouchBarTexts) => {
+        ipcRenderer.invoke("touchbar-init", texts)
+    },
+    destroyTouchBar: () => {
+        ipcRenderer.invoke("touchbar-destroy")
     },
 }
 

@@ -44,6 +44,14 @@ export interface ServiceConfigs {
     importGroups?: boolean
 }
 
+export interface TouchBarTexts {
+    menu: string
+    search: string
+    refresh: string
+    markAll: string
+    notifications: string
+}
+
 export type SchemaTypes = {
     version: string
     theme: ThemeSettings
