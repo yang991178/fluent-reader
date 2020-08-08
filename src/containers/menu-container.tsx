@@ -23,7 +23,7 @@ const mapStateToProps = createSelector(
         display: app.menu,
         selected: app.menuKey,
         sources: sources,
-        groups: groups,
+        groups: groups.map((g, i) => ({ ...g, index: i })),
         searchOn: searchOn,
         itemOn: itemOn,
     })
@@ -47,7 +47,7 @@ const mapDispatchToProps = dispatch => ({
         dispatch(openGroupMenu(sids, event))
     },
     updateGroupExpansion: (event: React.MouseEvent<HTMLElement>, key: string, selected: string) => {
-        if ((event.target as HTMLElement).tagName !== "DIV" || key === selected) {
+        if ((event.target as HTMLElement).tagName === "I" || key === selected) {
             let [type, index] = key.split("-")
             if (type === "g") dispatch(toggleGroupExpansion(parseInt(index)))
         }

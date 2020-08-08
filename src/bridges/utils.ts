@@ -113,7 +113,7 @@ const utilsBridge = {
     addTouchBarEventsListener: (callback: (IObjectWithKey) => any) => {
         ipcRenderer.removeAllListeners("touchbar-event")
         ipcRenderer.on("touchbar-event", (_, key: string) => {
-            callback({ key: key} )
+            callback({ key: key } )
         })
     },
     initTouchBar: (texts: TouchBarTexts) => {

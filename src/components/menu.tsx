@@ -50,16 +50,16 @@ export class Menu extends React.Component<MenuProps> {
         },
         {
             name: intl.get("menu.subscriptions"),
-            links: this.props.groups.filter(g => g.sids.length > 0).map((g, i) => {
+            links: this.props.groups.filter(g => g.sids.length > 0).map(g => {
                 if (g.isMultiple) {
                     let sources = g.sids.map(sid => this.props.sources[sid])
                     return {
                         name: g.name,
                         ariaLabel: this.countOverflow(sources.map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
-                        key: "g-" + i,
+                        key: "g-" + g.index,
                         url: null,
                         isExpanded: g.expanded,
-                        onClick: () => this.props.selectSourceGroup(g, "g-" + i),
+                        onClick: () => this.props.selectSourceGroup(g, "g-" + g.index),
                         links: sources.map(this.getSource)
                     }
                 } else {

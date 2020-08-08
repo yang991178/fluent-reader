@@ -3,7 +3,7 @@ export class SourceGroup {
     sids: number[]
     name?: string
     expanded?: boolean
-    index?: number // available only from groups tab container
+    index?: number // available only from menu or groups tab container
 
     constructor(sids: number[], name: string = null) {
         name = (name && name.trim()) || "Source group"
