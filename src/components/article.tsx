@@ -216,7 +216,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         try {
             const result = await fetch(this.props.item.link)
             if (!result || !result.ok) throw new Error()
-            const html = await decodeFetchResponse(result)
+            const html = await decodeFetchResponse(result, true)
             this.setState({ fullContent: html })
         } catch {
             this.setState({ loaded: true, error: true, errorDescription: "MERCURY_PARSER_FAILURE" })
