@@ -1,7 +1,7 @@
 import * as React from "react"
 import { RSSItem } from "../../scripts/models/item"
 import { FeedReduxProps } from "../../containers/feed-container"
-import { RSSFeed } from "../../scripts/models/feed"
+import { RSSFeed, FeedFilter } from "../../scripts/models/feed"
 import { ViewType } from "../../schema-types"
 import CardsFeed from "./cards-feed"
 import ListFeed from "./list-feed"
@@ -11,7 +11,7 @@ export type FeedProps = FeedReduxProps & {
     viewType: ViewType
     items: RSSItem[]
     sourceMap: Object
-    keyword: string
+    filter: FeedFilter
     shortcuts: (item: RSSItem, e: KeyboardEvent) => void
     markRead: (item: RSSItem) => void
     contextMenu: (feedId: string, item: RSSItem, e) => void

@@ -88,7 +88,8 @@
         "manageSources": "管理订阅源",
         "saveImageAs": "将图像另存为",
         "copyImage": "复制图像",
-        "copyImageURL": "复制图像链接"
+        "copyImageURL": "复制图像链接",
+        "caseSensitive": "区分大小写"
     },
     "searchEngine": {
         "name": "搜索引擎",

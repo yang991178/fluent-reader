@@ -289,11 +289,30 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     }
                 },
                 {
-                    key: "fullSearch",
-                    text: intl.get("context.fullSearch"),
-                    canCheck: true,
-                    checked: Boolean(this.props.filter & FilterType.FullSearch),
-                    onClick: () => this.props.toggleFilter(FilterType.FullSearch)
+                    key: "section_3",
+                    itemType: ContextualMenuItemType.Section,
+                    sectionProps: {
+                        title: intl.get("search"),
+                        bottomDivider: true,
+                        items: [
+                            {
+                                key: "caseSensitive",
+                                text: intl.get("context.caseSensitive"),
+                                iconProps: { style: { fontSize: 12, fontStyle: "normal" }, children: "Aa" },
+                                canCheck: true,
+                                checked: !(this.props.filter & FilterType.CaseInsensitive),
+                                onClick: () => this.props.toggleFilter(FilterType.CaseInsensitive)
+                            },
+                            {
+                                key: "fullSearch",
+                                text: intl.get("context.fullSearch"),
+                                iconProps: { iconName: "Breadcrumb" },
+                                canCheck: true,
+                                checked: Boolean(this.props.filter & FilterType.FullSearch),
+                                onClick: () => this.props.toggleFilter(FilterType.FullSearch)
+                            },
+                        ]
+                    }
                 },
                 {
                     key: "showHidden",

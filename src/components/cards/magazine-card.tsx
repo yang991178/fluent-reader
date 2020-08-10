@@ -21,8 +21,8 @@ const MagazineCard: React.FunctionComponent<Card.Props> = (props) => (
         ) : null}
         <div className="data">
             <div>
-                <h3 className="title"><Highlights text={props.item.title} keyword={props.keyword} title /></h3>
-                <p className="snippet"><Highlights text={props.item.snippet} keyword={props.keyword} /></p>
+                <h3 className="title"><Highlights text={props.item.title} filter={props.filter} title /></h3>
+                <p className="snippet"><Highlights text={props.item.snippet} filter={props.filter} /></p>
             </div>
             <CardInfo source={props.source} item={props.item} showCreator />
         </div>
