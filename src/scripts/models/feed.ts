@@ -12,16 +12,19 @@ export enum FilterType {
     FullSearch = 1 << 3,
     CaseInsensitive = 1 << 4,
 
-    Default = ShowRead | ShowNotStarred | CaseInsensitive,
+    Default = ShowRead | ShowNotStarred,
     UnreadOnly = ShowNotStarred,
     StarredOnly = ShowRead,
-    Toggles = ShowHidden | FullSearch
+    Toggles = ShowHidden | FullSearch | CaseInsensitive,
 }
 export class FeedFilter {
     type: FilterType
     search: string
 
-    constructor(type=FilterType.Default, search="") {
+    constructor(type: FilterType = null, search="") {
+        if (type === null && (type = window.settings.getFilterType()) === null) {
+            type = FilterType.Default | FilterType.CaseInsensitive
+        } 
         this.type = type
         this.search = search
     }

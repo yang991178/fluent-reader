@@ -89,6 +89,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-service-configs", configs)
     },
 
+    getFilterType: (): number => {
+        return ipcRenderer.sendSync("get-filter-type")
+    },
+    setFilterType: (filterType: number) => {
+        ipcRenderer.invoke("set-filter-type", filterType)
+    },
+
     getAll: () => {
         return ipcRenderer.sendSync("get-all-settings") as Object
     },

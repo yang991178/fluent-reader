@@ -145,3 +145,11 @@ ipcMain.on("get-service-configs", (event) => {
 ipcMain.handle("set-service-configs", (_, configs: ServiceConfigs) => {
     store.set(SERVICE_CONFIGS_STORE_KEY, configs)
 })
+
+const FILTER_TYPE_STORE_KEY = "filterType"
+ipcMain.on("get-filter-type", (event) => {
+    event.returnValue = store.get(FILTER_TYPE_STORE_KEY, null)
+})
+ipcMain.handle("set-filter-type", (_, filterType: number) => {
+    store.set(FILTER_TYPE_STORE_KEY, filterType)
+})

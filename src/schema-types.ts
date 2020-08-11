@@ -65,4 +65,5 @@ export type SchemaTypes = {
     fetchInterval: number
     searchEngine: SearchEngines
     serviceConfigs: ServiceConfigs
+    filterType: number
 }
