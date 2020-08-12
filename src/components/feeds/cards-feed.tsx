@@ -54,19 +54,36 @@ class CardsFeed extends React.Component<FeedProps> {
             showItem={this.props.showItem} />
     ) : (<div className="flex-fix" key={"f-"+index}></div>)
 
+    canFocusChild = (el: HTMLElement) => {
+        if (el.id === "load-more") {
+            const container = document.getElementById("refocus")
+            const result = container.scrollTop > container.scrollHeight - 2 * container.offsetHeight
+            if (!result) container.scrollTop += 100
+            return result
+        } else {
+            return true
+        }
+    }
+
     render() {
         return this.props.feed.loaded && (
-            <FocusZone as="div" id="refocus" className="cards-feed-container" data-is-scrollable>
+            <FocusZone as="div"
+                id="refocus"
+                className="cards-feed-container"
+                shouldReceiveFocus={this.canFocusChild}
+                data-is-scrollable>
                 <List 
                     className={AnimationClassNames.slideUpIn10}
                     items={this.flexFixItems()} 
                     onRenderCell={this.onRenderItem} 
                     getItemCountForPage={this.getItemCountForPage}
                     getPageHeight={this.getPageHeight}
+                    ignoreScrollingState
                     usePageCache />
                 {
                     (this.props.feed.loaded && !this.props.feed.allLoaded)
                     ? <div className="load-more-wrapper"><PrimaryButton 
+                        id="load-more" 
                         text={intl.get("loadMore")}
                         disabled={this.props.feed.loading}
                         onClick={() => this.props.loadMore(this.props.feed)} /></div>
