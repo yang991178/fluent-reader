@@ -44,6 +44,10 @@ export interface ServiceConfigs {
     importGroups?: boolean
 }
 
+export const enum WindowStateListenerType {
+    Maximized, Focused
+}
+
 export interface TouchBarTexts {
     menu: string
     search: string

@@ -26,6 +26,9 @@
     height: 100%;
     background-color: var(--neutralLighterAlt);
 }
+body.blur .menu .btn-group {
+    --black: var(--neutralSecondaryAlt);
+}
 body.darwin .menu .btn-group {
     display: flex;
     flex-direction: row-reverse;
