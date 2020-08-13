@@ -20,7 +20,7 @@ const ListCard: React.FunctionComponent<Card.Props> = (props) => (
         ) : null}
         <div className="data">
             <CardInfo source={props.source} item={props.item} />
-            <h3 className="title"><Highlights text={props.item.title} keyword={props.keyword} title /></h3>
+            <h3 className="title"><Highlights text={props.item.title} filter={props.filter} title /></h3>
         </div>
     </div>
 )

@@ -60,6 +60,7 @@ export class WindowManager {
                     webviewTag: true,
                     enableRemoteModule: false,
                     contextIsolation: true,
+                    worldSafeExecuteJavaScript: true,
                     spellcheck: false,
                     preload: path.join(app.getAppPath(), (app.isPackaged ? "dist/" : "") + "preload.js")
                 }
@@ -77,6 +78,12 @@ export class WindowManager {
             })
             this.mainWindow.on("unmaximize", () => {
                 this.mainWindow.webContents.send("unmaximized")
+            })
+            this.mainWindow.on("focus", () => {
+                this.mainWindow.webContents.send("window-focus")
+            })
+            this.mainWindow.on("blur", () => {
+                this.mainWindow.webContents.send("window-blur")
             })
             this.mainWindow.webContents.on("context-menu", (_, params) => {
                 if (params.selectionText) {

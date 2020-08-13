@@ -29,6 +29,30 @@ const rssParser = new Parser({
 })
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
+const XML_ENCODING_RE = /^<\?xml.+encoding="(.+)".*?\?>/i
+export async function decodeFetchResponse(response: Response, isHTML = false) {
+    const buffer = await response.arrayBuffer()
+    let ctype = response.headers.has("content-type") && response.headers.get("content-type")
+    let charset = (ctype && CHARSET_RE.test(ctype)) ? CHARSET_RE.exec(ctype)[1] : undefined
+    let content = (new TextDecoder(charset)).decode(buffer)
+    if (charset === undefined) {
+        if (isHTML) {
+            const dom = domParser.parseFromString(content, "text/html")
+            charset = dom.querySelector("meta[charset]")?.getAttribute("charset")?.toLowerCase()
+            if (!charset) {
+                ctype = dom.querySelector("meta[http-equiv='Content-Type']")?.getAttribute("content")
+                charset = ctype && CHARSET_RE.test(ctype) && CHARSET_RE.exec(ctype)[1].toLowerCase()
+            }
+        } else {
+            charset = XML_ENCODING_RE.test(content) && XML_ENCODING_RE.exec(content)[1].toLowerCase()
+        }
+        if (charset && charset !== "utf-8" && charset !== "utf8") {
+            content = (new TextDecoder(charset)).decode(buffer)
+        }
+    }
+    return content
+}
+
 export async function parseRSS(url: string) {
     let result: Response
     try {
@@ -38,11 +62,7 @@ export async function parseRSS(url: string) {
     }
     if (result && result.ok) {
         try {
-            const buffer = await result.arrayBuffer()
-            const ctype = result.headers.has("content-type") && result.headers.get("content-type")
-            const charset = (ctype && CHARSET_RE.test(ctype)) ? CHARSET_RE.exec(ctype)[1] : "utf-8"
-            const decoder = new TextDecoder(charset)
-            return await rssParser.parseString(decoder.decode(buffer))
+            return await rssParser.parseString(await decodeFetchResponse(result))
         } catch {
             throw new Error(intl.get("log.parseError"))
         }

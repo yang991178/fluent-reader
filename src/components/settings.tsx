@@ -23,8 +23,8 @@ class Settings extends React.Component<SettingsProps> {
         super(props)
     }
 
-    componentDidUpdate=  (prevProps: SettingsProps) => {
-        if (this.props.display !== prevProps.display) {
+    componentDidUpdate = (prevProps: SettingsProps) => {
+        if (window.utils.platform === "darwin" && this.props.display !== prevProps.display) {
             if (this.props.display) window.utils.destroyTouchBar()
             else initTouchBarWithTexts()
         }

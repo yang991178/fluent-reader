@@ -1,16 +1,18 @@
 import * as React from "react"
 import { validateRegex } from "../../scripts/utils"
+import { FeedFilter, FilterType } from "../../scripts/models/feed"
 
 type HighlightsProps = {
     text: string
-    keyword: string
+    filter: FeedFilter
     title?: boolean
 }
 
 const Highlights: React.FunctionComponent<HighlightsProps> = (props) => {
     const spans: [string, boolean][] = new Array()
+    const flags = (props.filter.type & FilterType.CaseInsensitive) ? "ig" : "g"
     let regex: RegExp
-    if (props.keyword === "" || !(regex = validateRegex(props.keyword, "g"))) {
+    if (props.filter.search === "" || !(regex = validateRegex(props.filter.search, flags))) {
         if (props.title) spans.push([props.text, false])
         else spans.push([props.text.substr(0, 325), false])
     } else if (props.title) {

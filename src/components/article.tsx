@@ -5,7 +5,7 @@ import { RSSItem } from "../scripts/models/item"
 import { Stack, CommandBarButton, IContextualMenuProps, FocusZone, ContextualMenuItemType, Spinner, Icon, Link } from "@fluentui/react"
 import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
-import { platformCtrl } from "../scripts/utils"
+import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -214,7 +214,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     loadFull = async () => {
         this.setState({ fullContent: "", loaded: false, error: false })
         try {
-            const html = await (await fetch(this.props.item.link)).text()
+            const result = await fetch(this.props.item.link)
+            if (!result || !result.ok) throw new Error()
+            const html = await decodeFetchResponse(result, true)
             this.setState({ fullContent: html })
         } catch {
             this.setState({ loaded: true, error: true, errorDescription: "MERCURY_PARSER_FAILURE" })

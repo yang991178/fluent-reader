@@ -4,6 +4,7 @@ import { Icon } from "@fluentui/react/lib/Icon"
 import { AppState } from "../scripts/models/app"
 import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
 import { getWindowBreakpoint } from "../scripts/utils"
+import { WindowStateListenerType } from "../schema-types"
 
 type NavProps = {
     state: AppState
@@ -24,14 +25,27 @@ type NavState = {
 class Nav extends React.Component<NavProps, NavState> {
     constructor(props) {
         super(props)
-        window.utils.addWindowStateListener(this.setMaximizeState)
+        this.setBodyFocusState(window.utils.isFocused())
+        window.utils.addWindowStateListener(this.windowStateListener)
         this.state = {
             maximized: window.utils.isMaximized()
         }
     }
 
-    setMaximizeState = (state: boolean) => {
-        this.setState({ maximized: state })
+    setBodyFocusState = (focused: boolean) => {
+        if (focused) document.body.classList.remove("blur")
+        else document.body.classList.add("blur")
+    }
+
+    windowStateListener = (type: WindowStateListenerType, state: boolean) => {
+        switch (type) {
+            case WindowStateListenerType.Maximized:
+                this.setState({ maximized: state })
+                break
+            case WindowStateListenerType.Focused:
+                this.setBodyFocusState(state)
+                break
+        }
     }
 
     navShortcutsHandler = (e: KeyboardEvent | IObjectWithKey) => {
@@ -86,9 +100,13 @@ class Nav extends React.Component<NavProps, NavState> {
     canFetch = () => this.props.state.sourceInit && this.props.state.feedInit 
         && !this.props.state.syncing && !this.props.state.fetchingItems
     fetching = () => !this.canFetch() ? " fetching" : ""
-    menuOn = () => this.props.state.menu ? " menu-on" : ""
-    itemOn = () => this.props.itemShown ? " item-on" : ""
-    hideButtons = () => this.props.state.settings.display ? "hide-btns" : ""
+    getClassNames = () => {
+        const classNames = new Array<string>()
+        if (this.props.state.settings.display) classNames.push("hide-btns")
+        if (this.props.state.menu) classNames.push("menu-on")
+        if (this.props.itemShown) classNames.push("item-on")
+        return classNames.join(" ")
+    }
 
     fetch = () => {
         if (this.canFetch()) this.props.fetch()
@@ -108,7 +126,7 @@ class Nav extends React.Component<NavProps, NavState> {
 
     render() {
         return (
-            <nav className={this.hideButtons() + this.menuOn() + this.itemOn()}>
+            <nav className={this.getClassNames()}>
                 <div className="btn-group">
                     <a className="btn hide-wide" 
                         title={intl.get("nav.menu")} 

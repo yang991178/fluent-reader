@@ -18,8 +18,8 @@ const CompactCard: React.FunctionComponent<Card.Props> = (props) => (
         data-is-focusable>
         <CardInfo source={props.source} item={props.item} hideTime />
         <div className="data">
-            <span className="title"><Highlights text={props.item.title} keyword={props.keyword} title /></span>
-            <span className="snippet"><Highlights text={props.item.snippet} keyword={props.keyword} /></span>
+            <span className="title"><Highlights text={props.item.title} filter={props.filter} title /></span>
+            <span className="snippet"><Highlights text={props.item.snippet} filter={props.filter} /></span>
         </div>
         <Time date={props.item.date} />
     </div>

@@ -1,5 +1,5 @@
 import { ipcRenderer } from "electron"
-import { ImageCallbackTypes, TouchBarTexts } from "../schema-types"
+import { ImageCallbackTypes, TouchBarTexts, WindowStateListenerType } from "../schema-types"
 import { IObjectWithKey } from "@fluentui/react"
 
 const utilsBridge = {
@@ -99,21 +99,29 @@ const utilsBridge = {
     requestAttention: () => {
         ipcRenderer.invoke("request-attention")
     },
-    addWindowStateListener: (callback: (state: boolean) => any) => {
+    addWindowStateListener: (callback: (type: WindowStateListenerType, state: boolean) => any) => {
         ipcRenderer.removeAllListeners("maximized")
         ipcRenderer.on("maximized", () => {
-            callback(true)
+            callback(WindowStateListenerType.Maximized, true)
         })
         ipcRenderer.removeAllListeners("unmaximized")
         ipcRenderer.on("unmaximized", () => {
-            callback(false)
+            callback(WindowStateListenerType.Maximized, false)
+        })
+        ipcRenderer.removeAllListeners("window-focus")
+        ipcRenderer.on("window-focus", () => {
+            callback(WindowStateListenerType.Focused, true)
+        })
+        ipcRenderer.removeAllListeners("window-blur")
+        ipcRenderer.on("window-blur", () => {
+            callback(WindowStateListenerType.Focused, false)
         })
     },
 
     addTouchBarEventsListener: (callback: (IObjectWithKey) => any) => {
         ipcRenderer.removeAllListeners("touchbar-event")
         ipcRenderer.on("touchbar-event", (_, key: string) => {
-            callback({ key: key} )
+            callback({ key: key } )
         })
     },
     initTouchBar: (texts: TouchBarTexts) => {

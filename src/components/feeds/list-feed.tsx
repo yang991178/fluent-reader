@@ -16,7 +16,7 @@ class ListFeed extends React.Component<FeedProps> {
             key: item._id,
             item: item, 
             source: this.props.sourceMap[item.source], 
-            keyword: this.props.keyword,
+            filter: this.props.filter,
             shortcuts: this.props.shortcuts,
             markRead: this.props.markRead,
             contextMenu: this.props.contextMenu,
@@ -38,21 +38,35 @@ class ListFeed extends React.Component<FeedProps> {
         }
     }
 
+    canFocusChild = (el: HTMLElement) => {
+        if (el.id === "load-more") {
+            const container = document.getElementById("refocus")
+            const result = container.scrollTop > container.scrollHeight - 2 * container.offsetHeight
+            if (!result) container.scrollTop += 100
+            return result
+        } else {
+            return true
+        }
+    }
+
     render() {
         return this.props.feed.loaded && (
             <FocusZone as="div" 
                 id="refocus" 
                 direction={FocusZoneDirection.vertical} 
                 className={this.getClassName()}
+                shouldReceiveFocus={this.canFocusChild}
                 data-is-scrollable>
                 <List 
                     className={AnimationClassNames.slideUpIn10}
                     items={this.props.items} 
                     onRenderCell={this.onRenderItem} 
+                    ignoreScrollingState
                     usePageCache />
                 {
                     (this.props.feed.loaded && !this.props.feed.allLoaded)
                     ? <div className="load-more-wrapper"><PrimaryButton 
+                        id="load-more" 
                         text={intl.get("loadMore")} 
                         disabled={this.props.feed.loading}
                         onClick={() => this.props.loadMore(this.props.feed)} /></div>

@@ -10,17 +10,21 @@ export enum FilterType {
     ShowNotStarred = 1 << 1,
     ShowHidden = 1 << 2,
     FullSearch = 1 << 3,
+    CaseInsensitive = 1 << 4,
 
     Default = ShowRead | ShowNotStarred,
     UnreadOnly = ShowNotStarred,
     StarredOnly = ShowRead,
-    Toggles = ShowHidden | FullSearch
+    Toggles = ShowHidden | FullSearch | CaseInsensitive,
 }
 export class FeedFilter {
     type: FilterType
     search: string
 
-    constructor(type=FilterType.Default, search="") {
+    constructor(type: FilterType = null, search="") {
+        if (type === null && (type = window.settings.getFilterType()) === null) {
+            type = FilterType.Default | FilterType.CaseInsensitive
+        } 
         this.type = type
         this.search = search
     }
@@ -36,7 +40,8 @@ export class FeedFilter {
         if (type & FilterType.ShowNotStarred) delete query.starred
         if (type & FilterType.ShowHidden) delete query.hidden
         if (filter.search !== "") {
-            let regex = RegExp(filter.search)
+            const flags = (type & FilterType.CaseInsensitive) ? "i" : ""
+            const regex = RegExp(filter.search, flags)
             if (type & FilterType.FullSearch) {
                 query.$or = [
                     { title: { $regex: regex } },
@@ -56,7 +61,8 @@ export class FeedFilter {
         if (!(type & FilterType.ShowNotStarred)) flag = flag && item.starred
         if (!(type & FilterType.ShowHidden)) flag = flag && !item.hidden
         if (filter.search !== "") { 
-            let regex = RegExp(filter.search)
+            const flags = (type & FilterType.CaseInsensitive) ? "i" : ""
+            const regex = RegExp(filter.search, flags)
             if (type & FilterType.FullSearch) {
                 flag = flag && (regex.test(item.title) || regex.test(item.snippet))
             } else {

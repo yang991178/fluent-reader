@@ -174,7 +174,9 @@ const applyFilterDone = (filter: FeedFilter): PageActionTypes => ({
 })
 
 function applyFilter(filter: FeedFilter): AppThunk {
-    return (dispatch) => {
+    return (dispatch, getState) => {
+        const oldFilterType = getState().page.filter.type
+        if (filter.type !== oldFilterType) window.settings.setFilterType(filter.type)
         dispatch(applyFilterDone(filter))
         dispatch(initFeeds(true))
     }

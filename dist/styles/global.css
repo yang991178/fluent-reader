@@ -131,6 +131,9 @@ i.ms-Nav-chevron {
     z-index: 1;
     position: relative;
 }
+body.blur #root > nav {
+    --black: var(--neutralSecondaryAlt);
+}
 nav .progress {
     position: fixed;
     top: 0;

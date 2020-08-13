@@ -88,7 +88,8 @@
         "manageSources": "Manage sources",
         "saveImageAs": "Save image as …",
         "copyImage": "Copy image",
-        "copyImageURL": "Copy image link"
+        "copyImageURL": "Copy image link",
+        "caseSensitive": "Case sensitive"
     },
     "searchEngine": {
         "name": "Search engine",

@@ -3,7 +3,7 @@ export class SourceGroup {
     sids: number[]
     name?: string
     expanded?: boolean
-    index?: number // available only from groups tab container
+    index?: number // available only from menu or groups tab container
 
     constructor(sids: number[], name: string = null) {
         name = (name && name.trim()) || "Source group"
@@ -44,6 +44,10 @@ export interface ServiceConfigs {
     importGroups?: boolean
 }
 
+export const enum WindowStateListenerType {
+    Maximized, Focused
+}
+
 export interface TouchBarTexts {
     menu: string
     search: string
@@ -65,4 +69,5 @@ export type SchemaTypes = {
     fetchInterval: number
     searchEngine: SearchEngines
     serviceConfigs: ServiceConfigs
+    filterType: number
 }

@@ -2,7 +2,7 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { SourceState, RSSSource } from "../../scripts/models/source"
 import { Stack, Label, Dropdown, IDropdownOption, TextField, PrimaryButton, Icon, DropdownMenuItemType, 
-    DefaultButton, DetailsList, IColumn, CommandBar, ICommandBarItemProps, Selection, SelectionMode, MarqueeSelection, IDragDropEvents, Link } from "@fluentui/react"
+    DefaultButton, DetailsList, IColumn, CommandBar, ICommandBarItemProps, Selection, SelectionMode, MarqueeSelection, IDragDropEvents, Link, IIconProps } from "@fluentui/react"
 import { SourceRule, RuleActions } from "../../scripts/models/rule"
 import { FilterType } from "../../scripts/models/feed"
 import { validateRegex } from "../../scripts/utils"
@@ -31,6 +31,7 @@ type RulesTabState = {
     editIndex: number
     regex: string
     fullSearch: boolean
+    caseSensitive: boolean
     match: boolean
     actionKeys: string[]
     mockTitle: string
@@ -52,6 +53,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
             editIndex: -1,
             regex: "",
             fullSearch: false,
+            caseSensitive: false,
             match: true,
             actionKeys: [],
             mockTitle: "",
@@ -104,6 +106,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
         this.setState({
             regex: rule ? rule.filter.search : "",
             fullSearch: rule ? Boolean(rule.filter.type & FilterType.FullSearch) : false,
+            caseSensitive: rule ? !(rule.filter.type & FilterType.CaseInsensitive) : false,
             match: rule ? rule.match : true,
             actionKeys: rule ? RuleActions.toKeys(rule.actions) : []
         })
@@ -204,7 +207,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
     }
 
     saveRule = () => {
-        let rule = new SourceRule(this.state.regex, this.state.actionKeys, this.state.fullSearch, this.state.match)
+        let rule = new SourceRule(this.state.regex, this.state.actionKeys, this.state.fullSearch, this.state.caseSensitive, this.state.match)
         let source = this.props.sources[parseInt(this.state.sid)]
         let rules = source.rules ? [ ...source.rules ] : []
         if (this.state.editIndex === -1) {
@@ -269,6 +272,23 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
         this.setState({ mockResult: result.join(", ") })
     }
 
+    toggleCaseSensitivity = () => {
+        this.setState({ caseSensitive: !this.state.caseSensitive })
+    }
+    regexCaseIconProps = (): IIconProps => ({
+        title: intl.get("context.caseSensitive"),
+        children: "Aa",
+        style: { 
+            fontSize: 12, 
+            fontStyle: "normal",
+            cursor: "pointer",
+            pointerEvents: "unset",
+            color: this.state.caseSensitive ? "var(--black)" : "var(--neutralTertiary)",
+            textDecoration: this.state.caseSensitive ? "underline" : "",
+        },
+        onClick: this.toggleCaseSensitivity
+    })
+
     render = () => (
         <div className="tab-body">
             <Stack horizontal tokens={{childrenGap: 16}}>
@@ -314,6 +334,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
                             <TextField
                                 name="regex"
                                 placeholder={intl.get("rules.regex")}
+                                iconProps={this.regexCaseIconProps()}
                                 value={this.state.regex}
                                 onGetErrorMessage={this.validateRegexField} 
                                 validateOnLoad={false} 
