@@ -29,18 +29,22 @@ const rssParser = new Parser({
 })
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
-const XML_ENCODING_RE = /^<\?xml.+encoding="(.+)".*\?>\s*\n/i
+const XML_ENCODING_RE = /^<\?xml.+encoding="(.+)".*?\?>/i
 export async function decodeFetchResponse(response: Response, isHTML = false) {
     const buffer = await response.arrayBuffer()
-    const ctype = response.headers.has("content-type") && response.headers.get("content-type")
+    let ctype = response.headers.has("content-type") && response.headers.get("content-type")
     let charset = (ctype && CHARSET_RE.test(ctype)) ? CHARSET_RE.exec(ctype)[1] : undefined
     let content = (new TextDecoder(charset)).decode(buffer)
     if (charset === undefined) {
         if (isHTML) {
             const dom = domParser.parseFromString(content, "text/html")
             charset = dom.querySelector("meta[charset]")?.getAttribute("charset")?.toLowerCase()
+            if (!charset) {
+                ctype = dom.querySelector("meta[http-equiv='Content-Type']")?.getAttribute("content")
+                charset = ctype && CHARSET_RE.test(ctype) && CHARSET_RE.exec(ctype)[1].toLowerCase()
+            }
         } else {
-            charset = (XML_ENCODING_RE.test(content) && XML_ENCODING_RE.exec(content)[1])?.toLowerCase()
+            charset = XML_ENCODING_RE.test(content) && XML_ENCODING_RE.exec(content)[1].toLowerCase()
         }
         if (charset && charset !== "utf-8" && charset !== "utf8") {
             content = (new TextDecoder(charset)).decode(buffer)
