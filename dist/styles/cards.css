@@ -102,6 +102,11 @@
     transition: box-shadow linear .08s, transform linear .08s;
     animation-fill-mode: none;
 }
+@media (prefers-color-scheme: dark) {
+    .default-card {
+        background-color: #fff;
+    }
+}
 .default-card:hover, .ms-Fabric--isFocusVisible .default-card:focus {
     box-shadow: #0006 0 5px 40px;
 }

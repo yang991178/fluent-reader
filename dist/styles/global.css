@@ -1,4 +1,5 @@
 :root {
+    --neutralLighterAltOpacity: rgba(250, 249, 248, 0.8);
     --neutralLighterAlt: #faf9f8;
     --neutralLighter: #f3f2f1;
     --neutralLight: #edebe9;
@@ -16,9 +17,13 @@
     --white: #fff;
     --whiteConstant: #fff;
     --navHeight: 32px;
+
+    --blur-0: saturate(150%) blur(16px);
+    --blur-1: saturate(150%) blur(32px);
 }
 @media (prefers-color-scheme: dark) {
     :root {
+        --neutralLighterAltOpacity: rgba(40, 40, 40, 0.8);
         --neutralLighterAlt: #282828;
         --neutralLighter: #313131;
         --neutralLight: #3f3f3f;
@@ -246,7 +251,7 @@ nav.item-on .btn-group .btn.system {
     background-color: #f1707a;
     color: var(--whiteConstant) !important;
 }
-.btn-group .btn.inline-block-wide { 
+.btn-group .btn.inline-block-wide {
     display: none;
 }
 body.darwin .btn-group .btn.system {

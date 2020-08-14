@@ -3,13 +3,13 @@ import locales from "./i18n/_locales"
 import { ThemeSettings } from "../schema-types"
 import intl from "react-intl-universal"
 
-const lightTheme: IPartialTheme = { 
-    defaultFontStyle: { fontFamily: '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' } 
+const lightTheme: IPartialTheme = {
+    defaultFontStyle: { fontFamily: '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' }
 }
 const darkTheme: IPartialTheme = {
     ...lightTheme,
     palette: {
-        neutralLighterAlt: "#282828",
+        neutralLighterAlt: "#282828CC",
         neutralLighter: "#313131",
         neutralLight: "#3f3f3f",
         neutralQuaternaryAlt: "#484848",

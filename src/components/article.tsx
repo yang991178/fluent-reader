@@ -34,9 +34,11 @@ type ArticleState = {
     errorDescription: string
 }
 
+const ARTICLE_COMMAND_BAR_BUTTON_STYLE = {backgroundColor: "transparent"}
+
 class Article extends React.Component<ArticleProps, ArticleState> {
     webview: Electron.WebviewTag
-    
+
     constructor(props: ArticleProps) {
         super(props)
         this.state = {
@@ -119,7 +121,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     keyDownHandler = (input: Electron.Input) => {
         if (input.type === "keyDown") {
             switch (input.key) {
-                case "Escape": 
+                case "Escape":
                     this.props.dismiss()
                     break
                 case "ArrowLeft":
@@ -232,7 +234,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         </>))
         return `article/article.html?a=${a}&h=${h}&s=${this.state.fontSize}&u=${this.props.item.link}&m=${this.state.loadFull?1:0}`
     }
-    
+
     render = () => (
         <FocusZone className="article">
             <Stack horizontal style={{height: 36}}>
@@ -249,38 +251,44 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     </Stack.Item>
                     <CommandBarButton
                         title={this.props.item.hasRead ? intl.get("article.markUnread") : intl.get("article.markRead")}
-                        iconProps={this.props.item.hasRead 
+                        iconProps={this.props.item.hasRead
                             ? {iconName: "StatusCircleRing"}
                             : {iconName: "RadioBtnOn", style: {fontSize: 14, textAlign: "center"}}}
-                        onClick={() => this.props.toggleHasRead(this.props.item)} />
+                        onClick={() => this.props.toggleHasRead(this.props.item)}
+                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
                     <CommandBarButton
                         title={this.props.item.starred ? intl.get("article.unstar") : intl.get("article.star")}
                         iconProps={{iconName: this.props.item.starred ? "FavoriteStarFill" : "FavoriteStar"}}
-                        onClick={() => this.props.toggleStarred(this.props.item)} />
+                        onClick={() => this.props.toggleStarred(this.props.item)}
+                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
                     <CommandBarButton
                         title={intl.get("article.loadFull")}
                         className={this.state.loadFull ? "active" : ""}
-                        iconProps={{iconName: "RawSource"}} 
-                        onClick={this.toggleFull} />
+                        iconProps={{iconName: "RawSource"}}
+                        onClick={this.toggleFull}
+                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
                     <CommandBarButton
                         title={intl.get("article.loadWebpage")}
                         className={this.state.loadWebpage ? "active" : ""}
-                        iconProps={{iconName: "Globe"}} 
-                        onClick={this.toggleWebpage} />
+                        iconProps={{iconName: "Globe"}}
+                        onClick={this.toggleWebpage}
+                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
                     <CommandBarButton
                         title={intl.get("more")}
                         iconProps={{iconName: "More"}}
                         menuIconProps={{style: {display: "none"}}}
-                        menuProps={this.moreMenuProps()} />
+                        menuProps={this.moreMenuProps()}
+                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
                 </Stack>
                 <Stack horizontal horizontalAlign="end" style={{width: 112}}>
                     <CommandBarButton
                         title={intl.get("close")}
                         iconProps={{iconName: "BackToWindow"}}
-                        onClick={this.props.dismiss} />
-                </Stack>  
+                        onClick={this.props.dismiss}
+                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
+                </Stack>
             </Stack>
-            {(!this.state.loadFull || this.state.fullContent) && <webview 
+            {(!this.state.loadFull || this.state.fullContent) && <webview
                 id="article"
                 className={this.state.error ? "error" : ""}
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}

@@ -84,24 +84,24 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                 {
                     key: "markAsRead",
                     text: this.props.item.hasRead ? intl.get("article.markUnread") : intl.get("article.markRead"),
-                    iconProps: this.props.item.hasRead 
+                    iconProps: this.props.item.hasRead
                         ? { iconName: "RadioBtnOn", style: { fontSize: 14, textAlign: "center" } }
                         : { iconName: "StatusCircleRing" },
-                    onClick: () => { 
-                        if (this.props.item.hasRead) this.props.markUnread(this.props.item) 
+                    onClick: () => {
+                        if (this.props.item.hasRead) this.props.markUnread(this.props.item)
                         else this.props.markRead(this.props.item)
                     },
                     split: true,
                     subMenuProps: {
                         items: [
-                            { 
-                                key: "markBelow", 
+                            {
+                                key: "markBelow",
                                 text: intl.get("article.markBelow"),
                                 iconProps: { iconName: "Down", style: { fontSize: 14 } },
                                 onClick: () => this.props.markAllRead(null, this.props.item.date)
                             },
-                            { 
-                                key: "markAbove", 
+                            {
+                                key: "markAbove",
                                 text: intl.get("article.markAbove"),
                                 iconProps: { iconName: "Up", style: { fontSize: 14 } },
                                 onClick: () => this.props.markAllRead(null, this.props.item.date, false)
@@ -184,7 +184,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     key: "openInBrowser",
                     text: intl.get("openExternal"),
                     iconProps: { iconName: "NavigateExternalInline" },
-                    onClick: (e) => { 
+                    onClick: (e) => {
                         if (platformCtrl(e)) {
                             window.utils.imageCallback(ImageCallbackTypes.OpenExternalBg)
                         } else {
@@ -342,9 +342,9 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
 
     render() {
         return this.props.type == ContextMenuType.Hidden ? null : (
-            <ContextualMenu 
+            <ContextualMenu
                 directionalHint={DirectionalHint.bottomLeftEdge}
-                items={this.getItems()} 
+                items={this.getItems()}
                 target={this.props.event || this.props.position && {left: this.props.position[0], top: this.props.position[1]}}
                 onDismiss={this.props.close} />
         )
