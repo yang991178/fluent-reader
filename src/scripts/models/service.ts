@@ -2,12 +2,13 @@ import * as db from "../db"
 import { SyncService, ServiceConfigs } from "../../schema-types"
 import { AppThunk, ActionStatus, fetchFavicon } from "../utils"
 import { RSSItem, insertItems, fetchItemsSuccess } from "./item"
-
-import { feverServiceHooks } from "./services/fever"
 import { saveSettings, pushNotification } from "./app"
 import { deleteSource, updateUnreadCounts, RSSSource, insertSource, addSourceSuccess, updateSource } from "./source"
 import { FilterType, initFeeds } from "./feed"
 import { createSourceGroup, addSourceToGroup } from "./group"
+
+import { feverServiceHooks } from "./services/fever"
+import { feedbinServiceHooks } from "./services/feedbin"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
@@ -16,7 +17,7 @@ export interface ServiceHooks {
     syncItems?: () => AppThunk<Promise<[(number | string)[], (number | string)[]]>>
     markRead?: (item: RSSItem) => AppThunk
     markUnread?: (item: RSSItem) => AppThunk
-    markAllRead?: (sids?: number[], date?: Date, before?: boolean) => AppThunk
+    markAllRead?: (sids?: number[], date?: Date, before?: boolean) => AppThunk<Promise<void>>
     star?: (item: RSSItem) => AppThunk
     unstar?: (item: RSSItem) => AppThunk
 }
@@ -24,6 +25,7 @@ export interface ServiceHooks {
 export function getServiceHooksFromType(type: SyncService): ServiceHooks {
     switch (type) {
         case SyncService.Fever: return feverServiceHooks
+        case SyncService.Feedbin: return feedbinServiceHooks
         default: return {}
     }
 }
@@ -96,6 +98,7 @@ function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<vo
                                     inserted.unreadCount = 0
                                     resolve(inserted)
                                     dispatch(addSourceSuccess(inserted, true))
+                                    window.settings.saveGroups(getState().groups)
                                 })
                                 .catch((err) => {
                                     reject(err)

@@ -3,6 +3,7 @@ import intl from "react-intl-universal"
 import { ServiceConfigs, SyncService } from "../../schema-types"
 import { Stack, Icon, Link, Dropdown, IDropdownOption } from "@fluentui/react"
 import FeverConfigsTab from "./services/fever"
+import FeedbinConfigsTab from "./services/feedbin"
 
 type ServiceTabProps = {
     configs: ServiceConfigs
@@ -31,6 +32,7 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
 
     serviceOptions = (): IDropdownOption[] => [
         { key: SyncService.Fever, text: "Fever API" },
+        { key: SyncService.Feedbin, text: "Feedbin" },
         { key: -1, text: intl.get("service.suggest") },
     ]
 
@@ -44,6 +46,14 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
 
     exitConfigsTab = () => {
         this.setState({ type: SyncService.None })
+    }
+
+    getConfigsTab = () => {
+        switch (this.state.type) {
+            case SyncService.Fever: return <FeverConfigsTab {...this.props} exit={this.exitConfigsTab} />
+            case SyncService.Feedbin: return <FeedbinConfigsTab {...this.props} exit={this.exitConfigsTab} />
+            default: return null
+        }
     }
 
     render = () => (
@@ -72,7 +82,7 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
                         style={{marginTop: 32, width: 180}} />
                 </Stack>
             )
-            : <FeverConfigsTab {...this.props} exit={this.exitConfigsTab} />}
+            : this.getConfigsTab()}
         </div>
     )
 }

@@ -37,7 +37,7 @@ export const enum ImageCallbackTypes {
 }
 
 export const enum SyncService {
-    None, Fever
+    None, Fever, Feedbin
 }
 export interface ServiceConfigs {
     type: SyncService
