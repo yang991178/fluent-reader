@@ -2,8 +2,7 @@
     margin: 32px auto 0;
     width: 860px;
     height: calc(100% - 50px);
-    background-color: var(--neutralLighterAltOpacity);
-    backdrop-filter: var(--blur-1);
+    background-color: var(--white);
     box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,.132), 0 1.2px 3.6px 0 rgba(0,0,0,.108);
     border-radius: 5px;
     overflow: hidden;

@@ -14,6 +14,9 @@
     height: 100%;
     background-color: #0008;
 }
+.article-container {
+    backdrop-filter: saturate(150%) blur(20px);
+}
 @media (prefers-color-scheme: light) {
     .menu-container, .article-container {
         background-color: #0004;

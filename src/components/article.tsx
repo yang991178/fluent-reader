@@ -34,8 +34,6 @@ type ArticleState = {
     errorDescription: string
 }
 
-const ARTICLE_COMMAND_BAR_BUTTON_STYLE = {backgroundColor: "transparent"}
-
 class Article extends React.Component<ArticleProps, ArticleState> {
     webview: Electron.WebviewTag
 
@@ -254,38 +252,32 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         iconProps={this.props.item.hasRead
                             ? {iconName: "StatusCircleRing"}
                             : {iconName: "RadioBtnOn", style: {fontSize: 14, textAlign: "center"}}}
-                        onClick={() => this.props.toggleHasRead(this.props.item)}
-                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
+                        onClick={() => this.props.toggleHasRead(this.props.item)} />
                     <CommandBarButton
                         title={this.props.item.starred ? intl.get("article.unstar") : intl.get("article.star")}
                         iconProps={{iconName: this.props.item.starred ? "FavoriteStarFill" : "FavoriteStar"}}
-                        onClick={() => this.props.toggleStarred(this.props.item)}
-                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
+                        onClick={() => this.props.toggleStarred(this.props.item)} />
                     <CommandBarButton
                         title={intl.get("article.loadFull")}
                         className={this.state.loadFull ? "active" : ""}
                         iconProps={{iconName: "RawSource"}}
-                        onClick={this.toggleFull}
-                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
+                        onClick={this.toggleFull} />
                     <CommandBarButton
                         title={intl.get("article.loadWebpage")}
                         className={this.state.loadWebpage ? "active" : ""}
                         iconProps={{iconName: "Globe"}}
-                        onClick={this.toggleWebpage}
-                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
+                        onClick={this.toggleWebpage} />
                     <CommandBarButton
                         title={intl.get("more")}
                         iconProps={{iconName: "More"}}
                         menuIconProps={{style: {display: "none"}}}
-                        menuProps={this.moreMenuProps()}
-                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
+                        menuProps={this.moreMenuProps()} />
                 </Stack>
                 <Stack horizontal horizontalAlign="end" style={{width: 112}}>
                     <CommandBarButton
                         title={intl.get("close")}
                         iconProps={{iconName: "BackToWindow"}}
-                        onClick={this.props.dismiss}
-                        style={ARTICLE_COMMAND_BAR_BUTTON_STYLE} />
+                        onClick={this.props.dismiss} />
                 </Stack>
             </Stack>
             {(!this.state.loadFull || this.state.fullContent) && <webview
