@@ -154,8 +154,10 @@ export const feverServiceHooks: ServiceHooks = {
 
     syncItems: () => async (_, getState) => {
         const configs = getState().service as FeverConfigs
-        const unreadResponse = await fetchAPI(configs, "&unread_item_ids")
-        const starredResponse = await fetchAPI(configs, "&saved_item_ids")
+        const [unreadResponse, starredResponse] = await Promise.all([
+            fetchAPI(configs, "&unread_item_ids"), 
+            fetchAPI(configs, "&saved_item_ids")
+        ])
         if (typeof unreadResponse.unread_item_ids !== "string" || typeof starredResponse.saved_item_ids !== "string") {
             throw APIError()
         }

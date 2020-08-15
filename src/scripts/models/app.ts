@@ -1,5 +1,5 @@
 import intl from "react-intl-universal"
-import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources, SourceOpenTarget } from "./source"
+import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources, SourceOpenTarget, updateFavicon } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint, initTouchBarWithTexts } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
@@ -140,8 +140,12 @@ export interface SettingsActionTypes {
     type: typeof TOGGLE_SETTINGS | typeof SAVE_SETTINGS
 }
 
-export function closeContextMenu(): ContextMenuActionTypes {
-    return { type: CLOSE_CONTEXT_MENU }
+export function closeContextMenu(): AppThunk {
+    return (dispatch, getState) => {
+        if (getState().app.contextMenu.type !== ContextMenuType.Hidden) {
+            dispatch({ type: CLOSE_CONTEXT_MENU })
+        }
+    }
 }
 
 export function openItemMenu(item: RSSItem, feedId: string, event: React.MouseEvent): ContextMenuActionTypes {
@@ -287,6 +291,7 @@ export function initApp(): AppThunk {
         }).then(() => {
             db.sdb.persistence.compactDatafile()
             db.idb.persistence.compactDatafile()
+            dispatch(updateFavicon())
         })
     }
 }

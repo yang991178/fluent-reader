@@ -75,6 +75,7 @@ export const domParser = new DOMParser()
 
 export async function fetchFavicon(url: string) {
     try {
+        url = url.split("/").slice(0, 3).join("/")
         let result = await fetch(url, { credentials: "omit" })
         if (result.ok) {
             let html = await result.text()

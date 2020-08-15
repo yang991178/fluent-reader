@@ -1,9 +1,10 @@
 import * as db from "../db"
 import { SyncService, ServiceConfigs } from "../../schema-types"
-import { AppThunk, ActionStatus, fetchFavicon } from "../utils"
+import { AppThunk, ActionStatus } from "../utils"
 import { RSSItem, insertItems, fetchItemsSuccess } from "./item"
 import { saveSettings, pushNotification } from "./app"
-import { deleteSource, updateUnreadCounts, RSSSource, insertSource, addSourceSuccess, updateSource } from "./source"
+import { deleteSource, updateUnreadCounts, RSSSource, insertSource, addSourceSuccess,
+    updateSource, updateFavicon } from "./source"
 import { FilterType, initFeeds } from "./feed"
 import { createSourceGroup, addSourceToGroup } from "./group"
 
@@ -90,20 +91,17 @@ function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<vo
                     } else if (doc === null) {
                         // Create a new source
                         forceSettings()
-                        const domain = s.url.split("/").slice(0, 3).join("/")
-                        fetchFavicon(domain).then(favicon => {
-                            if (favicon) s.iconurl = favicon
-                            dispatch(insertSource(s))
-                                .then((inserted) => {
-                                    inserted.unreadCount = 0
-                                    resolve(inserted)
-                                    dispatch(addSourceSuccess(inserted, true))
-                                    window.settings.saveGroups(getState().groups)
-                                })
-                                .catch((err) => {
-                                    reject(err)
-                                })
-                        })
+                        dispatch(insertSource(s))
+                            .then((inserted) => {
+                                inserted.unreadCount = 0
+                                resolve(inserted)
+                                dispatch(addSourceSuccess(inserted, true))
+                                window.settings.saveGroups(getState().groups)
+                                dispatch(updateFavicon([inserted.sid]))
+                            })
+                            .catch((err) => {
+                                reject(err)
+                            })
                     } else if (doc.serviceRef !== s.serviceRef) {
                         // Mark an existing source as remote and remove all items
                         forceSettings()

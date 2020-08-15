@@ -4,7 +4,7 @@ import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
-import { htmlDecode, domParser } from "../../utils"
+import { domParser } from "../../utils"
 import { RSSItem } from "../item"
 import { SourceRule } from "../rule"
 
@@ -106,7 +106,7 @@ export const feedbinServiceHooks: ServiceHooks = {
         let min = Number.MAX_SAFE_INTEGER
         let lastFetched: any[]
         do {
-            const response = await fetchAPI(configs, "entries.json?mode=extended&page=" + page)
+            const response = await fetchAPI(configs, "entries.json?mode=extended&per_page=250&page=" + page)
             if (response.status !== 200) throw APIError()
             lastFetched = await response.json()
             items.push(...lastFetched.filter(i => i.id > configs.lastId && i.id < min))
@@ -114,7 +114,7 @@ export const feedbinServiceHooks: ServiceHooks = {
             page += 1
         } while (
             min > configs.lastId &&
-            lastFetched && lastFetched.length >= 50 &&
+            lastFetched && lastFetched.length >= 250 &&
             items.length < configs.fetchLimit
         )
         configs.lastId = items.reduce((m, n) => Math.max(m, n.id), configs.lastId)
@@ -134,6 +134,7 @@ export const feedbinServiceHooks: ServiceHooks = {
             const starred: Set<number> = new Set(await starredResponse.json())
             const parsedItems = items.map(i => {
                 const source = fidMap.get(i.feed_id)
+                const dom = domParser.parseFromString(i.content, "text/html")
                 const item = {
                     source: source.sid,
                     title: i.title,
@@ -141,7 +142,7 @@ export const feedbinServiceHooks: ServiceHooks = {
                     date: new Date(i.published),
                     fetchedDate: new Date(i.created_at),
                     content: i.content,
-                    snippet: htmlDecode(i.content).trim(),
+                    snippet: dom.documentElement.textContent.trim(),
                     creator: i.author,
                     hasRead: !unread.has(i.id),
                     serviceRef: i.id,
@@ -150,7 +151,6 @@ export const feedbinServiceHooks: ServiceHooks = {
                 if (i.images && i.images.original_url) {
                     item.thumb = i.images.original_url
                 } else {
-                    let dom = domParser.parseFromString(item.content, "text/html")
                     let baseEl = dom.createElement('base')
                     baseEl.setAttribute('href', item.link.split("/").slice(0, 3).join("/"))
                     dom.head.append(baseEl)

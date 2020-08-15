@@ -35,13 +35,7 @@ export class RSSSource {
             if (feed.title) source.name = feed.title.trim()
             source.name = source.name || intl.get("sources.untitled")
         }
-        let domain = source.url.split("/").slice(0, 3).join("/")
-        try {
-            let f = await fetchFavicon(domain)
-            if (f !== null) source.iconurl = f
-        } finally {
-            return feed
-        }
+        return feed
     }
 
     private static checkItem(source: RSSSource, item: Parser.Item): Promise<RSSItem> {
@@ -250,6 +244,7 @@ export function addSource(url: string, name: string = null, batch = false): AppT
                             inserted.unreadCount = feed.items.length
                             dispatch(addSourceSuccess(inserted, batch))
                             window.settings.saveGroups(getState().groups)
+                            dispatch(updateFavicon([inserted.sid]))
                             return RSSSource.checkItems(inserted, feed.items)
                                 .then(items => insertItems(items))
                                 .then(() => {
@@ -332,6 +327,27 @@ export function deleteSources(sources: RSSSource[]): AppThunk<Promise<void>> {
             await dispatch(deleteSource(source, true))
         }
         dispatch(saveSettings())
+    }
+}
+
+export function updateFavicon(sids?: number[], force=false): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        const initSources = getState().sources
+        if (!sids) {
+            sids = Object.values(initSources).filter(s => s.iconurl === undefined).map(s => s.sid)
+        } else {
+            sids = sids.filter(sid => sid in initSources)
+        }
+        const promises = sids.map(async sid => {
+            const url = initSources[sid].url
+            let favicon = (await fetchFavicon(url)) || ""
+            const source = getState().sources[sid]
+            if (source && source.url === url && (force || source.iconurl === undefined)) {
+                source.iconurl = favicon
+                await dispatch(updateSource(source))
+            }
+        })
+        await Promise.all(promises)
     }
 }
 
