@@ -106,7 +106,7 @@ export const feedbinServiceHooks: ServiceHooks = {
         let min = Number.MAX_SAFE_INTEGER
         let lastFetched: any[]
         do {
-            const response = await fetchAPI(configs, "entries.json?mode=extended&per_page=250&page=" + page)
+            const response = await fetchAPI(configs, "entries.json?mode=extended&per_page=125&page=" + page)
             if (response.status !== 200) throw APIError()
             lastFetched = await response.json()
             items.push(...lastFetched.filter(i => i.id > configs.lastId && i.id < min))
@@ -114,7 +114,7 @@ export const feedbinServiceHooks: ServiceHooks = {
             page += 1
         } while (
             min > configs.lastId &&
-            lastFetched && lastFetched.length >= 250 &&
+            lastFetched && lastFetched.length >= 125 &&
             items.length < configs.fetchLimit
         )
         configs.lastId = items.reduce((m, n) => Math.max(m, n.id), configs.lastId)

@@ -232,35 +232,30 @@ export function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
 }
 
 export function addSource(url: string, name: string = null, batch = false): AppThunk<Promise<number>> {
-    return (dispatch, getState) => {
-        let app = getState().app
+    return async (dispatch, getState) => {
+        const app = getState().app
         if (app.sourceInit) {
             dispatch(addSourceRequest(batch))
-            let source = new RSSSource(url, name)
-            return RSSSource.fetchMetaData(source)
-                .then(feed => {
-                    return dispatch(insertSource(source))
-                        .then(inserted => {
-                            inserted.unreadCount = feed.items.length
-                            dispatch(addSourceSuccess(inserted, batch))
-                            window.settings.saveGroups(getState().groups)
-                            dispatch(updateFavicon([inserted.sid]))
-                            return RSSSource.checkItems(inserted, feed.items)
-                                .then(items => insertItems(items))
-                                .then(() => {
-                                    return inserted.sid
-                                })
-                        })
-                })
-                .catch(e => {
-                    dispatch(addSourceFailure(e, batch))
-                    if (!batch) {
-                        window.utils.showErrorBox(intl.get("sources.errorAdd"), String(e))
-                    }
-                    return Promise.reject(e)
-                })
+            const source = new RSSSource(url, name)
+            try {
+                const feed = await RSSSource.fetchMetaData(source)
+                const inserted = await dispatch(insertSource(source))
+                inserted.unreadCount = feed.items.length
+                dispatch(addSourceSuccess(inserted, batch))
+                window.settings.saveGroups(getState().groups)
+                dispatch(updateFavicon([inserted.sid]))
+                const items = await RSSSource.checkItems(inserted, feed.items)
+                await insertItems(items)
+                return inserted.sid
+            } catch (e) {
+                dispatch(addSourceFailure(e, batch))
+                if (!batch) {
+                    window.utils.showErrorBox(intl.get("sources.errorAdd"), String(e))
+                }
+                throw e
+            }
         }
-        return new Promise((_, reject) => { reject("Sources not initialized.") })
+        throw new Error("Sources not initialized.")
     }
 }
 
