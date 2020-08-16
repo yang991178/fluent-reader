@@ -103,11 +103,11 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
 
     languageOptions = (): IDropdownOption[] => [
         { key: "default", text: intl.get("followSystem") },
+        { key: "de", text: "Deutsch" },
         { key: "en-US", text: "English" },
-        { key: "es", text: "Español"},
-        { key: "fr-FR", text: "Français"},
-        { key: "zh-CN", text: "中文（简体）"},
-        { key: "de", text: "Deutsch"}
+        { key: "es", text: "Español" },
+        { key: "fr-FR", text: "Français" },
+        { key: "zh-CN", text: "中文（简体）" },    
     ]
 
     toggleStatus = () => {

@@ -33,10 +33,29 @@ a:hover, a:active {
     text-decoration: underline;
 }
 
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 #main {
     max-width: 700px;
     margin: 0 auto;
+    display: none;
 }
+#main.show {
+    display: block;
+    animation-name: fadeIn;
+    animation-duration: 0.367s;
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-fill-mode: both;
+}
+
 #main > p.title {
     font-size: 1.25rem;
     line-height: 1.75rem;
@@ -73,4 +92,9 @@ article code {
     font-family: Monaco, Consolas, monospace;
     font-size: .875rem;
     line-height: 1;
+}
+article blockquote {
+    border-left: 2px solid var(--gray);
+    margin: 1em 0;
+    padding: 0 40px;
 }

@@ -52,6 +52,8 @@ window.settings.addThemeUpdateListener((shouldDark) => {
 
 export function getCurrentLocale() {
     let locale = window.settings.getCurrentLocale()
+    if (locale in locales) return locale
+    locale = locale.split("-")[0]
     return (locale in locales) ? locale : "en-US"
 }
 
