@@ -43,7 +43,8 @@
         "zh-CN",
         "en-US",
         "fr-FR",
-        "es"
+        "es",
+        "de"
       ],
       "showNameOnTiles": true,
       "setBuildNumber": true
@@ -64,7 +65,8 @@
         "zh_CN",
         "en",
         "fr",
-        "es"
+        "es",
+        "de"
       ]
     },
     "mas": {
