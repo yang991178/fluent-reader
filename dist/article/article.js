@@ -30,5 +30,6 @@ getArticle(url).then(article => {
     }
     let main = document.getElementById("main")
     main.innerHTML = dom.body.innerHTML
+    main.classList.add("show")
 })
 

@@ -1,19 +1,24 @@
+import * as db from "../db"
 import { SyncService, ServiceConfigs } from "../../schema-types"
 import { AppThunk, ActionStatus } from "../utils"
-import { RSSItem } from "./item"
+import { RSSItem, insertItems, fetchItemsSuccess } from "./item"
+import { saveSettings, pushNotification } from "./app"
+import { deleteSource, updateUnreadCounts, RSSSource, insertSource, addSourceSuccess,
+    updateSource, updateFavicon } from "./source"
+import { FilterType, initFeeds } from "./feed"
+import { createSourceGroup, addSourceToGroup } from "./group"
 
 import { feverServiceHooks } from "./services/fever"
-import { saveSettings } from "./app"
-import { deleteSource } from "./source"
+import { feedbinServiceHooks } from "./services/feedbin"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
-    updateSources?: () => AppThunk<Promise<void>>
-    fetchItems?: (background: boolean) => AppThunk<Promise<void>>
-    syncItems?: () => AppThunk<Promise<void>>
+    updateSources?: () => AppThunk<Promise<[RSSSource[], Map<number | string, string>]>>
+    fetchItems?: () => AppThunk<Promise<[RSSItem[], ServiceConfigs]>>
+    syncItems?: () => AppThunk<Promise<[(number | string)[], (number | string)[]]>>
     markRead?: (item: RSSItem) => AppThunk
     markUnread?: (item: RSSItem) => AppThunk
-    markAllRead?: (sids?: number[], date?: Date, before?: boolean) => AppThunk
+    markAllRead?: (sids?: number[], date?: Date, before?: boolean) => AppThunk<Promise<void>>
     star?: (item: RSSItem) => AppThunk
     unstar?: (item: RSSItem) => AppThunk
 }
@@ -21,6 +26,7 @@ export interface ServiceHooks {
 export function getServiceHooksFromType(type: SyncService): ServiceHooks {
     switch (type) {
         case SyncService.Fever: return feverServiceHooks
+        case SyncService.Feedbin: return feedbinServiceHooks
         default: return {}
     }
 }
@@ -40,9 +46,9 @@ export function syncWithService(background = false): AppThunk<Promise<void>> {
                     type: SYNC_SERVICE,
                     status: ActionStatus.Request
                 })
-                await dispatch(hooks.updateSources())
-                await dispatch(hooks.syncItems())
-                await dispatch(hooks.fetchItems(background))
+                await dispatch(updateSources(hooks.updateSources))
+                await dispatch(syncItems(hooks.syncItems))
+                await dispatch(fetchItems(hooks.fetchItems, background))
                 dispatch({
                     type: SYNC_SERVICE,
                     status: ActionStatus.Success
@@ -57,6 +63,137 @@ export function syncWithService(background = false): AppThunk<Promise<void>> {
             } finally {
                 if (getState().app.settings.saving) dispatch(saveSettings())
             }
+        }
+    }
+}
+
+function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => { 
+        const [sources, groupsMap] = await dispatch(hook())
+        const existing = new Map<number | string, RSSSource>()
+        for (let source of Object.values(getState().sources)) {
+            if (source.serviceRef) {
+                existing.set(source.serviceRef, source)
+            }
+        }
+        const forceSettings = () => {
+            if (!(getState().app.settings.saving)) dispatch(saveSettings())
+        }
+        let promises = sources.map(s => new Promise<RSSSource>((resolve, reject) => {
+            if (existing.has(s.serviceRef)) {
+                const doc = existing.get(s.serviceRef)
+                existing.delete(s.serviceRef)
+                resolve(doc)
+            } else {
+                db.sdb.findOne({ url: s.url }, (err, doc) => {
+                    if (err) {
+                        reject(err)
+                    } else if (doc === null) {
+                        // Create a new source
+                        forceSettings()
+                        dispatch(insertSource(s))
+                            .then((inserted) => {
+                                inserted.unreadCount = 0
+                                resolve(inserted)
+                                dispatch(addSourceSuccess(inserted, true))
+                                window.settings.saveGroups(getState().groups)
+                                dispatch(updateFavicon([inserted.sid]))
+                            })
+                            .catch((err) => {
+                                reject(err)
+                            })
+                    } else if (doc.serviceRef !== s.serviceRef) {
+                        // Mark an existing source as remote and remove all items
+                        forceSettings()
+                        doc.serviceRef = s.serviceRef
+                        doc.unreadCount = 0
+                        dispatch(updateSource(doc)).finally(() => {
+                            db.idb.remove({ source: doc.sid }, { multi: true }, (err) => {
+                                if (err) reject(err)
+                                else resolve(doc)
+                            })
+                        })
+                    } else {
+                        resolve(doc)
+                    }
+                })
+            }
+        }))
+        for (let [_, source] of existing) {
+            // Delete sources removed from the service side
+            forceSettings()
+            promises.push(dispatch(deleteSource(source, true)).then(() => null))
+        }
+        let sourcesResults = (await Promise.all(promises)).filter(s => s)
+        if (groupsMap) {
+            // Add sources to imported groups
+            forceSettings()
+            for (let source of sourcesResults) {
+                if (groupsMap.has(source.serviceRef)) {
+                    const gid = dispatch(createSourceGroup(groupsMap.get(source.serviceRef)))
+                    dispatch(addSourceToGroup(gid, source.sid))
+                }
+            }
+            const configs = getState().service
+            delete configs.importGroups
+            dispatch(saveServiceConfigs(configs))
+        }
+    }
+}
+
+function syncItems(hook: ServiceHooks["syncItems"]): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => { 
+        const state = getState()
+        const [unreadRefs, starredRefs] = await dispatch(hook())
+        const promises = new Array<Promise<number>>()
+        promises.push(new Promise((resolve) => {
+            db.idb.update({ 
+                serviceRef: { $exists: true, $in: unreadRefs }, 
+                hasRead: true 
+            }, { $set: { hasRead: false } }, { multi: true }, (_, num) => resolve(num))
+        }))
+        promises.push(new Promise((resolve) => {
+            db.idb.update({ 
+                serviceRef: { $exists: true, $nin: unreadRefs }, 
+                hasRead: false 
+            }, { $set: { hasRead: true } }, { multi: true }, (_, num) => resolve(num))
+        }))
+        promises.push(new Promise((resolve) => {
+            db.idb.update({ 
+                serviceRef: { $exists: true, $in: starredRefs }, 
+                starred: { $exists: false } 
+            }, { $set: { starred: true } }, { multi: true }, (_, num) => resolve(num))
+        }))
+        promises.push(new Promise((resolve) => {
+            db.idb.update({ 
+                serviceRef: { $exists: true, $nin: starredRefs }, 
+                starred: true 
+            }, { $unset: { starred: true } }, { multi: true }, (_, num) => resolve(num))
+        }))
+        const affected = (await Promise.all(promises)).reduce((a, b) => a + b, 0)
+        if (affected > 0) {
+            dispatch(syncLocalItems(unreadRefs, starredRefs))
+            if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
+                dispatch(initFeeds(true))
+            }
+            await dispatch(updateUnreadCounts())
+        }
+    }
+}
+
+function fetchItems(hook: ServiceHooks["fetchItems"], background: boolean): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        const [items, configs] = await dispatch(hook())
+        if (items.length > 0) {
+            const inserted = await insertItems(items)
+            dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
+            if (background) {
+                for (let item of inserted) {
+                    if (item.notify) dispatch(pushNotification(item))
+                }
+                if (inserted.length > 0) window.utils.requestAttention()
+            }
+            dispatch(saveServiceConfigs(configs))
         }
     }
 }
@@ -103,8 +240,8 @@ interface SyncWithServiceAction {
 
 interface SyncLocalItemsAction {
     type: typeof SYNC_LOCAL_ITEMS
-    unreadIds: number[]
-    starredIds: number[]
+    unreadIds: (string | number)[]
+    starredIds: (string | number)[]
 }
 
 export type ServiceActionTypes = SaveServiceConfigsAction | SyncWithServiceAction | SyncLocalItemsAction
@@ -119,7 +256,7 @@ export function saveServiceConfigs(configs: ServiceConfigs): AppThunk {
     }
 }
 
-export function syncLocalItems(unread: number[], starred: number[]): ServiceActionTypes {
+function syncLocalItems(unread: (string | number)[], starred: (string | number)[]): ServiceActionTypes {
     return {
         type: SYNC_LOCAL_ITEMS,
         unreadIds: unread,

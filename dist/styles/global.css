@@ -212,10 +212,7 @@ nav.menu-on .btn-group .btn, nav.hide-btns .btn-group .btn {
 nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
     display: inline-block;
 }
-nav.menu-on .btn-group .btn.system {
-    color: var(--white);
-}
-nav.item-on .btn-group .btn.system {
+nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
     color: var(--whiteConstant);
 }
 .btn-group .btn:hover, .ms-Nav-compositeLink:hover {

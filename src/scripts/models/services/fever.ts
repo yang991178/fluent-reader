@@ -1,13 +1,10 @@
 import intl from "react-intl-universal"
-import * as db from "../../db"
-import { ServiceHooks, saveServiceConfigs, syncLocalItems } from "../service"
+import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
-import { createSourceGroup, addSourceToGroup } from "../group"
-import { RSSSource, insertSource, addSourceSuccess, updateSource, deleteSource, updateUnreadCounts } from "../source"
-import { fetchFavicon, htmlDecode, domParser } from "../../utils"
-import { saveSettings, pushNotification } from "../app"
-import { initFeeds, FilterType } from "../feed"
-import { RSSItem, insertItems, fetchItemsSuccess } from "../item"
+import { createSourceGroup } from "../group"
+import { RSSSource } from "../source"
+import { htmlDecode, domParser } from "../../utils"
+import { RSSItem } from "../item"
 import { SourceRule } from "../rule"
 
 export interface FeverConfigs extends ServiceConfigs {
@@ -51,8 +48,7 @@ export const feverServiceHooks: ServiceHooks = {
     },
 
     updateSources: () => async (dispatch, getState) => {
-        const initState = getState()
-        const configs = initState.service as FeverConfigs
+        const configs = getState().service as FeverConfigs
         const response = await fetchAPI(configs, "&feeds")
         const feeds: any[] = response.feeds
         const feedGroups: any[] = response.feeds_groups
@@ -62,90 +58,28 @@ export const feverServiceHooks: ServiceHooks = {
             // Import groups on the first sync
             const groups: any[] = (await fetchAPI(configs, "&groups")).groups
             if (groups === undefined || feedGroups === undefined) throw APIError()
-            groupsMap = new Map()
+            const groupsIdMap = new Map<number, string>()
             for (let group of groups) {
-                dispatch(createSourceGroup(group.title))
-                groupsMap.set(group.id, group.title)
+                const title = group.title.trim()
+                dispatch(createSourceGroup(title))
+                groupsIdMap.set(group.id, title)
             }
-        }
-        const existing = new Map<number, RSSSource>()
-        for (let source of Object.values(initState.sources)) {
-            if (source.serviceRef) {
-                existing.set(source.serviceRef as number, source)
-            }
-        }
-        const forceSettings = () => {
-            if (!(getState().app.settings.saving)) dispatch(saveSettings())
-        }
-        let promises = feeds.map(f => new Promise<RSSSource>((resolve, reject) => {
-            if (existing.has(f.id)) {
-                const doc = existing.get(f.id)
-                existing.delete(f.id)
-                resolve(doc)
-            } else {
-                db.sdb.findOne({ url: f.url }, (err, doc) => {
-                    if (err) {
-                        reject(err)
-                    } else if (doc === null) {
-                        // Create a new source
-                        forceSettings()
-                        let source = new RSSSource(f.url, f.title)
-                        source.serviceRef = f.id
-                        const domain = source.url.split("/").slice(0, 3).join("/")
-                        fetchFavicon(domain).then(favicon => {
-                            if (favicon) source.iconurl = favicon
-                            dispatch(insertSource(source))
-                                .then((inserted) => {
-                                    inserted.unreadCount = 0
-                                    resolve(inserted)
-                                    dispatch(addSourceSuccess(inserted, true))
-                                })
-                                .catch((err) => {
-                                    reject(err)
-                                })
-                        })
-                    } else if (doc.serviceRef !== f.id) {
-                        // Mark an existing source as remote and remove all items
-                        forceSettings()
-                        doc.serviceRef = f.id
-                        doc.unreadCount = 0
-                        dispatch(updateSource(doc)).finally(() => {
-                            db.idb.remove({ source: doc.sid }, { multi: true }, (err) => {
-                                if (err) reject(err)
-                                else resolve(doc)
-                            })
-                        })
-                    } else {
-                        resolve(doc)
-                    }
-                })
-            }
-        }))
-        for (let [_, source] of existing) {
-            // Delete sources removed from the service side
-            forceSettings()
-            promises.push(dispatch(deleteSource(source, true)).then(() => null))
-        }
-        let sources = (await Promise.all(promises)).filter(s => s)
-        if (groupsMap) {
-            // Add sources to imported groups
-            forceSettings()
-            let sourcesMap = new Map<number, number>()
-            for (let source of sources) sourcesMap.set(source.serviceRef as number, source.sid)
+            groupsMap = new Map()
             for (let group of feedGroups) {
                 for (let fid of group.feed_ids.split(",").map(s => parseInt(s))) {
-                    if (sourcesMap.has(fid)) {
-                        const gid = dispatch(createSourceGroup(groupsMap.get(group.group_id)))
-                        dispatch(addSourceToGroup(gid, sourcesMap.get(fid)))
-                    }
+                    groupsMap.set(fid, groupsIdMap.get(group.group_id))
                 }
             }
-            delete configs.importGroups
-            dispatch(saveServiceConfigs(configs))
         }
+        const sources = feeds.map(f => {
+            const source = new RSSSource(f.url, f.title)
+            source.serviceRef = f.id
+            return source
+        })
+        return [sources, groupsMap]
     },
 
-    fetchItems: (background) => async (dispatch, getState) => {
+    fetchItems: () => async (_, getState) => {
         const state = getState()
         const configs = state.service as FeverConfigs
         const items = new Array()
@@ -199,7 +133,7 @@ export const feverServiceHooks: ServiceHooks = {
                 let img = dom.querySelector("img")
                 if (img && img.src) { 
                     item.thumb = img.src
-                } else {
+                } else if (configs.useInt32) { // TTRSS Fever Plugin attachments
                     let a = dom.querySelector("body>ul>li:first-child>a") as HTMLAnchorElement
                     if (a && /, image\/generic$/.test(a.innerText) && a.href)
                         item.thumb = a.href
@@ -212,61 +146,24 @@ export const feverServiceHooks: ServiceHooks = {
                     markItem(configs, item, item.starred ? "saved" : "unsaved")
                 return item
             })
-            const inserted = await insertItems(parsedItems)
-            dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
-            if (background) {
-                for (let item of inserted) {
-                    if (item.notify) dispatch(pushNotification(item))
-                }
-                if (inserted.length > 0) window.utils.requestAttention()
-            }
-            dispatch(saveServiceConfigs(configs))
+            return [parsedItems, configs]
+        } else { 
+            return [[], configs]
         }
     },
 
-    syncItems: () => async (dispatch, getState) => {
-        const state = getState()
-        const configs = state.service as FeverConfigs
-        const unreadResponse = await fetchAPI(configs, "&unread_item_ids")
-        const starredResponse = await fetchAPI(configs, "&saved_item_ids")
+    syncItems: () => async (_, getState) => {
+        const configs = getState().service as FeverConfigs
+        const [unreadResponse, starredResponse] = await Promise.all([
+            fetchAPI(configs, "&unread_item_ids"), 
+            fetchAPI(configs, "&saved_item_ids")
+        ])
         if (typeof unreadResponse.unread_item_ids !== "string" || typeof starredResponse.saved_item_ids !== "string") {
             throw APIError()
         }
         const unreadFids: number[] = unreadResponse.unread_item_ids.split(",").map(s => parseInt(s))
         const starredFids: number[] = starredResponse.saved_item_ids.split(",").map(s => parseInt(s))
-        const promises = new Array<Promise<number>>()
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $in: unreadFids }, 
-                hasRead: true 
-            }, { $set: { hasRead: false } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $nin: unreadFids }, 
-                hasRead: false 
-            }, { $set: { hasRead: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $in: starredFids }, 
-                starred: { $exists: false } 
-            }, { $set: { starred: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $nin: starredFids }, 
-                starred: true 
-            }, { $unset: { starred: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        const affected = (await Promise.all(promises)).reduce((a, b) => a + b, 0)
-        if (affected > 0) {
-            dispatch(syncLocalItems(unreadFids, starredFids))
-            if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
-                dispatch(initFeeds(true))
-            }
-            await dispatch(updateUnreadCounts())
-        }
+        return [unreadFids, starredFids]
     },
 
     markAllRead: (sids, date, before) => async (_, getState) => {
