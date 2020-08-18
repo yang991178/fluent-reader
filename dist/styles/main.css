@@ -22,6 +22,9 @@
         background-color: #0004;
     }
 }
+.menu-container {
+    background-color: transparent;
+}
 .article-container {
     z-index: 6;
 }
@@ -33,6 +36,7 @@
     height: 100%;
     background-color: var(--neutralLighterAltOpacity);
     backdrop-filter: var(--blur-1);
+    box-shadow: 0 0 16px #0004;
 }
 body.blur .menu .btn-group {
     --black: var(--neutralSecondaryAlt);
