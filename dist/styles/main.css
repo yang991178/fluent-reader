@@ -79,13 +79,8 @@ body.darwin .menu .btn-group {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: #0008;
+    background-color: var(--neutralLight);
     overflow: hidden;
-}
-@media (prefers-color-scheme: light) {
-    .settings-container {
-        background-color: #0004
-    }
 }
 .settings-container .settings {
     margin: 64px auto 0;
