@@ -9,7 +9,7 @@ const lightTheme: IPartialTheme = {
 const darkTheme: IPartialTheme = {
     ...lightTheme,
     palette: {
-        neutralLighterAlt: "#282828CC",
+        neutralLighterAlt: "#282828",
         neutralLighter: "#313131",
         neutralLight: "#3f3f3f",
         neutralQuaternaryAlt: "#484848",
