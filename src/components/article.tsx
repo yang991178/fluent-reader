@@ -36,7 +36,7 @@ type ArticleState = {
 
 class Article extends React.Component<ArticleProps, ArticleState> {
     webview: Electron.WebviewTag
-
+    
     constructor(props: ArticleProps) {
         super(props)
         this.state = {
@@ -119,7 +119,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     keyDownHandler = (input: Electron.Input) => {
         if (input.type === "keyDown") {
             switch (input.key) {
-                case "Escape":
+                case "Escape": 
                     this.props.dismiss()
                     break
                 case "ArrowLeft":
@@ -249,7 +249,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     </Stack.Item>
                     <CommandBarButton
                         title={this.props.item.hasRead ? intl.get("article.markUnread") : intl.get("article.markRead")}
-                        iconProps={this.props.item.hasRead
+                        iconProps={this.props.item.hasRead 
                             ? {iconName: "StatusCircleRing"}
                             : {iconName: "RadioBtnOn", style: {fontSize: 14, textAlign: "center"}}}
                         onClick={() => this.props.toggleHasRead(this.props.item)} />
@@ -260,12 +260,12 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     <CommandBarButton
                         title={intl.get("article.loadFull")}
                         className={this.state.loadFull ? "active" : ""}
-                        iconProps={{iconName: "RawSource"}}
+                        iconProps={{iconName: "RawSource"}} 
                         onClick={this.toggleFull} />
                     <CommandBarButton
                         title={intl.get("article.loadWebpage")}
                         className={this.state.loadWebpage ? "active" : ""}
-                        iconProps={{iconName: "Globe"}}
+                        iconProps={{iconName: "Globe"}} 
                         onClick={this.toggleWebpage} />
                     <CommandBarButton
                         title={intl.get("more")}
@@ -278,7 +278,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         title={intl.get("close")}
                         iconProps={{iconName: "BackToWindow"}}
                         onClick={this.props.dismiss} />
-                </Stack>
+                </Stack>  
             </Stack>
             {(!this.state.loadFull || this.state.fullContent) && <webview 
                 id="article"
