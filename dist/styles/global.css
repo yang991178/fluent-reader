@@ -251,7 +251,7 @@ nav.item-on .btn-group .btn.system {
     background-color: #f1707a;
     color: var(--whiteConstant) !important;
 }
-.btn-group .btn.inline-block-wide {
+.btn-group .btn.inline-block-wide { 
     display: none;
 }
 body.darwin .btn-group .btn.system {

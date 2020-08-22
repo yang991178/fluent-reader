@@ -280,7 +280,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         onClick={this.props.dismiss} />
                 </Stack>
             </Stack>
-            {(!this.state.loadFull || this.state.fullContent) && <webview
+            {(!this.state.loadFull || this.state.fullContent) && <webview 
                 id="article"
                 className={this.state.error ? "error" : ""}
                 key={this.props.item._id + (this.state.loadWebpage ? "_" : "")}

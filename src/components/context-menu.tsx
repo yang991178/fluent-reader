@@ -344,7 +344,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
         return this.props.type == ContextMenuType.Hidden ? null : (
             <ContextualMenu
                 directionalHint={DirectionalHint.bottomLeftEdge}
-                items={this.getItems()}
+                items={this.getItems()} 
                 target={this.props.event || this.props.position && {left: this.props.position[0], top: this.props.position[1]}}
                 onDismiss={this.props.close} />
         )
