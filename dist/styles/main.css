@@ -5,6 +5,10 @@
     background: #fff;
 }
 
+@keyframes fade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
 .menu-container, .article-container {
     position: fixed;
     z-index: 5;
@@ -16,6 +20,12 @@
 }
 .article-container {
     backdrop-filter: saturate(150%) blur(20px);
+    animation-name: fade;
+}
+.menu-container, .article-container, .article-wrapper {
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-fill-mode: both;
 }
 @media (prefers-color-scheme: light) {
     .menu-container, .article-container {

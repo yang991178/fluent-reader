@@ -1,3 +1,7 @@
+@keyframes slideUp20 {
+    0% { transform: translateY(20px); }
+    100% { transform: translateY(0); }
+}
 .article-wrapper {
     margin: 32px auto 0;
     width: 860px;
@@ -6,6 +10,7 @@
     box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,.132), 0 1.2px 3.6px 0 rgba(0,0,0,.108);
     border-radius: 5px;
     overflow: hidden;
+    animation-name: slideUp20;
 }
 .article-container .btn-group .btn {
     color: #fff;

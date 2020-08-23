@@ -42,7 +42,7 @@ class Page extends React.Component<PageProps> {
                     isClickableOutsideFocusTrap={true}
                     className="article-container"
                     onClick={this.props.dismissItem}>
-                    <div className={"article-wrapper " + AnimationClassNames.slideUpIn20} onClick={e => e.stopPropagation()}>
+                    <div className="article-wrapper" onClick={e => e.stopPropagation()}>
                         <ArticleContainer itemId={this.props.itemId} />
                     </div>
                     {this.props.itemFromFeed && <>

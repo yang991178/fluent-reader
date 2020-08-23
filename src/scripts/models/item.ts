@@ -248,15 +248,15 @@ export function markRead(item: RSSItem): AppThunk {
     }
 }
 
-export function markAllRead(sids: number[] = null, date: Date = null, before = true): AppThunk {
-    return (dispatch, getState) => {
+export function markAllRead(sids: number[] = null, date: Date = null, before = true): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
         let state = getState()
         if (sids === null) {
             let feed = state.feeds[state.page.feedId]
             sids = feed.sids
         }
         const action = dispatch(getServiceHooks()).markAllRead?.(sids, date, before)
-        if (action) dispatch(action)
+        if (action) await dispatch(action)
         let query = { 
             source: { $in: sids },
             hasRead: false,

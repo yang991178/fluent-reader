@@ -1,9 +1,9 @@
 import intl from "react-intl-universal"
-import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources, SourceOpenTarget } from "./source"
+import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOURCE, initSources, SourceOpenTarget, updateFavicon } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint, initTouchBarWithTexts } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
-import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS } from "./group"
+import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS, fixBrokenGroups } from "./group"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, showItemFromId } from "./page"
 import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
@@ -140,8 +140,12 @@ export interface SettingsActionTypes {
     type: typeof TOGGLE_SETTINGS | typeof SAVE_SETTINGS
 }
 
-export function closeContextMenu(): ContextMenuActionTypes {
-    return { type: CLOSE_CONTEXT_MENU }
+export function closeContextMenu(): AppThunk {
+    return (dispatch, getState) => {
+        if (getState().app.contextMenu.type !== ContextMenuType.Hidden) {
+            dispatch({ type: CLOSE_CONTEXT_MENU })
+        }
+    }
 }
 
 export function openItemMenu(item: RSSItem, feedId: string, event: React.MouseEvent): ContextMenuActionTypes {
@@ -279,14 +283,15 @@ export function initApp(): AppThunk {
         dispatch(initIntl()).then(async () => {
             if (window.utils.platform === "darwin") initTouchBarWithTexts()
             await dispatch(initSources())
-        }).then(() => 
-            dispatch(initFeeds())
-        ).then(() => {
+        }).then(() => dispatch(initFeeds()))
+        .then(async () => {
             dispatch(selectAllArticles())
-            return dispatch(fetchItems())
+            dispatch(fixBrokenGroups())
+            await dispatch(fetchItems())
         }).then(() => {
             db.sdb.persistence.compactDatafile()
             db.idb.persistence.compactDatafile()
+            dispatch(updateFavicon())
         })
     }
 }

@@ -35,13 +35,7 @@ export class RSSSource {
             if (feed.title) source.name = feed.title.trim()
             source.name = source.name || intl.get("sources.untitled")
         }
-        let domain = source.url.split("/").slice(0, 3).join("/")
-        try {
-            let f = await fetchFavicon(domain)
-            if (f !== null) source.iconurl = f
-        } finally {
-            return feed
-        }
+        return feed
     }
 
     private static checkItem(source: RSSSource, item: Parser.Item): Promise<RSSItem> {
@@ -238,34 +232,30 @@ export function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
 }
 
 export function addSource(url: string, name: string = null, batch = false): AppThunk<Promise<number>> {
-    return (dispatch, getState) => {
-        let app = getState().app
+    return async (dispatch, getState) => {
+        const app = getState().app
         if (app.sourceInit) {
             dispatch(addSourceRequest(batch))
-            let source = new RSSSource(url, name)
-            return RSSSource.fetchMetaData(source)
-                .then(feed => {
-                    return dispatch(insertSource(source))
-                        .then(inserted => {
-                            inserted.unreadCount = feed.items.length
-                            dispatch(addSourceSuccess(inserted, batch))
-                            window.settings.saveGroups(getState().groups)
-                            return RSSSource.checkItems(inserted, feed.items)
-                                .then(items => insertItems(items))
-                                .then(() => {
-                                    return inserted.sid
-                                })
-                        })
-                })
-                .catch(e => {
-                    dispatch(addSourceFailure(e, batch))
-                    if (!batch) {
-                        window.utils.showErrorBox(intl.get("sources.errorAdd"), String(e))
-                    }
-                    return Promise.reject(e)
-                })
+            const source = new RSSSource(url, name)
+            try {
+                const feed = await RSSSource.fetchMetaData(source)
+                const inserted = await dispatch(insertSource(source))
+                inserted.unreadCount = feed.items.length
+                dispatch(addSourceSuccess(inserted, batch))
+                window.settings.saveGroups(getState().groups)
+                dispatch(updateFavicon([inserted.sid]))
+                const items = await RSSSource.checkItems(inserted, feed.items)
+                await insertItems(items)
+                return inserted.sid
+            } catch (e) {
+                dispatch(addSourceFailure(e, batch))
+                if (!batch) {
+                    window.utils.showErrorBox(intl.get("sources.errorAdd"), String(e))
+                }
+                throw e
+            }
         }
-        return new Promise((_, reject) => { reject("Sources not initialized.") })
+        throw new Error("Sources not initialized.")
     }
 }
 
@@ -332,6 +322,27 @@ export function deleteSources(sources: RSSSource[]): AppThunk<Promise<void>> {
             await dispatch(deleteSource(source, true))
         }
         dispatch(saveSettings())
+    }
+}
+
+export function updateFavicon(sids?: number[], force=false): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        const initSources = getState().sources
+        if (!sids) {
+            sids = Object.values(initSources).filter(s => s.iconurl === undefined).map(s => s.sid)
+        } else {
+            sids = sids.filter(sid => sid in initSources)
+        }
+        const promises = sids.map(async sid => {
+            const url = initSources[sid].url
+            let favicon = (await fetchFavicon(url)) || ""
+            const source = getState().sources[sid]
+            if (source && source.url === url && (force || source.iconurl === undefined)) {
+                source.iconurl = favicon
+                await dispatch(updateSource(source))
+            }
+        })
+        await Promise.all(promises)
     }
 }
 

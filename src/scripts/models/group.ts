@@ -162,6 +162,24 @@ export function toggleGroupExpansion(groupIndex: number): AppThunk {
     }
 }
 
+export function fixBrokenGroups(): AppThunk {
+    return (dispatch, getState) => {
+        const { sources, groups } = getState()
+        const sids = new Set(Object.values(sources).map(s => s.sid))
+        for (let group of groups) {
+            for (let sid of group.sids) {
+                sids.delete(sid)
+            }
+        }
+        if (sids.size > 0) {
+            for (let sid of sids) {
+                groups.push(new SourceGroup([sid]))
+            }
+            dispatch(reorderSourceGroups(groups))
+        }
+    }
+}
+
 function outlineToSource(outline: Element): [ReturnType<typeof addSource>, string] {
     let url = outline.getAttribute("xmlUrl")
     let name = outline.getAttribute("text") || outline.getAttribute("name")

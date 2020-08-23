@@ -25,7 +25,7 @@ If you are using Linux or an older version of Windows, you can [get Fluent Reade
 </p>
 
 - A modern UI inspired by Fluent Design System with full dark mode support.
-- Read locally or sync with self-hosted services through Fever API.
+- Read locally, or sync with Feedbin or self-hosted services compatible with Fever API.
 - Importing or exporting OPML files, full application data backup & restoration.
 - Read the full content with the built-in article view or load webpages by default.
 - Search for articles with regular expressions or filter by read status.
@@ -34,7 +34,7 @@ If you are using Linux or an older version of Windows, you can [get Fluent Reade
 - Hide, mark as read, or star articles automatically as they arrive with regular expression rules.
 - Fetch articles in the background and send push notifications.
 
-Support for other RSS services including Inoreader and Feedly are being fundraised through [Open Collective](https://opencollective.com/fluent-reader). 
+Support for other RSS services including Inoreader and Feedly are [under fundraising](https://github.com/yang991178/fluent-reader/issues/23). 
 
 ## Development
 
@@ -45,7 +45,7 @@ Help make Fluent Reader better by reporting bugs or opening feature requests thr
 You can also help internationalize the app by providing [translations into additional languages](https://github.com/yang991178/fluent-reader/tree/master/src/scripts/i18n). 
 Refer to the repo of [react-intl-universal](https://github.com/alibaba/react-intl-universal) to get started on internationalization. 
 
-If you enjoy using this app, consider supporting its development by donating through [Open Collective](https://opencollective.com/fluent-reader), [Paypal](https://www.paypal.me/yang991178), or [Alipay](https://hyliu.me/fluent-reader/imgs/alipay.jpg).
+If you enjoy using this app, consider supporting its development by donating through [GitHub Sponsors](https://github.com/sponsors/yang991178), [Paypal](https://www.paypal.me/yang991178), or [Alipay](https://hyliu.me/fluent-reader/imgs/alipay.jpg).
 
 ### Build from source
 ```bash
