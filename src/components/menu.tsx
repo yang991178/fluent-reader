@@ -5,7 +5,7 @@ import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
 import { SourceGroup } from "../schema-types"
 import { SourceState, RSSSource } from "../scripts/models/source"
 import { ALL } from "../scripts/models/feed"
-import { AnimationClassNames, Stack } from "@fluentui/react"
+import { AnimationClassNames, Stack, FocusZone } from "@fluentui/react"
 
 export type MenuProps = {
     status: boolean,
@@ -115,7 +115,7 @@ export class Menu extends React.Component<MenuProps> {
 
     render() {
         return this.props.status && (
-            <div className="menu-container" onClick={this.props.toggleMenu} style={{display: this.props.display ? "block" : "none"}}>
+            <div className={"menu-container" + (this.props.display ? " show" : "")} onClick={this.props.toggleMenu}>
                 <div className={"menu" + (this.props.itemOn ? " item-on" : "")} onClick={(e) => e.stopPropagation()}>
                     <div className="btn-group">
                         <a className="btn hide-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
@@ -123,14 +123,14 @@ export class Menu extends React.Component<MenuProps> {
                             <Icon iconName={window.utils.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
                         </a>
                     </div>
-                    <div className="nav-wrapper">
+                    <FocusZone as="div" disabled={!this.props.display} className="nav-wrapper">
                         <Nav 
                             onRenderGroupHeader={this._onRenderGroupHeader}
                             onRenderLink={this._onRenderLink}
                             groups={this.getLinkGroups()} 
                             selectedKey={this.props.selected}
                             onLinkExpandClick={(event, item) => this.props.updateGroupExpansion(event, item.key, this.props.selected)} />
-                    </div>
+                    </FocusZone>
                 </div>
             </div>
         )

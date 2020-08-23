@@ -1,4 +1,5 @@
 :root {
+    --neutralLighterAltOpacity: rgba(250, 249, 248, 0.8);
     --neutralLighterAlt: #faf9f8;
     --neutralLighter: #f3f2f1;
     --neutralLight: #edebe9;
@@ -16,9 +17,13 @@
     --white: #fff;
     --whiteConstant: #fff;
     --navHeight: 32px;
+
+    --blur-0: saturate(150%) blur(16px);
+    --blur-1: saturate(150%) blur(32px);
 }
 @media (prefers-color-scheme: dark) {
     :root {
+        --neutralLighterAltOpacity: rgba(40, 40, 40, 0.8);
         --neutralLighterAlt: #282828;
         --neutralLighter: #313131;
         --neutralLight: #3f3f3f;
@@ -206,13 +211,13 @@ body.darwin #root > nav .btn-group .btn:first-of-type {
     position: relative;
     z-index: 10;
 }
-nav.menu-on .btn-group .btn, nav.hide-btns .btn-group .btn {
+nav.hide-btns .btn-group .btn {
     display: none;
 }
-nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
+nav.hide-btns .btn-group .btn.system {
     display: inline-block;
 }
-nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
+nav.item-on .btn-group .btn.system {
     color: var(--whiteConstant);
 }
 .btn-group .btn:hover, .ms-Nav-compositeLink:hover {
