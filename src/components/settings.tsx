@@ -23,10 +23,19 @@ class Settings extends React.Component<SettingsProps> {
         super(props)
     }
 
+    onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape" && !this.props.exitting) this.props.close()
+    }
+
     componentDidUpdate = (prevProps: SettingsProps) => {
-        if (window.utils.platform === "darwin" && this.props.display !== prevProps.display) {
-            if (this.props.display) window.utils.destroyTouchBar()
-            else initTouchBarWithTexts()
+        if (this.props.display !== prevProps.display) {
+            if (this.props.display) {
+                if (window.utils.platform === "darwin") window.utils.destroyTouchBar()
+                document.body.addEventListener("keydown", this.onKeyDown)
+            } else {
+                if (window.utils.platform === "darwin") initTouchBarWithTexts()
+                document.body.removeEventListener("keydown", this.onKeyDown)
+            }
         }
     }
 
