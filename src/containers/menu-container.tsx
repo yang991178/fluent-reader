@@ -19,7 +19,7 @@ const getItemOn = (state: RootState) => state.page.itemId !== null && state.page
 const mapStateToProps = createSelector(
     [getApp, getSources, getGroups, getSearchOn, getItemOn],
     (app, sources, groups, searchOn, itemOn) => ({
-        status: app.sourceInit,
+        status: app.sourceInit && !app.settings.display,
         display: app.menu,
         selected: app.menuKey,
         sources: sources,

@@ -211,13 +211,13 @@ body.darwin #root > nav .btn-group .btn:first-of-type {
     position: relative;
     z-index: 10;
 }
-nav.menu-on .btn-group .btn, nav.hide-btns .btn-group .btn {
+nav.hide-btns .btn-group .btn {
     display: none;
 }
-nav.menu-on .btn-group .btn.system, nav.hide-btns .btn-group .btn.system {
+nav.hide-btns .btn-group .btn.system {
     display: inline-block;
 }
-nav.menu-on .btn-group .btn.system, nav.item-on .btn-group .btn.system {
+nav.item-on .btn-group .btn.system {
     color: var(--whiteConstant);
 }
 .btn-group .btn:hover, .ms-Nav-compositeLink:hover {
