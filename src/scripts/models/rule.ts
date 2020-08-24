@@ -65,10 +65,8 @@ export class SourceRule {
     match: boolean
     actions: RuleActions
 
-    constructor(regex: string, actions: string[], fullSearch: boolean, caseSensitive: boolean, match: boolean) {
-        this.filter = new FeedFilter(FilterType.Default | FilterType.ShowHidden, regex)
-        if (fullSearch) this.filter.type |= FilterType.FullSearch
-        if (!caseSensitive) this.filter.type |= FilterType.CaseInsensitive
+    constructor(regex: string, actions: string[], filter: FilterType, match: boolean) {
+        this.filter = new FeedFilter(filter, regex)
         this.match = match
         this.actions = RuleActions.fromKeys(actions)
     }
