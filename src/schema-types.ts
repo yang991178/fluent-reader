@@ -22,6 +22,11 @@ export const enum ViewType {
     Cards, List, Magazine, Compact, Customized
 }
 
+export const enum ViewConfigs {
+    ShowCover = 1 << 0,
+    ShowSnippet = 1 << 1,
+}
+
 export const enum ThemeSettings {
     Default = "system", 
     Light = "light", 
@@ -70,4 +75,5 @@ export type SchemaTypes = {
     searchEngine: SearchEngines
     serviceConfigs: ServiceConfigs
     filterType: number
+    listViewConfigs: ViewConfigs
 }

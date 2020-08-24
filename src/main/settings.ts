@@ -1,6 +1,6 @@
 import Store = require("electron-store")
 import { SchemaTypes, SourceGroup, ViewType, ThemeSettings, SearchEngines,
-    SyncService, ServiceConfigs } from "../schema-types"
+    SyncService, ServiceConfigs, ViewConfigs } from "../schema-types"
 import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
 
@@ -152,4 +152,23 @@ ipcMain.on("get-filter-type", (event) => {
 })
 ipcMain.handle("set-filter-type", (_, filterType: number) => {
     store.set(FILTER_TYPE_STORE_KEY, filterType)
+})
+
+const LIST_CONFIGS_STORE_KEY = "listViewConfigs"
+ipcMain.on("get-view-configs", (event, view: ViewType) => {
+    switch (view) {
+        case ViewType.List:
+            event.returnValue = store.get(LIST_CONFIGS_STORE_KEY, ViewConfigs.ShowCover)
+            break
+        default:
+            event.returnValue = undefined
+            break
+    }
+})
+ipcMain.handle("set-view-configs", (_, view: ViewType, configs: ViewConfigs) => {
+    switch (view) {
+        case ViewType.List:
+            store.set(LIST_CONFIGS_STORE_KEY, configs)
+            break
+    }
 })

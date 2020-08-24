@@ -89,7 +89,9 @@
         "saveImageAs": "Save image as …",
         "copyImage": "Copy image",
         "copyImageURL": "Copy image link",
-        "caseSensitive": "Case sensitive"
+        "caseSensitive": "Case sensitive",
+        "showCover": "Show cover",
+        "showSnippet": "Show snippet"
     },
     "searchEngine": {
         "name": "Search engine",

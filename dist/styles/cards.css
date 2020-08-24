@@ -195,18 +195,30 @@
 }
 .list-card .data {
     flex-grow: 1;
+    margin: 8px 10px;
+    overflow: hidden;
 }
 .list-card .info {
-    margin: 8px 10px;
+    margin: 0 0 8px;
     height: 16px;
 }
 .list-card h3.title {
     font-size: 14px;
     line-height: 18px;
     font-weight: 600;
-    margin: 8px 10px;
+    margin: 0;
     position: relative;
     -webkit-line-clamp: 3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+.list-card p.snippet {
+    color: var(--neutralSecondary);
+    font-size: 12px;
+    line-height: 16px;
+    margin: 4px 0 0;
+    -webkit-line-clamp: 2;
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
