@@ -3,6 +3,7 @@ import { RSSSource, SourceOpenTarget } from "../../scripts/models/source"
 import { RSSItem } from "../../scripts/models/item"
 import { platformCtrl } from "../../scripts/utils"
 import { FeedFilter } from "../../scripts/models/feed"
+import { ViewConfigs } from "../../schema-types"
 
 export namespace Card {
     export type Props = {
@@ -10,6 +11,7 @@ export namespace Card {
         item: RSSItem
         source: RSSSource
         filter: FeedFilter
+        viewConfigs?: ViewConfigs
         shortcuts: (item: RSSItem, e: KeyboardEvent) => void
         markRead: (item: RSSItem) => void
         contextMenu: (feedId: string, item: RSSItem, e) => void

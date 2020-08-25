@@ -3,22 +3,24 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { ContextMenuType, closeContextMenu, toggleSettings } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
-import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden, markAllRead } from "../scripts/models/item"
-import { showItem, switchView, switchFilter, toggleFilter } from "../scripts/models/page"
-import { ViewType } from "../schema-types"
+import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden, markAllRead, fetchItems } from "../scripts/models/item"
+import { showItem, switchView, switchFilter, toggleFilter, setViewConfigs } from "../scripts/models/page"
+import { ViewType, ViewConfigs } from "../schema-types"
 import { FilterType } from "../scripts/models/feed"
 
 const getContext = (state: RootState) => state.app.contextMenu
 const getViewType = (state: RootState) => state.page.viewType
 const getFilter = (state: RootState) => state.page.filter
+const getViewConfigs = (state: RootState) => state.page.viewConfigs
 
 const mapStateToProps = createSelector(
-    [getContext, getViewType, getFilter],
-    (context, viewType, filter) => {
+    [getContext, getViewType, getFilter, getViewConfigs],
+    (context, viewType, filter, viewConfigs) => {
         switch (context.type) {
             case ContextMenuType.Item: return {
                 type: context.type,
                 event: context.event,
+                viewConfigs: viewConfigs,
                 item: context.target[0],
                 feedId: context.target[1]
             }
@@ -65,12 +67,14 @@ const mapDispatchToProps = dispatch => {
             window.settings.setDefaultView(viewType)
             dispatch(switchView(viewType))
         },
+        setViewConfigs: (configs: ViewConfigs) => dispatch(setViewConfigs(configs)),
         switchFilter: (filter: FilterType) => dispatch(switchFilter(filter)),
         toggleFilter: (filter: FilterType) => dispatch(toggleFilter(filter)),
         markAllRead: (sids: number[], date?: Date, before?: boolean) => {
             dispatch(markAllRead(sids, date, before))
         },
-        settings: () => dispatch(toggleSettings()),
+        fetchItems: (sids: number[]) => dispatch(fetchItems(false, sids)),
+        settings: (sids: number[]) => dispatch(toggleSettings(true, sids)),
         close: () => dispatch(closeContextMenu())
     }
 }

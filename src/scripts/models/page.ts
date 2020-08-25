@@ -3,10 +3,11 @@ import { getWindowBreakpoint, AppThunk, ActionStatus } from "../utils"
 import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
 import { toggleMenu } from "./app"
-import { ViewType } from "../../schema-types"
+import { ViewType, ViewConfigs } from "../../schema-types"
 
 export const SELECT_PAGE = "SELECT_PAGE"
 export const SWITCH_VIEW = "SWITCH_VIEW"
+export const SET_VIEW_CONFIGS = "SET_VIEW_CONFIGS"
 export const SHOW_ITEM = "SHOW_ITEM"
 export const SHOW_OFFSET_ITEM = "SHOW_OFFSET_ITEM"
 export const DISMISS_ITEM = "DISMISS_ITEM"
@@ -33,6 +34,11 @@ interface SwitchViewAction {
     viewType: ViewType
 }
 
+interface SetViewConfigsAction {
+    type: typeof SET_VIEW_CONFIGS
+    configs: ViewConfigs
+}
+
 interface ShowItemAction {
     type: typeof SHOW_ITEM
     feedId: string
@@ -48,7 +54,7 @@ interface DismissItemAction { type: typeof DISMISS_ITEM }
 interface ToggleSearchAction { type: typeof TOGGLE_SEARCH }
 
 export type PageActionTypes = SelectPageAction | SwitchViewAction | ShowItemAction 
-    | DismissItemAction | ApplyFilterAction | ToggleSearchAction
+    | DismissItemAction | ApplyFilterAction | ToggleSearchAction | SetViewConfigsAction
 
 export function selectAllArticles(init = false): AppThunk {
     return (dispatch, getState) => {
@@ -83,6 +89,16 @@ export function switchView(viewType: ViewType): PageActionTypes {
     return {
         type: SWITCH_VIEW,
         viewType: viewType
+    }
+}
+
+export function setViewConfigs(configs: ViewConfigs): AppThunk {
+    return (dispatch, getState) => {
+        window.settings.setViewConfigs(getState().page.viewType, configs)
+        dispatch({
+            type: "SET_VIEW_CONFIGS",
+            configs: configs
+        })
     }
 }
 
@@ -218,6 +234,7 @@ export function performSearch(query: string): AppThunk {
 
 export class PageState {
     viewType = window.settings.getDefaultView()
+    viewConfigs = window.settings.getViewConfigs(window.settings.getDefaultView())
     filter = new FeedFilter()
     feedId = ALL
     itemId = null as string
@@ -247,7 +264,12 @@ export function pageReducer(
         case SWITCH_VIEW: return {
             ...state,
             viewType: action.viewType,
-            itemId:  null
+            viewConfigs: window.settings.getViewConfigs(action.viewType),
+            itemId: null
+        }
+        case SET_VIEW_CONFIGS: return {
+            ...state,
+            viewConfigs: action.configs
         }
         case APPLY_FILTER: return {
             ...state,

@@ -172,17 +172,21 @@ export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     })
 }
 
-export function fetchItems(background = false): AppThunk<Promise<void>> {
+export function fetchItems(background = false, sids: number[] = null): AppThunk<Promise<void>> {
     return async (dispatch, getState) => {
         let promises = new Array<Promise<RSSItem[]>>()
         const initState = getState()
         if (!initState.app.fetchingItems && !initState.app.syncing) {
-            await dispatch(syncWithService(background))
+            if (sids === null || sids.filter(sid => initState.sources[sid].serviceRef !== undefined).length > 0)
+                await dispatch(syncWithService(background))
             let timenow = new Date().getTime()
-            let sources = <RSSSource[]>Object.values(getState().sources).filter(s => {
-                let last = s.lastFetched ? s.lastFetched.getTime() : 0
-                return !s.serviceRef && ((last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow))
-            })
+            const sourcesState = getState().sources
+            let sources = (sids === null)
+                ? Object.values(sourcesState).filter(s => {
+                    let last = s.lastFetched ? s.lastFetched.getTime() : 0
+                    return !s.serviceRef && ((last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow))
+                })
+                : sids.map(sid => sourcesState[sid]).filter(s => !s.serviceRef)
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
                 promise.finally(() => dispatch(fetchItemsIntermediate()))

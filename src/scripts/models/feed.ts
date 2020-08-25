@@ -1,6 +1,6 @@
 import * as db from "../db"
 import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
-import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction, ItemState, MARK_ALL_READ } from "./item"
+import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction } from "./item"
 import { ActionStatus, AppThunk, mergeSortedArrays } from "../utils"
 import { PageActionTypes, SELECT_PAGE, PageType, APPLY_FILTER } from "./page"
 
@@ -11,6 +11,7 @@ export enum FilterType {
     ShowHidden = 1 << 2,
     FullSearch = 1 << 3,
     CaseInsensitive = 1 << 4,
+    CreatorSearch = 1 << 5,
 
     Default = ShowRead | ShowNotStarred,
     UnreadOnly = ShowNotStarred,
@@ -65,6 +66,8 @@ export class FeedFilter {
             const regex = RegExp(filter.search, flags)
             if (type & FilterType.FullSearch) {
                 flag = flag && (regex.test(item.title) || regex.test(item.snippet))
+            } else if (type & FilterType.CreatorSearch) {
+                flag = flag && (regex.test(item.creator || ""))
             } else {
                 flag = flag && regex.test(item.title)
             }

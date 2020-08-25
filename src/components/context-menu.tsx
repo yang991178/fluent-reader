@@ -6,7 +6,7 @@ import { ContextualMenu, IContextualMenuItem, ContextualMenuItemType, Directiona
 import { ContextMenuType } from "../scripts/models/app"
 import { RSSItem } from "../scripts/models/item"
 import { ContextReduxProps } from "../containers/context-menu-container"
-import { ViewType, ImageCallbackTypes } from "../schema-types"
+import { ViewType, ImageCallbackTypes, ViewConfigs } from "../schema-types"
 import { FilterType } from "../scripts/models/feed"
 
 export type ContextMenuProps = ContextReduxProps & {
@@ -18,6 +18,7 @@ export type ContextMenuProps = ContextReduxProps & {
     text?: string
     url?: string
     viewType?: ViewType
+    viewConfigs?: ViewConfigs
     filter?: FilterType
     sids?: number[]
     showItem: (feedId: string, item: RSSItem) => void
@@ -26,10 +27,12 @@ export type ContextMenuProps = ContextReduxProps & {
     toggleStarred: (item: RSSItem) => void
     toggleHidden: (item: RSSItem) => void
     switchView: (viewType: ViewType) => void
+    setViewConfigs: (configs: ViewConfigs) => void
     switchFilter: (filter: FilterType) => void
     toggleFilter: (filter: FilterType) => void
-    markAllRead: (sids: number[], date?: Date, before?: boolean) =>  void
-    settings: () => void
+    markAllRead: (sids: number[], date?: Date, before?: boolean) => void
+    fetchItems: (sids: number[]) => void
+    settings: (sids: number[]) => void
     close: () => void
 }
 
@@ -142,7 +145,35 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     key: "copyURL",
                     text: intl.get("context.copyURL"),
                     onClick: () => { window.utils.writeClipboard(this.props.item.link) }
-                }
+                },
+                ...(this.props.viewConfigs !== undefined ? [
+                    {
+                        key: "divider_2",
+                        itemType: ContextualMenuItemType.Divider,
+                    },
+                    {
+                        key: "view",
+                        text: intl.get("context.view"),
+                        subMenuProps: {
+                            items: [
+                                {
+                                    key: "showCover",
+                                    text: intl.get("context.showCover"),
+                                    canCheck: true,
+                                    checked: Boolean(this.props.viewConfigs & ViewConfigs.ShowCover),
+                                    onClick: () => this.props.setViewConfigs(this.props.viewConfigs ^ ViewConfigs.ShowCover)
+                                },
+                                {
+                                    key: "showSnippet",
+                                    text: intl.get("context.showSnippet"),
+                                    canCheck: true,
+                                    checked: Boolean(this.props.viewConfigs & ViewConfigs.ShowSnippet),
+                                    onClick: () => this.props.setViewConfigs(this.props.viewConfigs ^ ViewConfigs.ShowSnippet)
+                                },
+                            ]
+                        }
+                    },
+                ] : [])
             ]
             case ContextMenuType.Text: {
                 const items: IContextualMenuItem[] = this.props.text? [
@@ -330,10 +361,16 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     onClick: () => this.props.markAllRead(this.props.sids)
                 },
                 {
+                    key: "refresh",
+                    text: intl.get("nav.refresh"),
+                    iconProps: { iconName: "Sync" },
+                    onClick: () => this.props.fetchItems(this.props.sids)
+                },
+                {
                     key: "manage",
                     text: intl.get("context.manageSources"),
                     iconProps: { iconName: "Settings" },
-                    onClick: this.props.settings
+                    onClick: () => this.props.settings(this.props.sids)
                 }
             ]
             default: return []

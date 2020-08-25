@@ -1,4 +1,4 @@
-import { SourceGroup, ViewType, ThemeSettings, SearchEngines, ServiceConfigs } from "../schema-types"
+import { SourceGroup, ViewType, ThemeSettings, SearchEngines, ServiceConfigs, ViewConfigs } from "../schema-types"
 import { ipcRenderer } from "electron"
 
 const settingsBridge = {
@@ -94,6 +94,13 @@ const settingsBridge = {
     },
     setFilterType: (filterType: number) => {
         ipcRenderer.invoke("set-filter-type", filterType)
+    },
+
+    getViewConfigs: (view: ViewType): ViewConfigs => {
+        return ipcRenderer.sendSync("get-view-configs", view)
+    },
+    setViewConfigs: (view: ViewType, configs: ViewConfigs) => {
+        ipcRenderer.invoke("set-view-configs", view, configs)
     },
 
     getAll: () => {

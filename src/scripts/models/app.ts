@@ -49,6 +49,7 @@ export class AppState {
     settings = {
         display: false,
         changed: false,
+        sids: new Array<number>(),
         saving: false
     }
     logMenu = {
@@ -136,9 +137,15 @@ export interface MenuActionTypes {
 export const TOGGLE_SETTINGS = "TOGGLE_SETTINGS"
 export const SAVE_SETTINGS = "SAVE_SETTINGS"
 
-export interface SettingsActionTypes {
-    type: typeof TOGGLE_SETTINGS | typeof SAVE_SETTINGS
+interface ToggleSettingsAction {
+    type: typeof TOGGLE_SETTINGS
+    open: boolean
+    sids: number[]
 }
+interface SaveSettingsAction {
+    type: typeof SAVE_SETTINGS
+}
+export type SettingsActionTypes = ToggleSettingsAction | SaveSettingsAction
 
 export function closeContextMenu(): AppThunk {
     return (dispatch, getState) => {
@@ -190,8 +197,13 @@ export function toggleMenu(): AppThunk {
 }
 
 export const toggleLogMenu = () => ({ type: TOGGLE_LOGS })
-export const toggleSettings = () => ({ type: TOGGLE_SETTINGS })
 export const saveSettings = () => ({ type: SAVE_SETTINGS })
+
+export const toggleSettings = (open = true, sids = new Array<number>()) => ({
+    type: TOGGLE_SETTINGS,
+    open: open,
+    sids: sids,
+})
 
 export function exitSettings(): AppThunk {
     return (dispatch, getState) => {
@@ -200,10 +212,10 @@ export function exitSettings(): AppThunk {
                 dispatch(saveSettings())
                 dispatch(selectAllArticles(true))
                 dispatch(initFeeds(true)).then(() =>
-                    dispatch(toggleSettings())
+                    dispatch(toggleSettings(false))
                 )
             } else {
-                dispatch(toggleSettings())
+                dispatch(toggleSettings(false))
             }
         }
     }
@@ -493,8 +505,9 @@ export function appReducer(
         case TOGGLE_SETTINGS: return {
             ...state,
             settings: {
-                display: !state.settings.display,
+                display: action.open,
                 changed: false,
+                sids: action.sids,
                 saving: false
             }
         }

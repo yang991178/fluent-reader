@@ -89,7 +89,9 @@
         "saveImageAs": "Save image as …",
         "copyImage": "Copy image",
         "copyImageURL": "Copy image link",
-        "caseSensitive": "Case sensitive"
+        "caseSensitive": "Case sensitive",
+        "showCover": "Show cover",
+        "showSnippet": "Show snippet"
     },
     "searchEngine": {
         "name": "Search engine",
@@ -172,6 +174,7 @@
         "title": "Title",
         "content": "Content",
         "fullSearch": "Title or content",
+        "creator": "Author",
         "match": "matches",
         "notMatch": "doesn't match",
         "regex": "Regular expression",

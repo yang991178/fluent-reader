@@ -10,6 +10,8 @@ import DangerButton from "../utils/danger-button"
 type SourcesTabProps = {
     sources: SourceState
     serviceOn: boolean
+    sids: number[]
+    acknowledgeSIDs: () => void
     addSource: (url: string) => void
     updateSourceName: (source: RSSSource, name: string) => void
     updateSourceIcon: (source: RSSSource, iconUrl: string) => Promise<void>
@@ -59,6 +61,15 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                 })
             }
         })
+    }
+
+    componentDidMount = () => {
+        if (this.props.sids.length > 0) {
+            for (let sid of this.props.sids) {
+                this.selection.setKeySelected(String(sid), true, false)
+            }
+            this.props.acknowledgeSIDs()
+        }
     }
 
     columns = (): IColumn[] => [

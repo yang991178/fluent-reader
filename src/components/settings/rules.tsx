@@ -30,11 +30,12 @@ type RulesTabState = {
     selectedRules: number[]
     editIndex: number
     regex: string
-    fullSearch: boolean
+    searchType: number
     caseSensitive: boolean
     match: boolean
     actionKeys: string[]
     mockTitle: string
+    mockCreator: string
     mockContent: string
     mockResult: string
 }
@@ -52,11 +53,12 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
             selectedRules: [],
             editIndex: -1,
             regex: "",
-            fullSearch: false,
+            searchType: 0,
             caseSensitive: false,
             match: true,
             actionKeys: [],
             mockTitle: "",
+            mockCreator: "",
             mockContent: "",
             mockResult: ""
         }
@@ -103,9 +105,14 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
     }
 
     initRuleEdit = (rule: SourceRule = null) => {
+        let searchType = 0
+        if (rule) {
+            if (rule.filter.type & FilterType.FullSearch) searchType = 1
+            else if (rule.filter.type & FilterType.CreatorSearch) searchType = 2
+        }
         this.setState({
             regex: rule ? rule.filter.search : "",
-            fullSearch: rule ? Boolean(rule.filter.type & FilterType.FullSearch) : false,
+            searchType: searchType,
             caseSensitive: rule ? !(rule.filter.type & FilterType.CaseInsensitive) : false,
             match: rule ? rule.match : true,
             actionKeys: rule ? RuleActions.toKeys(rule.actions) : []
@@ -157,16 +164,17 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
         this.rulesSelection.setAllSelected(false)
         this.setState({ 
             sid: item.key as string, selectedRules: [], editIndex: -1,
-            mockTitle: "", mockContent: "", mockResult: ""
+            mockTitle: "", mockCreator: "", mockContent: "", mockResult: ""
         })
     }
 
     searchOptions = (): IDropdownOption[] => [
         { key: 0, text: intl.get("rules.title") },
-        { key: 1, text: intl.get("rules.fullSearch") }
+        { key: 1, text: intl.get("rules.fullSearch") },
+        { key: 2, text: intl.get("rules.creator") },
     ]
     onSearchOptionChange = (_, item: IDropdownOption) => {
-        this.setState({ fullSearch: Boolean(item.key) })
+        this.setState({ searchType: item.key as number })
     }
 
     matchOptions = (): IDropdownOption[] => [
@@ -207,7 +215,11 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
     }
 
     saveRule = () => {
-        let rule = new SourceRule(this.state.regex, this.state.actionKeys, this.state.fullSearch, this.state.caseSensitive, this.state.match)
+        let filterType = FilterType.Default | FilterType.ShowHidden
+        if (!this.state.caseSensitive) filterType |= FilterType.CaseInsensitive
+        if (this.state.searchType === 1) filterType |= FilterType.FullSearch
+        else if (this.state.searchType === 2) filterType |= FilterType.CreatorSearch
+        let rule = new SourceRule(this.state.regex, this.state.actionKeys, filterType, this.state.match)
         let source = this.props.sources[parseInt(this.state.sid)]
         let rules = source.rules ? [ ...source.rules ] : []
         if (this.state.editIndex === -1) {
@@ -263,6 +275,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
         let source = this.props.sources[parseInt(this.state.sid)]
         let item = new RSSItem(parsed as Parser.Item, source)
         item.snippet = this.state.mockContent
+        item.creator = this.state.mockCreator
         SourceRule.applyAll(this.getSourceRules(), item)
         let result = []
         result.push(intl.get(item.hasRead ? "article.markRead" : "article.markUnread"))
@@ -319,7 +332,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
                         <Stack.Item>
                             <Dropdown
                                 options={this.searchOptions()}
-                                selectedKey={this.state.fullSearch ? 1 : 0}
+                                selectedKey={this.state.searchType}
                                 onChange={this.onSearchOptionChange}
                                 style={{width: 140}} />
                         </Stack.Item>
@@ -393,6 +406,15 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
                                 value={this.state.mockTitle}
                                 onChange={this.handleInputChange} />
                         </Stack.Item>
+                        <Stack.Item grow>
+                            <TextField
+                                name="mockCreator"
+                                placeholder={intl.get("rules.creator")}
+                                value={this.state.mockCreator}
+                                onChange={this.handleInputChange} />
+                        </Stack.Item>
+                    </Stack>
+                    <Stack horizontal>
                         <Stack.Item grow>
                             <TextField
                                 name="mockContent"

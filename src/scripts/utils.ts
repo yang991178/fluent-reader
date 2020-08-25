@@ -124,7 +124,7 @@ export function htmlDecode(input: string) {
 export const urlTest = (s: string) => 
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi.test(s)
 
-export const getWindowBreakpoint = () => window.outerWidth >= 1441
+export const getWindowBreakpoint = () => window.outerWidth >= 1440
 
 export const cutText = (s: string, length: number) => {
     return (s.length <= length) ? s : s.slice(0, length) + "…"
