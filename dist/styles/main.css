@@ -40,16 +40,26 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 280px;
+    width: 0px;
     height: 100%;
     background-color: var(--neutralLighterAltOpacity);
     backdrop-filter: var(--blur-1);
     box-shadow: 5px 0 25px #0004;
-    transition: clip-path cubic-bezier(0.1, 0.9, 0.2, 1) .367s;
-    clip-path: inset(0 100% 0 0);;
+    transition: width cubic-bezier(0.1, 0.9, 0.2, 1) .367s;
 }
 .menu-container.show .menu {
-    clip-path: inset(0 -50px 0 0);;
+    width: 280px;
+}
+.menu-container .menu-inner {
+    overflow: hidden;
+}
+.close-menu-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+.menu-container.show .close-menu-btn {
+    opacity: 1;
+    pointer-events: initial;
 }
 body.blur .menu .btn-group {
     --black: var(--neutralSecondaryAlt);

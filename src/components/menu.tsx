@@ -118,7 +118,7 @@ export class Menu extends React.Component<MenuProps> {
             <div className={"menu-container" + (this.props.display ? " show" : "")} onClick={this.props.toggleMenu}>
                 <div className={"menu" + (this.props.itemOn ? " item-on" : "")} onClick={(e) => e.stopPropagation()}>
                     <div className="btn-group">
-                        <a className="btn hide-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
+                        <a className="btn hide-wide close-menu-btn" title={intl.get("menu.close")} onClick={this.props.toggleMenu}><Icon iconName="Back" /></a>
                         <a className="btn inline-block-wide" title={intl.get("menu.close")} onClick={this.props.toggleMenu}>
                             <Icon iconName={window.utils.platform === "darwin" ? "SidePanel" : "GlobalNavButton"} />
                         </a>
@@ -129,7 +129,8 @@ export class Menu extends React.Component<MenuProps> {
                             onRenderLink={this._onRenderLink}
                             groups={this.getLinkGroups()} 
                             selectedKey={this.props.selected}
-                            onLinkExpandClick={(event, item) => this.props.updateGroupExpansion(event, item.key, this.props.selected)} />
+                            onLinkExpandClick={(event, item) => this.props.updateGroupExpansion(event, item.key, this.props.selected)}
+                            className="menu-inner" />
                     </FocusZone>
                 </div>
             </div>
