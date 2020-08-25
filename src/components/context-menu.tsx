@@ -30,8 +30,9 @@ export type ContextMenuProps = ContextReduxProps & {
     setViewConfigs: (configs: ViewConfigs) => void
     switchFilter: (filter: FilterType) => void
     toggleFilter: (filter: FilterType) => void
-    markAllRead: (sids: number[], date?: Date, before?: boolean) =>  void
-    settings: () => void
+    markAllRead: (sids: number[], date?: Date, before?: boolean) => void
+    fetchItems: (sids: number[]) => void
+    settings: (sids: number[]) => void
     close: () => void
 }
 
@@ -360,10 +361,16 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     onClick: () => this.props.markAllRead(this.props.sids)
                 },
                 {
+                    key: "refresh",
+                    text: intl.get("nav.refresh"),
+                    iconProps: { iconName: "Sync" },
+                    onClick: () => this.props.fetchItems(this.props.sids)
+                },
+                {
                     key: "manage",
                     text: intl.get("context.manageSources"),
                     iconProps: { iconName: "Settings" },
-                    onClick: this.props.settings
+                    onClick: () => this.props.settings(this.props.sids)
                 }
             ]
             default: return []

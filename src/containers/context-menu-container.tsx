@@ -3,7 +3,7 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { ContextMenuType, closeContextMenu, toggleSettings } from "../scripts/models/app"
 import { ContextMenu } from "../components/context-menu"
-import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden, markAllRead } from "../scripts/models/item"
+import { RSSItem, markRead, markUnread, toggleStarred, toggleHidden, markAllRead, fetchItems } from "../scripts/models/item"
 import { showItem, switchView, switchFilter, toggleFilter, setViewConfigs } from "../scripts/models/page"
 import { ViewType, ViewConfigs } from "../schema-types"
 import { FilterType } from "../scripts/models/feed"
@@ -73,7 +73,8 @@ const mapDispatchToProps = dispatch => {
         markAllRead: (sids: number[], date?: Date, before?: boolean) => {
             dispatch(markAllRead(sids, date, before))
         },
-        settings: () => dispatch(toggleSettings()),
+        fetchItems: (sids: number[]) => dispatch(fetchItems(false, sids)),
+        settings: (sids: number[]) => dispatch(toggleSettings(true, sids)),
         close: () => dispatch(closeContextMenu())
     }
 }
