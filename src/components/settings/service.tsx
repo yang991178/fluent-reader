@@ -33,14 +33,33 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
     serviceOptions = (): IDropdownOption[] => [
         { key: SyncService.Fever, text: "Fever API" },
         { key: SyncService.Feedbin, text: "Feedbin" },
+        { key: -5, text: "Inoreader (soon)" },
+        { key: -4, text: "Feedly (soon)" },
+        { key: -3, text: "Nextcloud News (soon)" },
+        { key: -2, text: "Google Reader API (soon)" },
         { key: -1, text: intl.get("service.suggest") },
     ]
 
     onServiceOptionChange = (_, option: IDropdownOption) => {
-        if (option.key === -1) {
-            window.utils.openExternal("https://github.com/yang991178/fluent-reader/issues/23")
-        } else {
-            this.setState({ type: option.key as number })
+        switch (option.key) {
+            case -1:
+                window.utils.openExternal("https://github.com/yang991178/fluent-reader/issues/23")
+                break;
+            case -2:
+                window.utils.openExternal("https://github.com/yang991178/fluent-reader/issues/23#issuecomment-675524404")
+                break;
+            case -3:
+                window.utils.openExternal("https://github.com/yang991178/fluent-reader/issues/23#issuecomment-665854322")
+                break;
+            case -4:
+                window.utils.openExternal("https://github.com/yang991178/fluent-reader/issues/4")
+                break;
+            case -5:
+                window.utils.openExternal("https://github.com/yang991178/fluent-reader/issues/10")
+                break;
+            default:
+                this.setState({ type: option.key as number });
+                break;
         }
     }
 
