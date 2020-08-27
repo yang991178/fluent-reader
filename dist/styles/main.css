@@ -271,9 +271,6 @@ body.darwin .list-main .article-search {
         background-color: var(--neutralLight);
         box-shadow: none;
     }
-    .menu-container.show .menu {
-        clip-path: inset(0);
-    }
     body.darwin .menu-container .menu {
         background: none;
     }
