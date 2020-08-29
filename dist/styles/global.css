@@ -16,6 +16,7 @@
     --black: #000;
     --white: #fff;
     --whiteConstant: #fff;
+    --primary: #0078d4;
     --navHeight: 32px;
 
     --blur-0: saturate(150%) blur(16px);

@@ -7,6 +7,7 @@ import { ViewConfigs } from "../../schema-types"
 const className = (props: Card.Props) => {
     let cn = ["card", "list-card"]
     if (props.item.hidden) cn.push("hidden")
+    if (props.selected) cn.push("selected")
     return cn.join(" ")
 }
 
