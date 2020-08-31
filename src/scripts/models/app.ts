@@ -301,7 +301,6 @@ export function initApp(): AppThunk {
             dispatch(fixBrokenGroups())
             await dispatch(fetchItems())
         }).then(() => {
-            db.sdb.persistence.compactDatafile()
             db.idb.persistence.compactDatafile()
             dispatch(updateFavicon())
         })

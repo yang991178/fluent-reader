@@ -1,7 +1,7 @@
 import * as db from "../db"
 import intl from "react-intl-universal"
 import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../utils"
-import { RSSSource } from "./source"
+import { RSSSource, updateSource } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
 import { pushNotification, setupAutoFetch } from "./app"
@@ -19,9 +19,9 @@ export class RSSItem {
     snippet: string
     creator?: string
     hasRead: boolean
-    starred?: true
-    hidden?: true
-    notify?: true
+    starred?: boolean
+    hidden?: boolean
+    notify?: boolean
     serviceRef?: string | number
 
     constructor (item: Parser.Item, source: RSSSource) {
@@ -189,6 +189,7 @@ export function fetchItems(background = false, sids: number[] = null): AppThunk<
                 : sids.map(sid => sourcesState[sid]).filter(s => !s.serviceRef)
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
+                promise.then(() => dispatch(updateSource({ ...source, lastFetched: new Date() })))
                 promise.finally(() => dispatch(fetchItemsIntermediate()))
                 promises.push(promise)
             }

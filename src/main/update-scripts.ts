@@ -4,8 +4,17 @@ import { SchemaTypes } from "../schema-types"
 
 export default function performUpdate(store: Store<SchemaTypes>) {
     let version = store.get("version", null)
+    let useNeDB = store.get("useNeDB", undefined)
     let currentVersion = app.getVersion()
 
+    if (useNeDB === undefined) {
+        const revs = version.split(".").map(s => parseInt(s))
+        if ((revs[0] === 0 && revs[1] < 8) || !app.isPackaged) {
+            store.set("useNeDB", true)
+        } else {
+            store.set("useNeDB", false)
+        }
+    }
     if (version != currentVersion) {
         store.set("version", currentVersion)
     }

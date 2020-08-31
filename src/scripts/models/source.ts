@@ -19,7 +19,7 @@ export class RSSSource {
     unreadCount: number
     lastFetched: Date
     serviceRef?: string | number
-    fetchFrequency?: number // in minutes
+    fetchFrequency: number // in minutes
     rules?: SourceRule[]
 
     constructor(url: string, name: string = null) {
@@ -27,6 +27,7 @@ export class RSSSource {
         this.name = name
         this.openTarget = SourceOpenTarget.Local
         this.lastFetched = new Date()
+        this.fetchFrequency = 0
     }
 
     static async fetchMetaData(source: RSSSource) {
@@ -74,7 +75,6 @@ export class RSSSource {
 
     static async fetchItems(source: RSSSource) {
         let feed = await parseRSS(source.url)
-        db.sdb.update({ sid: source.sid }, { $set: { lastFetched: new Date() } })
         return await this.checkItems(source, feed.items)
     }
 }
@@ -160,24 +160,13 @@ export function updateUnreadCounts(): AppThunk<Promise<void>> {
 }
 
 export function initSources(): AppThunk<Promise<void>> {
-    return (dispatch) => {
+    return async (dispatch) => {
         dispatch(initSourcesRequest())
-        return new Promise<void>((resolve, reject) => {
-            db.sdb.find({}).sort({ sid: 1 }).exec((err, sources) => {
-                if (err) {
-                    dispatch(initSourcesFailure(err))
-                    reject(err)
-                } else {
-                    let p = sources.map(s => unreadCount(s))
-                    Promise.all(p)
-                        .then(values => {
-                            dispatch(initSourcesSuccess(values))
-                            resolve()
-                        })
-                        .catch(err => reject(err))
-                }
-            })
-        }) 
+        await db.init()
+        const sources = (await db.sourcesDB.select().from(db.sources).exec()) as RSSSource[]
+        const promises = sources.map(s => unreadCount(s))
+        const counted = await Promise.all(promises)
+        dispatch(initSourcesSuccess(counted))
     }
 }
 
@@ -211,22 +200,17 @@ let insertPromises = Promise.resolve()
 export function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
     return (_, getState) => {
         return new Promise((resolve, reject) => {
-            insertPromises = insertPromises.then(() => new Promise(innerResolve => {
+            insertPromises = insertPromises.then(async () => {
                 let sids = Object.values(getState().sources).map(s => s.sid)
                 source.sid = Math.max(...sids, -1) + 1
-                db.sdb.insert(source, (err, inserted) => {
-                    if (err) {
-                        if ((new RegExp(`^Can't insert key ${source.url},`)).test(err.message)) {
-                            reject(intl.get("sources.exist"))
-                        } else {
-                            reject(err)
-                        }
-                    } else {
-                        resolve(inserted)
-                    }
-                    innerResolve()
-                })
-            }))
+                const row = db.sources.createRow(source)
+                try {
+                    const inserted = (await db.sourcesDB.insert().into(db.sources).values([row]).exec()) as RSSSource[]
+                    resolve(inserted[0])
+                } catch {
+                    reject(intl.get("sources.exist"))
+                }
+            })
         })
     }
 }
@@ -267,17 +251,13 @@ export function updateSourceDone(source: RSSSource): SourceActionTypes {
 }
 
 export function updateSource(source: RSSSource): AppThunk<Promise<void>> {
-    return (dispatch) => new Promise((resolve) => {
+    return async (dispatch) => {
         let sourceCopy = { ...source }
-        delete sourceCopy.sid
         delete sourceCopy.unreadCount
-        db.sdb.update({ sid: source.sid }, { $set: { ...sourceCopy }}, {}, err => {
-            if (!err) {
-                dispatch(updateSourceDone(source))
-            }
-            resolve()
-        })
-    })
+        const row = db.sources.createRow(sourceCopy)
+        await db.sourcesDB.insertOrReplace().into(db.sources).values([row]).exec()
+        dispatch(updateSourceDone(source))
+    }
 }
 
 export function deleteSourceDone(source: RSSSource): SourceActionTypes {
@@ -297,17 +277,17 @@ export function deleteSource(source: RSSSource, batch = false): AppThunk<Promise
                     if (!batch) dispatch(saveSettings())
                     resolve()
                 } else {
-                    db.sdb.remove({ sid: source.sid }, {}, (err) => {
-                        if (err) {
-                            console.log(err)
-                            if (!batch) dispatch(saveSettings())
-                            resolve()
-                        } else {
-                            dispatch(deleteSourceDone(source))
-                            window.settings.saveGroups(getState().groups)
-                            if (!batch) dispatch(saveSettings())
-                            resolve()
-                        }
+                    db.sourcesDB.delete().from(db.sources).where(
+                        db.sources.sid.eq(source.sid)
+                    ).exec().then(() => {
+                        dispatch(deleteSourceDone(source))
+                        window.settings.saveGroups(getState().groups)
+                        if (!batch) dispatch(saveSettings())
+                        resolve()
+                    }).catch(err => {
+                        console.log(err)
+                        if (!batch) dispatch(saveSettings())
+                        resolve()
                     })
                 }
             })

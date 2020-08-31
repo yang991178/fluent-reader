@@ -79,46 +79,42 @@ function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<vo
         const forceSettings = () => {
             if (!(getState().app.settings.saving)) dispatch(saveSettings())
         }
-        let promises = sources.map(s => new Promise<RSSSource>((resolve, reject) => {
+        let promises = sources.map(async (s) =>  {
             if (existing.has(s.serviceRef)) {
                 const doc = existing.get(s.serviceRef)
                 existing.delete(s.serviceRef)
-                resolve(doc)
+                return doc
             } else {
-                db.sdb.findOne({ url: s.url }, (err, doc) => {
-                    if (err) {
-                        reject(err)
-                    } else if (doc === null) {
-                        // Create a new source
-                        forceSettings()
-                        dispatch(insertSource(s))
-                            .then((inserted) => {
-                                inserted.unreadCount = 0
-                                resolve(inserted)
-                                dispatch(addSourceSuccess(inserted, true))
-                                window.settings.saveGroups(getState().groups)
-                                dispatch(updateFavicon([inserted.sid]))
-                            })
-                            .catch((err) => {
-                                reject(err)
-                            })
-                    } else if (doc.serviceRef !== s.serviceRef) {
-                        // Mark an existing source as remote and remove all items
-                        forceSettings()
-                        doc.serviceRef = s.serviceRef
-                        doc.unreadCount = 0
-                        dispatch(updateSource(doc)).finally(() => {
-                            db.idb.remove({ source: doc.sid }, { multi: true }, (err) => {
-                                if (err) reject(err)
-                                else resolve(doc)
-                            })
+                const docs = (await db.sourcesDB.select().from(db.sources).where(
+                    db.sources.url.eq(s.url)
+                ).exec()) as RSSSource[]
+                if (docs.length === 0) {
+                    // Create a new source
+                    forceSettings()
+                    const inserted = await dispatch(insertSource(s))
+                    inserted.unreadCount = 0
+                    dispatch(addSourceSuccess(inserted, true))
+                    window.settings.saveGroups(getState().groups)
+                    dispatch(updateFavicon([inserted.sid]))
+                    return inserted
+                } else if (docs[0].serviceRef !== s.serviceRef) {
+                    // Mark an existing source as remote and remove all items
+                    const doc = docs[0]
+                    forceSettings()
+                    doc.serviceRef = s.serviceRef
+                    doc.unreadCount = 0
+                    await dispatch(updateSource(doc))
+                    await new Promise((resolve, reject) => {
+                        db.idb.remove({ source: doc.sid }, { multi: true }, (err) => {
+                            if (err) reject(err)
+                            else resolve(doc)
                         })
-                    } else {
-                        resolve(doc)
-                    }
-                })
+                    })
+                } else {
+                    return docs[0]
+                }
             }
-        }))
+        })
         for (let [_, source] of existing) {
             // Delete sources removed from the service side
             forceSettings()

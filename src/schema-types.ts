@@ -76,4 +76,5 @@ export type SchemaTypes = {
     serviceConfigs: ServiceConfigs
     filterType: number
     listViewConfigs: ViewConfigs
+    useNeDB: boolean
 }

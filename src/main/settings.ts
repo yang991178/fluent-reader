@@ -172,3 +172,11 @@ ipcMain.handle("set-view-configs", (_, view: ViewType, configs: ViewConfigs) => 
             break
     }
 })
+
+const NEDB_STATUS_STORE_KEY = "useNeDB"
+ipcMain.on("get-nedb-status", (event) => {
+    event.returnValue = store.get(NEDB_STATUS_STORE_KEY, true)
+})
+ipcMain.handle("set-nedb-status", () => {
+    store.set(NEDB_STATUS_STORE_KEY, false)
+})
