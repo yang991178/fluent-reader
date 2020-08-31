@@ -1,6 +1,7 @@
 import Parser from "@yang991178/rss-parser"
 import intl from "react-intl-universal"
 import * as db from "../db"
+import lf from "lovefield"
 import { fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
 import { saveSettings } from "./app"
@@ -39,26 +40,20 @@ export class RSSSource {
         return feed
     }
 
-    private static checkItem(source: RSSSource, item: Parser.Item): Promise<RSSItem> {
-        return new Promise<RSSItem>((resolve, reject) => {
-            let i = new RSSItem(item, source)
-            db.idb.findOne({
-                source: i.source,
-                title: i.title,
-                date: i.date
-            },
-            (err, doc) => {
-                if (err) {
-                    reject(err)
-                } else if (doc === null) {
-                    RSSItem.parseContent(i, item)
-                    if (source.rules) SourceRule.applyAll(source.rules, i)
-                    resolve(i)
-                } else {
-                    resolve(null)
-                }
-            }) 
-        })
+    private static async checkItem(source: RSSSource, item: Parser.Item): Promise<RSSItem> {
+        let i = new RSSItem(item, source)
+        const items = (await db.itemsDB.select().from(db.items).where(lf.op.and(
+            db.items.source.eq(i.source),
+            db.items.title.eq(i.title),
+            db.items.date.eq(i.date)
+        )).limit(1).exec()) as RSSItem[]
+        if (items.length === 0) {
+            RSSItem.parseContent(i, item)
+            if (source.rules) SourceRule.applyAll(source.rules, i)
+            return i
+        } else {
+            return null
+        }
     }
 
     static checkItems(source: RSSSource, items: Parser.Item[]): Promise<RSSItem[]> {
@@ -138,17 +133,14 @@ export function initSourcesFailure(err): SourceActionTypes {
     }
 }
 
-function unreadCount(source: RSSSource): Promise<RSSSource> {
-    return new Promise<RSSSource>((resolve, reject) => {
-        db.idb.count({ source: source.sid, hasRead: false }, (err, n) => {
-            if (err) {
-                reject(err)
-            } else {
-                source.unreadCount = n
-                resolve(source)
-            }
-        })
-    })
+async function unreadCount(source: RSSSource): Promise<RSSSource> {
+    source.unreadCount = (await db.itemsDB.select(
+        lf.fn.count(db.items._id)
+    ).from(db.items).where(lf.op.and(
+        db.items.source.eq(source.sid),
+        db.items.hasRead.eq(false)
+    )).exec())[0]["COUNT(_id)"]
+    return source
 }
 
 export function updateUnreadCounts(): AppThunk<Promise<void>> {
@@ -268,30 +260,18 @@ export function deleteSourceDone(source: RSSSource): SourceActionTypes {
 }
 
 export function deleteSource(source: RSSSource, batch = false): AppThunk<Promise<void>> {
-    return (dispatch, getState) => {
-        return new Promise((resolve) => {
+    return async (dispatch, getState) => {
+        if (!batch) dispatch(saveSettings())
+        try {
+            await db.itemsDB.delete().from(db.items).where(db.items.source.eq(source.sid)).exec()
+            await db.sourcesDB.delete().from(db.sources).where(db.sources.sid.eq(source.sid)).exec()
+            dispatch(deleteSourceDone(source))
+            window.settings.saveGroups(getState().groups)
+        } catch (err) {
+            console.log(err)
+        } finally {
             if (!batch) dispatch(saveSettings())
-            db.idb.remove({ source: source.sid }, { multi: true }, (err) => {
-                if (err) {
-                    console.log(err)
-                    if (!batch) dispatch(saveSettings())
-                    resolve()
-                } else {
-                    db.sourcesDB.delete().from(db.sources).where(
-                        db.sources.sid.eq(source.sid)
-                    ).exec().then(() => {
-                        dispatch(deleteSourceDone(source))
-                        window.settings.saveGroups(getState().groups)
-                        if (!batch) dispatch(saveSettings())
-                        resolve()
-                    }).catch(err => {
-                        console.log(err)
-                        if (!batch) dispatch(saveSettings())
-                        resolve()
-                    })
-                }
-            })
-        })
+        }
     }
 }
 
@@ -398,9 +378,7 @@ export function sourceReducer(
             action.sids.map((sid, i) => {
                 nextState[sid] = {
                     ...state[sid],
-                    unreadCount: action.counts 
-                        ? state[sid].unreadCount - action.counts[i]
-                        : 0
+                    unreadCount: action.time ? state[sid].unreadCount : 0
                 }
             })
             return nextState

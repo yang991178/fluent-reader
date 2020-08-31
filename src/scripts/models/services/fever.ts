@@ -122,9 +122,11 @@ export const feverServiceHooks: ServiceHooks = {
                     snippet: htmlDecode(i.html).trim(),
                     creator: i.author,
                     hasRead: Boolean(i.is_read),
+                    starred: Boolean(i.is_saved),
+                    hidden: false,
+                    notify: false,
                     serviceRef: typeof i.id === "string" ? parseInt(i.id) : i.id,
                 } as RSSItem
-                if (i.is_saved) item.starred = true
                 // Try to get the thumbnail of the item
                 let dom = domParser.parseFromString(item.content, "text/html")
                 let baseEl = dom.createElement('base')

@@ -1,7 +1,8 @@
 import * as db from "../db"
+import lf from "lovefield"
 import intl from "react-intl-universal"
 import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../utils"
-import { RSSSource, updateSource } from "./source"
+import { RSSSource, updateSource, updateUnreadCounts } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
 import { pushNotification, setupAutoFetch } from "./app"
@@ -19,9 +20,9 @@ export class RSSItem {
     snippet: string
     creator?: string
     hasRead: boolean
-    starred?: boolean
-    hidden?: boolean
-    notify?: boolean
+    starred: boolean
+    hidden: boolean
+    notify: boolean
     serviceRef?: string | number
 
     constructor (item: Parser.Item, source: RSSSource) {
@@ -36,6 +37,9 @@ export class RSSItem {
         this.date = item.isoDate ? new Date(item.isoDate) : this.fetchedDate
         this.creator = item.creator
         this.hasRead = false
+        this.starred = false
+        this.hidden = false
+        this.notify = false
     }
 
     static parseContent(item: RSSItem, parsed: Parser.Item) {
@@ -103,7 +107,6 @@ interface MarkReadAction {
 interface MarkAllReadAction {
     type: typeof MARK_ALL_READ,
     sids: number[]
-    counts?: number[]
     time?: number
     before?: boolean
 }
@@ -159,17 +162,10 @@ export function fetchItemsIntermediate(): ItemActionTypes {
     }
 }
 
-export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
-    return new Promise<RSSItem[]>((resolve, reject) => {
-        items.sort((a, b) => a.date.getTime() - b.date.getTime())
-        db.idb.insert(items, (err, inserted) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(inserted)
-            }
-        })
-    })
+export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
+    items.sort((a, b) => a.date.getTime() - b.date.getTime())
+    const rows = items.map(item => db.items.createRow(item))
+    return (await db.itemsDB.insert().into(db.items).values(rows).exec()) as RSSItem[]
 }
 
 export function fetchItems(background = false, sids: number[] = null): AppThunk<Promise<void>> {
@@ -244,7 +240,7 @@ const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
 export function markRead(item: RSSItem): AppThunk {
     return (dispatch) => {
         if (!item.hasRead) {
-            db.idb.update({ _id: item._id }, { $set: { hasRead: true } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hasRead, true).exec()
             dispatch(markReadDone(item))
             if (item.serviceRef) {
                 dispatch(dispatch(getServiceHooks()).markRead?.(item))
@@ -262,52 +258,39 @@ export function markAllRead(sids: number[] = null, date: Date = null, before = t
         }
         const action = dispatch(getServiceHooks()).markAllRead?.(sids, date, before)
         if (action) await dispatch(action)
-        let query = { 
-            source: { $in: sids },
-            hasRead: false,
-         } as any
+        const predicates: lf.Predicate[] = [
+            db.items.source.in(sids),
+            db.items.hasRead.eq(false)
+        ]
         if (date) {
-            query.date = before ? { $lte: date } : { $gte: date }
+            predicates.push(before ? db.items.date.lte(date) : db.items.date.gte(date))
         }
-        const callback = (items: RSSItem[] = null) => {
-            if (items) {
-                const counts = new Map<number, number>()
-                for (let sid of sids) {
-                    counts.set(sid, 0)
-                }
-                for (let item of items) {
-                    counts.set(item.source, counts.get(item.source) + 1)
-                }
-                dispatch({
-                    type: MARK_ALL_READ,
-                    sids: sids,
-                    counts: sids.map(i => counts.get(i)),
-                    time: date.getTime(),
-                    before: before
-                })
-            } else {
-                dispatch({
-                    type: MARK_ALL_READ,
-                    sids: sids
-                })
-            }
-            if (!(state.page.filter.type & FilterType.ShowRead)) {
-                dispatch(initFeeds(true))
-            }
+        const query = lf.op.and.apply(null, predicates)
+        await db.itemsDB.update(db.items).set(db.items.hasRead, true).where(query).exec()
+        if (date) {
+            dispatch({
+                type: MARK_ALL_READ,
+                sids: sids,
+                time: date.getTime(),
+                before: before
+            })
+            dispatch(updateUnreadCounts())
+        } else {
+            dispatch({
+                type: MARK_ALL_READ,
+                sids: sids
+            })
         }
-        db.idb.update(query, { $set: { hasRead: true } }, { multi: true, returnUpdatedDocs: Boolean(date) }, 
-            (err, _, affectedDocuments) => {
-                if (err) console.log(err)
-                if (date) callback(affectedDocuments as unknown as RSSItem[])
-        })
-        if (!date) callback()
+        if (!(state.page.filter.type & FilterType.ShowRead)) {
+            dispatch(initFeeds(true))
+        }
     }
 }
 
 export function markUnread(item: RSSItem): AppThunk {
     return (dispatch) => {
         if (item.hasRead) {
-            db.idb.update({ _id: item._id }, { $set: { hasRead: false } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hasRead, false).exec()
             dispatch(markUnreadDone(item))
             if (item.serviceRef) {
                 dispatch(dispatch(getServiceHooks()).markUnread?.(item))
@@ -324,9 +307,9 @@ const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
 export function toggleStarred(item: RSSItem): AppThunk {
     return (dispatch) => {
         if (item.starred === true) {
-            db.idb.update({ _id: item._id }, { $unset: { starred: true } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, false).exec()
         } else {
-            db.idb.update({ _id: item._id }, { $set: { starred: true } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, true).exec()
         }
         dispatch(toggleStarredDone(item))
         if (item.serviceRef) {
@@ -345,9 +328,9 @@ const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({
 export function toggleHidden(item: RSSItem): AppThunk {
     return (dispatch) => {
         if (item.hidden === true) {
-            db.idb.update({ _id: item._id }, { $unset: { hidden: true } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, true).exec()
         } else {
-            db.idb.update({ _id: item._id }, { $set: { hidden: true } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, false).exec()
         }
         dispatch(toggleHiddenDone(item))
     }
@@ -384,13 +367,11 @@ export function applyItemReduction(item: RSSItem, type: string) {
             break
         }
         case TOGGLE_STARRED: {
-            if (item.starred === true) delete nextItem.starred
-            else nextItem.starred = true
+            nextItem.starred = !item.starred
             break
         }
         case TOGGLE_HIDDEN: {
-            if (item.hidden === true) delete nextItem.hidden
-            else nextItem.hidden = true
+            item.hidden = !item.hidden
             break
         }
     }
@@ -461,11 +442,7 @@ export function itemReducer(
                 if (item.hasOwnProperty("serviceRef")) {
                     const nextItem = { ...item }
                     nextItem.hasRead = !unreadSet.has(nextItem.serviceRef as number)
-                    if (starredSet.has(item.serviceRef as number)) {
-                        nextItem.starred = true
-                    } else {
-                        delete nextItem.starred
-                    }
+                    nextItem.starred = starredSet.has(item.serviceRef as number)
                     nextState[id] = nextItem
                 }
             }

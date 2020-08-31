@@ -1,4 +1,5 @@
 import * as db from "../db"
+import lf from "lovefield"
 import { SyncService, ServiceConfigs } from "../../schema-types"
 import { AppThunk, ActionStatus } from "../utils"
 import { RSSItem, insertItems, fetchItemsSuccess } from "./item"
@@ -104,12 +105,8 @@ function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<vo
                     doc.serviceRef = s.serviceRef
                     doc.unreadCount = 0
                     await dispatch(updateSource(doc))
-                    await new Promise((resolve, reject) => {
-                        db.idb.remove({ source: doc.sid }, { multi: true }, (err) => {
-                            if (err) reject(err)
-                            else resolve(doc)
-                        })
-                    })
+                    await db.itemsDB.delete().from(db.items).where(db.items.source.eq(doc.sid)).exec()
+                    return doc
                 } else {
                     return docs[0]
                 }
@@ -141,38 +138,29 @@ function syncItems(hook: ServiceHooks["syncItems"]): AppThunk<Promise<void>> {
     return async (dispatch, getState) => { 
         const state = getState()
         const [unreadRefs, starredRefs] = await dispatch(hook())
-        const promises = new Array<Promise<number>>()
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $in: unreadRefs }, 
-                hasRead: true 
-            }, { $set: { hasRead: false } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $nin: unreadRefs }, 
-                hasRead: false 
-            }, { $set: { hasRead: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $in: starredRefs }, 
-                starred: { $exists: false } 
-            }, { $set: { starred: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $nin: starredRefs }, 
-                starred: true 
-            }, { $unset: { starred: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        const affected = (await Promise.all(promises)).reduce((a, b) => a + b, 0)
-        if (affected > 0) {
-            dispatch(syncLocalItems(unreadRefs, starredRefs))
-            if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
-                dispatch(initFeeds(true))
-            }
-            await dispatch(updateUnreadCounts())
+        const promises = [
+            db.itemsDB.update(db.items).set(db.items.hasRead, false).where(lf.op.and(
+                db.items.serviceRef.in(unreadRefs),
+                db.items.hasRead.eq(true)
+            )).exec(),
+            db.itemsDB.update(db.items).set(db.items.hasRead, true).where(lf.op.and(
+                lf.op.not(db.items.serviceRef.in(unreadRefs)),
+                db.items.hasRead.eq(false)
+            )).exec(),
+            db.itemsDB.update(db.items).set(db.items.starred, true).where(lf.op.and(
+                db.items.serviceRef.in(starredRefs),
+                db.items.starred.eq(false)
+            )).exec(),
+            db.itemsDB.update(db.items).set(db.items.starred, false).where(lf.op.and(
+                lf.op.not(db.items.serviceRef.in(starredRefs)),
+                db.items.hasRead.eq(true)
+            )).exec(),
+        ]
+        await Promise.all(promises)
+        await dispatch(updateUnreadCounts())
+        dispatch(syncLocalItems(unreadRefs, starredRefs))
+        if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
+            dispatch(initFeeds(true))
         }
     }
 }

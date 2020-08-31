@@ -1,4 +1,5 @@
 import * as db from "../db"
+import lf from "lovefield"
 import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
 import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction } from "./item"
 import { ActionStatus, AppThunk, mergeSortedArrays } from "../utils"
@@ -30,29 +31,25 @@ export class FeedFilter {
         this.search = search
     }
 
-    static toQueryObject(filter: FeedFilter) {
+    static toPredicates(filter: FeedFilter) {
         let type = filter.type
-        let query = {
-            hasRead: false,
-            starred: true,
-            hidden: { $exists: false }
-        } as any
-        if (type & FilterType.ShowRead) delete query.hasRead
-        if (type & FilterType.ShowNotStarred) delete query.starred
-        if (type & FilterType.ShowHidden) delete query.hidden
+        const predicates = new Array<lf.Predicate>()
+        if (!(type & FilterType.ShowRead)) predicates.push(db.items.hasRead.eq(false))
+        if (!(type & FilterType.ShowNotStarred)) predicates.push(db.items.starred.eq(true))
+        if (!(type & FilterType.ShowHidden)) predicates.push(db.items.hidden.eq(false))
         if (filter.search !== "") {
             const flags = (type & FilterType.CaseInsensitive) ? "i" : ""
             const regex = RegExp(filter.search, flags)
             if (type & FilterType.FullSearch) {
-                query.$or = [
-                    { title: { $regex: regex } },
-                    { snippet: { $regex: regex } }
-                ]
+                predicates.push(lf.op.or(
+                    db.items.title.match(regex),
+                    db.items.snippet.match(regex)
+                ))
             } else {
-                query.title = { $regex: regex }
+                predicates.push(db.items.title.match(regex))
             }
         }
-        return query
+        return predicates
     }
 
     static testItem(filter: FeedFilter, item: RSSItem) {
@@ -99,24 +96,15 @@ export class RSSFeed {
         this.filter = filter === null ? new FeedFilter() : filter
     }
 
-    static loadFeed(feed: RSSFeed, init = false): Promise<RSSItem[]> {
-        return new Promise<RSSItem[]>((resolve, reject) => {
-            let query = {
-                source: { $in: feed.sids },
-                ...FeedFilter.toQueryObject(feed.filter)
-            }
-            db.idb.find(query)
-                .sort({ date: -1 })
-                .skip(init ? 0 : feed.iids.length)
-                .limit(LOAD_QUANTITY)
-                .exec((err, docs) => {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        resolve(docs)
-                    }
-                })
-        })
+    static async loadFeed(feed: RSSFeed, init = false): Promise<RSSItem[]> {
+        const predicates = FeedFilter.toPredicates(feed.filter)
+        predicates.push(db.items.source.in(feed.sids))
+        return (await db.itemsDB.select().from(db.items).where(
+            lf.op.and.apply(null, predicates)
+        ).orderBy(db.items.date, lf.Order.DESC)
+        .skip(init ? 0 : feed.iids.length)
+        .limit(LOAD_QUANTITY)
+        .exec()) as RSSItem[]
     }
 }
 

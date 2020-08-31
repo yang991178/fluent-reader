@@ -1,5 +1,6 @@
 import intl from "react-intl-universal"
 import * as db from "../../db"
+import lf from "lovefield"
 import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
@@ -145,9 +146,11 @@ export const feedbinServiceHooks: ServiceHooks = {
                     snippet: dom.documentElement.textContent.trim(),
                     creator: i.author,
                     hasRead: !unread.has(i.id),
+                    starred: starred.has(i.id),
+                    hidden: false,
+                    notify: false,
                     serviceRef: i.id,
                 } as RSSItem
-                if (starred.has(i.id)) item.starred = true
                 if (i.images && i.images.original_url) {
                     item.thumb = i.images.original_url
                 } else {
@@ -171,26 +174,21 @@ export const feedbinServiceHooks: ServiceHooks = {
         }
     },
 
-    markAllRead: (sids, date, before) => (_, getState) => new Promise(resolve => {
+    markAllRead: (sids, date, before) => async (_, getState) => {
         const state = getState()
         const configs = state.service as FeedbinConfigs
-        const query: any = { 
-            source: { $in: sids },
-            hasRead: false,
-            serviceRef: { $exists: true }
-        }
+        const predicates: lf.Predicate[] = [
+            db.items.source.in(sids),
+            db.items.hasRead.eq(false),
+            db.items.serviceRef.isNotNull()
+        ]
         if (date) {
-            query.date = before ? { $lte: date } : { $gte: date }
+            predicates.push(before ? db.items.date.lte(date) : db.items.date.gte(date))
         }
-        // @ts-ignore
-        db.idb.find(query, { serviceRef: 1 }, (err, docs) => {
-            resolve()
-            if (!err) {
-                const refs = docs.map(i => i.serviceRef as number)
-                markItems(configs, "unread", "DELETE", refs)
-            }
-        })
-    }),
+        const rows = await db.itemsDB.select(db.items.serviceRef).where(lf.op.and.apply(null, predicates)).exec()
+        const refs = rows.map(row => row["serviceRef"]) as number[]
+        markItems(configs, "unread", "DELETE", refs)
+    },
 
     markRead: (item: RSSItem) => async (_, getState) => {
         await markItems(getState().service as FeedbinConfigs, "unread", "DELETE", [item.serviceRef as number])

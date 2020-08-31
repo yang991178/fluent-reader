@@ -37,17 +37,6 @@ idbSchema.createTable("items").
     addNullable(["thumb", "creator", "serviceRef"]).
     addIndex("idxDate", ["date"], false, lf.Order.DESC)
 
-export const idb = new Datastore<RSSItem>({
-    filename: "items",
-    autoload: true,
-    onload: (err) => {
-        if (err) window.console.log(err)
-    }
-})
-idb.ensureIndex({ fieldName: "source" })
-//idb.removeIndex("id")
-//idb.update({}, {$unset: {id: true}}, {multi: true})
-//idb.remove({}, { multi: true })
 export let sourcesDB: lf.Database
 export let sources: lf.schema.Table
 export let itemsDB: lf.Database
@@ -61,6 +50,13 @@ export async function init() {
     if (window.settings.getNeDBStatus()) {
         const sdb = new Datastore<RSSSource>({
             filename: "sources",
+            autoload: true,
+            onload: (err) => {
+                if (err) window.console.log(err)
+            }
+        })
+        const idb = new Datastore<RSSItem>({
+            filename: "items",
             autoload: true,
             onload: (err) => {
                 if (err) window.console.log(err)
