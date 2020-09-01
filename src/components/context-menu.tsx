@@ -170,6 +170,13 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                                     checked: Boolean(this.props.viewConfigs & ViewConfigs.ShowSnippet),
                                     onClick: () => this.props.setViewConfigs(this.props.viewConfigs ^ ViewConfigs.ShowSnippet)
                                 },
+                                {
+                                    key: "fadeRead",
+                                    text: intl.get("context.fadeRead"),
+                                    canCheck: true,
+                                    checked: Boolean(this.props.viewConfigs & ViewConfigs.FadeRead),
+                                    onClick: () => this.props.setViewConfigs(this.props.viewConfigs ^ ViewConfigs.FadeRead)
+                                }
                             ]
                         }
                     },

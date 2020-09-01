@@ -18,13 +18,13 @@
     height: 100%;
 }
 .article-container {
-    backdrop-filter: saturate(150%) blur(20px);
+    backdrop-filter: var(--blur);
     animation-name: fade;
     background-color: #0008;
 }
 .menu-container, .article-container, .article-wrapper {
     animation-duration: 0.5s;
-    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-timing-function: var(--transition-timing);
     animation-fill-mode: both;
 }
 .menu-container {
@@ -43,13 +43,15 @@
     width: 280px;
     height: 100%;
     background-color: var(--neutralLighterAltOpacity);
-    backdrop-filter: var(--blur-1);
+    backdrop-filter: var(--blur);
     box-shadow: 5px 0 25px #0004;
-    transition: clip-path cubic-bezier(0.1, 0.9, 0.2, 1) .367s;
-    clip-path: inset(0 100% 0 0);;
+    transition: clip-path var(--transition-timing) .367s, opacity cubic-bezier(0, 0, 0.2, 1) .367s;
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
 }
 .menu-container.show .menu {
-    clip-path: inset(0 -50px 0 0);;
+    clip-path: inset(0 -50px 0 0);
+    opacity: 1;
 }
 body.blur .menu .btn-group {
     --black: var(--neutralSecondaryAlt);
@@ -235,7 +237,7 @@ body.darwin .list-main .article-search {
     margin: 0 10px;
 }
 .main, .list-main {
-    transition: margin-left cubic-bezier(0.1, 0.9, 0.2, 1) .367s;
+    transition: margin-left var(--transition-timing) .367s;
     margin-left: 0;
 }
 

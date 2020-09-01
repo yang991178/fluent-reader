@@ -5,7 +5,7 @@ import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../
 import { RSSSource, updateSource, updateUnreadCounts } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
-import { pushNotification, setupAutoFetch } from "./app"
+import { pushNotification, setupAutoFetch, SettingsActionTypes, FREE_MEMORY } from "./app"
 import { getServiceHooks, syncWithService, ServiceActionTypes, SYNC_LOCAL_ITEMS } from "./service"
 
 export class RSSItem {
@@ -281,9 +281,6 @@ export function markAllRead(sids: number[] = null, date: Date = null, before = t
                 sids: sids
             })
         }
-        if (!(state.page.filter.type & FilterType.ShowRead)) {
-            dispatch(initFeeds(true))
-        }
     }
 }
 
@@ -380,7 +377,7 @@ export function applyItemReduction(item: RSSItem, type: string) {
 
 export function itemReducer(
     state: ItemState = {},
-    action: ItemActionTypes | FeedActionTypes | ServiceActionTypes
+    action: ItemActionTypes | FeedActionTypes | ServiceActionTypes | SettingsActionTypes
 ): ItemState {
     switch (action.type) {
         case FETCH_ITEMS:
@@ -443,6 +440,13 @@ export function itemReducer(
                     nextItem.starred = action.starredIds.has(item.serviceRef)
                     nextState[item._id] = nextItem
                 }
+            }
+            return nextState
+        }
+        case FREE_MEMORY: {
+            const nextState: ItemState = {}
+            for (let item of Object.values(state)) {
+                if (action.iids.has(item._id)) nextState[item._id] = item
             }
             return nextState
         }

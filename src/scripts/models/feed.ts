@@ -96,13 +96,13 @@ export class RSSFeed {
         this.filter = filter === null ? new FeedFilter() : filter
     }
 
-    static async loadFeed(feed: RSSFeed, init = false): Promise<RSSItem[]> {
+    static async loadFeed(feed: RSSFeed, skip = 0): Promise<RSSItem[]> {
         const predicates = FeedFilter.toPredicates(feed.filter)
         predicates.push(db.items.source.in(feed.sids))
         return (await db.itemsDB.select().from(db.items).where(
             lf.op.and.apply(null, predicates)
         ).orderBy(db.items.date, lf.Order.DESC)
-        .skip(init ? 0 : feed.iids.length)
+        .skip(skip)
         .limit(LOAD_QUANTITY)
         .exec()) as RSSItem[]
     }
@@ -175,7 +175,7 @@ export function initFeeds(force = false): AppThunk<Promise<void>> {
         let promises = new Array<Promise<void>>()
         for (let feed of Object.values(getState().feeds)) {
             if (!feed.loaded || force) {
-                let p = RSSFeed.loadFeed(feed, force).then(items => {
+                let p = RSSFeed.loadFeed(feed).then(items => {
                     dispatch(initFeedSuccess(feed, items))
                 }).catch(err => { 
                     console.log(err)
@@ -217,10 +217,12 @@ export function loadMoreFailure(feed: RSSFeed, err): FeedActionTypes {
 }
 
 export function loadMore(feed: RSSFeed): AppThunk<Promise<void>> {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         if (feed.loaded && !feed.loading && !feed.allLoaded) {
             dispatch(loadMoreRequest(feed))
-            return RSSFeed.loadFeed(feed).then(items => {
+            const state = getState()
+            const skipNum = feed.iids.filter(i => FeedFilter.testItem(feed.filter, state.items[i])).length
+            return RSSFeed.loadFeed(feed, skipNum).then(items => {
                 dispatch(loadMoreSuccess(feed, items))
             }).catch(e => { 
                 console.log(e)
@@ -331,9 +333,6 @@ export function feedReducer(
                 }
                 default: return state
             }
-        case MARK_READ:
-        case MARK_UNREAD:
-        case TOGGLE_STARRED:
         case TOGGLE_HIDDEN: {
             let nextItem = applyItemReduction(action.item, action.type)
             let filteredFeeds = Object.values(state).filter(feed => feed.loaded && !FeedFilter.testItem(feed.filter, nextItem))

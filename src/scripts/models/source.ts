@@ -181,8 +181,8 @@ export function initSources(): AppThunk<Promise<void>> {
             source.unreadCount = 0
             state[source.sid] = source
         }
-        await unreadCount(sources)
-        dispatch(initSourcesSuccess(sources))
+        await unreadCount(state)
+        dispatch(initSourcesSuccess(state))
     }
 }
 

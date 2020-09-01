@@ -91,7 +91,8 @@
         "copyImageURL": "复制图像链接",
         "caseSensitive": "区分大小写",
         "showCover": "显示封面",
-        "showSnippet": "显示摘要"
+        "showSnippet": "显示摘要",
+        "fadeRead": "淡化已读文章"
     },
     "searchEngine": {
         "name": "搜索引擎",
@@ -196,7 +197,8 @@
         "fetchLimitNum": "最近 {count} 篇文章",
         "importGroups": "导入分组",
         "failure": "连接到服务时出错",
-        "failureHint": "请检查服务配置或网络连接"
+        "failureHint": "请检查服务配置或网络连接",
+        "fetchUnlimited": "无限制（不建议）"
     },
     "app": {
         "cleanup": "清理",

@@ -119,7 +119,7 @@
 }
 .default-card img.bg {
     object-fit: cover;
-    filter: saturate(150%) blur(20px);
+    filter: var(--blur);
 }
 .default-card div.bg {
     background-color: #fffb;
@@ -229,6 +229,9 @@
     position: absolute;
     height: 100%;
     border-left: 2px solid var(--primary);
+}
+.list-card.read, .list-card.read p.snippet {
+    color: var(--neutralSecondaryAlt);
 }
 
 .magazine-card {

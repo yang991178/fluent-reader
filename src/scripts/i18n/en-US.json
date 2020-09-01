@@ -91,7 +91,8 @@
         "copyImageURL": "Copy image link",
         "caseSensitive": "Case sensitive",
         "showCover": "Show cover",
-        "showSnippet": "Show snippet"
+        "showSnippet": "Show snippet",
+        "fadeRead": "Fade read articles"
     },
     "searchEngine": {
         "name": "Search engine",
@@ -198,7 +199,8 @@
         "fetchLimitNum": "{count} latest articles",
         "importGroups": "Import groups",
         "failure": "Cannot connect to service",
-        "failureHint": "Please check the service configuration or network status."
+        "failureHint": "Please check the service configuration or network status.",
+        "fetchUnlimited": "Unlimited (not recommended)"
     },
     "app": {
         "cleanup": "Clean up",

@@ -1,5 +1,5 @@
 :root {
-    --neutralLighterAltOpacity: rgba(250, 249, 248, 0.8);
+    --neutralLighterAltOpacity: #faf9f8cc;
     --neutralLighterAlt: #faf9f8;
     --neutralLighter: #f3f2f1;
     --neutralLight: #edebe9;
@@ -18,13 +18,12 @@
     --whiteConstant: #fff;
     --primary: #0078d4;
     --navHeight: 32px;
-
-    --blur-0: saturate(150%) blur(16px);
-    --blur-1: saturate(150%) blur(32px);
+    --transition-timing: cubic-bezier(0.1, 0.9, 0.2, 1);
+    --blur: saturate(150%) blur(20px);
 }
 @media (prefers-color-scheme: dark) {
     :root {
-        --neutralLighterAltOpacity: rgba(40, 40, 40, 0.8);
+        --neutralLighterAltOpacity: #282828cc;
         --neutralLighterAlt: #282828;
         --neutralLighter: #313131;
         --neutralLight: #3f3f3f;
@@ -53,6 +52,9 @@ html, body {
     height: 100%;
     overflow: hidden;
     margin: 0;
+}
+body.win32, body.linux {
+    background-color: var(--neutralLighterAlt);
 }
 #root {
     height: 100%;

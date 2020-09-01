@@ -173,9 +173,11 @@
     flex-wrap: wrap;
     justify-content: space-around;
     padding: 12px;
-    height: calc(100% - 56px);
+    height: calc(100% - 32px);
     overflow: hidden scroll;
     margin-top: var(--navHeight);
+    width: 100%;
+    box-sizing: border-box;
 }
 .cards-feed-container .ms-List-page {
     display: flex;

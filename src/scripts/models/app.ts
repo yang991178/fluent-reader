@@ -136,6 +136,7 @@ export interface MenuActionTypes {
 
 export const TOGGLE_SETTINGS = "TOGGLE_SETTINGS"
 export const SAVE_SETTINGS = "SAVE_SETTINGS"
+export const FREE_MEMORY = "FREE_MEMORY"
 
 interface ToggleSettingsAction {
     type: typeof TOGGLE_SETTINGS
@@ -145,7 +146,11 @@ interface ToggleSettingsAction {
 interface SaveSettingsAction {
     type: typeof SAVE_SETTINGS
 }
-export type SettingsActionTypes = ToggleSettingsAction | SaveSettingsAction
+interface FreeMemoryAction {
+    type: typeof FREE_MEMORY
+    iids: Set<number>
+}
+export type SettingsActionTypes = ToggleSettingsAction | SaveSettingsAction | FreeMemoryAction
 
 export function closeContextMenu(): AppThunk {
     return (dispatch, getState) => {
@@ -205,19 +210,32 @@ export const toggleSettings = (open = true, sids = new Array<number>()) => ({
     sids: sids,
 })
 
-export function exitSettings(): AppThunk {
-    return (dispatch, getState) => {
+export function exitSettings(): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
         if (!getState().app.settings.saving) {
             if (getState().app.settings.changed) {
                 dispatch(saveSettings())
                 dispatch(selectAllArticles(true))
-                dispatch(initFeeds(true)).then(() =>
-                    dispatch(toggleSettings(false))
-                )
+                await dispatch(initFeeds(true))
+                dispatch(toggleSettings(false))
+                freeMemory()
             } else {
                 dispatch(toggleSettings(false))
             }
         }
+    }
+}
+
+function freeMemory(): AppThunk {
+    return (dispatch, getState) => {
+        const iids = new Set<number>()
+        for (let feed of Object.values(getState().feeds)) {
+            if (feed.loaded) feed.iids.forEach(iids.add, iids)
+        }
+        dispatch({
+            type: FREE_MEMORY,
+            iids: iids
+        })
     }
 }
 

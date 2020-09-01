@@ -166,9 +166,6 @@ function syncItems(hook: ServiceHooks["syncItems"]): AppThunk<Promise<void>> {
             await db.itemsDB.createTransaction().exec(updates)
             await dispatch(updateUnreadCounts())
             dispatch(syncLocalItems(unreadCopy, starredCopy))
-            if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
-                dispatch(initFeeds(true))
-            }
         }
     }
 }

@@ -107,12 +107,16 @@ export const feedbinServiceHooks: ServiceHooks = {
         let min = Number.MAX_SAFE_INTEGER
         let lastFetched: any[]
         do {
-            const response = await fetchAPI(configs, "entries.json?mode=extended&per_page=125&page=" + page)
-            if (response.status !== 200) throw APIError()
-            lastFetched = await response.json()
-            items.push(...lastFetched.filter(i => i.id > configs.lastId && i.id < min))
-            min = lastFetched.reduce((m, n) => Math.min(m, n.id), min)
-            page += 1
+            try {
+                const response = await fetchAPI(configs, "entries.json?mode=extended&per_page=125&page=" + page)
+                if (response.status !== 200) throw APIError()
+                lastFetched = await response.json()
+                items.push(...lastFetched.filter(i => i.id > configs.lastId && i.id < min))
+                min = lastFetched.reduce((m, n) => Math.min(m, n.id), min)
+                page += 1
+            } catch {
+                break
+            }
         } while (
             min > configs.lastId &&
             lastFetched && lastFetched.length >= 125 &&
@@ -133,7 +137,9 @@ export const feedbinServiceHooks: ServiceHooks = {
             if (unreadResponse.status !== 200 || starredResponse.status !== 200) throw APIError()
             const unread: Set<number> = new Set(await unreadResponse.json())
             const starred: Set<number> = new Set(await starredResponse.json())
-            const parsedItems = items.map(i => {
+            const parsedItems = new Array<RSSItem>()
+            items.forEach(i => {
+                if (i.content === null) return
                 const source = fidMap.get(String(i.feed_id))
                 const dom = domParser.parseFromString(i.content, "text/html")
                 const item = {
@@ -166,7 +172,7 @@ export const feedbinServiceHooks: ServiceHooks = {
                     markItems(configs, "unread", item.hasRead ? "DELETE" : "POST", [i.id])
                 if (starred.has(i.id) !== Boolean(item.starred))
                     markItems(configs, "starred", item.starred ? "POST" : "DELETE", [i.id])
-                return item
+                parsedItems.push(item)
             })
             return [parsedItems, configs]
         } else {
