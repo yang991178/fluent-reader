@@ -177,6 +177,6 @@ const NEDB_STATUS_STORE_KEY = "useNeDB"
 ipcMain.on("get-nedb-status", (event) => {
     event.returnValue = store.get(NEDB_STATUS_STORE_KEY, true)
 })
-ipcMain.handle("set-nedb-status", () => {
-    store.set(NEDB_STATUS_STORE_KEY, false)
+ipcMain.handle("set-nedb-status", (_, flag: boolean) => {
+    store.set(NEDB_STATUS_STORE_KEY, flag)
 })

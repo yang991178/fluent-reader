@@ -22,10 +22,10 @@ export class AppLog {
     type: AppLogType
     title: string
     details?: string
-    iid?: string
+    iid?: number
     time: Date
 
-    constructor(type: AppLogType, title: string, details: string=null, iid: string = null) {
+    constructor(type: AppLogType, title: string, details: string=null, iid: number = null) {
         this.type = type
         this.title = title
         this.details = details
@@ -121,7 +121,7 @@ interface ToggleLogMenuAction { type: typeof TOGGLE_LOGS }
 
 interface PushNotificationAction {
     type: typeof PUSH_NOTIFICATION
-    iid: string
+    iid: number
     title: string
     source: string
 }

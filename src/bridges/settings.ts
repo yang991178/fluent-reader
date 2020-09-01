@@ -106,8 +106,8 @@ const settingsBridge = {
     getNeDBStatus: (): boolean => {
         return ipcRenderer.sendSync("get-nedb-status")
     },
-    setNeDBStatus: () => {
-        ipcRenderer.invoke("set-nedb-status")
+    setNeDBStatus: (flag: boolean) => {
+        ipcRenderer.invoke("set-nedb-status", flag)
     },
 
     getAll: () => {

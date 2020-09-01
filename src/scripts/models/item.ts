@@ -9,7 +9,7 @@ import { pushNotification, setupAutoFetch } from "./app"
 import { getServiceHooks, syncWithService, ServiceActionTypes, SYNC_LOCAL_ITEMS } from "./service"
 
 export class RSSItem {
-    _id: string
+    _id: number
     source: number
     title: string
     link: string
@@ -23,7 +23,7 @@ export class RSSItem {
     starred: boolean
     hidden: boolean
     notify: boolean
-    serviceRef?: string | number
+    serviceRef?: string
 
     constructor (item: Parser.Item, source: RSSSource) {
         for (let field of ["title", "link", "creator"]) {
@@ -79,7 +79,7 @@ export class RSSItem {
 }
 
 export type ItemState = {
-    [_id: string]: RSSItem
+    [_id: number]: RSSItem
 }
 
 export const FETCH_ITEMS = "FETCH_ITEMS"
@@ -306,7 +306,7 @@ const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
 
 export function toggleStarred(item: RSSItem): AppThunk {
     return (dispatch) => {
-        if (item.starred === true) {
+        if (item.starred) {
             db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, false).exec()
         } else {
             db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, true).exec()
@@ -327,10 +327,10 @@ const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({
 
 export function toggleHidden(item: RSSItem): AppThunk {
     return (dispatch) => {
-        if (item.hidden === true) {
-            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, true).exec()
-        } else {
+        if (item.hidden) {
             db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, false).exec()
+        } else {
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, true).exec()
         }
         dispatch(toggleHiddenDone(item))
     }
@@ -371,7 +371,7 @@ export function applyItemReduction(item: RSSItem, type: string) {
             break
         }
         case TOGGLE_HIDDEN: {
-            item.hidden = !item.hidden
+            nextItem.hidden = !item.hidden
             break
         }
     }
@@ -406,13 +406,13 @@ export function itemReducer(
         case MARK_ALL_READ: {
             let nextState = { ...state }
             let sids = new Set(action.sids)
-            for (let [id, item] of Object.entries(state)) {
+            for (let item of Object.values(state)) {
                 if (sids.has(item.source) && !item.hasRead) {
                     if (!action.time || (action.before 
                         ? item.date.getTime() <= action.time 
                         : item.date.getTime() >= action.time)
                     ) {
-                        nextState[id] = {
+                        nextState[item._id] = {
                             ...item,
                             hasRead: true
                         }
@@ -435,15 +435,13 @@ export function itemReducer(
             }
         }
         case SYNC_LOCAL_ITEMS: {
-            const unreadSet = new Set(action.unreadIds)
-            const starredSet = new Set(action.starredIds)
             let nextState = { ...state }
-            for (let [id, item] of Object.entries(state)) {
+            for (let item of Object.values(state)) {
                 if (item.hasOwnProperty("serviceRef")) {
                     const nextItem = { ...item }
-                    nextItem.hasRead = !unreadSet.has(nextItem.serviceRef as number)
-                    nextItem.starred = starredSet.has(item.serviceRef as number)
-                    nextState[id] = nextItem
+                    nextItem.hasRead = !action.unreadIds.has(item.serviceRef)
+                    nextItem.starred = action.starredIds.has(item.serviceRef)
+                    nextState[item._id] = nextItem
                 }
             }
             return nextState

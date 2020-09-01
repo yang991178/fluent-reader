@@ -1,3 +1,4 @@
+import * as db from "./db"
 import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import { ThemeSettings } from "../schema-types"
@@ -57,29 +58,17 @@ export function getCurrentLocale() {
     return (locale in locales) ? locale : "en-US"
 }
 
-export function exportAll() {
+export async function exportAll() {
     const filters = [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
-    window.utils.showSaveDialog(filters, "*/Fluent_Reader_Backup.frdata").then(write => {
-        if (write) {
-            let output = window.settings.getAll()
-            output["nedb"] = {}
-            let openRequest = window.indexedDB.open("NeDB")
-            openRequest.onsuccess = () => {
-                let db = openRequest.result
-                let objectStore = db.transaction("nedbdata").objectStore("nedbdata")
-                let cursorRequest = objectStore.openCursor()
-                cursorRequest.onsuccess = () => {
-                    let cursor = cursorRequest.result
-                    if (cursor) {
-                        output["nedb"][cursor.key] = cursor.value
-                        cursor.continue()
-                    } else {
-                        write(JSON.stringify(output), intl.get("settings.writeError"))
-                    }
-                }
-            }
+    const write = await window.utils.showSaveDialog(filters, "*/Fluent_Reader_Backup.frdata")
+    if (write) {
+        let output = window.settings.getAll()
+        output["lovefield"] = {
+            sources: await db.sourcesDB.select().from(db.sources).exec(),
+            items: await db.itemsDB.select().from(db.items).exec(),
         }
-    })
+        write(JSON.stringify(output), intl.get("settings.writeError"))
+    }
 }
 
 export async function importAll() {
@@ -94,21 +83,40 @@ export async function importAll() {
     )
     if (!confirmed) return true
     let configs = JSON.parse(data)
-    let openRequest = window.indexedDB.open("NeDB")
-    openRequest.onsuccess = () => {
-        let db = openRequest.result
-        let objectStore = db.transaction("nedbdata", "readwrite").objectStore("nedbdata")
-        let requests = Object.entries(configs.nedb).map(([key, value]) => {
-            return objectStore.put(value, key)
+    await db.sourcesDB.delete().from(db.sources).exec()
+    await db.itemsDB.delete().from(db.items).exec()
+    if (configs.nedb) {
+        let openRequest = window.indexedDB.open("NeDB")
+        configs.useNeDB = true
+        openRequest.onsuccess = () => {
+            let db = openRequest.result
+            let objectStore = db.transaction("nedbdata", "readwrite").objectStore("nedbdata")
+            let requests = Object.entries(configs.nedb).map(([key, value]) => {
+                return objectStore.put(value, key)
+            })
+            let promises = requests.map(req => new Promise((resolve, reject) => {
+                req.onsuccess = () => resolve()
+                req.onerror = () => reject()
+            }))
+            Promise.all(promises).then(() => {
+                delete configs.nedb
+                window.settings.setAll(configs)
+            })
+        }
+    } else {
+        const sRows = configs.lovefield.sources.map(s => {
+            s.lastFetched = new Date(s.lastFetched)
+            return db.sources.createRow(s)
         })
-        let promises = requests.map(req => new Promise((resolve, reject) => {
-            req.onsuccess = () => resolve()
-            req.onerror = () => reject()
-        }))
-        Promise.all(promises).then(() => {
-            delete configs.nedb
-            window.settings.setAll(configs)
+        const iRows = configs.lovefield.items.map(i => {
+            i.date = new Date(i.date)
+            i.fetchedDate = new Date(i.fetchedDate)
+            return db.items.createRow(i)
         })
-    }
+        await db.sourcesDB.insert().into(db.sources).values(sRows).exec()
+        await db.itemsDB.insert().into(db.items).values(iRows).exec()
+        delete configs.lovefield
+        window.settings.setAll(configs)
+    }  
     return false
 }

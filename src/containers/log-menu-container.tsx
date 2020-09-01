@@ -12,7 +12,7 @@ const mapStateToProps = createSelector(getLogs, logs => logs)
 const mapDispatchToProps = dispatch => {
     return { 
         close: () => dispatch(toggleLogMenu()),
-        showItem: (iid: string) => dispatch(showItemFromId(iid))
+        showItem: (iid: number) => dispatch(showItemFromId(iid))
     }
 }
 

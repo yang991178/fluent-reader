@@ -10,7 +10,7 @@ type PageProps = {
     contextOn: boolean
     settingsOn: boolean
     feeds: string[]
-    itemId: string
+    itemId: number
     itemFromFeed: boolean
     viewType: ViewType
     dismissItem: () => void

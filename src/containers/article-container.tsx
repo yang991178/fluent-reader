@@ -8,7 +8,7 @@ import Article from "../components/article"
 import { openTextMenu, closeContextMenu, openImageMenu } from "../scripts/models/app"
 
 type ArticleContainerProps = {
-    itemId: string
+    itemId: number
 }
 
 const getItem = (state: RootState, props: ArticleContainerProps) => state.items[props.itemId]

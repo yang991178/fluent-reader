@@ -8,7 +8,7 @@ type LogMenuProps = {
     display: boolean
     logs: AppLog[]
     close: () => void
-    showItem: (iid: string) => void
+    showItem: (iid: number) => void
 }
 
 function getLogIcon(log: AppLog) {

@@ -7,7 +7,7 @@ export default function performUpdate(store: Store<SchemaTypes>) {
     let useNeDB = store.get("useNeDB", undefined)
     let currentVersion = app.getVersion()
 
-    if (useNeDB === undefined) {
+    if (useNeDB === undefined && version !== null) {
         const revs = version.split(".").map(s => parseInt(s))
         if ((revs[0] === 0 && revs[1] < 8) || !app.isPackaged) {
             store.set("useNeDB", true)

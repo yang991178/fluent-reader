@@ -14,9 +14,9 @@ import { feedbinServiceHooks } from "./services/feedbin"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
-    updateSources?: () => AppThunk<Promise<[RSSSource[], Map<number | string, string>]>>
+    updateSources?: () => AppThunk<Promise<[RSSSource[], Map<string, string>]>>
     fetchItems?: () => AppThunk<Promise<[RSSItem[], ServiceConfigs]>>
-    syncItems?: () => AppThunk<Promise<[(number | string)[], (number | string)[]]>>
+    syncItems?: () => AppThunk<Promise<[Set<string>, Set<string>]>>
     markRead?: (item: RSSItem) => AppThunk
     markUnread?: (item: RSSItem) => AppThunk
     markAllRead?: (sids?: number[], date?: Date, before?: boolean) => AppThunk<Promise<void>>
@@ -71,7 +71,7 @@ export function syncWithService(background = false): AppThunk<Promise<void>> {
 function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<void>> {
     return async (dispatch, getState) => { 
         const [sources, groupsMap] = await dispatch(hook())
-        const existing = new Map<number | string, RSSSource>()
+        const existing = new Map<string, RSSSource>()
         for (let source of Object.values(getState().sources)) {
             if (source.serviceRef) {
                 existing.set(source.serviceRef, source)
@@ -138,29 +138,37 @@ function syncItems(hook: ServiceHooks["syncItems"]): AppThunk<Promise<void>> {
     return async (dispatch, getState) => { 
         const state = getState()
         const [unreadRefs, starredRefs] = await dispatch(hook())
-        const promises = [
-            db.itemsDB.update(db.items).set(db.items.hasRead, false).where(lf.op.and(
-                db.items.serviceRef.in(unreadRefs),
-                db.items.hasRead.eq(true)
-            )).exec(),
-            db.itemsDB.update(db.items).set(db.items.hasRead, true).where(lf.op.and(
-                lf.op.not(db.items.serviceRef.in(unreadRefs)),
-                db.items.hasRead.eq(false)
-            )).exec(),
-            db.itemsDB.update(db.items).set(db.items.starred, true).where(lf.op.and(
-                db.items.serviceRef.in(starredRefs),
-                db.items.starred.eq(false)
-            )).exec(),
-            db.itemsDB.update(db.items).set(db.items.starred, false).where(lf.op.and(
-                lf.op.not(db.items.serviceRef.in(starredRefs)),
-                db.items.hasRead.eq(true)
-            )).exec(),
-        ]
-        await Promise.all(promises)
-        await dispatch(updateUnreadCounts())
-        dispatch(syncLocalItems(unreadRefs, starredRefs))
-        if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
-            dispatch(initFeeds(true))
+        const unreadCopy = new Set(unreadRefs)
+        const starredCopy = new Set(starredRefs)
+        const rows = await db.itemsDB.select(
+            db.items.serviceRef, db.items.hasRead, db.items.starred
+        ).from(db.items).where(lf.op.and(
+            db.items.serviceRef.isNotNull(),
+            lf.op.or(db.items.hasRead.eq(false), db.items.starred.eq(true))
+        )).exec()
+        const updates = new Array<lf.query.Update>()
+        for (let row of rows) {
+            const serviceRef = row["serviceRef"]
+            if (row["hasRead"] === false && !unreadRefs.delete(serviceRef)) {
+                updates.push(db.itemsDB.update(db.items).set(db.items.hasRead, true).where(db.items.serviceRef.eq(serviceRef)))
+            }
+            if (row["starred"] === true && !starredRefs.delete(serviceRef)) {
+                updates.push(db.itemsDB.update(db.items).set(db.items.starred, false).where(db.items.serviceRef.eq(serviceRef)))
+            }
+        }
+        for (let unread of unreadRefs) {
+            updates.push(db.itemsDB.update(db.items).set(db.items.hasRead, false).where(db.items.serviceRef.eq(unread)))
+        }
+        for (let starred of starredRefs) {
+            updates.push(db.itemsDB.update(db.items).set(db.items.starred, true).where(db.items.serviceRef.eq(starred)))
+        }
+        if (updates.length > 0) {
+            await db.itemsDB.createTransaction().exec(updates)
+            await dispatch(updateUnreadCounts())
+            dispatch(syncLocalItems(unreadCopy, starredCopy))
+            if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
+                dispatch(initFeeds(true))
+            }
         }
     }
 }
@@ -224,8 +232,8 @@ interface SyncWithServiceAction {
 
 interface SyncLocalItemsAction {
     type: typeof SYNC_LOCAL_ITEMS
-    unreadIds: (string | number)[]
-    starredIds: (string | number)[]
+    unreadIds: Set<string>
+    starredIds: Set<string>
 }
 
 export type ServiceActionTypes = SaveServiceConfigsAction | SyncWithServiceAction | SyncLocalItemsAction
@@ -240,7 +248,7 @@ export function saveServiceConfigs(configs: ServiceConfigs): AppThunk {
     }
 }
 
-function syncLocalItems(unread: (string | number)[], starred: (string | number)[]): ServiceActionTypes {
+function syncLocalItems(unread: Set<string>, starred: Set<string>): ServiceActionTypes {
     return {
         type: SYNC_LOCAL_ITEMS,
         unreadIds: unread,

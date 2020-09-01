@@ -62,7 +62,7 @@ export const feedbinServiceHooks: ServiceHooks = {
         const response = await fetchAPI(configs, "subscriptions.json")
         if (response.status !== 200) throw APIError()
         const subscriptions: any[] = await response.json()
-        let groupsMap: Map<number, string>
+        let groupsMap: Map<string, string>
         if (configs.importGroups) {
             const tagsResponse = await fetchAPI(configs, "taggings.json")
             if (tagsResponse.status !== 200) throw APIError()
@@ -75,12 +75,12 @@ export const feedbinServiceHooks: ServiceHooks = {
                     tagsSet.add(title)
                     dispatch(createSourceGroup(title))
                 }
-                groupsMap.set(tag.feed_id, title)
+                groupsMap.set(String(tag.feed_id), title)
             }
         }
         const sources = subscriptions.map(s => {
             const source = new RSSSource(s.feed_url, s.title)
-            source.serviceRef = s.feed_id
+            source.serviceRef = String(s.feed_id)
             return source
         })
         return [sources, groupsMap]
@@ -95,7 +95,7 @@ export const feedbinServiceHooks: ServiceHooks = {
         if (unreadResponse.status !== 200 || starredResponse.status !== 200) throw APIError()
         const unread = await unreadResponse.json()
         const starred = await starredResponse.json()
-        return [unread, starred]
+        return [new Set(unread.map(i => String(i))), new Set(starred.map(i => String(i)))]
     },
 
     fetchItems: () => async (_, getState) => {
@@ -120,10 +120,10 @@ export const feedbinServiceHooks: ServiceHooks = {
         )
         configs.lastId = items.reduce((m, n) => Math.max(m, n.id), configs.lastId)
         if (items.length > 0) {
-            const fidMap = new Map<number, RSSSource>()
+            const fidMap = new Map<string, RSSSource>()
             for (let source of Object.values(state.sources)) {
                 if (source.serviceRef) {
-                    fidMap.set(source.serviceRef as number, source)
+                    fidMap.set(source.serviceRef, source)
                 }
             }
             const [unreadResponse, starredResponse] = await Promise.all([
@@ -134,7 +134,7 @@ export const feedbinServiceHooks: ServiceHooks = {
             const unread: Set<number> = new Set(await unreadResponse.json())
             const starred: Set<number> = new Set(await starredResponse.json())
             const parsedItems = items.map(i => {
-                const source = fidMap.get(i.feed_id)
+                const source = fidMap.get(String(i.feed_id))
                 const dom = domParser.parseFromString(i.content, "text/html")
                 const item = {
                     source: source.sid,
@@ -149,7 +149,7 @@ export const feedbinServiceHooks: ServiceHooks = {
                     starred: starred.has(i.id),
                     hidden: false,
                     notify: false,
-                    serviceRef: i.id,
+                    serviceRef: String(i.id),
                 } as RSSItem
                 if (i.images && i.images.original_url) {
                     item.thumb = i.images.original_url
@@ -186,23 +186,23 @@ export const feedbinServiceHooks: ServiceHooks = {
             predicates.push(before ? db.items.date.lte(date) : db.items.date.gte(date))
         }
         const rows = await db.itemsDB.select(db.items.serviceRef).where(lf.op.and.apply(null, predicates)).exec()
-        const refs = rows.map(row => row["serviceRef"]) as number[]
+        const refs = rows.map(row => parseInt(row["serviceRef"]))
         markItems(configs, "unread", "DELETE", refs)
     },
 
     markRead: (item: RSSItem) => async (_, getState) => {
-        await markItems(getState().service as FeedbinConfigs, "unread", "DELETE", [item.serviceRef as number])
+        await markItems(getState().service as FeedbinConfigs, "unread", "DELETE", [parseInt(item.serviceRef)])
     },
 
     markUnread: (item: RSSItem) => async (_, getState) => {
-        await markItems(getState().service as FeedbinConfigs, "unread", "POST", [item.serviceRef as number])
+        await markItems(getState().service as FeedbinConfigs, "unread", "POST", [parseInt(item.serviceRef)])
     },
 
     star: (item: RSSItem) => async (_, getState) => {
-        await markItems(getState().service as FeedbinConfigs, "starred", "POST", [item.serviceRef as number])
+        await markItems(getState().service as FeedbinConfigs, "starred", "POST", [parseInt(item.serviceRef)])
     },
 
     unstar: (item: RSSItem) => async (_, getState) => {
-        await markItems(getState().service as FeedbinConfigs, "starred", "DELETE", [item.serviceRef as number])
+        await markItems(getState().service as FeedbinConfigs, "starred", "DELETE", [parseInt(item.serviceRef)])
     },
 }

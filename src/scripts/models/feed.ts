@@ -84,7 +84,7 @@ export class RSSFeed {
     loading: boolean
     allLoaded: boolean
     sids: number[]
-    iids: string[]
+    iids: number[]
     filter: FeedFilter
 
     constructor (id: string = null, sids=[], filter=null) {
@@ -240,7 +240,7 @@ export function feedReducer(
             switch (action.status) {
                 case ActionStatus.Success: return {
                     ...state,
-                    [ALL]: new RSSFeed(ALL, action.sources.map(s => s.sid))
+                    [ALL]: new RSSFeed(ALL, Object.values(action.sources).map(s => s.sid))
                 }
                 default: return state
             }

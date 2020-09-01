@@ -19,7 +19,7 @@ export class RSSSource {
     openTarget: SourceOpenTarget
     unreadCount: number
     lastFetched: Date
-    serviceRef?: string | number
+    serviceRef?: string
     fetchFrequency: number // in minutes
     rules?: SourceRule[]
 
@@ -81,12 +81,13 @@ export type SourceState = {
 export const INIT_SOURCES = "INIT_SOURCES"
 export const ADD_SOURCE = "ADD_SOURCE"
 export const UPDATE_SOURCE = "UPDATE_SOURCE"
+export const UPDATE_UNREAD_COUNTS = "UPDATE_UNREAD_COUNTS"
 export const DELETE_SOURCE = "DELETE_SOURCE"
 
 interface InitSourcesAction {
     type: typeof INIT_SOURCES
     status: ActionStatus
-    sources?: RSSSource[]
+    sources?: SourceState
     err?
 }
 
@@ -103,12 +104,18 @@ interface UpdateSourceAction {
     source: RSSSource
 }
 
+interface UpdateUnreadCountsAction {
+    type: typeof UPDATE_UNREAD_COUNTS
+    sources: SourceState
+}
+
 interface DeleteSourceAction {
     type: typeof DELETE_SOURCE,
     source: RSSSource
 }
 
-export type SourceActionTypes = InitSourcesAction | AddSourceAction | UpdateSourceAction | DeleteSourceAction
+export type SourceActionTypes = InitSourcesAction | AddSourceAction | UpdateSourceAction 
+    | UpdateUnreadCountsAction | DeleteSourceAction
 
 export function initSourcesRequest(): SourceActionTypes {
     return {
@@ -117,7 +124,7 @@ export function initSourcesRequest(): SourceActionTypes {
     }
 }
 
-export function initSourcesSuccess(sources: RSSSource[]): SourceActionTypes {
+export function initSourcesSuccess(sources: SourceState): SourceActionTypes {
     return {
         type: INIT_SOURCES,
         status: ActionStatus.Success,
@@ -133,21 +140,34 @@ export function initSourcesFailure(err): SourceActionTypes {
     }
 }
 
-async function unreadCount(source: RSSSource): Promise<RSSSource> {
-    source.unreadCount = (await db.itemsDB.select(
+async function unreadCount(sources: SourceState): Promise<SourceState> {
+    const rows = await db.itemsDB.select(
+        db.items.source,
         lf.fn.count(db.items._id)
-    ).from(db.items).where(lf.op.and(
-        db.items.source.eq(source.sid),
+    ).from(db.items).where(
         db.items.hasRead.eq(false)
-    )).exec())[0]["COUNT(_id)"]
-    return source
+    ).groupBy(
+        db.items.source
+    ).exec()
+    for (let row of rows) {
+        sources[row["source"]].unreadCount = row["COUNT(_id)"]
+    }
+    return sources
 }
 
 export function updateUnreadCounts(): AppThunk<Promise<void>> {
     return async (dispatch, getState) => {
-        await Promise.all(Object.values(getState().sources).map(async s => {
-            dispatch(updateSourceDone(await unreadCount(s)))
-        }))
+        const sources: SourceState = {}
+        for (let source of Object.values(getState().sources)) {
+            sources[source.sid] = {
+                ...source,
+                unreadCount: 0
+            }
+        }
+        dispatch({
+            type: UPDATE_UNREAD_COUNTS,
+            sources: await unreadCount(sources),
+        })
     }
 }
 
@@ -156,9 +176,13 @@ export function initSources(): AppThunk<Promise<void>> {
         dispatch(initSourcesRequest())
         await db.init()
         const sources = (await db.sourcesDB.select().from(db.sources).exec()) as RSSSource[]
-        const promises = sources.map(s => unreadCount(s))
-        const counted = await Promise.all(promises)
-        dispatch(initSourcesSuccess(counted))
+        const state: SourceState = {}
+        for (let source of sources) {
+            source.unreadCount = 0
+            state[source.sid] = source
+        }
+        await unreadCount(sources)
+        dispatch(initSourcesSuccess(sources))
     }
 }
 
@@ -313,15 +337,10 @@ export function sourceReducer(
     switch (action.type) {
         case INIT_SOURCES:
             switch (action.status) {
-                case ActionStatus.Success: {
-                    let newState: SourceState = {}
-                    for (let source of action.sources) {
-                        newState[source.sid] = source
-                    }
-                    return newState
-                }
+                case ActionStatus.Success: return action.sources
                 default: return state
             }
+        case UPDATE_UNREAD_COUNTS: return action.sources
         case ADD_SOURCE:
             switch (action.status) {
                 case ActionStatus.Success: return {

@@ -11,7 +11,7 @@ sdbSchema.createTable("sources").
     addColumn("name", lf.Type.STRING).
     addColumn("openTarget", lf.Type.NUMBER).
     addColumn("lastFetched", lf.Type.DATE_TIME).
-    addColumn("serviceRef", lf.Type.NUMBER).
+    addColumn("serviceRef", lf.Type.STRING).
     addColumn("fetchFrequency", lf.Type.NUMBER).
     addColumn("rules", lf.Type.OBJECT).
     addNullable(["iconurl", "serviceRef", "rules"]).
@@ -33,9 +33,10 @@ idbSchema.createTable("items").
     addColumn("starred", lf.Type.BOOLEAN).
     addColumn("hidden", lf.Type.BOOLEAN).
     addColumn("notify", lf.Type.BOOLEAN).
-    addColumn("serviceRef", lf.Type.NUMBER).
+    addColumn("serviceRef", lf.Type.STRING).
     addNullable(["thumb", "creator", "serviceRef"]).
-    addIndex("idxDate", ["date"], false, lf.Order.DESC)
+    addIndex("idxDate", ["date"], false, lf.Order.DESC).
+    addIndex("idxService", ["serviceRef"], false)
 
 export let sourcesDB: lf.Database
 export let sources: lf.schema.Table
@@ -73,14 +74,14 @@ export async function init() {
             })
         })
         const sRows = sourceDocs.map(doc => {
-            //doc.serviceRef = String(doc.serviceRef)
+            if (doc.serviceRef !== undefined) doc.serviceRef = String(doc.serviceRef)
             // @ts-ignore
             delete doc._id
             if (!doc.fetchFrequency) doc.fetchFrequency = 0
             return sources.createRow(doc)
         })
         const iRows = itemDocs.map(doc => {
-            //doc.serviceRef = String(doc.serviceRef)
+            if (doc.serviceRef !== undefined) doc.serviceRef = String(doc.serviceRef)
             delete doc._id
             doc.starred = Boolean(doc.starred)
             doc.hidden = Boolean(doc.hidden)
@@ -91,6 +92,8 @@ export async function init() {
             sourcesDB.insert().into(sources).values(sRows).exec(),
             itemsDB.insert().into(items).values(iRows).exec()
         ])
-        window.settings.setNeDBStatus()
+        window.settings.setNeDBStatus(false)
+        sdb.remove({}, { multi: true }, () => { sdb.persistence.compactDatafile() })
+        idb.remove({}, { multi: true }, () => { idb.persistence.compactDatafile() })
     }
 }
