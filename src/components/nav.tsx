@@ -64,15 +64,13 @@ class Nav extends React.Component<NavProps, NavState> {
                     this.props.markAllRead()
                     break
                 case "F7":
-                    if (!this.props.state.menu || getWindowBreakpoint())
-                        this.props.logs()
+                    if (!this.props.itemShown) this.props.logs()
                     break
                 case "F8":
-                    if (!this.props.state.menu || getWindowBreakpoint())
-                        this.props.views()
+                    if (!this.props.itemShown) this.props.views()
                     break
                 case "F9":
-                    this.props.settings()
+                    if (!this.props.itemShown) this.props.settings()
                     break
             }
         }

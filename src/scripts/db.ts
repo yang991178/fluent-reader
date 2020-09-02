@@ -1,3 +1,4 @@
+import intl from "react-intl-universal"
 import Datastore from "nedb"
 import lf from "lovefield"
 import { RSSSource } from "./models/source"
@@ -49,6 +50,12 @@ export async function init() {
     itemsDB = await idbSchema.connect()
     items = itemsDB.getSchema().table("items")
     if (window.settings.getNeDBStatus()) {
+        await migrateNeDB()
+    }
+}
+
+async function migrateNeDB() {
+    try {
         const sdb = new Datastore<RSSSource>({
             filename: "sources",
             autoload: true,
@@ -82,6 +89,9 @@ export async function init() {
         })
         const iRows = itemDocs.map(doc => {
             if (doc.serviceRef !== undefined) doc.serviceRef = String(doc.serviceRef)
+            if (!doc.title) doc.title = intl.get("article.untitled")
+            if (!doc.content) doc.content = ""
+            if (!doc.snippet) doc.snippet = ""
             delete doc._id
             doc.starred = Boolean(doc.starred)
             doc.hidden = Boolean(doc.hidden)
@@ -95,5 +105,8 @@ export async function init() {
         window.settings.setNeDBStatus(false)
         sdb.remove({}, { multi: true }, () => { sdb.persistence.compactDatafile() })
         idb.remove({}, { multi: true }, () => { idb.persistence.compactDatafile() })
+    } catch (err) {
+        window.utils.showErrorBox("An error has occured during update. Please report this error on GitHub.", String(err))
+        window.utils.closeWindow()
     }
 }

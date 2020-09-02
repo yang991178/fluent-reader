@@ -303,11 +303,7 @@ const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
 
 export function toggleStarred(item: RSSItem): AppThunk {
     return (dispatch) => {
-        if (item.starred) {
-            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, false).exec()
-        } else {
-            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, true).exec()
-        }
+        db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, !item.starred).exec()
         dispatch(toggleStarredDone(item))
         if (item.serviceRef) {
             const hooks = dispatch(getServiceHooks())
@@ -324,11 +320,7 @@ const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({
 
 export function toggleHidden(item: RSSItem): AppThunk {
     return (dispatch) => {
-        if (item.hidden) {
-            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, false).exec()
-        } else {
-            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, true).exec()
-        }
+        db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, !item.hidden).exec()
         dispatch(toggleHiddenDone(item))
     }
 }
@@ -348,7 +340,7 @@ export function itemShortcuts(item: RSSItem, e: KeyboardEvent): AppThunk {
                 dispatch(toggleStarred(item))
                 break
             case "h": case "H":
-                if (!item.hasRead) dispatch(markRead(item))
+                if (!item.hasRead && !item.hidden) dispatch(markRead(item))
                 dispatch(toggleHidden(item))
                 break
         }

@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "description": "Modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -16,6 +16,7 @@
   "keywords": [],
   "author": "Haoyuan Liu",
   "license": "BSD-3-Clause",
+  "repository": "github:yang991178/fluent-reader",
   "build": {
     "appId": "me.hyliu.fluentreader",
     "productName": "Fluent Reader",

@@ -223,8 +223,9 @@ export function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
                 try {
                     const inserted = (await db.sourcesDB.insert().into(db.sources).values([row]).exec()) as RSSSource[]
                     resolve(inserted[0])
-                } catch {
-                    reject(intl.get("sources.exist"))
+                } catch (err) {
+                    if (err.code === 201) reject(intl.get("sources.exist"))
+                    else reject(err)
                 }
             })
         })

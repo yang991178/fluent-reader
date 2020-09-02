@@ -191,7 +191,8 @@ export const feedbinServiceHooks: ServiceHooks = {
         if (date) {
             predicates.push(before ? db.items.date.lte(date) : db.items.date.gte(date))
         }
-        const rows = await db.itemsDB.select(db.items.serviceRef).where(lf.op.and.apply(null, predicates)).exec()
+        const query = lf.op.and.apply(null, predicates)
+        const rows = await db.itemsDB.select(db.items.serviceRef).from(db.items).where(query).exec()
         const refs = rows.map(row => parseInt(row["serviceRef"]))
         markItems(configs, "unread", "DELETE", refs)
     },
