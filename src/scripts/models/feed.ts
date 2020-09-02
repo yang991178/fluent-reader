@@ -1,4 +1,5 @@
 import * as db from "../db"
+import lf from "lovefield"
 import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
 import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction } from "./item"
 import { ActionStatus, AppThunk, mergeSortedArrays } from "../utils"
@@ -30,29 +31,25 @@ export class FeedFilter {
         this.search = search
     }
 
-    static toQueryObject(filter: FeedFilter) {
+    static toPredicates(filter: FeedFilter) {
         let type = filter.type
-        let query = {
-            hasRead: false,
-            starred: true,
-            hidden: { $exists: false }
-        } as any
-        if (type & FilterType.ShowRead) delete query.hasRead
-        if (type & FilterType.ShowNotStarred) delete query.starred
-        if (type & FilterType.ShowHidden) delete query.hidden
+        const predicates = new Array<lf.Predicate>()
+        if (!(type & FilterType.ShowRead)) predicates.push(db.items.hasRead.eq(false))
+        if (!(type & FilterType.ShowNotStarred)) predicates.push(db.items.starred.eq(true))
+        if (!(type & FilterType.ShowHidden)) predicates.push(db.items.hidden.eq(false))
         if (filter.search !== "") {
             const flags = (type & FilterType.CaseInsensitive) ? "i" : ""
             const regex = RegExp(filter.search, flags)
             if (type & FilterType.FullSearch) {
-                query.$or = [
-                    { title: { $regex: regex } },
-                    { snippet: { $regex: regex } }
-                ]
+                predicates.push(lf.op.or(
+                    db.items.title.match(regex),
+                    db.items.snippet.match(regex)
+                ))
             } else {
-                query.title = { $regex: regex }
+                predicates.push(db.items.title.match(regex))
             }
         }
-        return query
+        return predicates
     }
 
     static testItem(filter: FeedFilter, item: RSSItem) {
@@ -87,7 +84,7 @@ export class RSSFeed {
     loading: boolean
     allLoaded: boolean
     sids: number[]
-    iids: string[]
+    iids: number[]
     filter: FeedFilter
 
     constructor (id: string = null, sids=[], filter=null) {
@@ -99,24 +96,15 @@ export class RSSFeed {
         this.filter = filter === null ? new FeedFilter() : filter
     }
 
-    static loadFeed(feed: RSSFeed, init = false): Promise<RSSItem[]> {
-        return new Promise<RSSItem[]>((resolve, reject) => {
-            let query = {
-                source: { $in: feed.sids },
-                ...FeedFilter.toQueryObject(feed.filter)
-            }
-            db.idb.find(query)
-                .sort({ date: -1 })
-                .skip(init ? 0 : feed.iids.length)
-                .limit(LOAD_QUANTITY)
-                .exec((err, docs) => {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        resolve(docs)
-                    }
-                })
-        })
+    static async loadFeed(feed: RSSFeed, skip = 0): Promise<RSSItem[]> {
+        const predicates = FeedFilter.toPredicates(feed.filter)
+        predicates.push(db.items.source.in(feed.sids))
+        return (await db.itemsDB.select().from(db.items).where(
+            lf.op.and.apply(null, predicates)
+        ).orderBy(db.items.date, lf.Order.DESC)
+        .skip(skip)
+        .limit(LOAD_QUANTITY)
+        .exec()) as RSSItem[]
     }
 }
 
@@ -187,7 +175,7 @@ export function initFeeds(force = false): AppThunk<Promise<void>> {
         let promises = new Array<Promise<void>>()
         for (let feed of Object.values(getState().feeds)) {
             if (!feed.loaded || force) {
-                let p = RSSFeed.loadFeed(feed, force).then(items => {
+                let p = RSSFeed.loadFeed(feed).then(items => {
                     dispatch(initFeedSuccess(feed, items))
                 }).catch(err => { 
                     console.log(err)
@@ -229,10 +217,12 @@ export function loadMoreFailure(feed: RSSFeed, err): FeedActionTypes {
 }
 
 export function loadMore(feed: RSSFeed): AppThunk<Promise<void>> {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         if (feed.loaded && !feed.loading && !feed.allLoaded) {
             dispatch(loadMoreRequest(feed))
-            return RSSFeed.loadFeed(feed).then(items => {
+            const state = getState()
+            const skipNum = feed.iids.filter(i => FeedFilter.testItem(feed.filter, state.items[i])).length
+            return RSSFeed.loadFeed(feed, skipNum).then(items => {
                 dispatch(loadMoreSuccess(feed, items))
             }).catch(e => { 
                 console.log(e)
@@ -252,7 +242,7 @@ export function feedReducer(
             switch (action.status) {
                 case ActionStatus.Success: return {
                     ...state,
-                    [ALL]: new RSSFeed(ALL, action.sources.map(s => s.sid))
+                    [ALL]: new RSSFeed(ALL, Object.values(action.sources).map(s => s.sid))
                 }
                 default: return state
             }
@@ -343,9 +333,6 @@ export function feedReducer(
                 }
                 default: return state
             }
-        case MARK_READ:
-        case MARK_UNREAD:
-        case TOGGLE_STARRED:
         case TOGGLE_HIDDEN: {
             let nextItem = applyItemReduction(action.item, action.type)
             let filteredFeeds = Object.values(state).filter(feed => feed.loaded && !FeedFilter.testItem(feed.filter, nextItem))

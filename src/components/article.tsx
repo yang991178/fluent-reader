@@ -132,6 +132,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 case "w": case "W":
                     this.toggleFull()
                     break
+                case "H": case "h":
+                    this.props.toggleHidden(this.props.item)
+                    break
                 default:
                     const keyboardEvent = new KeyboardEvent("keydown", {
                         code: input.code,

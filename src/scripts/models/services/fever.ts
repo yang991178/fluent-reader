@@ -53,7 +53,7 @@ export const feverServiceHooks: ServiceHooks = {
         const feeds: any[] = response.feeds
         const feedGroups: any[] = response.feeds_groups
         if (feeds === undefined) throw APIError()
-        let groupsMap: Map<number, string>
+        let groupsMap: Map<string, string>
         if (configs.importGroups) {
             // Import groups on the first sync
             const groups: any[] = (await fetchAPI(configs, "&groups")).groups
@@ -66,14 +66,14 @@ export const feverServiceHooks: ServiceHooks = {
             }
             groupsMap = new Map()
             for (let group of feedGroups) {
-                for (let fid of group.feed_ids.split(",").map(s => parseInt(s))) {
+                for (let fid of group.feed_ids.split(",")) {
                     groupsMap.set(fid, groupsIdMap.get(group.group_id))
                 }
             }
         }
         const sources = feeds.map(f => {
             const source = new RSSSource(f.url, f.title)
-            source.serviceRef = f.id
+            source.serviceRef = String(f.id)
             return source
         })
         return [sources, groupsMap]
@@ -104,14 +104,14 @@ export const feverServiceHooks: ServiceHooks = {
         )
         configs.lastId = items.reduce((m, n) => Math.max(m, n.id), configs.lastId)
         if (items.length > 0) {
-            const fidMap = new Map<number, RSSSource>()
+            const fidMap = new Map<string, RSSSource>()
             for (let source of Object.values(state.sources)) {
                 if (source.serviceRef) {
-                    fidMap.set(source.serviceRef as number, source)
+                    fidMap.set(source.serviceRef, source)
                 }
             }
             const parsedItems = items.map(i => {
-                const source = fidMap.get(i.feed_id)
+                const source = fidMap.get(String(i.feed_id))
                 const item = {
                     source: source.sid,
                     title: i.title,
@@ -122,9 +122,11 @@ export const feverServiceHooks: ServiceHooks = {
                     snippet: htmlDecode(i.html).trim(),
                     creator: i.author,
                     hasRead: Boolean(i.is_read),
-                    serviceRef: typeof i.id === "string" ? parseInt(i.id) : i.id,
+                    starred: Boolean(i.is_saved),
+                    hidden: false,
+                    notify: false,
+                    serviceRef: String(i.id),
                 } as RSSItem
-                if (i.is_saved) item.starred = true
                 // Try to get the thumbnail of the item
                 let dom = domParser.parseFromString(item.content, "text/html")
                 let baseEl = dom.createElement('base')
@@ -161,9 +163,9 @@ export const feverServiceHooks: ServiceHooks = {
         if (typeof unreadResponse.unread_item_ids !== "string" || typeof starredResponse.saved_item_ids !== "string") {
             throw APIError()
         }
-        const unreadFids: number[] = unreadResponse.unread_item_ids.split(",").map(s => parseInt(s))
-        const starredFids: number[] = starredResponse.saved_item_ids.split(",").map(s => parseInt(s))
-        return [unreadFids, starredFids]
+        const unreadFids: string[] = unreadResponse.unread_item_ids.split(",")
+        const starredFids: string[] = starredResponse.saved_item_ids.split(",")
+        return [new Set(unreadFids), new Set(starredFids)]
     },
 
     markAllRead: (sids, date, before) => async (_, getState) => {

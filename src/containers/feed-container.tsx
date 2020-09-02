@@ -19,17 +19,19 @@ const getFeed = (state: RootState, props: FeedContainerProps) => state.feeds[pro
 const getFilter = (state: RootState) => state.page.filter
 const getView = (_, props: FeedContainerProps) => props.viewType
 const getViewConfigs = (state: RootState) => state.page.viewConfigs
+const getCurrentItem = (state: RootState) => state.page.itemId
 
 const makeMapStateToProps = () => {
     return createSelector(
-        [getSources, getItems, getFeed, getView, getFilter, getViewConfigs],
-        (sources, items, feed, viewType, filter, viewConfigs) => ({
+        [getSources, getItems, getFeed, getView, getFilter, getViewConfigs, getCurrentItem],
+        (sources, items, feed, viewType, filter, viewConfigs, currentItem) => ({
             feed: feed,
             items: feed.iids.map(iid => items[iid]),
             sourceMap: sources,
             filter: filter,
             viewType: viewType,
             viewConfigs: viewConfigs,
+            currentItem: currentItem,
         })
     )
 }

@@ -11,6 +11,7 @@ export type FeedProps = FeedReduxProps & {
     viewType: ViewType
     viewConfigs?: ViewConfigs
     items: RSSItem[]
+    currentItem: number
     sourceMap: Object
     filter: FeedFilter
     shortcuts: (item: RSSItem, e: KeyboardEvent) => void

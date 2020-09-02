@@ -189,15 +189,22 @@ function byteLength(str: string) {
 
 export function calculateItemSize(): Promise<number> {
     return new Promise((resolve, reject) => {
-        let openRequest = window.indexedDB.open("NeDB")
+        let result = 0
+        let openRequest = window.indexedDB.open("itemsDB")
         openRequest.onsuccess = () => {
             let db = openRequest.result
-            let objectStore = db.transaction("nedbdata").objectStore("nedbdata")
-            let getRequest = objectStore.get("items")
-            getRequest.onsuccess = () => {
-                resolve(byteLength(getRequest.result))
+            let objectStore = db.transaction("items").objectStore("items")
+            let cursorRequest = objectStore.openCursor()
+            cursorRequest.onsuccess = () => {
+                let cursor = cursorRequest.result
+                if (cursor) {
+                    result += byteLength(JSON.stringify(cursor.value))
+                    cursor.continue()
+                } else {
+                    resolve(result)
+                }
             }
-            getRequest.onerror = () => reject()
+            cursorRequest.onerror = () => reject()
         }
         openRequest.onerror = () => reject()
     })

@@ -75,7 +75,7 @@
     width: calc(100% - 6px);
     height: calc(100% - 6px);
     border: 1px solid var(--white);
-    outline: 2px solid #0078d4;
+    outline: 2px solid var(--primary);
 }
 .card.hidden::after {
     content: "";
@@ -119,7 +119,7 @@
 }
 .default-card img.bg {
     object-fit: cover;
-    filter: saturate(150%) blur(20px);
+    filter: var(--blur);
 }
 .default-card div.bg {
     background-color: #fffb;
@@ -222,6 +222,16 @@
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+}
+.list-card.selected::before {
+    content: "";
+    display: block;
+    position: absolute;
+    height: 100%;
+    border-left: 2px solid var(--primary);
+}
+.list-card.read, .list-card.read p.snippet {
+    color: var(--neutralSecondaryAlt);
 }
 
 .magazine-card {

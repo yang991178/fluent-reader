@@ -114,7 +114,7 @@ export function showItem(feedId: string, item: RSSItem): AppThunk {
         }
     }
 }
-export function showItemFromId(iid: string): AppThunk {
+export function showItemFromId(iid: number): AppThunk {
     return (dispatch, getState) => {
         const state = getState()
         const item = state.items[iid]
@@ -237,7 +237,7 @@ export class PageState {
     viewConfigs = window.settings.getViewConfigs(window.settings.getDefaultView())
     filter = new FeedFilter()
     feedId = ALL
-    itemId = null as string
+    itemId = null as number
     itemFromFeed = true
     searchOn = false
 }

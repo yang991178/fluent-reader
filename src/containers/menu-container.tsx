@@ -31,8 +31,8 @@ const mapStateToProps = createSelector(
 
 const mapDispatchToProps = dispatch => ({
     toggleMenu: () => dispatch(toggleMenu()),
-    allArticles: () => {
-        dispatch(selectAllArticles()),
+    allArticles: (init = false) => {
+        dispatch(selectAllArticles(init)),
         dispatch(initFeeds())
     },
     selectSourceGroup: (group: SourceGroup, menuKey: string) => {

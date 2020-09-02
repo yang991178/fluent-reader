@@ -1,4 +1,5 @@
 import * as db from "../db"
+import lf from "lovefield"
 import { SyncService, ServiceConfigs } from "../../schema-types"
 import { AppThunk, ActionStatus } from "../utils"
 import { RSSItem, insertItems, fetchItemsSuccess } from "./item"
@@ -13,9 +14,9 @@ import { feedbinServiceHooks } from "./services/feedbin"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
-    updateSources?: () => AppThunk<Promise<[RSSSource[], Map<number | string, string>]>>
+    updateSources?: () => AppThunk<Promise<[RSSSource[], Map<string, string>]>>
     fetchItems?: () => AppThunk<Promise<[RSSItem[], ServiceConfigs]>>
-    syncItems?: () => AppThunk<Promise<[(number | string)[], (number | string)[]]>>
+    syncItems?: () => AppThunk<Promise<[Set<string>, Set<string>]>>
     markRead?: (item: RSSItem) => AppThunk
     markUnread?: (item: RSSItem) => AppThunk
     markAllRead?: (sids?: number[], date?: Date, before?: boolean) => AppThunk<Promise<void>>
@@ -70,7 +71,7 @@ export function syncWithService(background = false): AppThunk<Promise<void>> {
 function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<void>> {
     return async (dispatch, getState) => { 
         const [sources, groupsMap] = await dispatch(hook())
-        const existing = new Map<number | string, RSSSource>()
+        const existing = new Map<string, RSSSource>()
         for (let source of Object.values(getState().sources)) {
             if (source.serviceRef) {
                 existing.set(source.serviceRef, source)
@@ -79,46 +80,38 @@ function updateSources(hook: ServiceHooks["updateSources"]): AppThunk<Promise<vo
         const forceSettings = () => {
             if (!(getState().app.settings.saving)) dispatch(saveSettings())
         }
-        let promises = sources.map(s => new Promise<RSSSource>((resolve, reject) => {
+        let promises = sources.map(async (s) =>  {
             if (existing.has(s.serviceRef)) {
                 const doc = existing.get(s.serviceRef)
                 existing.delete(s.serviceRef)
-                resolve(doc)
+                return doc
             } else {
-                db.sdb.findOne({ url: s.url }, (err, doc) => {
-                    if (err) {
-                        reject(err)
-                    } else if (doc === null) {
-                        // Create a new source
-                        forceSettings()
-                        dispatch(insertSource(s))
-                            .then((inserted) => {
-                                inserted.unreadCount = 0
-                                resolve(inserted)
-                                dispatch(addSourceSuccess(inserted, true))
-                                window.settings.saveGroups(getState().groups)
-                                dispatch(updateFavicon([inserted.sid]))
-                            })
-                            .catch((err) => {
-                                reject(err)
-                            })
-                    } else if (doc.serviceRef !== s.serviceRef) {
-                        // Mark an existing source as remote and remove all items
-                        forceSettings()
-                        doc.serviceRef = s.serviceRef
-                        doc.unreadCount = 0
-                        dispatch(updateSource(doc)).finally(() => {
-                            db.idb.remove({ source: doc.sid }, { multi: true }, (err) => {
-                                if (err) reject(err)
-                                else resolve(doc)
-                            })
-                        })
-                    } else {
-                        resolve(doc)
-                    }
-                })
+                const docs = (await db.sourcesDB.select().from(db.sources).where(
+                    db.sources.url.eq(s.url)
+                ).exec()) as RSSSource[]
+                if (docs.length === 0) {
+                    // Create a new source
+                    forceSettings()
+                    const inserted = await dispatch(insertSource(s))
+                    inserted.unreadCount = 0
+                    dispatch(addSourceSuccess(inserted, true))
+                    window.settings.saveGroups(getState().groups)
+                    dispatch(updateFavicon([inserted.sid]))
+                    return inserted
+                } else if (docs[0].serviceRef !== s.serviceRef) {
+                    // Mark an existing source as remote and remove all items
+                    const doc = docs[0]
+                    forceSettings()
+                    doc.serviceRef = s.serviceRef
+                    doc.unreadCount = 0
+                    await dispatch(updateSource(doc))
+                    await db.itemsDB.delete().from(db.items).where(db.items.source.eq(doc.sid)).exec()
+                    return doc
+                } else {
+                    return docs[0]
+                }
             }
-        }))
+        })
         for (let [_, source] of existing) {
             // Delete sources removed from the service side
             forceSettings()
@@ -145,38 +138,34 @@ function syncItems(hook: ServiceHooks["syncItems"]): AppThunk<Promise<void>> {
     return async (dispatch, getState) => { 
         const state = getState()
         const [unreadRefs, starredRefs] = await dispatch(hook())
-        const promises = new Array<Promise<number>>()
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $in: unreadRefs }, 
-                hasRead: true 
-            }, { $set: { hasRead: false } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $nin: unreadRefs }, 
-                hasRead: false 
-            }, { $set: { hasRead: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $in: starredRefs }, 
-                starred: { $exists: false } 
-            }, { $set: { starred: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        promises.push(new Promise((resolve) => {
-            db.idb.update({ 
-                serviceRef: { $exists: true, $nin: starredRefs }, 
-                starred: true 
-            }, { $unset: { starred: true } }, { multi: true }, (_, num) => resolve(num))
-        }))
-        const affected = (await Promise.all(promises)).reduce((a, b) => a + b, 0)
-        if (affected > 0) {
-            dispatch(syncLocalItems(unreadRefs, starredRefs))
-            if (!(state.page.filter.type & FilterType.ShowRead) || !(state.page.filter.type & FilterType.ShowNotStarred)) {
-                dispatch(initFeeds(true))
+        const unreadCopy = new Set(unreadRefs)
+        const starredCopy = new Set(starredRefs)
+        const rows = await db.itemsDB.select(
+            db.items.serviceRef, db.items.hasRead, db.items.starred
+        ).from(db.items).where(lf.op.and(
+            db.items.serviceRef.isNotNull(),
+            lf.op.or(db.items.hasRead.eq(false), db.items.starred.eq(true))
+        )).exec()
+        const updates = new Array<lf.query.Update>()
+        for (let row of rows) {
+            const serviceRef = row["serviceRef"]
+            if (row["hasRead"] === false && !unreadRefs.delete(serviceRef)) {
+                updates.push(db.itemsDB.update(db.items).set(db.items.hasRead, true).where(db.items.serviceRef.eq(serviceRef)))
             }
+            if (row["starred"] === true && !starredRefs.delete(serviceRef)) {
+                updates.push(db.itemsDB.update(db.items).set(db.items.starred, false).where(db.items.serviceRef.eq(serviceRef)))
+            }
+        }
+        for (let unread of unreadRefs) {
+            updates.push(db.itemsDB.update(db.items).set(db.items.hasRead, false).where(db.items.serviceRef.eq(unread)))
+        }
+        for (let starred of starredRefs) {
+            updates.push(db.itemsDB.update(db.items).set(db.items.starred, true).where(db.items.serviceRef.eq(starred)))
+        }
+        if (updates.length > 0) {
+            await db.itemsDB.createTransaction().exec(updates)
             await dispatch(updateUnreadCounts())
+            dispatch(syncLocalItems(unreadCopy, starredCopy))
         }
     }
 }
@@ -240,8 +229,8 @@ interface SyncWithServiceAction {
 
 interface SyncLocalItemsAction {
     type: typeof SYNC_LOCAL_ITEMS
-    unreadIds: (string | number)[]
-    starredIds: (string | number)[]
+    unreadIds: Set<string>
+    starredIds: Set<string>
 }
 
 export type ServiceActionTypes = SaveServiceConfigsAction | SyncWithServiceAction | SyncLocalItemsAction
@@ -256,7 +245,7 @@ export function saveServiceConfigs(configs: ServiceConfigs): AppThunk {
     }
 }
 
-function syncLocalItems(unread: (string | number)[], starred: (string | number)[]): ServiceActionTypes {
+function syncLocalItems(unread: Set<string>, starred: Set<string>): ServiceActionTypes {
     return {
         type: SYNC_LOCAL_ITEMS,
         unreadIds: unread,

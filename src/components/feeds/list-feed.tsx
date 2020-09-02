@@ -8,6 +8,7 @@ import { ViewType } from "../../schema-types";
 import ListCard from "../cards/list-card";
 import MagazineCard from "../cards/magazine-card";
 import CompactCard from "../cards/compact-card";
+import { Card } from "../cards/card";
 
 class ListFeed extends React.Component<FeedProps> {
     onRenderItem = (item: RSSItem) => {
@@ -22,6 +23,9 @@ class ListFeed extends React.Component<FeedProps> {
             markRead: this.props.markRead,
             contextMenu: this.props.contextMenu,
             showItem: this.props.showItem,
+        } as Card.Props
+        if (this.props.viewType === ViewType.List && this.props.currentItem === item._id) {
+            props.selected = true
         }
 
         switch (this.props.viewType) {

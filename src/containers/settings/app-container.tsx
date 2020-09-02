@@ -15,16 +15,14 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
         window.settings.setFetchInterval(interval)
         dispatch(setupAutoFetch())
     },
-    deleteArticles: (days: number) => new Promise((resolve) => {
+    deleteArticles: async (days: number) => {
         dispatch(saveSettings())
         let date = new Date()
         date.setTime(date.getTime() - days * 86400000)
-        db.idb.remove({ date: { $lt: date } }, { multi: true }, () => {
-            dispatch(updateUnreadCounts()).then(() => dispatch(saveSettings()))
-            db.idb.prependOnceListener("compaction.done", resolve)
-            db.idb.persistence.compactDatafile()
-        })
-    }),
+        await db.itemsDB.delete().from(db.items).where(db.items.date.lt(date)).exec()
+        await dispatch(updateUnreadCounts())
+        dispatch(saveSettings())
+    },
     importAll: async () => {
         dispatch(saveSettings())
         let cancelled =  await importAll()

@@ -1,14 +1,15 @@
 import * as db from "../db"
+import lf from "lovefield"
 import intl from "react-intl-universal"
 import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../utils"
-import { RSSSource } from "./source"
+import { RSSSource, updateSource, updateUnreadCounts } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds } from "./feed"
 import Parser from "@yang991178/rss-parser"
-import { pushNotification, setupAutoFetch } from "./app"
+import { pushNotification, setupAutoFetch, SettingsActionTypes, FREE_MEMORY } from "./app"
 import { getServiceHooks, syncWithService, ServiceActionTypes, SYNC_LOCAL_ITEMS } from "./service"
 
 export class RSSItem {
-    _id: string
+    _id: number
     source: number
     title: string
     link: string
@@ -19,10 +20,10 @@ export class RSSItem {
     snippet: string
     creator?: string
     hasRead: boolean
-    starred?: true
-    hidden?: true
-    notify?: true
-    serviceRef?: string | number
+    starred: boolean
+    hidden: boolean
+    notify: boolean
+    serviceRef?: string
 
     constructor (item: Parser.Item, source: RSSSource) {
         for (let field of ["title", "link", "creator"]) {
@@ -36,6 +37,9 @@ export class RSSItem {
         this.date = item.isoDate ? new Date(item.isoDate) : this.fetchedDate
         this.creator = item.creator
         this.hasRead = false
+        this.starred = false
+        this.hidden = false
+        this.notify = false
     }
 
     static parseContent(item: RSSItem, parsed: Parser.Item) {
@@ -75,7 +79,7 @@ export class RSSItem {
 }
 
 export type ItemState = {
-    [_id: string]: RSSItem
+    [_id: number]: RSSItem
 }
 
 export const FETCH_ITEMS = "FETCH_ITEMS"
@@ -103,7 +107,6 @@ interface MarkReadAction {
 interface MarkAllReadAction {
     type: typeof MARK_ALL_READ,
     sids: number[]
-    counts?: number[]
     time?: number
     before?: boolean
 }
@@ -159,17 +162,10 @@ export function fetchItemsIntermediate(): ItemActionTypes {
     }
 }
 
-export function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
-    return new Promise<RSSItem[]>((resolve, reject) => {
-        items.sort((a, b) => a.date.getTime() - b.date.getTime())
-        db.idb.insert(items, (err, inserted) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(inserted)
-            }
-        })
-    })
+export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
+    items.sort((a, b) => a.date.getTime() - b.date.getTime())
+    const rows = items.map(item => db.items.createRow(item))
+    return (await db.itemsDB.insert().into(db.items).values(rows).exec()) as RSSItem[]
 }
 
 export function fetchItems(background = false, sids: number[] = null): AppThunk<Promise<void>> {
@@ -189,6 +185,7 @@ export function fetchItems(background = false, sids: number[] = null): AppThunk<
                 : sids.map(sid => sourcesState[sid]).filter(s => !s.serviceRef)
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
+                promise.then(() => dispatch(updateSource({ ...source, lastFetched: new Date() })))
                 promise.finally(() => dispatch(fetchItemsIntermediate()))
                 promises.push(promise)
             }
@@ -243,7 +240,7 @@ const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
 export function markRead(item: RSSItem): AppThunk {
     return (dispatch) => {
         if (!item.hasRead) {
-            db.idb.update({ _id: item._id }, { $set: { hasRead: true } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hasRead, true).exec()
             dispatch(markReadDone(item))
             if (item.serviceRef) {
                 dispatch(dispatch(getServiceHooks()).markRead?.(item))
@@ -261,52 +258,36 @@ export function markAllRead(sids: number[] = null, date: Date = null, before = t
         }
         const action = dispatch(getServiceHooks()).markAllRead?.(sids, date, before)
         if (action) await dispatch(action)
-        let query = { 
-            source: { $in: sids },
-            hasRead: false,
-         } as any
+        const predicates: lf.Predicate[] = [
+            db.items.source.in(sids),
+            db.items.hasRead.eq(false)
+        ]
         if (date) {
-            query.date = before ? { $lte: date } : { $gte: date }
+            predicates.push(before ? db.items.date.lte(date) : db.items.date.gte(date))
         }
-        const callback = (items: RSSItem[] = null) => {
-            if (items) {
-                const counts = new Map<number, number>()
-                for (let sid of sids) {
-                    counts.set(sid, 0)
-                }
-                for (let item of items) {
-                    counts.set(item.source, counts.get(item.source) + 1)
-                }
-                dispatch({
-                    type: MARK_ALL_READ,
-                    sids: sids,
-                    counts: sids.map(i => counts.get(i)),
-                    time: date.getTime(),
-                    before: before
-                })
-            } else {
-                dispatch({
-                    type: MARK_ALL_READ,
-                    sids: sids
-                })
-            }
-            if (!(state.page.filter.type & FilterType.ShowRead)) {
-                dispatch(initFeeds(true))
-            }
+        const query = lf.op.and.apply(null, predicates)
+        await db.itemsDB.update(db.items).set(db.items.hasRead, true).where(query).exec()
+        if (date) {
+            dispatch({
+                type: MARK_ALL_READ,
+                sids: sids,
+                time: date.getTime(),
+                before: before
+            })
+            dispatch(updateUnreadCounts())
+        } else {
+            dispatch({
+                type: MARK_ALL_READ,
+                sids: sids
+            })
         }
-        db.idb.update(query, { $set: { hasRead: true } }, { multi: true, returnUpdatedDocs: Boolean(date) }, 
-            (err, _, affectedDocuments) => {
-                if (err) console.log(err)
-                if (date) callback(affectedDocuments as unknown as RSSItem[])
-        })
-        if (!date) callback()
     }
 }
 
 export function markUnread(item: RSSItem): AppThunk {
     return (dispatch) => {
         if (item.hasRead) {
-            db.idb.update({ _id: item._id }, { $set: { hasRead: false } })
+            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hasRead, false).exec()
             dispatch(markUnreadDone(item))
             if (item.serviceRef) {
                 dispatch(dispatch(getServiceHooks()).markUnread?.(item))
@@ -322,11 +303,7 @@ const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
 
 export function toggleStarred(item: RSSItem): AppThunk {
     return (dispatch) => {
-        if (item.starred === true) {
-            db.idb.update({ _id: item._id }, { $unset: { starred: true } })
-        } else {
-            db.idb.update({ _id: item._id }, { $set: { starred: true } })
-        }
+        db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, !item.starred).exec()
         dispatch(toggleStarredDone(item))
         if (item.serviceRef) {
             const hooks = dispatch(getServiceHooks())
@@ -343,11 +320,7 @@ const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({
 
 export function toggleHidden(item: RSSItem): AppThunk {
     return (dispatch) => {
-        if (item.hidden === true) {
-            db.idb.update({ _id: item._id }, { $unset: { hidden: true } })
-        } else {
-            db.idb.update({ _id: item._id }, { $set: { hidden: true } })
-        }
+        db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, !item.hidden).exec()
         dispatch(toggleHiddenDone(item))
     }
 }
@@ -367,7 +340,7 @@ export function itemShortcuts(item: RSSItem, e: KeyboardEvent): AppThunk {
                 dispatch(toggleStarred(item))
                 break
             case "h": case "H":
-                if (!item.hasRead) dispatch(markRead(item))
+                if (!item.hasRead && !item.hidden) dispatch(markRead(item))
                 dispatch(toggleHidden(item))
                 break
         }
@@ -383,13 +356,11 @@ export function applyItemReduction(item: RSSItem, type: string) {
             break
         }
         case TOGGLE_STARRED: {
-            if (item.starred === true) delete nextItem.starred
-            else nextItem.starred = true
+            nextItem.starred = !item.starred
             break
         }
         case TOGGLE_HIDDEN: {
-            if (item.hidden === true) delete nextItem.hidden
-            else nextItem.hidden = true
+            nextItem.hidden = !item.hidden
             break
         }
     }
@@ -398,7 +369,7 @@ export function applyItemReduction(item: RSSItem, type: string) {
 
 export function itemReducer(
     state: ItemState = {},
-    action: ItemActionTypes | FeedActionTypes | ServiceActionTypes
+    action: ItemActionTypes | FeedActionTypes | ServiceActionTypes | SettingsActionTypes
 ): ItemState {
     switch (action.type) {
         case FETCH_ITEMS:
@@ -424,13 +395,13 @@ export function itemReducer(
         case MARK_ALL_READ: {
             let nextState = { ...state }
             let sids = new Set(action.sids)
-            for (let [id, item] of Object.entries(state)) {
+            for (let item of Object.values(state)) {
                 if (sids.has(item.source) && !item.hasRead) {
                     if (!action.time || (action.before 
                         ? item.date.getTime() <= action.time 
                         : item.date.getTime() >= action.time)
                     ) {
-                        nextState[id] = {
+                        nextState[item._id] = {
                             ...item,
                             hasRead: true
                         }
@@ -453,20 +424,21 @@ export function itemReducer(
             }
         }
         case SYNC_LOCAL_ITEMS: {
-            const unreadSet = new Set(action.unreadIds)
-            const starredSet = new Set(action.starredIds)
             let nextState = { ...state }
-            for (let [id, item] of Object.entries(state)) {
+            for (let item of Object.values(state)) {
                 if (item.hasOwnProperty("serviceRef")) {
                     const nextItem = { ...item }
-                    nextItem.hasRead = !unreadSet.has(nextItem.serviceRef as number)
-                    if (starredSet.has(item.serviceRef as number)) {
-                        nextItem.starred = true
-                    } else {
-                        delete nextItem.starred
-                    }
-                    nextState[id] = nextItem
+                    nextItem.hasRead = !action.unreadIds.has(item.serviceRef)
+                    nextItem.starred = action.starredIds.has(item.serviceRef)
+                    nextState[item._id] = nextItem
                 }
+            }
+            return nextState
+        }
+        case FREE_MEMORY: {
+            const nextState: ItemState = {}
+            for (let item of Object.values(state)) {
+                if (action.iids.has(item._id)) nextState[item._id] = item
             }
             return nextState
         }

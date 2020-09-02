@@ -71,7 +71,7 @@ npm run package-win
 - [React](https://github.com/facebook/react)
 - [Redux](https://github.com/reduxjs/redux)
 - [Fluent UI](https://github.com/microsoft/fluentui)
-- [NeDB](https://github.com/louischatriot/nedb)
+- [Lovefield](https://github.com/google/lovefield)
 - [Mercury Parser](https://github.com/postlight/mercury-parser)
 
 ### License

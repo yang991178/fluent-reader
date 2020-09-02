@@ -37,6 +37,8 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
         { key: 500, text: intl.get("service.fetchLimitNum", { count: 500 }) },
         { key: 750, text: intl.get("service.fetchLimitNum", { count: 750 }) },
         { key: 1000, text: intl.get("service.fetchLimitNum", { count: 1000 }) },
+        { key: 1500, text: intl.get("service.fetchLimitNum", { count: 1500 }) },
+        { key: Number.MAX_SAFE_INTEGER, text: intl.get("service.fetchUnlimited") },
     ]
     onFetchLimitOptionChange = (_, option: IDropdownOption) => {
         this.setState({ fetchLimit: option.key as number })

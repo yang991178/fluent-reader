@@ -8,7 +8,7 @@ import Article from "../components/article"
 import { openTextMenu, closeContextMenu, openImageMenu } from "../scripts/models/app"
 
 type ArticleContainerProps = {
-    itemId: string
+    itemId: number
 }
 
 const getItem = (state: RootState, props: ArticleContainerProps) => state.items[props.itemId]
@@ -33,7 +33,11 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         offsetItem: (offset: number) => dispatch(showOffsetItem(offset)),
         toggleHasRead: (item: RSSItem) => dispatch(item.hasRead ? markUnread(item) : markRead(item)),
         toggleStarred: (item: RSSItem) => dispatch(toggleStarred(item)),
-        toggleHidden: (item: RSSItem) => dispatch(toggleHidden(item)),
+        toggleHidden: (item: RSSItem) => {
+            if (!item.hidden) dispatch(dismissItem())
+            if (!item.hasRead && !item.hidden) dispatch(markRead(item))
+            dispatch(toggleHidden(item))
+        },
         textMenu: (position: [number, number], text: string, url: string) => dispatch(openTextMenu(position, text, url)),
         imageMenu: (position: [number, number]) => dispatch(openImageMenu(position)),
         dismissContextMenu: () => dispatch(closeContextMenu())

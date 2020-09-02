@@ -25,6 +25,7 @@ export const enum ViewType {
 export const enum ViewConfigs {
     ShowCover = 1 << 0,
     ShowSnippet = 1 << 1,
+    FadeRead = 1 << 2,
 }
 
 export const enum ThemeSettings {
@@ -76,4 +77,5 @@ export type SchemaTypes = {
     serviceConfigs: ServiceConfigs
     filterType: number
     listViewConfigs: ViewConfigs
+    useNeDB: boolean
 }

@@ -16,7 +16,7 @@ export type MenuProps = {
     searchOn: boolean,
     itemOn: boolean,
     toggleMenu: () => void,
-    allArticles: () => void,
+    allArticles: (init?: boolean) => void,
     selectSourceGroup: (group: SourceGroup, menuKey: string) => void,
     selectSource: (source: RSSSource) => void,
     groupContextMenu: (sids: number[], event: React.MouseEvent) => void,
@@ -43,7 +43,7 @@ export class Menu extends React.Component<MenuProps> {
                     ariaLabel: this.countOverflow(Object.values(this.props.sources).map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
                     key: ALL,
                     icon: "TextDocument",
-                    onClick: this.props.allArticles,
+                    onClick: () => this.props.allArticles(this.props.selected !== ALL),
                     url: null
                 }
             ]

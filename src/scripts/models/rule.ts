@@ -31,32 +31,16 @@ type ActionTransformType = {
 }
 const actionTransform: ActionTransformType = {
     [ItemAction.Read]: (i, f) => {
-        if (f) {
-            i.hasRead = true
-        } else {
-            i.hasRead = false
-        }
+        i.hasRead = f
     },
     [ItemAction.Star]: (i, f) => {
-        if (f) {
-            i.starred = true
-        } else if (i.starred) {
-            delete i.starred
-        }
+        i.starred = f
     },
     [ItemAction.Hide]: (i, f) => {
-        if (f) {
-            i.hidden = true
-        } else if (i.hidden) {
-            delete i.hidden
-        }
+        i.hidden = f
     },
     [ItemAction.Notify]: (i, f) => {
-        if (f) {
-            i.notify = true
-        } else if (i.notify) {
-            delete i.notify
-        }
+        i.notify = f
     },
 }
 
