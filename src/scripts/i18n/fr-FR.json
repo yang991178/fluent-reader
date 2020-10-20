@@ -7,9 +7,9 @@
     "openExternal": "Ouvrir dans le navigateur",
     "emptyName": "Ce champ ne peut pas être vide.",
     "emptyField": "Ce champ ne peut pas être vide.",
-    "followSystem": "Suivre le système",
     "edit": "Modifier",
     "delete": "Supprimer",
+    "followSystem": "Suivre le système",
     "more": "Plus",
     "close": "Fermer",
     "search": "Rechercher",
@@ -30,7 +30,10 @@
     "log": {
         "empty": "Aucune notification",
         "fetchFailure": "Échec du chargement de la source \"{name}\".",
-        "fetchSuccess": "Récupération réussi de {count, plural, =1 {# article} other {# articles}}."
+        "fetchSuccess": "Récupération réussi de {count, plural, =1 {# article} other {# articles}}.",
+        "networkError": "Une erreur de réseau s'est produite.",
+        "parseError": "Une erreur s'est produite lors de l'analyse du flux XML.",
+        "syncFailure": "Échec de synchronisation avec le service"
     },
     "nav": {
         "menu": "Menu",
@@ -47,16 +50,23 @@
         "subscriptions": "Abonnements"
     },
     "article": {
+        "error": "Impossible de charger l'article.",
+        "reload": "Recharger ?",
         "empty": "Pas d'articles",
         "untitled": "(Sans titre)",
         "hide": "Masquer l'article",
         "unhide": "Afficher l'article",
         "markRead": "Marquer comme lu",
         "markUnread": "Marquer comme non lu",
+        "markAbove": "Marquer ci-dessus comme lu",
+        "markBelow": "Marquer ci-dessous comme lu",
         "star": "Mettre en favori",
         "unstar": "Supprimer le favori",
         "fontSize": "Taille de la police",
-        "loadWebpage": "Charger la page web"
+        "loadWebpage": "Charger la page web",
+        "loadFull": "Charger tout le contenu",
+        "notify": "Notifier le chargement en arrière-plan",
+        "dontNotify": "Ne pas notifier"
     },
     "context": {
         "share": "Partager",
@@ -75,7 +85,21 @@
         "starredOnly": "Favoris uniquement",
         "fullSearch": "Recherche dans le texte complet",
         "showHidden": "Afficher les articles cachés",
-        "manageSources": "Gérer les sources"
+        "manageSources": "Gérer les sources",
+        "saveImageAs": "Enregistrer l'image sous…",
+        "copyImage": "Copier l'image",
+        "copyImageURL": "Copier l'adresse de l'image",
+        "caseSensitive": "Sensible à la casse",
+        "showCover": "Afficher couverture",
+        "showSnippet": "Afficher extrait",
+        "fadeRead": "Atténuer les articles lus"
+    },
+    "searchEngine": {
+        "name": "Moteur de recherche",
+        "google": "Google",
+        "bing": "Bing",
+        "baidu": "Baidu",
+        "duckduckgo": "DuckDuckGo"
     },
     "settings": {
         "writeError": "Une erreur s'est produite lors de l'écriture du fichier.",
@@ -84,6 +108,8 @@
         "exit": "Fermer les paramètres",
         "sources": "Sources",
         "grouping": "Groupes",
+        "rules": "Règles",
+        "service": "Service",
         "app": "Préférences",
         "about": "À propos",
         "version": "Version",
@@ -92,9 +118,14 @@
         "feedback": "Feedback"
     },
     "sources": {
+        "serviceWarning": "Les sources importées ou ajoutées ici ne seront pas synchronisées avec votre service.",
+        "serviceManaged": "Cette source est gérée par votre service.",
         "untitled": "Source",
         "errorAdd": "Une erreur s'est produite lors de l'ajout de la source.",
+        "errorParse": "Une erreur s'est produite lors de l'analyse du fichier OPML.",
+        "errorParseHint": "Veuillez vous assurer que le fichier n'est pas corrompu et qu'il est encodé en UTF-8.",
         "errorImport": "Erreur d'importation pour {count, plural, =1 {# source} other {# sources}}.",
+        "exist": "Cette source existe déjà.", 
         "opmlFile": "Fichier OPML",
         "name": "Nom de la source",
         "editName": "Modifier le nom",
@@ -108,11 +139,14 @@
         "rssText": "Texte complet RSS",
         "loadWebpage": "Charger la page web",
         "inputUrl": "Saisissez l'adresse URL",
+        "badIcon": "Icône invalide",
         "badUrl": "Adresse URL invalide",
         "deleteWarning": "La source et tous les articles sauvegardés seront supprimés.",
-        "selected": "Source sélectionnée"
+        "selected": "Source sélectionnée",
+        "selectedMulti": "Sources multiples sélectionnées"
     },
     "groups": {
+        "exist": "Ce groupe existe déjà.",
         "type": "Type",
         "group": "Groupe",
         "source": "Source",
@@ -129,6 +163,44 @@
         "chooseGroup": "Selectionner un groupe",
         "addToGroup": "Ajouter à ...",
         "groupHint": "Double-cliquez sur le groupe pour modifier ses sources. Faites un glisser-déposer pour réorganiser les sources."
+    },
+    "rules": {
+        "intro": "Marquez automatiquement les articles ou envoyez des notifications avec des expressions régulières.",
+        "help": "En savoir plus",
+        "source": "Source",
+        "selectSource": "Sélectionner une source",
+        "new": "Nouvelle règle",
+        "if": "Si",
+        "then": "Alors",
+        "title": "Titre",
+        "content": "Contenu",
+        "fullSearch": "Titre ou contenu",
+        "creator": "Auteur",
+        "match": "correspond à",
+        "notMatch": "ne correspond pas à",
+        "regex": "Expression régulière",
+        "badRegex": "Expression régulière invalide.",
+        "action": "Actions",
+        "selectAction": "Sélectionner action",
+        "hint": "Les règles seront appliquées dans l'ordre. Glisser-déposer pour réorganiser.",
+        "test": "Tester les règles"
+    },
+    "service": {
+        "intro": "Synchronisation entre les appareils avec des services RSS.",
+        "select": "Sélectionner un service",
+        "suggest": "Proposer un nouveau service",
+        "overwriteWarning": "Les sources locales seront supprimées si elles existent dans le service.",
+        "groupsWarning": "Les groupes ne sont pas automatiquement synchronisés avec le service.",
+        "endpoint": "Adresse",
+        "username": "Pseudo",
+        "password": "Mot de passe",
+        "unchanged": "Inchangé",
+        "fetchLimit": "Limite de synchronisation",
+        "fetchLimitNum": "{count} articles récents",
+        "importGroups": "Importer des groupes",
+        "failure": "Impossible de se connecter au service",
+        "failureHint": "Veuillez vérifier la configuration du service ou l'état du réseau.",
+        "fetchUnlimited": "Illimité (non recommandé)"
     },
     "app": {
         "cleanup": "Nettoyage",
@@ -153,6 +225,8 @@
         "badUrl": "Adresse URL invalide",
         "pac": "Adresse PAC",
         "setPac": "Définir PAC",
-        "pacHint": "Pour les proxies Sockets, il est recommandé que le PAC retourne \"SOCKS5\" pour le DNS côté proxies. La désactivation du proxy nécessite un redémarrage."
+        "pacHint": "Pour les proxies Sockets, il est recommandé que le PAC retourne \"SOCKS5\" pour le DNS côté proxies. La désactivation du proxy nécessite un redémarrage.",
+        "fetchInterval": "Intervalle de récupération automatique",
+        "never": "Jamais"
     }
 }
