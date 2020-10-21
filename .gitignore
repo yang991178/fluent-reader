@@ -5,3 +5,4 @@ dist/*.html
 bin/*
 .DS_Store
 *.provisionprofile
+*.lock
