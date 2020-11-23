@@ -93,7 +93,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^9.2.0",
+    "electron": "^11.0.2",
     "electron-builder": "^22.7.0",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
