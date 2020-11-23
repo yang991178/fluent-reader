@@ -1,7 +1,7 @@
 import * as db from "../db"
 import lf from "lovefield"
 import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
-import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction } from "./item"
+import { ItemActionTypes, FETCH_ITEMS, RSSItem, TOGGLE_HIDDEN, applyItemReduction } from "./item"
 import { ActionStatus, AppThunk, mergeSortedArrays } from "../utils"
 import { PageActionTypes, SELECT_PAGE, PageType, APPLY_FILTER } from "./page"
 
