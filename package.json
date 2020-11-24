@@ -45,7 +45,8 @@
         "en-US",
         "fr-FR",
         "es",
-        "de"
+        "de",
+        "tr"
       ],
       "showNameOnTiles": true,
       "setBuildNumber": true
@@ -67,7 +68,8 @@
         "en",
         "fr",
         "es",
-        "de"
+        "de",
+        "tr"
       ]
     },
     "mas": {

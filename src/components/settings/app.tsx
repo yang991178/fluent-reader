@@ -107,8 +107,8 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         { key: "en-US", text: "English" },
         { key: "es", text: "Español" },
         { key: "fr-FR", text: "Français" },
+        { key: "tr", text: "Türkçe" },
         { key: "zh-CN", text: "中文（简体）" },
-        { key: "tr", text: "Türkçe" },    
     ]
 
     toggleStatus = () => {
