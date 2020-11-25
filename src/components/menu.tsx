@@ -25,14 +25,14 @@ export type MenuProps = {
 }
 
 export class Menu extends React.Component<MenuProps> {
-    countOverflow = (count: number) => count >= 1000 ? "999+" : String(count)
+    countOverflow = (count: number) => count >= 1000 ? " 999+" : ` ${count}`
 
     getLinkGroups = (): INavLinkGroup[] => [
         {
             links: [
                 {
                     name: intl.get("search"),
-                    ariaLabel: this.props.searchOn ? "✓" : "0",
+                    ariaLabel: intl.get("search") + (this.props.searchOn ? " ✓" : " "),
                     key: "search",
                     icon: "Search",
                     onClick: this.props.toggleSearch,
@@ -40,7 +40,8 @@ export class Menu extends React.Component<MenuProps> {
                 },
                 {
                     name: intl.get("allArticles"),
-                    ariaLabel: this.countOverflow(Object.values(this.props.sources).map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
+                    ariaLabel: intl.get("allArticles")
+                        + this.countOverflow(Object.values(this.props.sources).map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
                     key: ALL,
                     icon: "TextDocument",
                     onClick: () => this.props.allArticles(this.props.selected !== ALL),
@@ -55,7 +56,7 @@ export class Menu extends React.Component<MenuProps> {
                     let sources = g.sids.map(sid => this.props.sources[sid])
                     return {
                         name: g.name,
-                        ariaLabel: this.countOverflow(sources.map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
+                        ariaLabel: g.name + this.countOverflow(sources.map(s => s.unreadCount).reduce((a, b) => a + b, 0)),
                         key: "g-" + g.index,
                         url: null,
                         isExpanded: g.expanded,
@@ -71,7 +72,7 @@ export class Menu extends React.Component<MenuProps> {
 
     getSource = (s: RSSSource): INavLink => ({
         name: s.name,
-        ariaLabel: this.countOverflow(s.unreadCount),
+        ariaLabel: s.name + this.countOverflow(s.unreadCount),
         key: "s-" + s.sid,
         onClick: () => this.props.selectSource(s),
         iconProps: s.iconurl ? this.getIconStyle(s.iconurl) : null,
@@ -101,10 +102,11 @@ export class Menu extends React.Component<MenuProps> {
     }
 
     _onRenderLink = (link: INavLink): JSX.Element => {
+        let count = link.ariaLabel.split(" ").pop()
         return (
             <Stack className="link-stack" horizontal grow onContextMenu={event => this.onContext(link, event)}>
                 <div className="link-text">{link.name}</div>
-                {link.ariaLabel !== "0" && <div className="unread-count">{link.ariaLabel}</div>}
+                {count && count !== "0" && <div className="unread-count">{count}</div>}
             </Stack>
         )
       };

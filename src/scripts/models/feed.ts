@@ -1,7 +1,7 @@
 import * as db from "../db"
 import lf from "lovefield"
 import { SourceActionTypes, INIT_SOURCES, ADD_SOURCE, DELETE_SOURCE } from "./source"
-import { ItemActionTypes, FETCH_ITEMS, RSSItem, MARK_READ, MARK_UNREAD, TOGGLE_STARRED, TOGGLE_HIDDEN, applyItemReduction } from "./item"
+import { ItemActionTypes, FETCH_ITEMS, RSSItem, TOGGLE_HIDDEN, applyItemReduction } from "./item"
 import { ActionStatus, AppThunk, mergeSortedArrays } from "../utils"
 import { PageActionTypes, SELECT_PAGE, PageType, APPLY_FILTER } from "./page"
 
@@ -115,6 +115,7 @@ export type FeedState = {
 export const INIT_FEEDS = "INIT_FEEDS"
 export const INIT_FEED = "INIT_FEED"
 export const LOAD_MORE = "LOAD_MORE"
+export const DISMISS_ITEMS = "DISMISS_ITEMS"
 
 interface initFeedsAction {
     type: typeof INIT_FEEDS
@@ -137,7 +138,34 @@ interface loadMoreAction {
     err?
 }
 
-export type FeedActionTypes = initFeedAction | initFeedsAction | loadMoreAction
+interface dismissItemsAction{
+    type: typeof DISMISS_ITEMS
+    fid: string
+    iids: Set<number>
+}
+
+export type FeedActionTypes = initFeedAction | initFeedsAction | loadMoreAction 
+    | dismissItemsAction
+
+export function dismissItems(): AppThunk {
+    return (dispatch, getState) => {
+        const state = getState()
+        let fid = state.page.feedId
+        let filter = state.feeds[fid].filter
+        let iids = new Set<number>()
+        for (let iid of state.feeds[fid].iids) {
+            let item = state.items[iid]
+            if (!FeedFilter.testItem(filter, item)) {
+                iids.add(iid)
+            }
+        }
+        dispatch({
+            type: DISMISS_ITEMS,
+            fid: fid,
+            iids: iids
+        })
+    }
+}
 
 export function initFeedsRequest(): FeedActionTypes {
     return {
@@ -293,6 +321,14 @@ export function feedReducer(
                 }
                 default: return state
             }
+        case DISMISS_ITEMS:
+            let nextState = { ...state }
+            let feed = state[action.fid]
+            nextState[action.fid] = {
+                ...feed,
+                iids: feed.iids.filter(iid => !action.iids.has(iid))
+            }
+            return nextState
         case INIT_FEED: 
             switch (action.status) {
                 case ActionStatus.Success: return {

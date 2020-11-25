@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -10,7 +10,9 @@
     "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w appx:arm64",
     "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
     "package-mac": "sudo electron-builder --mac",
-    "package-mas": "sudo electron-builder --mac mas && sudo bash build/resignAndPackage.sh",
+    "package-mas": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas",
+    "package-mas-arm": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas:arm64",
+    "package-mas-sign": "node build/buildUniversalPkg.js && sudo vim \"bin/Fluent Reader.app/Contents/Info.plist\" && sudo bash build/resignAndPackage.sh",
     "package-linux": "electron-builder --linux -p never"
   },
   "keywords": [],
@@ -45,7 +47,8 @@
         "en-US",
         "fr-FR",
         "es",
-        "de"
+        "de",
+        "tr"
       ],
       "showNameOnTiles": true,
       "setBuildNumber": true
@@ -67,7 +70,8 @@
         "en",
         "fr",
         "es",
-        "de"
+        "de",
+        "tr"
       ]
     },
     "mas": {
@@ -86,6 +90,7 @@
     }
   },
   "devDependencies": {
+    "@electron/universal": "^1.0.4",
     "@fluentui/react": "^7.126.2",
     "@types/lovefield": "^2.1.3",
     "@types/nedb": "^1.8.9",
@@ -93,7 +98,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^9.2.0",
+    "electron": "^11.0.3",
     "electron-builder": "^22.7.0",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
