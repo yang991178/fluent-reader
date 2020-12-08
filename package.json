@@ -86,7 +86,9 @@
     "linux": {
       "target": [
         "AppImage"
-      ]
+      ],
+      "icon": "build/icons",
+      "category": "Utility"
     }
   },
   "devDependencies": {
@@ -99,7 +101,7 @@
     "@types/react-redux": "^7.1.9",
     "@yang991178/rss-parser": "^3.8.1",
     "electron": "^11.0.3",
-    "electron-builder": "^22.7.0",
+    "electron-builder": "^22.9.1",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
     "electron-window-state": "^5.0.3",
