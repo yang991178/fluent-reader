@@ -88,7 +88,10 @@
         "AppImage"
       ],
       "icon": "build/icons",
-      "category": "Utility"
+      "category": "Utility",
+      "desktop": {
+        "StartupWMClass": "fluent-reader"
+      }
     }
   },
   "devDependencies": {
