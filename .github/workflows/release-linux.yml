@@ -37,3 +37,13 @@ jobs:
         asset_path: ./bin/linux/x64/Fluent Reader-${{ steps.package-version.outputs.current-version }}.AppImage
         asset_name: Fluent.Reader.${{ steps.package-version.outputs.current-version }}.AppImage
         asset_content_type: application/octet-stream
+
+    - name: Upload Linux update metadata to release assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release.outputs.upload_url }}
+        asset_path: ./bin/linux/x64/latest-linux.yml
+        asset_name: latest-linux.yml
+        asset_content_type: application/x-yaml

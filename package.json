@@ -8,12 +8,12 @@
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
     "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w appx:arm64",
-    "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
+    "package-win-ci": "electron-builder -w --x64 && electron-builder -w --ia32",
     "package-mac": "sudo electron-builder --mac",
     "package-mas": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas",
     "package-mas-arm": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas:arm64",
     "package-mas-sign": "node build/buildUniversalPkg.js && sudo vim \"bin/Fluent Reader.app/Contents/Info.plist\" && sudo bash build/resignAndPackage.sh",
-    "package-linux": "electron-builder --linux -p never"
+    "package-linux": "electron-builder --linux"
   },
   "keywords": [],
   "author": "Haoyuan Liu",
@@ -88,7 +88,8 @@
         "AppImage"
       ],
       "icon": "build/icons",
-      "category": "Utility"
+      "category": "Utility",
+      "publish": ["github"]
     }
   },
   "devDependencies": {
@@ -124,5 +125,7 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   },
-  "dependencies": {}
+  "dependencies": {
+    "electron-updater": "^4.3.5"
+  }
 }

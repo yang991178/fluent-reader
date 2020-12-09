@@ -3,6 +3,7 @@ import { ThemeSettings, SchemaTypes } from "./schema-types"
 import { store } from "./main/settings"
 import performUpdate from "./main/update-scripts"
 import { WindowManager } from "./main/window"
+import { autoUpdater } from "electron-updater"
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -69,6 +70,10 @@ app.on("window-all-closed", () => {
     } else {
         app.quit()
     }
+})
+
+app.on('ready', () => {
+    autoUpdater.checkForUpdatesAndNotify();
 })
 
 ipcMain.handle("import-all-settings", (_, configs: SchemaTypes) => {
