@@ -13,7 +13,8 @@
     "package-mas": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas",
     "package-mas-arm": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas:arm64",
     "package-mas-sign": "node build/buildUniversalPkg.js && sudo vim \"bin/Fluent Reader.app/Contents/Info.plist\" && sudo bash build/resignAndPackage.sh",
-    "package-linux": "electron-builder --linux -p never"
+    "package-linux": "electron-builder --linux -p never",
+    "package-linux-unpacked": "electron-builder --dir -p never"
   },
   "keywords": [],
   "author": "Haoyuan Liu",
