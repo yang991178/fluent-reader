@@ -1,14 +1,13 @@
 import * as React from "react"
 import intl from "react-intl-universal"
-import md5 from "js-md5"
 import { ServiceConfigsTabProps } from "../service"
-import { FeverConfigs } from "../../../scripts/models/services/fever"
+import { GReaderConfigs } from "../../../scripts/models/services/greader"
 import { SyncService } from "../../../schema-types"
 import { Stack, Icon, Label, TextField, PrimaryButton, DefaultButton, Checkbox, MessageBar, MessageBarType, Dropdown, IDropdownOption } from "@fluentui/react"
 import DangerButton from "../../utils/danger-button"
 import { urlTest } from "../../../scripts/utils"
 
-type FeverConfigsTabState = {
+type GReaderConfigsTabState = {
     existing: boolean
     endpoint: string
     username: string
@@ -17,13 +16,19 @@ type FeverConfigsTabState = {
     importGroups: boolean
 }
 
-class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfigsTabState> {
+const endpointOptions: IDropdownOption[] = [
+    "https://www.inoreader.com",
+    "https://www.innoreader.com",
+    "https://jp.inoreader.com"
+].map(s => ({ key: s, text: s }))
+
+class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReaderConfigsTabState> {
     constructor(props: ServiceConfigsTabProps) {
         super(props)
-        const configs = props.configs as FeverConfigs
+        const configs = props.configs as GReaderConfigs
         this.state = {
-            existing: configs.type === SyncService.Fever,
-            endpoint: configs.endpoint || "",
+            existing: configs.type === SyncService.Inoreader,
+            endpoint: configs.endpoint || "https://www.inoreader.com",
             username: configs.username || "",
             password: "",
             fetchLimit: configs.fetchLimit || 250,
@@ -42,6 +47,9 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
     onFetchLimitOptionChange = (_, option: IDropdownOption) => {
         this.setState({ fetchLimit: option.key as number })
     }
+    onEndpointChange = (_, option: IDropdownOption) => {
+        this.setState({ endpoint: option.key as string })
+    }
 
     handleInputChange = (event) => {
         const name: string = event.target.name
@@ -54,30 +62,30 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
     }
 
     validateForm = () => {
-        return urlTest(this.state.endpoint.trim()) && (this.state.existing || (this.state.username && this.state.password))
+        return this.state.existing || (this.state.username && this.state.password)
     }
 
     save = async () => {
-        let configs: FeverConfigs
+        let configs: GReaderConfigs
         if (this.state.existing) {
             configs = {
                 ...this.props.configs,
                 endpoint: this.state.endpoint,
                 fetchLimit: this.state.fetchLimit
-            } as FeverConfigs
-            if (this.state.password) 
-                configs.apiKey = md5(`${configs.username}:${this.state.password}`)
+            } as GReaderConfigs
         } else {
             configs = {
-                type: SyncService.Fever,
+                type: SyncService.Inoreader,
                 endpoint: this.state.endpoint,
                 username: this.state.username,
+                password: this.state.password,
                 fetchLimit: this.state.fetchLimit,
-                apiKey: md5(`${this.state.username}:${this.state.password}`)
+                useInt64: true
             }
             if (this.state.importGroups) configs.importGroups = true
         }
         this.props.blockActions()
+        configs = await this.props.reauthenticate(configs) as GReaderConfigs
         const valid = await this.props.authenticate(configs)
         if (valid) {
             this.props.save(configs)
@@ -100,19 +108,17 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
                 <MessageBar messageBarType={MessageBarType.warning}>{intl.get("service.overwriteWarning")}</MessageBar>
             )}
             <Stack horizontalAlign="center" style={{marginTop: 48}}>
-                <Icon iconName="Calories" style={{color: "var(--black)", fontSize: 32, userSelect: "none"}} />
-                <Label style={{margin: "8px 0 36px"}}>Fever API</Label>
+                <Icon iconName="Communications" style={{color: "var(--black)", transform: "rotate(220deg)", fontSize: 32, userSelect: "none"}} />
+                <Label style={{margin: "8px 0 36px"}}>Inoreader</Label>
                 <Stack className="login-form" horizontal>
                     <Stack.Item>
                         <Label>{intl.get("service.endpoint")}</Label>
                     </Stack.Item>
                     <Stack.Item grow>
-                        <TextField
-                            onGetErrorMessage={v => urlTest(v.trim()) ? "" : intl.get("sources.badUrl")} 
-                            validateOnLoad={false}
-                            name="endpoint"
-                            value={this.state.endpoint}
-                            onChange={this.handleInputChange} />
+                        <Dropdown
+                            options={endpointOptions}
+                            selectedKey={this.state.endpoint}
+                            onChange={this.onEndpointChange} />
                     </Stack.Item>
                 </Stack>
                 <Stack className="login-form" horizontal>
@@ -178,4 +184,4 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
     }
 }
 
-export default FeverConfigsTab
+export default InoreaderConfigsTab
