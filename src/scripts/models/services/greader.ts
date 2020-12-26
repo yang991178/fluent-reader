@@ -6,7 +6,7 @@ import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
 import { RSSItem } from "../item"
-import { domParser } from "../../utils"
+import { domParser, htmlDecode } from "../../utils"
 import { SourceRule } from "../rule"
 
 const ALL_TAG = "user/-/state/com.google/reading-list"
@@ -156,7 +156,8 @@ export const gReaderServiceHooks: ServiceHooks = {
         let continuation: string
         do {
             try {
-                let params = "/reader/api/0/stream/contents?output=json&n=125"
+                const limit = Math.min(configs.fetchLimit - items.length, 1000)
+                let params = `/reader/api/0/stream/contents?output=json&n=${limit}`
                 if (configs.lastFetched) params += `&ot=${configs.lastFetched}`
                 if (continuation) params += `&c=${continuation}`
                 const response = await fetchAPI(configs, params)
@@ -164,7 +165,7 @@ export const gReaderServiceHooks: ServiceHooks = {
                 fetchedItems = fetched.items
                 for (let i of fetchedItems) {
                     i.id = compactId(i.id, configs.useInt64)
-                    if (i.id === configs.lastId) {
+                    if (i.id === configs.lastId || items.length >= configs.fetchLimit) {
                         break
                     } else {
                         items.push(i)
@@ -174,11 +175,7 @@ export const gReaderServiceHooks: ServiceHooks = {
             } catch {
                 break
             }
-        } while (
-            continuation &&
-            fetchedItems && fetchedItems.length >= 125 &&
-            items.length < configs.fetchLimit
-        )
+        } while (continuation && items.length < configs.fetchLimit)
         if (items.length > 0) {
             configs.lastId = items[0].id
             const fidMap = new Map<string, RSSSource>()
@@ -212,13 +209,21 @@ export const gReaderServiceHooks: ServiceHooks = {
                 dom.head.append(baseEl)
                 let img = dom.querySelector("img")
                 if (img && img.src) item.thumb = img.src
+                if (configs.type == SyncService.Inoreader) item.title = htmlDecode(item.title)
                 for (let c of i.categories) {
                     if (!item.hasRead && c.endsWith("/state/com.google/read")) item.hasRead = true
                     else if (!item.starred && c.endsWith("/state/com.google/starred")) item.starred = true
                 }
                 // Apply rules and sync back to the service
-                if (source.rules) SourceRule.applyAll(source.rules, item)
-                // TODO
+                if (source.rules) {
+                    const hasRead = item.hasRead
+                    const starred = item.starred
+                    SourceRule.applyAll(source.rules, item)
+                    if (item.hasRead !== hasRead)
+                        editTag(configs, item.serviceRef, READ_TAG, item.hasRead)
+                    if (item.starred !== starred)
+                        editTag(configs, item.serviceRef, STAR_TAG, item.starred)
+                } 
                 parsedItems.push(item)
             })
             if (parsedItems.length > 0) {

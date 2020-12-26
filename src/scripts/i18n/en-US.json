@@ -191,6 +191,7 @@
         "suggest": "Suggest a new service",
         "overwriteWarning": "Local sources will be deleted if they exist in the service.",
         "groupsWarning": "Groups aren't automatically synced with the service.",
+        "rateLimitWarning": "If connection errors persist, the app may have been rate limited by the service.",
         "endpoint": "Endpoint",
         "username": "Username",
         "password": "Password",
