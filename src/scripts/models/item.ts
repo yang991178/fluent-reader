@@ -34,7 +34,7 @@ export class RSSItem {
         this.title = item.title || intl.get("article.untitled")
         this.link = item.link || ""
         this.fetchedDate = new Date()
-        this.date = item.isoDate ? new Date(item.isoDate) : this.fetchedDate
+        this.date = new Date(item.isoDate ?? item.pubDate ?? this.fetchedDate)
         this.creator = item.creator
         this.hasRead = false
         this.starred = false
