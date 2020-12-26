@@ -4,6 +4,8 @@ import { ServiceConfigs, SyncService } from "../../schema-types"
 import { Stack, Icon, Link, Dropdown, IDropdownOption } from "@fluentui/react"
 import FeverConfigsTab from "./services/fever"
 import FeedbinConfigsTab from "./services/feedbin"
+import GReaderConfigsTab from "./services/greader"
+import InoreaderConfigsTab from "./services/inoreader"
 
 type ServiceTabProps = {
     configs: ServiceConfigs
@@ -12,6 +14,7 @@ type ServiceTabProps = {
     remove: () => Promise<void>
     blockActions: () => void
     authenticate: (configs: ServiceConfigs) => Promise<boolean>
+    reauthenticate: (configs: ServiceConfigs) => Promise<ServiceConfigs>
 }
 
 export type ServiceConfigsTabProps = ServiceTabProps & {
@@ -33,6 +36,8 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
     serviceOptions = (): IDropdownOption[] => [
         { key: SyncService.Fever, text: "Fever API" },
         { key: SyncService.Feedbin, text: "Feedbin" },
+        { key: SyncService.GReader, text: "Google Reader API (Beta)" },
+        { key: SyncService.Inoreader, text: "Inoreader" },
         { key: -1, text: intl.get("service.suggest") },
     ]
 
@@ -52,6 +57,8 @@ export class ServiceTab extends React.Component<ServiceTabProps, ServiceTabState
         switch (this.state.type) {
             case SyncService.Fever: return <FeverConfigsTab {...this.props} exit={this.exitConfigsTab} />
             case SyncService.Feedbin: return <FeedbinConfigsTab {...this.props} exit={this.exitConfigsTab} />
+            case SyncService.GReader: return <GReaderConfigsTab {...this.props} exit={this.exitConfigsTab} />
+            case SyncService.Inoreader: return <InoreaderConfigsTab {...this.props} exit={this.exitConfigsTab} />
             default: return null
         }
     }

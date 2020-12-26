@@ -25,6 +25,15 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
         const hooks = getServiceHooksFromType(configs.type)
         if (hooks.authenticate) return await hooks.authenticate(configs)
         else return true
+    },
+    reauthenticate: async (configs: ServiceConfigs) => {
+        const hooks = getServiceHooksFromType(configs.type)
+        try {
+            if (hooks.reauthenticate) return await hooks.reauthenticate(configs)
+        } catch (err) {
+            console.log(err)
+            return configs
+        }
     }
 })
 

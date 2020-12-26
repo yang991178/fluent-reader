@@ -189,6 +189,7 @@
         "suggest": "建议一项新服务",
         "overwriteWarning": "若本地与服务端存在URL相同的订阅源，则本地订阅源将被删除",
         "groupsWarning": "分组不会自动与服务端保持同步",
+        "rateLimitWarning": "若反复出现错误，则原因可能是应用被服务限流",
         "endpoint": "端点",
         "username": "用户名",
         "password": "密码",

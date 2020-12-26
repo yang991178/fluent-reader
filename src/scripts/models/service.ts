@@ -6,14 +6,15 @@ import { RSSItem, insertItems, fetchItemsSuccess } from "./item"
 import { saveSettings, pushNotification } from "./app"
 import { deleteSource, updateUnreadCounts, RSSSource, insertSource, addSourceSuccess,
     updateSource, updateFavicon } from "./source"
-import { FilterType, initFeeds } from "./feed"
 import { createSourceGroup, addSourceToGroup } from "./group"
 
 import { feverServiceHooks } from "./services/fever"
 import { feedbinServiceHooks } from "./services/feedbin"
+import { gReaderServiceHooks } from "./services/greader"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
+    reauthenticate?: (configs: ServiceConfigs) => Promise<ServiceConfigs>
     updateSources?: () => AppThunk<Promise<[RSSSource[], Map<string, string>]>>
     fetchItems?: () => AppThunk<Promise<[RSSItem[], ServiceConfigs]>>
     syncItems?: () => AppThunk<Promise<[Set<string>, Set<string>]>>
@@ -28,6 +29,9 @@ export function getServiceHooksFromType(type: SyncService): ServiceHooks {
     switch (type) {
         case SyncService.Fever: return feverServiceHooks
         case SyncService.Feedbin: return feedbinServiceHooks
+        case SyncService.GReader:
+        case SyncService.Inoreader:
+            return gReaderServiceHooks
         default: return {}
     }
 }
@@ -47,6 +51,7 @@ export function syncWithService(background = false): AppThunk<Promise<void>> {
                     type: SYNC_SERVICE,
                     status: ActionStatus.Request
                 })
+                if (hooks.reauthenticate) await dispatch(reauthenticate(hooks))
                 await dispatch(updateSources(hooks.updateSources))
                 await dispatch(syncItems(hooks.syncItems))
                 await dispatch(fetchItems(hooks.fetchItems, background))
@@ -64,6 +69,16 @@ export function syncWithService(background = false): AppThunk<Promise<void>> {
             } finally {
                 if (getState().app.settings.saving) dispatch(saveSettings())
             }
+        }
+    }
+}
+
+function reauthenticate(hooks: ServiceHooks): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        let configs = getState().service
+        if (!(await hooks.authenticate(configs))) {
+            configs = await hooks.reauthenticate(configs)
+            dispatch(saveServiceConfigs(configs))
         }
     }
 }
