@@ -64,6 +64,7 @@ class GReaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReaderC
                 endpoint: this.state.endpoint,
                 fetchLimit: this.state.fetchLimit
             } as GReaderConfigs
+            if (this.state.password) configs.password = this.state.password
         } else {
             configs = {
                 type: SyncService.GReader,

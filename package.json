@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -68,6 +68,7 @@
       "category": "public.app-category.news",
       "electronLanguages": [
         "zh_CN",
+        "zh_TW",
         "en",
         "fr",
         "es",
