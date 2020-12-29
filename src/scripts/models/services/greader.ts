@@ -23,14 +23,22 @@ export interface GReaderConfigs extends ServiceConfigs {
     lastId?: string
     auth?: string
     useInt64: boolean // The Old Reader uses ids longer than 64 bits
+    inoreaderId?: string
+    inoreaderKey?: string
+    removeInoreaderAd?: boolean
 }
 
 async function fetchAPI(configs: GReaderConfigs, params: string, method="GET", body:BodyInit=null) {
     const headers = new Headers()
     if (configs.auth !== null) headers.set("Authorization", configs.auth)
     if (configs.type == SyncService.Inoreader) {
-        headers.set("AppId", "999999298")
-        headers.set("AppKey", "KPbKYXTfgrKbwmroOeYC7mcW21ZRwF5Y")
+        if (configs.inoreaderId) {
+            headers.set("AppId", configs.inoreaderId)
+            headers.set("AppKey", configs.inoreaderKey)
+        } else {
+            headers.set("AppId", "999999298")
+            headers.set("AppKey", "KPbKYXTfgrKbwmroOeYC7mcW21ZRwF5Y")
+        }
     }
     return await fetch(configs.endpoint + params, { 
         method: method, 
@@ -189,13 +197,18 @@ export const gReaderServiceHooks: ServiceHooks = {
                 const source = fidMap.get(i.origin.streamId)
                 if (source === undefined) return
                 const dom = domParser.parseFromString(i.summary.content, "text/html")
+                if (configs.type == SyncService.Inoreader && configs.removeInoreaderAd !== false) {
+                    if (dom.documentElement.textContent.trim().startsWith("Ads from Inoreader")) {
+                        dom.body.firstChild.remove()
+                    }
+                }
                 const item = {
                     source: source.sid,
                     title: i.title,
                     link: i.canonical[0].href,
                     date: new Date(i.published * 1000),
                     fetchedDate: new Date(parseInt(i.crawlTimeMsec)),
-                    content: i.summary.content,
+                    content: dom.body.innerHTML,
                     snippet: dom.documentElement.textContent.trim(),
                     creator: i.author,
                     hasRead: false,

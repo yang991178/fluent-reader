@@ -4,7 +4,7 @@ import { ServiceConfigsTabProps } from "../service"
 import { GReaderConfigs } from "../../../scripts/models/services/greader"
 import { SyncService } from "../../../schema-types"
 import { Stack, Label, TextField, PrimaryButton, DefaultButton, Checkbox, 
-    MessageBar, MessageBarType, Dropdown, IDropdownOption, MessageBarButton } from "@fluentui/react"
+    MessageBar, MessageBarType, Dropdown, IDropdownOption, MessageBarButton, Link } from "@fluentui/react"
 import DangerButton from "../../utils/danger-button"
 
 type GReaderConfigsTabState = {
@@ -12,8 +12,10 @@ type GReaderConfigsTabState = {
     endpoint: string
     username: string
     password: string
+    apiId: string
+    apiKey: string
+    removeAd: boolean
     fetchLimit: number
-    importGroups: boolean
 }
 
 const endpointOptions: IDropdownOption[] = [
@@ -33,8 +35,10 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
             endpoint: configs.endpoint || "https://www.inoreader.com",
             username: configs.username || "",
             password: "",
+            apiId: configs.inoreaderId || "",
+            apiKey: configs.inoreaderKey || "",
+            removeAd: configs.removeInoreaderAd === undefined ? true : configs.removeInoreaderAd,
             fetchLimit: configs.fetchLimit || 250,
-            importGroups: true,
         }
     }
 
@@ -62,7 +66,8 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
     }
 
     validateForm = () => {
-        return this.state.existing || (this.state.username && this.state.password)
+        return (this.state.existing || (this.state.username && this.state.password))
+            && this.state.apiId && this.state.apiKey
     }
 
     save = async () => {
@@ -71,18 +76,25 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
             configs = {
                 ...this.props.configs,
                 endpoint: this.state.endpoint,
-                fetchLimit: this.state.fetchLimit
+                fetchLimit: this.state.fetchLimit,
+                inoreaderId: this.state.apiId,
+                inoreaderKey: this.state.apiKey,
+                removeInoreaderAd: this.state.removeAd,
             } as GReaderConfigs
+            if (this.state.password) configs.password = this.state.password
         } else {
             configs = {
                 type: SyncService.Inoreader,
                 endpoint: this.state.endpoint,
                 username: this.state.username,
                 password: this.state.password,
+                inoreaderId: this.state.apiId,
+                inoreaderKey: this.state.apiKey,
+                removeInoreaderAd: this.state.removeAd,
                 fetchLimit: this.state.fetchLimit,
+                importGroups: true,
                 useInt64: true
             }
-            if (this.state.importGroups) configs.importGroups = true
         }
         this.props.blockActions()
         configs = await this.props.reauthenticate(configs) as GReaderConfigs
@@ -97,6 +109,8 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
         }
     }
 
+    createKey = () => window.utils.openExternal(this.state.endpoint + "/all_articles#preferences-developer")
+
     remove = async () => {
         this.props.exit()
         await this.props.remove()
@@ -106,8 +120,9 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
         return <>
             <MessageBar messageBarType={MessageBarType.severeWarning}
                 isMultiline={false}
-                actions={<MessageBarButton text={intl.get("rules.help")} onClick={openSupport} />}>
+                actions={<MessageBarButton text={intl.get("create")} onClick={this.createKey} />}>
                 {intl.get("service.rateLimitWarning")}
+                <Link onClick={openSupport} style={{marginLeft: 6}}>{intl.get("rules.help")}</Link>
             </MessageBar>
             {!this.state.existing && (
                 <MessageBar messageBarType={MessageBarType.warning}>{intl.get("service.overwriteWarning")}</MessageBar>
@@ -157,6 +172,32 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
                 </Stack>
                 <Stack className="login-form" horizontal>
                     <Stack.Item>
+                        <Label>API ID</Label>
+                    </Stack.Item>
+                    <Stack.Item grow>
+                    <TextField
+                            onGetErrorMessage={this.checkNotEmpty} 
+                            validateOnLoad={false}
+                            name="apiId"
+                            value={this.state.apiId}
+                            onChange={this.handleInputChange} />
+                    </Stack.Item>
+                </Stack>
+                <Stack className="login-form" horizontal>
+                    <Stack.Item>
+                        <Label>API Key</Label>
+                    </Stack.Item>
+                    <Stack.Item grow>
+                    <TextField
+                            onGetErrorMessage={this.checkNotEmpty} 
+                            validateOnLoad={false}
+                            name="apiKey"
+                            value={this.state.apiKey}
+                            onChange={this.handleInputChange} />
+                    </Stack.Item>
+                </Stack>
+                <Stack className="login-form" horizontal>
+                    <Stack.Item>
                         <Label>{intl.get("service.fetchLimit")}</Label>
                     </Stack.Item>
                     <Stack.Item grow>
@@ -166,10 +207,10 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
                             onChange={this.onFetchLimitOptionChange} />
                     </Stack.Item>
                 </Stack>
-                {!this.state.existing && <Checkbox 
-                    label={intl.get("service.importGroups")} 
-                    checked={this.state.importGroups}
-                    onChange={(_, c) => this.setState({importGroups: c})} />}
+                <Checkbox 
+                    label={intl.get("service.removeAd")} 
+                    checked={this.state.removeAd}
+                    onChange={(_, c) => this.setState({removeAd: c})} />
                 <Stack horizontal style={{marginTop: 32}}>
                     <Stack.Item>
                         <PrimaryButton 
