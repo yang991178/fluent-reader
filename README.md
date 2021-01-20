@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="120" height="120" src="https://github.com/yang991178/rss-reader/raw/master/build/icon.png">
+  <img width="120" height="120" src="https://github.com/yang991178/fluent-reader/raw/master/build/icon.png">
 </p>
 <h3 align="center">Fluent Reader</h3>
 <p align="center">A modern desktop RSS reader</p>
@@ -18,10 +18,14 @@ macOS users can also get Fluent Reader from the [Mac App Store](https://apps.app
 
 If you are using Linux or an older version of Windows, you can [get Fluent Reader from GitHub releases](https://github.com/yang991178/fluent-reader/releases).
 
+### Mobile App
+
+The mobile version of this app, which only supports syncing with RSS services, [can be found here](https://github.com/yang991178/fluent-reader-lite).
+
 ## Features
 
 <p align="center">
-  <img src="https://github.com/yang991178/rss-reader/raw/master/docs/imgs/screenshot.jpg">
+  <img src="https://github.com/yang991178/fluent-reader/raw/master/docs/imgs/screenshot.jpg">
 </p>
 
 - A modern UI inspired by Fluent Design System with full dark mode support.
