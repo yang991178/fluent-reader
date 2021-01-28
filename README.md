@@ -20,7 +20,7 @@ If you are using Linux or an older version of Windows, you can [get Fluent Reade
 
 ### Mobile App
 
-The mobile version of this app, which only supports syncing with RSS services, [can be found here](https://github.com/yang991178/fluent-reader-lite).
+The repo of the mobile version of this app [can be found here](https://github.com/yang991178/fluent-reader-lite).
 
 ## Features
 
