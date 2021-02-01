@@ -40,7 +40,7 @@ export const shareSubmenu = (item: RSSItem): IContextualMenuItem[] => [
     { key: "qr", url: item.link, onRender: renderShareQR }
 ]
 
-const renderShareQR = (item: IContextualMenuItem) => (
+export const renderShareQR = (item: IContextualMenuItem) => (
     <div className="qr-container">
         <QRCode
             value={item.url}

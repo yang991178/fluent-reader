@@ -7,6 +7,7 @@ import { SyncService } from "../../../schema-types"
 import { Stack, Icon, Label, TextField, PrimaryButton, DefaultButton, Checkbox, MessageBar, MessageBarType, Dropdown, IDropdownOption } from "@fluentui/react"
 import DangerButton from "../../utils/danger-button"
 import { urlTest } from "../../../scripts/utils"
+import LiteExporter from "./lite-exporter"
 
 type FeverConfigsTabState = {
     existing: boolean
@@ -173,6 +174,7 @@ class FeverConfigsTab extends React.Component<ServiceConfigsTabProps, FeverConfi
                         }
                     </Stack.Item>
                 </Stack>
+                { this.state.existing && <LiteExporter serviceConfigs={this.props.configs} /> }
             </Stack>
         </>
     }

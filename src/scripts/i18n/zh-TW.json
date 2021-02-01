@@ -200,7 +200,8 @@
       "importGroups": "匯入分組",
       "failure": "連線到服務時出錯",
       "failureHint": "請檢查服務配置或網路連線",
-      "fetchUnlimited": "無限制（不建議）"
+      "fetchUnlimited": "無限制（不建議）",
+      "exportToLite": "匯出至 Fluent Reader Lite"
   },
   "app": {
       "cleanup": "清理",

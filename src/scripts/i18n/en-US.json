@@ -202,7 +202,8 @@
         "importGroups": "Import groups",
         "failure": "Cannot connect to service",
         "failureHint": "Please check the service configuration or network status.",
-        "fetchUnlimited": "Unlimited (not recommended)"
+        "fetchUnlimited": "Unlimited (not recommended)",
+        "exportToLite": "Export to Fluent Reader Lite"
     },
     "app": {
         "cleanup": "Clean up",

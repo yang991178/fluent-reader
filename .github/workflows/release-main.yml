@@ -32,7 +32,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Fluent Reader v${{ steps.package-version.outputs.current-version }} Beta
+        release_name: Fluent Reader v${{ steps.package-version.outputs.current-version }}
         draft: true
         prerelease: false
     
