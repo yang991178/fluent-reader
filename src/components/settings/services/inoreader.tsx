@@ -6,6 +6,7 @@ import { SyncService } from "../../../schema-types"
 import { Stack, Label, TextField, PrimaryButton, DefaultButton, Checkbox, 
     MessageBar, MessageBarType, Dropdown, IDropdownOption, MessageBarButton, Link } from "@fluentui/react"
 import DangerButton from "../../utils/danger-button"
+import LiteExporter from "./lite-exporter"
 
 type GReaderConfigsTabState = {
     existing: boolean
@@ -225,6 +226,7 @@ class InoreaderConfigsTab extends React.Component<ServiceConfigsTabProps, GReade
                         }
                     </Stack.Item>
                 </Stack>
+                { this.state.existing && <LiteExporter serviceConfigs={this.props.configs} /> }
             </Stack>
         </>
     }

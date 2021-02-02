@@ -94,7 +94,7 @@ export async function importAll() {
             let requests = Object.entries(configs.nedb).map(([key, value]) => {
                 return objectStore.put(value, key)
             })
-            let promises = requests.map(req => new Promise((resolve, reject) => {
+            let promises = requests.map(req => new Promise<void>((resolve, reject) => {
                 req.onsuccess = () => resolve()
                 req.onerror = () => reject()
             }))
