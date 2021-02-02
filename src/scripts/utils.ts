@@ -29,7 +29,7 @@ const rssParser = new Parser({
 })
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
-const XML_ENCODING_RE = /^<\?xml.+encoding="(.+)".*?\?>/i
+const XML_ENCODING_RE = /^<\?xml.+encoding="(.+?)".*?\?>/i
 export async function decodeFetchResponse(response: Response, isHTML = false) {
     const buffer = await response.arrayBuffer()
     let ctype = response.headers.has("content-type") && response.headers.get("content-type")
@@ -122,7 +122,7 @@ export function htmlDecode(input: string) {
 }
 
 export const urlTest = (s: string) => 
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi.test(s)
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,63}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi.test(s)
 
 export const getWindowBreakpoint = () => window.outerWidth >= 1440
 
