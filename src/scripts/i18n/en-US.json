@@ -211,7 +211,7 @@
         "cacheSize": "Cached {size} of data",
         "deleteChoices": "Delete articles from ... days ago",
         "confirmDelete": "Delete",
-        "daysAgo": "{days} days ago",
+        "daysAgo": "{days, plural, =1 {# day} other {# days}} ago",
         "deleteAll": "Delete all articles",
         "calculatingSize": "Calculating size...",
         "itemSize": "Around {size} of local storage is occupied by articles",

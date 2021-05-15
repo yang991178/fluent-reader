@@ -7,11 +7,10 @@ import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELET
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, showItemFromId } from "./page"
 import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
-import * as db from "../db"
 import { SYNC_SERVICE, ServiceActionTypes } from "./service"
 
 export const enum ContextMenuType {
-    Hidden, Item, Text, View, Group, Image
+    Hidden, Item, Text, View, Group, Image, MarkRead
 }
 
 export const enum AppLogType {
@@ -78,6 +77,7 @@ export const OPEN_TEXT_MENU = "OPEN_TEXT_MENU"
 export const OPEN_VIEW_MENU = "OPEN_VIEW_MENU"
 export const OPEN_GROUP_MENU = "OPEN_GROUP_MENU"
 export const OPEN_IMAGE_MENU = "OPEN_IMAGE_MENU"
+export const OPEN_MARK_ALL_MENU = "OPEN_MARK_ALL_MENU"
 
 interface CloseContextMenuAction {
     type: typeof CLOSE_CONTEXT_MENU
@@ -100,6 +100,10 @@ interface OpenViewMenuAction {
     type: typeof OPEN_VIEW_MENU
 }
 
+interface OpenMarkAllMenuAction {
+    type: typeof OPEN_MARK_ALL_MENU
+}
+
 interface OpenGroupMenuAction {
     type: typeof OPEN_GROUP_MENU
     event: MouseEvent
@@ -113,6 +117,7 @@ interface OpenImageMenuAction {
 
 export type ContextMenuActionTypes = CloseContextMenuAction | OpenItemMenuAction 
     | OpenTextMenuAction | OpenViewMenuAction | OpenGroupMenuAction | OpenImageMenuAction
+    | OpenMarkAllMenuAction
 
 export const TOGGLE_LOGS = "TOGGLE_LOGS"
 export const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
@@ -193,6 +198,8 @@ export function openImageMenu(position: [number, number]): ContextMenuActionType
         position: position
     }
 }
+
+export const openMarkAllMenu = (): ContextMenuActionTypes => ({ type: OPEN_MARK_ALL_MENU })
 
 export function toggleMenu(): AppThunk {
     return (dispatch, getState) => {
@@ -486,7 +493,8 @@ export function appReducer(
         case OPEN_VIEW_MENU: return {
             ...state,
             contextMenu: {
-                type: ContextMenuType.View,
+                type: state.contextMenu.type === ContextMenuType.View
+                    ? ContextMenuType.Hidden : ContextMenuType.View,
                 event: "#view-toggle"
             }
         }
@@ -503,6 +511,14 @@ export function appReducer(
             contextMenu: {
                 type: ContextMenuType.Image,
                 position: action.position
+            }
+        }
+        case OPEN_MARK_ALL_MENU: return {
+            ...state,
+            contextMenu: {
+                type: state.contextMenu.type === ContextMenuType.MarkRead
+                    ? ContextMenuType.Hidden : ContextMenuType.MarkRead,
+                event: "#mark-all-toggle"
             }
         }
         case TOGGLE_MENU: return {

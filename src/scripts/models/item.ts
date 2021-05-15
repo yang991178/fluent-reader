@@ -329,6 +329,7 @@ export function toggleHidden(item: RSSItem): AppThunk {
 
 export function itemShortcuts(item: RSSItem, e: KeyboardEvent): AppThunk {
     return (dispatch) => {
+        if (e.metaKey) return
         switch (e.key) {
             case "m": case "M":
                 if (item.hasRead) dispatch(markUnread(item))

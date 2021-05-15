@@ -208,7 +208,7 @@
         "cacheSize": "{size} de données mises en cache",
         "deleteChoices": "Supprimer les articles antérieurs à ... jours",
         "confirmDelete": "Supprimer",
-        "daysAgo": "{days} jours",
+        "daysAgo": "{days, plural, =1 {# jour} other {# jours}}",
         "deleteAll": "Supprimer tous les articles",
         "calculatingSize": "Calcul de la taille...",
         "itemSize": "Environ {size} du stockage local est occupé par des articles",

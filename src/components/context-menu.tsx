@@ -30,7 +30,7 @@ export type ContextMenuProps = ContextReduxProps & {
     setViewConfigs: (configs: ViewConfigs) => void
     switchFilter: (filter: FilterType) => void
     toggleFilter: (filter: FilterType) => void
-    markAllRead: (sids: number[], date?: Date, before?: boolean) => void
+    markAllRead: (sids?: number[], date?: Date, before?: boolean) => void
     fetchItems: (sids: number[]) => void
     settings: (sids: number[]) => void
     close: () => void
@@ -378,6 +378,50 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     text: intl.get("context.manageSources"),
                     iconProps: { iconName: "Settings" },
                     onClick: () => this.props.settings(this.props.sids)
+                }
+            ]
+            case ContextMenuType.MarkRead: return [
+                {
+                    key: "section_1",
+                    itemType: ContextualMenuItemType.Section,
+                    sectionProps: {
+                        title: intl.get("nav.markAllRead"),
+                        items: [
+                            {
+                                key: "all",
+                                text: intl.get("allArticles"),
+                                iconProps: { iconName: "ReceiptCheck" },
+                                onClick: () => this.props.markAllRead()
+                            },
+                            {
+                                key: "1d",
+                                text: intl.get("app.daysAgo", { days: 1 }),
+                                onClick: () => {
+                                    let date = new Date()
+                                    date.setTime(date.getTime() - 86400000)
+                                    this.props.markAllRead(null, date)
+                                }
+                            },
+                            {
+                                key: "3d",
+                                text: intl.get("app.daysAgo", { days: 3 }),
+                                onClick: () => {
+                                    let date = new Date()
+                                    date.setTime(date.getTime() - 3 * 86400000)
+                                    this.props.markAllRead(null, date)
+                                }
+                            },
+                            {
+                                key: "7d",
+                                text: intl.get("app.daysAgo", { days: 7 }),
+                                onClick: () => {
+                                    let date = new Date()
+                                    date.setTime(date.getTime() - 7 * 86400000)
+                                    this.props.markAllRead(null, date)
+                                }
+                            }
+                        ]
+                    }
                 }
             ]
             default: return []

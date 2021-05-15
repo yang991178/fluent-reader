@@ -209,7 +209,7 @@
         "cacheSize": "已缓存{size}数据",
         "deleteChoices": "删除 … 天前的文章",
         "confirmDelete": "删除文章",
-        "daysAgo": "{days}天前",
+        "daysAgo": "{days} 天前",
         "deleteAll": "删除全部文章",
         "calculatingSize": "正在计算占用空间…",
         "itemSize": "本地文章约占用{size}空间",
