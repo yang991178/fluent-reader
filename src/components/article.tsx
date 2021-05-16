@@ -133,7 +133,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     this.toggleFull()
                     break
                 case "H": case "h":
-                    this.props.toggleHidden(this.props.item)
+                    if (!input.meta) this.props.toggleHidden(this.props.item)
                     break
                 default:
                     const keyboardEvent = new KeyboardEvent("keydown", {

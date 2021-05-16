@@ -28,6 +28,7 @@ if (process.platform === "darwin") {
         {
             label: "Application",
             submenu: [
+                { label: "Hide", accelerator:"Command+H", click: () => { app.hide() } },
                 { label: "Quit", accelerator: "Command+Q", click: () => { if (winManager.hasWindow) winManager.mainWindow.close() } }
             ]
         },

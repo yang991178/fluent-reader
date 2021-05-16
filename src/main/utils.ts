@@ -20,6 +20,7 @@ export function setUtilsListeners(manager: WindowManager) {
     }
     
     app.on("web-contents-created", (_, contents) => {
+        // TODO: Use contents.setWindowOpenHandler instead of new-window listener
         contents.on("new-window", (event, url, _, disposition) => {
             if (manager.hasWindow()) event.preventDefault()
             if (contents.getType() === "webview") openExternal(url, disposition === "background-tab")

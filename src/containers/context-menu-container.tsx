@@ -45,6 +45,10 @@ const mapStateToProps = createSelector(
                 type: context.type,
                 position: context.position
             }
+            case ContextMenuType.MarkRead: return {
+                type: context.type,
+                event: context.event
+            }
             default: return { type: ContextMenuType.Hidden }
         }
     }
@@ -70,7 +74,7 @@ const mapDispatchToProps = dispatch => {
         setViewConfigs: (configs: ViewConfigs) => dispatch(setViewConfigs(configs)),
         switchFilter: (filter: FilterType) => dispatch(switchFilter(filter)),
         toggleFilter: (filter: FilterType) => dispatch(toggleFilter(filter)),
-        markAllRead: (sids: number[], date?: Date, before?: boolean) => {
+        markAllRead: (sids?: number[], date?: Date, before?: boolean) => {
             dispatch(markAllRead(sids, date, before))
         },
         fetchItems: (sids: number[]) => dispatch(fetchItems(false, sids)),

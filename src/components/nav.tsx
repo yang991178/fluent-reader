@@ -139,9 +139,12 @@ class Nav extends React.Component<NavProps, NavState> {
                         title={intl.get("nav.refresh")}>
                         <Icon iconName="Refresh" />
                     </a>
-                    <a className="btn" 
+                    <a className="btn"
+                        id="mark-all-toggle"
                         onClick={this.props.markAllRead}
-                        title={intl.get("nav.markAllRead")}>
+                        title={intl.get("nav.markAllRead")}
+                        onMouseDown={e => {
+                            if (this.props.state.contextMenu.event === "#mark-all-toggle") e.stopPropagation()}}>
                         <Icon iconName="InboxCheck" />
                     </a>
                     <a className="btn" 
