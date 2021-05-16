@@ -105,7 +105,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^11.0.3",
+    "electron": "^11.1.0",
     "electron-builder": "^22.9.1",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
