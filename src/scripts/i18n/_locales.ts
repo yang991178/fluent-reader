@@ -8,6 +8,7 @@ import nl from "./nl.json"
 import es from "./es.json"
 import sv from "./sv.json"
 import tr from "./tr.json"
+import it from "./it.json"
 
 const locales = {
     "en-US": en_US,
@@ -20,6 +21,7 @@ const locales = {
     "es": es,
     "sv": sv,
     "tr": tr,
+    "it": it
 }
 
 export default locales
