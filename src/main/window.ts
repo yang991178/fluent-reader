@@ -54,7 +54,7 @@ export class WindowManager {
                 minHeight: 600,
                 frame: process.platform === "darwin",
                 titleBarStyle: "hiddenInset",
-                fullscreenable: false,
+                fullscreenable: process.platform === "darwin",
                 show: false,
                 webPreferences: {
                     webviewTag: true,
@@ -78,6 +78,12 @@ export class WindowManager {
             })
             this.mainWindow.on("unmaximize", () => {
                 this.mainWindow.webContents.send("unmaximized")
+            })
+            this.mainWindow.on("enter-full-screen", () => {
+                this.mainWindow.webContents.send("enter-fullscreen")
+            })
+            this.mainWindow.on("leave-full-screen", () => {
+                this.mainWindow.webContents.send("leave-fullscreen")
             })
             this.mainWindow.on("focus", () => {
                 this.mainWindow.webContents.send("window-focus")

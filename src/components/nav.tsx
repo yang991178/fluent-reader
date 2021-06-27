@@ -26,6 +26,7 @@ class Nav extends React.Component<NavProps, NavState> {
     constructor(props) {
         super(props)
         this.setBodyFocusState(window.utils.isFocused())
+        this.setBodyFullscreenState(window.utils.isFullscreen())
         window.utils.addWindowStateListener(this.windowStateListener)
         this.state = {
             maximized: window.utils.isMaximized()
@@ -37,10 +38,18 @@ class Nav extends React.Component<NavProps, NavState> {
         else document.body.classList.add("blur")
     }
 
+    setBodyFullscreenState = (fullscreen: boolean) => {
+        if (fullscreen) document.body.classList.remove("not-fullscreen")
+        else document.body.classList.add("not-fullscreen")
+    }
+
     windowStateListener = (type: WindowStateListenerType, state: boolean) => {
         switch (type) {
             case WindowStateListenerType.Maximized:
                 this.setState({ maximized: state })
+                break
+            case WindowStateListenerType.Fullscreen:
+                this.setBodyFullscreenState(state)
                 break
             case WindowStateListenerType.Focused:
                 this.setBodyFocusState(state)
