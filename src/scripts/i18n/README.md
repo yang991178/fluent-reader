@@ -12,5 +12,6 @@ Currently, Fluent Reader supports the following languages.
 | de | Deutsch | [@NoNamePro0](https://github.com/NoNamePro0) |
 | sv | Svenska | [@eson57](https://github.com/eson57) |
 | tr | Türkçe | [@mustafagenc](https://github.com/mustafagenc) |
+| ua | Ukrainian | [@thevllad](https://github.com/thevllad) |
 
 Refer to the repo of [react-intl-universal](https://github.com/alibaba/react-intl-universal) to get started on internationalization. 
