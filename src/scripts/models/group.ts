@@ -1,5 +1,5 @@
 import intl from "react-intl-universal"
-import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource, RSSSource } from "./source"
+import { SourceActionTypes, ADD_SOURCE, DELETE_SOURCE, addSource, RSSSource, SourceState } from "./source"
 import { SourceGroup } from "../../schema-types"
 import { ActionStatus, AppThunk, domParser } from "../utils"
 import { saveSettings } from "./app"
@@ -162,20 +162,26 @@ export function toggleGroupExpansion(groupIndex: number): AppThunk {
     }
 }
 
-export function fixBrokenGroups(): AppThunk {
+export function fixBrokenGroups(sources: SourceState): AppThunk {
     return (dispatch, getState) => {
-        const { sources, groups } = getState()
+        const { groups } = getState()
         const sids = new Set(Object.values(sources).map(s => s.sid))
-        for (let group of groups) {
-            for (let sid of group.sids) {
-                sids.delete(sid)
+        let isBroken = false
+        const newGroups: SourceGroup[] = groups.map(group => {
+            const newGroup: SourceGroup = {
+                ...group,
+                sids: group.sids.filter(sid => sids.delete(sid))
             }
-        }
-        if (sids.size > 0) {
+            if (newGroup.sids.length !== group.sids.length) {
+                isBroken = true
+            }
+            return newGroup
+        }).filter(group => group.isMultiple || group.sids.length > 0)
+        if (isBroken || sids.size > 0) {
             for (let sid of sids) {
-                groups.push(new SourceGroup([sid]))
+                newGroups.push(new SourceGroup([sid]))
             }
-            dispatch(reorderSourceGroups(groups))
+            dispatch(reorderSourceGroups(newGroups))
         }
     }
 }
