@@ -188,7 +188,7 @@ export function fixBrokenGroups(sources: SourceState): AppThunk {
 
 function outlineToSource(outline: Element): [ReturnType<typeof addSource>, string] {
     let url = outline.getAttribute("xmlUrl")
-    let name = outline.getAttribute("text") || outline.getAttribute("name")
+    let name = outline.getAttribute("text") || outline.getAttribute("title")
     if (url) {
         return [addSource(url.trim(), name, true), url]
     } else {
@@ -258,7 +258,7 @@ export function importOPML(): AppThunk {
 function sourceToOutline(source: RSSSource, xml: Document) {
     let outline = xml.createElement("outline")
     outline.setAttribute("text", source.name)
-    outline.setAttribute("name", source.name)
+    outline.setAttribute("title", source.name)
     outline.setAttribute("type", "rss")
     outline.setAttribute("xmlUrl", source.url)
     return outline
@@ -279,7 +279,7 @@ export function exportOPML(): AppThunk {
                     if (group.isMultiple) {
                         let outline = xml.createElement("outline")
                         outline.setAttribute("text", group.name)
-                        outline.setAttribute("name", group.name)
+                        outline.setAttribute("title", group.name)
                         for (let sid of group.sids) {
                             outline.appendChild(sourceToOutline(state.sources[sid], xml))
                         }
