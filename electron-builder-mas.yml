@@ -1,0 +1,35 @@
+appId: DevHYLiu.FluentReader
+buildVersion: 24
+productName: Fluent Reader
+copyright: Copyright © 2020 Haoyuan Liu
+files:
+  - "./dist/**/*"
+  - "!**/*.js.map"
+directories:
+  output: "./bin/${platform}/${arch}/"
+mac:
+  darkModeSupport: true
+  target:
+    - dmg
+  category: public.app-category.news
+  electronLanguages:
+    - zh_CN
+    - zh_TW
+    - en
+    - fr
+    - es
+    - de
+    - tr
+    - ja
+    - sv
+    - uk
+    - it
+    - nl
+  minimumSystemVersion: 10.14.0
+mas:
+  entitlements: build/entitlements.mas.plist
+  entitlementsInherit: build/entitlements.mas.inherit.plist
+  provisioningProfile: build/embedded.provisionprofile
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  asarUnpack: []

@@ -1,6 +1,6 @@
 {
   "name": "fluent-reader",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
@@ -9,95 +9,15 @@
     "start": "npm run build && npm run electron",
     "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w appx:arm64",
     "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
-    "package-mac": "sudo electron-builder --mac",
-    "package-mas": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas",
-    "package-mas-arm": "sudo CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac mas:arm64",
-    "package-mas-sign": "node build/buildUniversalPkg.js && sudo vim \"bin/Fluent Reader.app/Contents/Info.plist\" && sudo bash build/resignAndPackage.sh",
+    "package-mac": "electron-builder --mac --x64",
+    "package-mas": "bash build/resignAndPackage.sh",
     "package-linux": "electron-builder --linux -p never"
   },
   "keywords": [],
   "author": "Haoyuan Liu",
   "license": "BSD-3-Clause",
   "repository": "github:yang991178/fluent-reader",
-  "build": {
-    "appId": "me.hyliu.fluentreader",
-    "productName": "Fluent Reader",
-    "copyright": "Copyright © 2020 Haoyuan Liu",
-    "files": [
-      "./dist/**/*",
-      "!**/*.js.map"
-    ],
-    "directories": {
-      "output": "./bin/${platform}/${arch}/"
-    },
-    "win": {
-      "target": [
-        "nsis",
-        "appx",
-        "zip"
-      ]
-    },
-    "appx": {
-      "applicationId": "FluentReader",
-      "identityName": "25286HaoyuanLiu.FluentReader",
-      "publisher": "CN=FD70E7FA-E5AC-41C4-B9C4-6E8708A6616A",
-      "backgroundColor": "transparent",
-      "languages": [
-        "zh-CN",
-        "zh-TW",
-        "en-US",
-        "fr-FR",
-        "es",
-        "de",
-        "tr"
-      ],
-      "showNameOnTiles": true,
-      "setBuildNumber": true
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": true,
-      "allowToChangeInstallationDirectory": true,
-      "deleteAppDataOnUninstall": true
-    },
-    "mac": {
-      "darkModeSupport": true,
-      "target": [
-        "dmg"
-      ],
-      "category": "public.app-category.news",
-      "electronLanguages": [
-        "zh_CN",
-        "zh_TW",
-        "en",
-        "fr",
-        "es",
-        "de",
-        "tr"
-      ]
-    },
-    "mas": {
-      "appId": "DevHYLiu.FluentReader",
-      "entitlements": "build/entitlements.mas.plist",
-      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
-      "provisioningProfile": "build/embedded.provisionprofile",
-      "hardenedRuntime": false,
-      "gatekeeperAssess": false,
-      "asarUnpack": []
-    },
-    "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "icon": "build/icons",
-      "category": "Utility",
-      "desktop": {
-        "StartupWMClass": "fluent-reader"
-      }
-    }
-  },
   "devDependencies": {
-    "@electron/universal": "^1.0.4",
     "@fluentui/react": "^7.126.2",
     "@types/lovefield": "^2.1.3",
     "@types/nedb": "^1.8.9",
@@ -105,8 +25,8 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^11.0.3",
-    "electron-builder": "^22.9.1",
+    "electron": "^13.1.4",
+    "electron-builder": "^22.11.3",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
     "electron-window-state": "^5.0.3",
@@ -128,6 +48,5 @@
     "typescript": "^3.9.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
-  },
-  "dependencies": {}
+  }
 }
