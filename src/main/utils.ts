@@ -184,6 +184,10 @@ export function setUtilsListeners(manager: WindowManager) {
         event.returnValue = manager.hasWindow() && manager.mainWindow.isFocused()
     })
 
+    ipcMain.on("is-fullscreen", (event) => {
+        event.returnValue = manager.hasWindow() && manager.mainWindow.isFullScreen()
+    })
+
     ipcMain.handle("request-focus", () => {
         if (manager.hasWindow()) {
             const win = manager.mainWindow

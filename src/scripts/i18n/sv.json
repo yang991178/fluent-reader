@@ -211,7 +211,7 @@
         "cacheSize": "Cache-lagra {size} data",
         "deleteChoices": "Ta bort artiklar från ... dagar sedan",
         "confirmDelete": "Ta bort",
-        "daysAgo": "{dagar, plural, =1 {# dag} other {# dagar}} sedan",
+        "daysAgo": "{day, plural, =1 {# dag} other {# dagar}} sedan",
         "deleteAll": "Ta bort alla artiklar",
         "calculatingSize": "Beräknar storlek...",
         "itemSize": "Omkring {size} lokal datalagring upptas av artiklar",

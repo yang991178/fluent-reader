@@ -3,7 +3,7 @@ import { INIT_SOURCES, SourceActionTypes, ADD_SOURCE, UPDATE_SOURCE, DELETE_SOUR
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import { ActionStatus, AppThunk, getWindowBreakpoint, initTouchBarWithTexts } from "../utils"
 import { INIT_FEEDS, FeedActionTypes, ALL, initFeeds } from "./feed"
-import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS, fixBrokenGroups } from "./group"
+import { SourceGroupActionTypes, UPDATE_SOURCE_GROUP, ADD_SOURCE_TO_GROUP, DELETE_SOURCE_GROUP, REMOVE_SOURCE_FROM_GROUP, REORDER_SOURCE_GROUPS } from "./group"
 import { PageActionTypes, SELECT_PAGE, PageType, selectAllArticles, showItemFromId } from "./page"
 import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
@@ -323,7 +323,6 @@ export function initApp(): AppThunk {
         }).then(() => dispatch(initFeeds()))
         .then(async () => {
             dispatch(selectAllArticles())
-            dispatch(fixBrokenGroups())
             await dispatch(fetchItems())
         }).then(() => {
             dispatch(updateFavicon())

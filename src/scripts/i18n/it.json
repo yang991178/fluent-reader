@@ -212,7 +212,7 @@
 	    "cacheSize": "Dimensione Cache {size}",
 	    "deleteChoices": "Rimuovi articoli di ... giorni fà",
 	    "confirmDelete": "Rimuovi",
-	    "daysAgo": "{giorni, plural, =1 {# giorno} other {# giorni}} fà",
+	    "daysAgo": "{days, plural, =1 {# giorno} other {# giorni}} fà",
 	    "deleteAll": "Rimuovi tutti gli articoli",
 	    "calculatingSize": "Calcolo dimensione...",
 	    "itemSize": "Gli articoli occupano {size} ",

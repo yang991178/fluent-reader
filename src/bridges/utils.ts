@@ -90,6 +90,9 @@ const utilsBridge = {
     isMaximized: () => {
         return ipcRenderer.sendSync("is-maximized") as boolean
     },
+    isFullscreen: () => {
+        return ipcRenderer.sendSync("is-fullscreen") as boolean
+    },
     isFocused: () => {
         return ipcRenderer.sendSync("is-focused") as boolean
     },
@@ -107,6 +110,14 @@ const utilsBridge = {
         ipcRenderer.removeAllListeners("unmaximized")
         ipcRenderer.on("unmaximized", () => {
             callback(WindowStateListenerType.Maximized, false)
+        })
+        ipcRenderer.removeAllListeners("enter-fullscreen")
+        ipcRenderer.on("enter-fullscreen", () => {
+            callback(WindowStateListenerType.Fullscreen, true)
+        })
+        ipcRenderer.removeAllListeners("leave-fullscreen")
+        ipcRenderer.on("leave-fullscreen", () => {
+            callback(WindowStateListenerType.Fullscreen, false)
         })
         ipcRenderer.removeAllListeners("window-focus")
         ipcRenderer.on("window-focus", () => {

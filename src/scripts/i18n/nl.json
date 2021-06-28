@@ -23,9 +23,9 @@
         "m": "m",
         "h": "u",
         "d": "d",
-        "minuut": "{m, plural, =1 {# minute} other {# minutes}}",
-        "uur": "{h, plural, =1 {# hour} other {# hours}}",
-        "dag": "{d, plural, =1 {# day} other {# days}}"
+        "minute": "{m, plural, =1 {# minuut} other {# minuten}}",
+        "hour": "{h, plural, =1 {# uur} other {# uur}}",
+        "day": "{d, plural, =1 {# dag} other {# dagen}}"
     },
     "log": {
         "empty": "Geen meldingen",
@@ -211,7 +211,7 @@
         "cacheSize": "In cache: {size} aan gegevens",
         "deleteChoices": "Artikelen verwijderen die ouder zijn dan … dagen",
         "confirmDelete": "Verwijderen",
-        "daysAgo": "{days, plural, =1 {# day} other {# days}} geleden",
+        "daysAgo": "{days, plural, =1 {# dag} other {# dagen}} geleden",
         "deleteAll": "Alle artikelen verwijderen",
         "calculatingSize": "Bezig met grootteberekening…",
         "itemSize": "De artikelen nemen ongeveer {size} aan lokale opslag in beslag",

@@ -6,6 +6,7 @@ import { fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
 import { saveSettings } from "./app"
 import { SourceRule } from "./rule"
+import { fixBrokenGroups } from "./group"
 
 export const enum SourceOpenTarget {
     Local, Webpage, External, FullContent
@@ -182,6 +183,7 @@ export function initSources(): AppThunk<Promise<void>> {
             state[source.sid] = source
         }
         await unreadCount(state)
+        dispatch(fixBrokenGroups(state))
         dispatch(initSourcesSuccess(state))
     }
 }

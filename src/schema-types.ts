@@ -51,7 +51,7 @@ export interface ServiceConfigs {
 }
 
 export const enum WindowStateListenerType {
-    Maximized, Focused
+    Maximized, Focused, Fullscreen
 }
 
 export interface TouchBarTexts {

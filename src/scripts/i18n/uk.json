@@ -211,7 +211,7 @@
         "cacheSize": "Кешовано {size} даних",
         "deleteChoices": "Видалити статті з ... днів тому",
         "confirmDelete": "Видалити",
-        "daysAgo": "{days, plural, =1 {# день} other {# днів}} ago",
+        "daysAgo": "{days, plural, =1 {# день} other {# днів}} тому",
         "deleteAll": "Видалити всі статті",
         "calculatingSize": "Розрахунок розміру ...",
         "itemSize": "Близько {size} локальної пам'яті займають статті",
