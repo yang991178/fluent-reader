@@ -227,7 +227,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     articleView = () => {
-        const a = encodeURIComponent(this.state.loadFull ? this.state.fullContent : this.props.item.content)
+        const a = encodeURIComponent(this.state.loadFull ? this.state.fullContent : this.props.item.content || this.props.item.snippet)
         const h = encodeURIComponent(renderToString(<>
             <p className="title">{this.props.item.title}</p>
             <p className="date">{this.props.item.date.toLocaleString(this.props.locale, {hour12: !this.props.locale.startsWith("zh")})}</p>
