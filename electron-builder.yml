@@ -19,6 +19,7 @@ mac:
     - es
     - de
     - tr
+    - ja
     - sv
     - uk
     - it
@@ -26,7 +27,6 @@ mac:
 win:
   target:
     - nsis
-    - appx
     - zip
 appx:
   applicationId: FluentReader
@@ -41,6 +41,7 @@ appx:
     - es
     - de
     - tr
+    - ja
     - sv
     - uk
     - it

@@ -7,7 +7,7 @@
     "build": "webpack --config ./webpack.config.js",
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
-    "package-win": "electron-builder -w --x64 && electron-builder -w --ia32 && electron-builder -w appx:arm64",
+    "package-win": "electron-builder -w appx:x64 && electron-builder -w appx:ia32 && electron-builder -w appx:arm64",
     "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
     "package-mac": "electron-builder --mac --x64",
     "package-mas": "bash build/resignAndPackage.sh",

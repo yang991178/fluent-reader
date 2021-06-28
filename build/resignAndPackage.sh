@@ -1,7 +1,7 @@
 # Build the MAS app
 CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder -c electron-builder-mas.yml --mac mas:universal
 # Add ElectronTeamID to Info.plist
-sed -i '' -e 's/<\/dict>/<key>ElectronTeamID<\/key><string>EM8VE646TZ<\/string><\/dict>/g' "/Users/haoyuanliu/Developer/fluent-reader/bin/darwin/universal/mas-universal/Fluent Reader.app/Contents/Info.plist"
+sed -i '' -e 's/<\/dict>/<key>ElectronTeamID<\/key><string>EM8VE646TZ<\/string><\/dict>/g' "bin/darwin/universal/mas-universal/Fluent Reader.app/Contents/Info.plist"
 
 printf "......................\nresignAndPackage start\n\n"
 
@@ -10,9 +10,9 @@ APP="Fluent Reader"
 # Your Certificate name.
 CERT="Jieyu Yan (EM8VE646TZ)"
 # The path of your app to sign.
-APP_PATH="/Users/haoyuanliu/Developer/fluent-reader/bin/darwin/universal/mas-universal/Fluent Reader.app"
+APP_PATH="bin/darwin/universal/mas-universal/Fluent Reader.app"
 # The path to the location you want to put the signed package.
-RESULT_PATH="/Users/haoyuanliu/Developer/fluent-reader/bin/$APP-mac_store.pkg"
+RESULT_PATH="bin/$APP-mac_store.pkg"
 # The name of certificates you requested.
 APP_KEY="Apple Distribution: $CERT"
 INSTALLER_KEY="3rd Party Mac Developer Installer: $CERT"
