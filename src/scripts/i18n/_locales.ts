@@ -10,7 +10,8 @@ import sv from "./sv.json"
 import tr from "./tr.json"
 import it from "./it.json"
 import uk from "./uk.json"
-import uk from "./fi-FI.json"
+import pt_BR from "./pt-BR.json"
+import fi_FI from "./fi-FI.json"
 
 const locales = {
     "en-US": en_US,
@@ -25,7 +26,8 @@ const locales = {
     "tr": tr,
     "it": it,
     "uk": uk,
-    "fi-FI": fi_FI
+    "pt-BR": pt_BR,
+    "fi-FI": fi_FI,
 }
 
 export default locales
