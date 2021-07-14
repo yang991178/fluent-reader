@@ -26,6 +26,9 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
     return { 
         acknowledgeSIDs: () => dispatch(toggleSettings(true)),
         addSource: (url: string) => dispatch(addSource(url)),
+        updateSourceUrl: (source: RSSSource, url: string) => {
+            dispatch(updateSource({ ...source, url: url } as RSSSource))
+        },
         updateSourceName: (source: RSSSource, name: string) => {
             dispatch(updateSource({ ...source, name: name } as RSSSource))
         },
