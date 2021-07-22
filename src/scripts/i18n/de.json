@@ -118,8 +118,8 @@
         "feedback": "Feedback"
     },
     "sources": {
-        "serviceWarning": "Feeds, die hier importiert oder hinzugefügt werden, können nicht mit ihrem Server synchronisiert werden.",
-        "serviceManaged": "Dieser Feed wird von ihrem Server verwaltet.",
+        "serviceWarning": "Feeds, die hier importiert oder hinzugefügt werden, können nicht mit dem Server synchronisiert werden.",
+        "serviceManaged": "Dieser Feed wird vom Server verwaltet.",
         "untitled": "Feed",
         "errorAdd": "Beim Hinzufügen des Feeds ist ein Fehler aufgetreten.",
         "errorParse": "Beim Lesen der OPML-Datei ist ein Fehler aufgetreten.",
