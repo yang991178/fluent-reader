@@ -25,7 +25,7 @@ export class RSSItem {
     notify: boolean
     serviceRef?: string
 
-    constructor (item: Parser.Item, source: RSSSource) {
+    constructor(item: Parser.Item, source: RSSSource) {
         for (let field of ["title", "link", "creator"]) {
             const content = item[field]
             if (content && typeof content !== "string") delete item[field]
@@ -54,15 +54,20 @@ export class RSSItem {
             item.content = parsed.content || ""
             item.snippet = htmlDecode(parsed.contentSnippet || "")
         }
-        if (parsed.thumb) { 
+        if (parsed.thumb) {
             item.thumb = parsed.thumb
-        } else if (parsed.image && parsed.image.$ && parsed.image.$.url) {
+        }
+        else if (parsed.image && parsed.image.$ && parsed.image.$.url) {
             item.thumb = parsed.image.$.url
         } else if (parsed.image && typeof parsed.image === "string") {
             item.thumb = parsed.image
         } else if (parsed.mediaContent) {
             let images = parsed.mediaContent.filter(c => c.$ && c.$.medium === "image" && c.$.url)
             if (images.length > 0) item.thumb = images[0].$.url
+        }
+        else if (parsed.enclosure?.url) {
+            const mimetypes = /image\/png|image\/jpeg|imagesvg\+xml|image\/gif|image\/svg\+xml/;
+            if (mimetypes.test(parsed.enclosure.type)) item.thumb = parsed.enclosure.url
         }
         if (!item.thumb) {
             let dom = domParser.parseFromString(item.content, "text/html")
@@ -126,7 +131,7 @@ interface ToggleHiddenAction {
     item: RSSItem
 }
 
-export type ItemActionTypes = FetchItemsAction | MarkReadAction | MarkAllReadAction | MarkUnreadAction 
+export type ItemActionTypes = FetchItemsAction | MarkReadAction | MarkAllReadAction | MarkUnreadAction
     | ToggleStarredAction | ToggleHiddenAction
 
 export function fetchItemsRequest(fetchCount = 0): ItemActionTypes {
@@ -201,42 +206,42 @@ export function fetchItems(background = false, sids: number[] = null): AppThunk<
                     }
                 })
                 insertItems(items)
-                .then(inserted => {
-                    dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
-                    resolve()
-                    if (background) {
-                        for (let item of inserted) {
-                            if (item.notify) {
-                                dispatch(pushNotification(item))
+                    .then(inserted => {
+                        dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
+                        resolve()
+                        if (background) {
+                            for (let item of inserted) {
+                                if (item.notify) {
+                                    dispatch(pushNotification(item))
+                                }
                             }
+                            if (inserted.length > 0) {
+                                window.utils.requestAttention()
+                            }
+                        } else {
+                            dispatch(dismissItems())
                         }
-                        if (inserted.length > 0) {
-                            window.utils.requestAttention()
-                        }
-                    } else {
-                        dispatch(dismissItems())
-                    }
-                    dispatch(setupAutoFetch())
-                })
-                .catch(err => {
-                    dispatch(fetchItemsSuccess([], getState().items))
-                    window.utils.showErrorBox("A database error has occurred.", String(err))
-                    console.log(err)
-                    reject(err)
-                })
+                        dispatch(setupAutoFetch())
+                    })
+                    .catch(err => {
+                        dispatch(fetchItemsSuccess([], getState().items))
+                        window.utils.showErrorBox("A database error has occurred.", String(err))
+                        console.log(err)
+                        reject(err)
+                    })
             })
         }
     }
 }
 
-const markReadDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: MARK_READ, 
-    item: item 
+const markReadDone = (item: RSSItem): ItemActionTypes => ({
+    type: MARK_READ,
+    item: item
 })
 
-const markUnreadDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: MARK_UNREAD, 
-    item: item 
+const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
+    type: MARK_UNREAD,
+    item: item
 })
 
 export function markRead(item: RSSItem): AppThunk {
@@ -298,9 +303,9 @@ export function markUnread(item: RSSItem): AppThunk {
     }
 }
 
-const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: TOGGLE_STARRED, 
-    item: item 
+const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
+    type: TOGGLE_STARRED,
+    item: item
 })
 
 export function toggleStarred(item: RSSItem): AppThunk {
@@ -315,9 +320,9 @@ export function toggleStarred(item: RSSItem): AppThunk {
     }
 }
 
-const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: TOGGLE_HIDDEN, 
-    item: item 
+const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({
+    type: TOGGLE_HIDDEN,
+    item: item
 })
 
 export function toggleHidden(item: RSSItem): AppThunk {
@@ -382,7 +387,7 @@ export function itemReducer(
                     for (let i of action.items) {
                         newMap[i._id] = i
                     }
-                    return {...newMap, ...state}
+                    return { ...newMap, ...state }
                 }
                 default: return state
             }
@@ -400,8 +405,8 @@ export function itemReducer(
             let sids = new Set(action.sids)
             for (let item of Object.values(state)) {
                 if (sids.has(item.source) && !item.hasRead) {
-                    if (!action.time || (action.before 
-                        ? item.date.getTime() <= action.time 
+                    if (!action.time || (action.before
+                        ? item.date.getTime() <= action.time
                         : item.date.getTime() >= action.time)
                     ) {
                         nextState[item._id] = {
