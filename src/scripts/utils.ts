@@ -24,6 +24,7 @@ const rssParser = new Parser({
         item: [
             "thumb", "image", ["content:encoded", "fullContent"], 
             ['media:content', 'mediaContent', {keepArray: true}],
+            ['media:group', 'videoMeta', {keepArray: false}],
         ] as Parser.CustomFieldItem[]
     }
 })
@@ -119,6 +120,13 @@ export async function validateFavicon(url: string) {
 export function htmlDecode(input: string) {
     var doc = domParser.parseFromString(input, "text/html")
     return doc.documentElement.textContent
+}
+
+export function parseYouTubeContent(url: string, views: string, likes: string, content: string){
+    const video = `<iframe width="560" height="315" src="${url}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+    const views_likes = `<p style="float: left; color: #808080;"><em>${views} views</em></p><p style="float: right; color: #808080;"><em>${likes} likes</em></p>`
+    const _content = `<div style="word-break: break-all;>"<pre>${content.replace(/(?:\r\n|\r|\n)/g, '<br>')}</pre></div>`
+    return `${video}${views_likes}<br><br><br><hr />${_content}`
 }
 
 export const urlTest = (s: string) => 
