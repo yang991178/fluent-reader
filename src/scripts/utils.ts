@@ -89,6 +89,7 @@ export async function fetchFavicon(url: string) {
                     let parsedUrl = Url.parse(url)
                     if (href.startsWith("//")) return parsedUrl.protocol + href
                     else if (href.startsWith("/")) return url + href
+                    else if (href.startsWith("favicon")) return url + '/' + href
                     else return href
                 }
             }
