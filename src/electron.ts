@@ -16,6 +16,9 @@ else if (process.platform === "win32") app.setAppUserModelId("me.hyliu.fluentrea
 
 let restarting = false
 
+// Usage of any user agent will promt youtube to redirect url, causing issues reading response
+app.userAgentFallback = " "
+
 function init() {
     performUpdate(store)
     nativeTheme.themeSource = store.get("theme", ThemeSettings.Default)

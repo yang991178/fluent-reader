@@ -2,7 +2,7 @@ import Parser from "@yang991178/rss-parser"
 import intl from "react-intl-universal"
 import * as db from "../db"
 import lf from "lovefield"
-import { fetchFavicon, ActionStatus, AppThunk, parseRSS } from "../utils"
+import { fetchFavicon, fetchYTChannelIcon, ActionStatus, AppThunk, parseRSS } from "../utils"
 import { RSSItem, insertItems, ItemActionTypes, FETCH_ITEMS, MARK_READ, MARK_UNREAD, MARK_ALL_READ } from "./item"
 import { saveSettings } from "./app"
 import { SourceRule } from "./rule"
@@ -322,8 +322,8 @@ export function updateFavicon(sids?: number[], force=false): AppThunk<Promise<vo
         }
         const promises = sids.map(async sid => {
             const url = initSources[sid].url
-            let favicon = (await fetchFavicon(url)) || ""
             const source = getState().sources[sid]
+            let favicon = (await fetchFavicon(url)) || ""
             if (source && source.url === url && (force || source.iconurl === undefined)) {
                 source.iconurl = favicon
                 await dispatch(updateSource(source))
