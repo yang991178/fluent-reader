@@ -74,8 +74,33 @@ export async function parseRSS(url: string) {
 
 export const domParser = new DOMParser()
 
+export async function fetchYTChannelIcon(url: string) {
+    let channelId = url.split("=")[1]
+    url = url.split("/").slice(0, 3).join("/")
+    let channelUrl = url + '/channel/' + channelId
+    let result = await fetch(channelUrl, { credentials: 'omit', })
+    if (result.ok) {
+        let html = await result.text()
+        let dom = domParser.parseFromString(html, "text/html")
+        let links = dom.getElementsByTagName("link")
+        for (let link of links) {
+            let rel = link.getAttribute("rel")
+            if (rel === "image_src" && link.hasAttribute("href")) {
+                let href = link.getAttribute("href")
+                return href.replace("=s900", "=s16")
+            }
+        }
+    }
+}
+
 export async function fetchFavicon(url: string) {
     try {
+        const customIcon = window.settings.getIconStatus()
+        if (customIcon) {
+            if (Url.parse(url).host === "www.youtube.com" && url.includes("channel")) {
+                return fetchYTChannelIcon(url)
+            }
+        }
         url = url.split("/").slice(0, 3).join("/")
         let result = await fetch(url, { credentials: "omit" })
         if (result.ok) {

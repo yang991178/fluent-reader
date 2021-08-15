@@ -22,6 +22,15 @@ ipcMain.handle("set-menu", (_, state: boolean) => {
     store.set(MENU_STORE_KEY, state)
 })
 
+
+const ICON_STATUS_KEY = "customIcon"
+function getIconStatus() {
+    return store.get(ICON_STATUS_KEY, true)
+}
+function toggleIconStatus() {
+    store.set(ICON_STATUS_KEY, !getIconStatus())
+}
+
 const PAC_STORE_KEY = "pac"
 const PAC_STATUS_KEY = "pacOn"
 function getProxyStatus() {
@@ -46,6 +55,13 @@ function setProxy(address = null) {
         session.fromPartition("sandbox").setProxy(rules)
     }
 }
+ipcMain.on("get-icon-status", (event) => {
+    event.returnValue = getIconStatus()
+})
+ipcMain.on("toggle-icon-status", () => {
+    toggleIconStatus()
+})
+
 ipcMain.on("get-proxy-status", (event) => {
     event.returnValue = getProxyStatus()
 })
