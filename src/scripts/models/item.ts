@@ -1,7 +1,7 @@
 import * as db from "../db"
 import lf from "lovefield"
 import intl from "react-intl-universal"
-import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../utils"
+import { domParser, htmlDecode, parseYouTubeContent, ActionStatus, AppThunk, platformCtrl } from "../utils"
 import { RSSSource, updateSource, updateUnreadCounts } from "./source"
 import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds, dismissItems } from "./feed"
 import Parser from "@yang991178/rss-parser"
@@ -74,6 +74,13 @@ export class RSSItem {
         }
         if (item.thumb && !item.thumb.startsWith("https://") && !item.thumb.startsWith("http://")) {
             delete item.thumb
+        }
+        if (parsed.videoMeta) {
+            item.thumb = item.thumb ? item.thumb : parsed.videoMeta["media:thumbnail"][0].$.url
+            item.snippet = item.snippet ? item.snippet : parsed.videoMeta["media:description"][0] || ""
+            const views = parsed.videoMeta["media:community"][0]["media:statistics"][0].$.views
+            const likes = parsed.videoMeta["media:community"][0]["media:starRating"][0].$.count
+            item.content = parseYouTubeContent(item.link.replace("watch?v=","embed/"), views, likes, item.snippet)
         }
     }
 }

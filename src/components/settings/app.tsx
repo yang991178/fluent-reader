@@ -3,7 +3,7 @@ import intl from "react-intl-universal"
 import { urlTest, byteToMB, calculateItemSize, getSearchEngineName } from "../../scripts/utils"
 import { ThemeSettings, SearchEngines } from "../../schema-types"
 import { getThemeSettings, setThemeSettings, exportAll } from "../../scripts/settings"
-import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption, PrimaryButton } from "@fluentui/react"
+import { Stack, Label, Toggle, TextField, DefaultButton, ChoiceGroup, IChoiceGroupOption, loadTheme, Dropdown, IDropdownOption, PrimaryButton, ToggleBase } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
 
 type AppTabProps = {
@@ -20,6 +20,7 @@ type AppTabState = {
     itemSize: string
     cacheSize: string
     deleteIndex: string
+    iconStatus: boolean
 }
 
 class AppTab extends React.Component<AppTabProps, AppTabState> {
@@ -31,7 +32,8 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             themeSettings: getThemeSettings(),
             itemSize: null,
             cacheSize: null,
-            deleteIndex: null
+            deleteIndex: null,
+            iconStatus: window.settings.getIconStatus()
         }
         this.getItemSize()
         this.getCacheSize()
@@ -71,6 +73,11 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     ]
     onFetchIntervalChanged = (item: IDropdownOption) => {
         this.props.setFetchInterval(item.key as number)
+    }
+
+    toggleIcon = () => {
+        window.settings.toggleIconStatus()
+        this.setState({ iconStatus: window.settings.getIconStatus() })
     }
 
     searchEngineOptions = (): IDropdownOption[] => [
@@ -183,6 +190,13 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                         style={{width: 200}} />
                 </Stack.Item>
             </Stack>
+
+            <Toggle
+                label="Use custom icons when available"
+                checked={this.state.iconStatus}
+                onText="Enabled"
+                offText="Disabled"
+                onChanged={this.toggleIcon} />
 
             <Stack horizontal verticalAlign="baseline">
                 <Stack.Item grow>

@@ -16,6 +16,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-menu", state)
     },
 
+    getIconStatus: (): boolean => {
+        return ipcRenderer.sendSync("get-icon-status")
+    },
+    toggleIconStatus: () => {
+        ipcRenderer.send("toggle-icon-status")
+    },
+
     getProxyStatus: (): boolean => {
         return ipcRenderer.sendSync("get-proxy-status")
     },
