@@ -10,7 +10,7 @@ const className = (props: Card.Props) => {
     return cn.join(" ")
 }
 
-const DefaultCard: React.FunctionComponent<Card.Props> = (props) => (
+const DefaultCard: React.FunctionComponent<Card.Props> = props => (
     <div
         className={className(props)}
         {...Card.bindEventsToProps(props)}
@@ -24,7 +24,9 @@ const DefaultCard: React.FunctionComponent<Card.Props> = (props) => (
             <img className="head" src={props.item.thumb} />
         ) : null}
         <CardInfo source={props.source} item={props.item} />
-        <h3 className="title"><Highlights text={props.item.title} filter={props.filter} title /></h3>
+        <h3 className="title">
+            <Highlights text={props.item.title} filter={props.filter} title />
+        </h3>
         <p className={"snippet" + (props.item.thumb ? "" : " show")}>
             <Highlights text={props.item.snippet} filter={props.filter} />
         </p>

@@ -1,0 +1,12 @@
+node_modules
+dist/**/*.js
+dist/**/*.js.map
+bin/*
+.DS_Store
+*.provisionprofile
+*.lock
+
+*.html
+*.md
+*.json
+!src/**/*.json

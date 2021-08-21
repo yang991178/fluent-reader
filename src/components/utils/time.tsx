@@ -10,18 +10,15 @@ class Time extends React.Component<TimeProps> {
     state = { now: new Date() }
 
     componentDidMount() {
-        this.timerID = setInterval(
-            () => this.tick(),
-            60000
-        );
-      }
-    
+        this.timerID = setInterval(() => this.tick(), 60000)
+    }
+
     componentWillUnmount() {
         clearInterval(this.timerID)
     }
 
     tick() {
-        this.setState({ now: new Date() });
+        this.setState({ now: new Date() })
     }
 
     displayTime(past: Date, now: Date): string {
@@ -35,7 +32,9 @@ class Time extends React.Component<TimeProps> {
 
     render() {
         return (
-            <span className="time">{ this.displayTime(this.props.date, this.state.now) }</span>
+            <span className="time">
+                {this.displayTime(this.props.date, this.state.now)}
+            </span>
         )
     }
 }

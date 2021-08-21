@@ -1,12 +1,35 @@
 import * as db from "../db"
 import lf from "lovefield"
 import intl from "react-intl-universal"
-import { domParser, htmlDecode, ActionStatus, AppThunk, platformCtrl } from "../utils"
+import {
+    domParser,
+    htmlDecode,
+    ActionStatus,
+    AppThunk,
+    platformCtrl,
+} from "../utils"
 import { RSSSource, updateSource, updateUnreadCounts } from "./source"
-import { FeedActionTypes, INIT_FEED, LOAD_MORE, FilterType, initFeeds, dismissItems } from "./feed"
+import {
+    FeedActionTypes,
+    INIT_FEED,
+    LOAD_MORE,
+    FilterType,
+    initFeeds,
+    dismissItems,
+} from "./feed"
 import Parser from "@yang991178/rss-parser"
-import { pushNotification, setupAutoFetch, SettingsActionTypes, FREE_MEMORY } from "./app"
-import { getServiceHooks, syncWithService, ServiceActionTypes, SYNC_LOCAL_ITEMS } from "./service"
+import {
+    pushNotification,
+    setupAutoFetch,
+    SettingsActionTypes,
+    FREE_MEMORY,
+} from "./app"
+import {
+    getServiceHooks,
+    syncWithService,
+    ServiceActionTypes,
+    SYNC_LOCAL_ITEMS,
+} from "./service"
 
 export class RSSItem {
     _id: number
@@ -25,7 +48,7 @@ export class RSSItem {
     notify: boolean
     serviceRef?: string
 
-    constructor (item: Parser.Item, source: RSSSource) {
+    constructor(item: Parser.Item, source: RSSSource) {
         for (let field of ["title", "link", "creator"]) {
             const content = item[field]
             if (content && typeof content !== "string") delete item[field]
@@ -54,25 +77,34 @@ export class RSSItem {
             item.content = parsed.content || ""
             item.snippet = htmlDecode(parsed.contentSnippet || "")
         }
-        if (parsed.thumb) { 
+        if (parsed.thumb) {
             item.thumb = parsed.thumb
         } else if (parsed.image && parsed.image.$ && parsed.image.$.url) {
             item.thumb = parsed.image.$.url
         } else if (parsed.image && typeof parsed.image === "string") {
             item.thumb = parsed.image
         } else if (parsed.mediaContent) {
-            let images = parsed.mediaContent.filter(c => c.$ && c.$.medium === "image" && c.$.url)
+            let images = parsed.mediaContent.filter(
+                c => c.$ && c.$.medium === "image" && c.$.url
+            )
             if (images.length > 0) item.thumb = images[0].$.url
         }
         if (!item.thumb) {
             let dom = domParser.parseFromString(item.content, "text/html")
-            let baseEl = dom.createElement('base')
-            baseEl.setAttribute('href', item.link.split("/").slice(0, 3).join("/"))
+            let baseEl = dom.createElement("base")
+            baseEl.setAttribute(
+                "href",
+                item.link.split("/").slice(0, 3).join("/")
+            )
             dom.head.append(baseEl)
             let img = dom.querySelector("img")
             if (img && img.src) item.thumb = img.src
         }
-        if (item.thumb && !item.thumb.startsWith("https://") && !item.thumb.startsWith("http://")) {
+        if (
+            item.thumb &&
+            !item.thumb.startsWith("https://") &&
+            !item.thumb.startsWith("http://")
+        ) {
             delete item.thumb
         }
     }
@@ -105,7 +137,7 @@ interface MarkReadAction {
 }
 
 interface MarkAllReadAction {
-    type: typeof MARK_ALL_READ,
+    type: typeof MARK_ALL_READ
     sids: number[]
     time?: number
     before?: boolean
@@ -126,23 +158,31 @@ interface ToggleHiddenAction {
     item: RSSItem
 }
 
-export type ItemActionTypes = FetchItemsAction | MarkReadAction | MarkAllReadAction | MarkUnreadAction 
-    | ToggleStarredAction | ToggleHiddenAction
+export type ItemActionTypes =
+    | FetchItemsAction
+    | MarkReadAction
+    | MarkAllReadAction
+    | MarkUnreadAction
+    | ToggleStarredAction
+    | ToggleHiddenAction
 
 export function fetchItemsRequest(fetchCount = 0): ItemActionTypes {
     return {
         type: FETCH_ITEMS,
         status: ActionStatus.Request,
-        fetchCount: fetchCount
+        fetchCount: fetchCount,
     }
 }
 
-export function fetchItemsSuccess(items: RSSItem[], itemState: ItemState): ItemActionTypes {
+export function fetchItemsSuccess(
+    items: RSSItem[],
+    itemState: ItemState
+): ItemActionTypes {
     return {
         type: FETCH_ITEMS,
         status: ActionStatus.Success,
         items: items,
-        itemState: itemState
+        itemState: itemState,
     }
 }
 
@@ -151,41 +191,65 @@ export function fetchItemsFailure(source: RSSSource, err): ItemActionTypes {
         type: FETCH_ITEMS,
         status: ActionStatus.Failure,
         errSource: source,
-        err: err
+        err: err,
     }
 }
 
 export function fetchItemsIntermediate(): ItemActionTypes {
     return {
         type: FETCH_ITEMS,
-        status: ActionStatus.Intermediate
+        status: ActionStatus.Intermediate,
     }
 }
 
 export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     items.sort((a, b) => a.date.getTime() - b.date.getTime())
     const rows = items.map(item => db.items.createRow(item))
-    return (await db.itemsDB.insert().into(db.items).values(rows).exec()) as RSSItem[]
+    return (await db.itemsDB
+        .insert()
+        .into(db.items)
+        .values(rows)
+        .exec()) as RSSItem[]
 }
 
-export function fetchItems(background = false, sids: number[] = null): AppThunk<Promise<void>> {
+export function fetchItems(
+    background = false,
+    sids: number[] = null
+): AppThunk<Promise<void>> {
     return async (dispatch, getState) => {
         let promises = new Array<Promise<RSSItem[]>>()
         const initState = getState()
         if (!initState.app.fetchingItems && !initState.app.syncing) {
-            if (sids === null || sids.filter(sid => initState.sources[sid].serviceRef !== undefined).length > 0)
+            if (
+                sids === null ||
+                sids.filter(
+                    sid => initState.sources[sid].serviceRef !== undefined
+                ).length > 0
+            )
                 await dispatch(syncWithService(background))
             let timenow = new Date().getTime()
             const sourcesState = getState().sources
-            let sources = (sids === null)
-                ? Object.values(sourcesState).filter(s => {
-                    let last = s.lastFetched ? s.lastFetched.getTime() : 0
-                    return !s.serviceRef && ((last > timenow) || (last + (s.fetchFrequency || 0) * 60000 <= timenow))
-                })
-                : sids.map(sid => sourcesState[sid]).filter(s => !s.serviceRef)
+            let sources =
+                sids === null
+                    ? Object.values(sourcesState).filter(s => {
+                          let last = s.lastFetched ? s.lastFetched.getTime() : 0
+                          return (
+                              !s.serviceRef &&
+                              (last > timenow ||
+                                  last + (s.fetchFrequency || 0) * 60000 <=
+                                      timenow)
+                          )
+                      })
+                    : sids
+                          .map(sid => sourcesState[sid])
+                          .filter(s => !s.serviceRef)
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
-                promise.then(() => dispatch(updateSource({ ...source, lastFetched: new Date() })))
+                promise.then(() =>
+                    dispatch(
+                        updateSource({ ...source, lastFetched: new Date() })
+                    )
+                )
                 promise.finally(() => dispatch(fetchItemsIntermediate()))
                 promises.push(promise)
             }
@@ -201,48 +265,60 @@ export function fetchItems(background = false, sids: number[] = null): AppThunk<
                     }
                 })
                 insertItems(items)
-                .then(inserted => {
-                    dispatch(fetchItemsSuccess(inserted.reverse(), getState().items))
-                    resolve()
-                    if (background) {
-                        for (let item of inserted) {
-                            if (item.notify) {
-                                dispatch(pushNotification(item))
+                    .then(inserted => {
+                        dispatch(
+                            fetchItemsSuccess(
+                                inserted.reverse(),
+                                getState().items
+                            )
+                        )
+                        resolve()
+                        if (background) {
+                            for (let item of inserted) {
+                                if (item.notify) {
+                                    dispatch(pushNotification(item))
+                                }
                             }
+                            if (inserted.length > 0) {
+                                window.utils.requestAttention()
+                            }
+                        } else {
+                            dispatch(dismissItems())
                         }
-                        if (inserted.length > 0) {
-                            window.utils.requestAttention()
-                        }
-                    } else {
-                        dispatch(dismissItems())
-                    }
-                    dispatch(setupAutoFetch())
-                })
-                .catch(err => {
-                    dispatch(fetchItemsSuccess([], getState().items))
-                    window.utils.showErrorBox("A database error has occurred.", String(err))
-                    console.log(err)
-                    reject(err)
-                })
+                        dispatch(setupAutoFetch())
+                    })
+                    .catch(err => {
+                        dispatch(fetchItemsSuccess([], getState().items))
+                        window.utils.showErrorBox(
+                            "A database error has occurred.",
+                            String(err)
+                        )
+                        console.log(err)
+                        reject(err)
+                    })
             })
         }
     }
 }
 
-const markReadDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: MARK_READ, 
-    item: item 
+const markReadDone = (item: RSSItem): ItemActionTypes => ({
+    type: MARK_READ,
+    item: item,
 })
 
-const markUnreadDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: MARK_UNREAD, 
-    item: item 
+const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
+    type: MARK_UNREAD,
+    item: item,
 })
 
 export function markRead(item: RSSItem): AppThunk {
-    return (dispatch) => {
+    return dispatch => {
         if (!item.hasRead) {
-            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hasRead, true).exec()
+            db.itemsDB
+                .update(db.items)
+                .where(db.items._id.eq(item._id))
+                .set(db.items.hasRead, true)
+                .exec()
             dispatch(markReadDone(item))
             if (item.serviceRef) {
                 dispatch(dispatch(getServiceHooks()).markRead?.(item))
@@ -251,45 +327,63 @@ export function markRead(item: RSSItem): AppThunk {
     }
 }
 
-export function markAllRead(sids: number[] = null, date: Date = null, before = true): AppThunk<Promise<void>> {
+export function markAllRead(
+    sids: number[] = null,
+    date: Date = null,
+    before = true
+): AppThunk<Promise<void>> {
     return async (dispatch, getState) => {
         let state = getState()
         if (sids === null) {
             let feed = state.feeds[state.page.feedId]
             sids = feed.sids
         }
-        const action = dispatch(getServiceHooks()).markAllRead?.(sids, date, before)
+        const action = dispatch(getServiceHooks()).markAllRead?.(
+            sids,
+            date,
+            before
+        )
         if (action) await dispatch(action)
         const predicates: lf.Predicate[] = [
             db.items.source.in(sids),
-            db.items.hasRead.eq(false)
+            db.items.hasRead.eq(false),
         ]
         if (date) {
-            predicates.push(before ? db.items.date.lte(date) : db.items.date.gte(date))
+            predicates.push(
+                before ? db.items.date.lte(date) : db.items.date.gte(date)
+            )
         }
         const query = lf.op.and.apply(null, predicates)
-        await db.itemsDB.update(db.items).set(db.items.hasRead, true).where(query).exec()
+        await db.itemsDB
+            .update(db.items)
+            .set(db.items.hasRead, true)
+            .where(query)
+            .exec()
         if (date) {
             dispatch({
                 type: MARK_ALL_READ,
                 sids: sids,
                 time: date.getTime(),
-                before: before
+                before: before,
             })
             dispatch(updateUnreadCounts())
         } else {
             dispatch({
                 type: MARK_ALL_READ,
-                sids: sids
+                sids: sids,
             })
         }
     }
 }
 
 export function markUnread(item: RSSItem): AppThunk {
-    return (dispatch) => {
+    return dispatch => {
         if (item.hasRead) {
-            db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hasRead, false).exec()
+            db.itemsDB
+                .update(db.items)
+                .where(db.items._id.eq(item._id))
+                .set(db.items.hasRead, false)
+                .exec()
             dispatch(markUnreadDone(item))
             if (item.serviceRef) {
                 dispatch(dispatch(getServiceHooks()).markUnread?.(item))
@@ -298,14 +392,18 @@ export function markUnread(item: RSSItem): AppThunk {
     }
 }
 
-const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: TOGGLE_STARRED, 
-    item: item 
+const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
+    type: TOGGLE_STARRED,
+    item: item,
 })
 
 export function toggleStarred(item: RSSItem): AppThunk {
-    return (dispatch) => {
-        db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.starred, !item.starred).exec()
+    return dispatch => {
+        db.itemsDB
+            .update(db.items)
+            .where(db.items._id.eq(item._id))
+            .set(db.items.starred, !item.starred)
+            .exec()
         dispatch(toggleStarredDone(item))
         if (item.serviceRef) {
             const hooks = dispatch(getServiceHooks())
@@ -315,34 +413,42 @@ export function toggleStarred(item: RSSItem): AppThunk {
     }
 }
 
-const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({ 
-    type: TOGGLE_HIDDEN, 
-    item: item 
+const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({
+    type: TOGGLE_HIDDEN,
+    item: item,
 })
 
 export function toggleHidden(item: RSSItem): AppThunk {
-    return (dispatch) => {
-        db.itemsDB.update(db.items).where(db.items._id.eq(item._id)).set(db.items.hidden, !item.hidden).exec()
+    return dispatch => {
+        db.itemsDB
+            .update(db.items)
+            .where(db.items._id.eq(item._id))
+            .set(db.items.hidden, !item.hidden)
+            .exec()
         dispatch(toggleHiddenDone(item))
     }
 }
 
 export function itemShortcuts(item: RSSItem, e: KeyboardEvent): AppThunk {
-    return (dispatch) => {
+    return dispatch => {
         if (e.metaKey) return
         switch (e.key) {
-            case "m": case "M":
+            case "m":
+            case "M":
                 if (item.hasRead) dispatch(markUnread(item))
                 else dispatch(markRead(item))
                 break
-            case "b": case "B":
+            case "b":
+            case "B":
                 if (!item.hasRead) dispatch(markRead(item))
                 window.utils.openExternal(item.link, platformCtrl(e))
                 break
-            case "s": case "S":
+            case "s":
+            case "S":
                 dispatch(toggleStarred(item))
                 break
-            case "h": case "H":
+            case "h":
+            case "H":
                 if (!item.hasRead && !item.hidden) dispatch(markRead(item))
                 dispatch(toggleHidden(item))
                 break
@@ -372,7 +478,11 @@ export function applyItemReduction(item: RSSItem, type: string) {
 
 export function itemReducer(
     state: ItemState = {},
-    action: ItemActionTypes | FeedActionTypes | ServiceActionTypes | SettingsActionTypes
+    action:
+        | ItemActionTypes
+        | FeedActionTypes
+        | ServiceActionTypes
+        | SettingsActionTypes
 ): ItemState {
     switch (action.type) {
         case FETCH_ITEMS:
@@ -382,9 +492,10 @@ export function itemReducer(
                     for (let i of action.items) {
                         newMap[i._id] = i
                     }
-                    return {...newMap, ...state}
+                    return { ...newMap, ...state }
                 }
-                default: return state
+                default:
+                    return state
             }
         case MARK_UNREAD:
         case MARK_READ:
@@ -392,7 +503,10 @@ export function itemReducer(
         case TOGGLE_HIDDEN: {
             return {
                 ...state,
-                [action.item._id]: applyItemReduction(state[action.item._id], action.type)
+                [action.item._id]: applyItemReduction(
+                    state[action.item._id],
+                    action.type
+                ),
             }
         }
         case MARK_ALL_READ: {
@@ -400,13 +514,15 @@ export function itemReducer(
             let sids = new Set(action.sids)
             for (let item of Object.values(state)) {
                 if (sids.has(item.source) && !item.hasRead) {
-                    if (!action.time || (action.before 
-                        ? item.date.getTime() <= action.time 
-                        : item.date.getTime() >= action.time)
+                    if (
+                        !action.time ||
+                        (action.before
+                            ? item.date.getTime() <= action.time
+                            : item.date.getTime() >= action.time)
                     ) {
                         nextState[item._id] = {
                             ...item,
-                            hasRead: true
+                            hasRead: true,
                         }
                     }
                 }
@@ -423,7 +539,8 @@ export function itemReducer(
                     }
                     return nextState
                 }
-                default: return state
+                default:
+                    return state
             }
         }
         case SYNC_LOCAL_ITEMS: {
@@ -445,6 +562,7 @@ export function itemReducer(
             }
             return nextState
         }
-        default: return state
+        default:
+            return state
     }
 }

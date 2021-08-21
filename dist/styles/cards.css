@@ -30,7 +30,8 @@
     font-size: 12px;
 }
 
-.read-indicator, .starred-indicator {
+.read-indicator,
+.starred-indicator {
     display: block;
     width: 16px;
     height: 16px;
@@ -99,14 +100,15 @@
     background-color: var(--white);
     box-shadow: #0004 0 5px 20px;
     margin: 18px 12px;
-    transition: box-shadow linear .08s, transform linear .08s;
+    transition: box-shadow linear 0.08s, transform linear 0.08s;
     animation-fill-mode: none;
 }
-.default-card:hover, .ms-Fabric--isFocusVisible .default-card:focus {
+.default-card:hover,
+.ms-Fabric--isFocusVisible .default-card:focus {
     box-shadow: #0006 0 5px 40px;
 }
 .default-card:active {
-    transform: scale(.97);
+    transform: scale(0.97);
     box-shadow: #0004 0 5px 20px;
 }
 
@@ -132,10 +134,14 @@
     height: 144px;
     -webkit-user-drag: none;
 }
-.default-card img.head, .default-card p, .default-card h3 {
-    transition: transform ease-out .12s;
+.default-card img.head,
+.default-card p,
+.default-card h3 {
+    transition: transform ease-out 0.12s;
 }
-.default-card.transform:hover img.head, .default-card.transform:hover p, .default-card.transform:hover h3,
+.default-card.transform:hover img.head,
+.default-card.transform:hover p,
+.default-card.transform:hover h3,
 .ms-Fabric--isFocusVisible .default-card.transform:focus img.head,
 .ms-Fabric--isFocusVisible .default-card.transform:focus p,
 .ms-Fabric--isFocusVisible .default-card.transform:focus h3 {
@@ -172,11 +178,12 @@
 
 .list-card {
     display: flex;
-    transition: box-shadow linear .08s;
+    transition: box-shadow linear 0.08s;
     border-bottom: 1px solid var(--neutralQuaternaryAlt);
     box-shadow: #0000 0 5px 15px;
 }
-.list-card:hover, .ms-Fabric--isFocusVisible .list-card:focus {
+.list-card:hover,
+.ms-Fabric--isFocusVisible .list-card:focus {
     box-shadow: #0004 0 5px 15px;
 }
 .list-card:active {
@@ -230,7 +237,8 @@
     height: 100%;
     border-left: 2px solid var(--primary);
 }
-.list-card.read, .list-card.read p.snippet {
+.list-card.read,
+.list-card.read p.snippet {
     color: var(--neutralSecondaryAlt);
 }
 
@@ -239,20 +247,22 @@
     padding: 24px;
     max-height: 160px;
     display: flex;
-    transition: box-shadow linear .08s, background-color linear .08s, transform linear .08s;
+    transition: box-shadow linear 0.08s, background-color linear 0.08s,
+        transform linear 0.08s;
     border-bottom: 1px solid var(--neutralQuaternaryAlt);
     box-shadow: #0000 0 5px 20px;
 }
 .magazine-card.read {
     color: var(--neutralSecondaryAlt);
 }
-.magazine-card:hover, .ms-Fabric--isFocusVisible .magazine-card:focus {
+.magazine-card:hover,
+.ms-Fabric--isFocusVisible .magazine-card:focus {
     box-shadow: #0004 0 5px 20px;
     background-color: var(--white);
 }
 .magazine-card:active {
     box-shadow: #0000 0 5px 20px;
-    transform: scale(.97);
+    transform: scale(0.97);
     background-color: unset;
 }
 .magazine-card div.head {
@@ -279,7 +289,8 @@
     height: 16px;
     margin: 0;
 }
-.magazine-card h3.title, .magazine-card p.snippet {
+.magazine-card h3.title,
+.magazine-card p.snippet {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -304,9 +315,10 @@
     font-size: 14px;
     line-height: 31px;
     padding: 0 9px;
-    transition: box-shadow linear .08s, background-color linear .08s;
+    transition: box-shadow linear 0.08s, background-color linear 0.08s;
 }
-.compact-card:hover, .ms-Fabric--isFocusVisible .compact-card:focus {
+.compact-card:hover,
+.ms-Fabric--isFocusVisible .compact-card:focus {
     box-shadow: #0004 0 0 10px;
     background-color: var(--white);
 }

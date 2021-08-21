@@ -7,14 +7,17 @@ import Url from "url"
 import { SearchEngines } from "../schema-types"
 
 export enum ActionStatus {
-    Request, Success, Failure, Intermediate
+    Request,
+    Success,
+    Failure,
+    Intermediate,
 }
 
 export type AppThunk<ReturnType = void> = ThunkAction<
-  ReturnType,
-  RootState,
-  unknown,
-  AnyAction
+    ReturnType,
+    RootState,
+    unknown,
+    AnyAction
 >
 
 export type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>
@@ -22,32 +25,47 @@ export type AppDispatch = ThunkDispatch<RootState, undefined, AnyAction>
 const rssParser = new Parser({
     customFields: {
         item: [
-            "thumb", "image", ["content:encoded", "fullContent"], 
-            ['media:content', 'mediaContent', {keepArray: true}],
-        ] as Parser.CustomFieldItem[]
-    }
+            "thumb",
+            "image",
+            ["content:encoded", "fullContent"],
+            ["media:content", "mediaContent", { keepArray: true }],
+        ] as Parser.CustomFieldItem[],
+    },
 })
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
 const XML_ENCODING_RE = /^<\?xml.+encoding="(.+?)".*?\?>/i
 export async function decodeFetchResponse(response: Response, isHTML = false) {
     const buffer = await response.arrayBuffer()
-    let ctype = response.headers.has("content-type") && response.headers.get("content-type")
-    let charset = (ctype && CHARSET_RE.test(ctype)) ? CHARSET_RE.exec(ctype)[1] : undefined
-    let content = (new TextDecoder(charset)).decode(buffer)
+    let ctype =
+        response.headers.has("content-type") &&
+        response.headers.get("content-type")
+    let charset =
+        ctype && CHARSET_RE.test(ctype) ? CHARSET_RE.exec(ctype)[1] : undefined
+    let content = new TextDecoder(charset).decode(buffer)
     if (charset === undefined) {
         if (isHTML) {
             const dom = domParser.parseFromString(content, "text/html")
-            charset = dom.querySelector("meta[charset]")?.getAttribute("charset")?.toLowerCase()
+            charset = dom
+                .querySelector("meta[charset]")
+                ?.getAttribute("charset")
+                ?.toLowerCase()
             if (!charset) {
-                ctype = dom.querySelector("meta[http-equiv='Content-Type']")?.getAttribute("content")
-                charset = ctype && CHARSET_RE.test(ctype) && CHARSET_RE.exec(ctype)[1].toLowerCase()
+                ctype = dom
+                    .querySelector("meta[http-equiv='Content-Type']")
+                    ?.getAttribute("content")
+                charset =
+                    ctype &&
+                    CHARSET_RE.test(ctype) &&
+                    CHARSET_RE.exec(ctype)[1].toLowerCase()
             }
         } else {
-            charset = XML_ENCODING_RE.test(content) && XML_ENCODING_RE.exec(content)[1].toLowerCase()
+            charset =
+                XML_ENCODING_RE.test(content) &&
+                XML_ENCODING_RE.exec(content)[1].toLowerCase()
         }
         if (charset && charset !== "utf-8" && charset !== "utf8") {
-            content = (new TextDecoder(charset)).decode(buffer)
+            content = new TextDecoder(charset).decode(buffer)
         }
     }
     return content
@@ -62,7 +80,9 @@ export async function parseRSS(url: string) {
     }
     if (result && result.ok) {
         try {
-            return await rssParser.parseString(await decodeFetchResponse(result))
+            return await rssParser.parseString(
+                await decodeFetchResponse(result)
+            )
         } catch {
             throw new Error(intl.get("log.parseError"))
         }
@@ -83,7 +103,10 @@ export async function fetchFavicon(url: string) {
             let links = dom.getElementsByTagName("link")
             for (let link of links) {
                 let rel = link.getAttribute("rel")
-                if ((rel === "icon" || rel === "shortcut icon") && link.hasAttribute("href")) {
+                if (
+                    (rel === "icon" || rel === "shortcut icon") &&
+                    link.hasAttribute("href")
+                ) {
                     let href = link.getAttribute("href")
                     let parsedUrl = Url.parse(url)
                     if (href.startsWith("//")) return parsedUrl.protocol + href
@@ -93,7 +116,7 @@ export async function fetchFavicon(url: string) {
             }
         }
         url = url + "/favicon.ico"
-        if (await validateFavicon(url)) { 
+        if (await validateFavicon(url)) {
             return url
         } else {
             return null
@@ -107,8 +130,11 @@ export async function validateFavicon(url: string) {
     let flag = false
     try {
         const result = await fetch(url, { credentials: "omit" })
-        if (result.status == 200 && result.headers.has("Content-Type")
-            && result.headers.get("Content-Type").startsWith("image")) {
+        if (
+            result.status == 200 &&
+            result.headers.has("Content-Type") &&
+            result.headers.get("Content-Type").startsWith("image")
+        ) {
             flag = true
         }
     } finally {
@@ -121,41 +147,55 @@ export function htmlDecode(input: string) {
     return doc.documentElement.textContent
 }
 
-export const urlTest = (s: string) => 
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,63}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi.test(s)
+export const urlTest = (s: string) =>
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,63}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi.test(
+        s
+    )
 
 export const getWindowBreakpoint = () => window.outerWidth >= 1440
 
 export const cutText = (s: string, length: number) => {
-    return (s.length <= length) ? s : s.slice(0, length) + "…"
+    return s.length <= length ? s : s.slice(0, length) + "…"
 }
 
 export function getSearchEngineName(engine: SearchEngines) {
     switch (engine) {
-        case SearchEngines.Google: 
+        case SearchEngines.Google:
             return intl.get("searchEngine.google")
-        case SearchEngines.Bing: 
+        case SearchEngines.Bing:
             return intl.get("searchEngine.bing")
-        case SearchEngines.Baidu: 
+        case SearchEngines.Baidu:
             return intl.get("searchEngine.baidu")
-        case SearchEngines.DuckDuckGo: 
+        case SearchEngines.DuckDuckGo:
             return intl.get("searchEngine.duckduckgo")
     }
 }
-export function webSearch(text: string, engine=SearchEngines.Google) {
+export function webSearch(text: string, engine = SearchEngines.Google) {
     switch (engine) {
         case SearchEngines.Google:
-            return window.utils.openExternal("https://www.google.com/search?q=" + encodeURIComponent(text))
+            return window.utils.openExternal(
+                "https://www.google.com/search?q=" + encodeURIComponent(text)
+            )
         case SearchEngines.Bing:
-            return window.utils.openExternal("https://www.bing.com/search?q=" + encodeURIComponent(text))
+            return window.utils.openExternal(
+                "https://www.bing.com/search?q=" + encodeURIComponent(text)
+            )
         case SearchEngines.Baidu:
-            return window.utils.openExternal("https://www.baidu.com/s?wd=" + encodeURIComponent(text))
+            return window.utils.openExternal(
+                "https://www.baidu.com/s?wd=" + encodeURIComponent(text)
+            )
         case SearchEngines.DuckDuckGo:
-            return window.utils.openExternal("https://duckduckgo.com/?q=" + encodeURIComponent(text))
+            return window.utils.openExternal(
+                "https://duckduckgo.com/?q=" + encodeURIComponent(text)
+            )
     }
 }
 
-export function mergeSortedArrays<T>(a: T[], b: T[], cmp: ((x: T, y: T) => number)): T[] {
+export function mergeSortedArrays<T>(
+    a: T[],
+    b: T[],
+    cmp: (x: T, y: T) => number
+): T[] {
     let merged = new Array<T>()
     let i = 0
     let j = 0
@@ -177,14 +217,14 @@ export function byteToMB(B: number) {
 }
 
 function byteLength(str: string) {
-    var s = str.length;
+    var s = str.length
     for (var i = str.length - 1; i >= 0; i--) {
-        var code = str.charCodeAt(i);
-        if (code > 0x7f && code <= 0x7ff) s++;
-        else if (code > 0x7ff && code <= 0xffff) s += 2;
-        if (code >= 0xDC00 && code <= 0xDFFF) i--; //trail surrogate
+        var code = str.charCodeAt(i)
+        if (code > 0x7f && code <= 0x7ff) s++
+        else if (code > 0x7ff && code <= 0xffff) s += 2
+        if (code >= 0xdc00 && code <= 0xdfff) i-- //trail surrogate
     }
-    return s;
+    return s
 }
 
 export function calculateItemSize(): Promise<number> {
@@ -218,7 +258,9 @@ export function validateRegex(regex: string, flags = ""): RegExp {
     }
 }
 
-export function platformCtrl(e: React.MouseEvent | React.KeyboardEvent | MouseEvent | KeyboardEvent) {
+export function platformCtrl(
+    e: React.MouseEvent | React.KeyboardEvent | MouseEvent | KeyboardEvent
+) {
     return window.utils.platform === "darwin" ? e.metaKey : e.ctrlKey
 }
 
@@ -228,6 +270,6 @@ export function initTouchBarWithTexts() {
         search: intl.get("search"),
         refresh: intl.get("nav.refresh"),
         markAll: intl.get("nav.markAllRead"),
-        notifications: intl.get("nav.notifications")
+        notifications: intl.get("nav.notifications"),
     })
 }

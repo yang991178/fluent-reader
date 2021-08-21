@@ -10,9 +10,9 @@ const getLogs = (state: RootState) => state.app.logMenu
 const mapStateToProps = createSelector(getLogs, logs => logs)
 
 const mapDispatchToProps = dispatch => {
-    return { 
+    return {
         close: () => dispatch(toggleLogMenu()),
-        showItem: (iid: number) => dispatch(showItemFromId(iid))
+        showItem: (iid: number) => dispatch(showItemFromId(iid)),
     }
 }
 

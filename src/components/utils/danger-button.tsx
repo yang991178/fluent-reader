@@ -1,12 +1,12 @@
 import * as React from "react"
 import intl from "react-intl-universal"
-import { PrimaryButton } from "@fluentui/react";
+import { PrimaryButton } from "@fluentui/react"
 
 class DangerButton extends PrimaryButton {
     timerID: NodeJS.Timeout
 
     state = {
-        confirming: false
+        confirming: false,
     }
 
     clear = () => {
@@ -34,12 +34,17 @@ class DangerButton extends PrimaryButton {
     }
 
     render = () => (
-        <PrimaryButton 
-            {...this.props} 
+        <PrimaryButton
+            {...this.props}
             className={this.props.className + " danger"}
             onClick={this.onClick}
-            text={this.state.confirming ? intl.get("dangerButton", { action: this.props.text.toLowerCase() }) : this.props.text}
-        >
+            text={
+                this.state.confirming
+                    ? intl.get("dangerButton", {
+                          action: this.props.text.toLowerCase(),
+                      })
+                    : this.props.text
+            }>
             {this.props.children}
         </PrimaryButton>
     )

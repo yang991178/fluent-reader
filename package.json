@@ -7,6 +7,7 @@
     "build": "webpack --config ./webpack.config.js",
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
+    "format": "prettier --write .",
     "package-win": "electron-builder -w appx:x64 && electron-builder -w appx:ia32 && electron-builder -w appx:arm64",
     "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
     "package-mac": "electron-builder --mac --x64",
@@ -35,6 +36,7 @@
     "js-md5": "^0.7.3",
     "lovefield": "^2.1.12",
     "nedb": "^1.8.0",
+    "prettier": "2.3.2",
     "qrcode.react": "^1.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -45,7 +47,7 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "ts-loader": "^7.0.4",
-    "typescript": "^3.9.2",
+    "typescript": "^4.3.5",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   }

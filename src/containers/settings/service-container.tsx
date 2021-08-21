@@ -4,17 +4,19 @@ import { RootState } from "../../scripts/reducer"
 import { ServiceTab } from "../../components/settings/service"
 import { AppDispatch } from "../../scripts/utils"
 import { ServiceConfigs } from "../../schema-types"
-import { saveServiceConfigs, getServiceHooksFromType, removeService, syncWithService } from "../../scripts/models/service"
+import {
+    saveServiceConfigs,
+    getServiceHooksFromType,
+    removeService,
+    syncWithService,
+} from "../../scripts/models/service"
 import { saveSettings } from "../../scripts/models/app"
 
 const getService = (state: RootState) => state.service
 
-const mapStateToProps = createSelector(
-    [getService],
-    (service) => ({
-        configs: service
-    })
-)
+const mapStateToProps = createSelector([getService], service => ({
+    configs: service,
+}))
 
 const mapDispatchToProps = (dispatch: AppDispatch) => ({
     save: (configs: ServiceConfigs) => dispatch(saveServiceConfigs(configs)),
@@ -34,8 +36,11 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
             console.log(err)
             return configs
         }
-    }
+    },
 })
 
-const ServiceTabContainer = connect(mapStateToProps, mapDispatchToProps)(ServiceTab)
+const ServiceTabContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(ServiceTab)
 export default ServiceTabContainer

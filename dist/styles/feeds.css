@@ -1,13 +1,18 @@
 @keyframes slideUp20 {
-    0% { transform: translateY(20px); }
-    100% { transform: translateY(0); }
+    0% {
+        transform: translateY(20px);
+    }
+    100% {
+        transform: translateY(0);
+    }
 }
 .article-wrapper {
     margin: 32px auto 0;
     width: 860px;
     height: calc(100% - 50px);
     background-color: var(--white);
-    box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,.132), 0 1.2px 3.6px 0 rgba(0,0,0,.108);
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132),
+        0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
     border-radius: 5px;
     overflow: hidden;
     animation-name: slideUp20;
@@ -17,7 +22,7 @@
 }
 .article-container .btn-group {
     position: absolute;
-    top: calc(50% - 32px)
+    top: calc(50% - 32px);
 }
 .article-container .btn-group.prev {
     left: calc(50% - 486px);
@@ -29,7 +34,8 @@
     height: 100%;
     user-select: none;
 }
-.article webview, .article .error-prompt {
+.article webview,
+.article .error-prompt {
     width: 100%;
     height: calc(100% - 36px);
     border: none;
@@ -45,7 +51,8 @@
     color: var(--black);
     border-bottom: 1px solid var(--neutralQuaternaryAlt);
 }
-.article .actions .favicon, .article .actions .ms-Spinner {
+.article .actions .favicon,
+.article .actions .ms-Spinner {
     margin: 8px 8px 11px 0;
 }
 .article .actions .ms-Spinner {
@@ -70,7 +77,8 @@
     content: "/";
     margin: 0 6px;
 }
-.side-article-wrapper, .side-logo-wrapper {
+.side-article-wrapper,
+.side-logo-wrapper {
     flex-grow: 1;
     padding-top: var(--navHeight);
     height: calc(100% - var(--navHeight));
@@ -108,7 +116,8 @@
 .side-article-wrapper .article > .ms-Stack {
     border-top: 1px solid var(--neutralQuaternaryAlt);
 }
-.list-feed-container:first-child::before, .side-article-wrapper::before {
+.list-feed-container:first-child::before,
+.side-article-wrapper::before {
     content: "";
     display: block;
     width: 100%;
@@ -156,7 +165,8 @@
     padding: 16px 0;
 }
 
-.magazine-feed, .compact-feed {
+.magazine-feed,
+.compact-feed {
     padding-top: 28px;
     height: calc(100% - 60px);
     overflow: hidden scroll;
@@ -184,7 +194,8 @@
     justify-content: space-around;
     flex-wrap: wrap;
 }
-.cards-feed-container > div.load-more-wrapper, .flex-fix {
+.cards-feed-container > div.load-more-wrapper,
+.flex-fix {
     text-align: center;
 }
 .cards-feed-container > div.load-more-wrapper {

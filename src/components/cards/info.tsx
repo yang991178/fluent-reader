@@ -10,7 +10,7 @@ type CardInfoProps = {
     showCreator?: boolean
 }
 
-const CardInfo: React.FunctionComponent<CardInfoProps> = (props) => (
+const CardInfo: React.FunctionComponent<CardInfoProps> = props => (
     <p className="info">
         {props.source.iconurl ? <img src={props.source.iconurl} /> : null}
         <span className="name">
@@ -19,7 +19,9 @@ const CardInfo: React.FunctionComponent<CardInfoProps> = (props) => (
                 <span className="creator">{props.item.creator}</span>
             )}
         </span>
-        {props.item.starred ? <span className="starred-indicator"></span> : null}
+        {props.item.starred ? (
+            <span className="starred-indicator"></span>
+        ) : null}
         {props.item.hasRead ? null : <span className="read-indicator"></span>}
         {props.hideTime ? null : <Time date={props.item.date} />}
     </p>

@@ -12,14 +12,14 @@ import ServiceTabContainer from "../containers/settings/service-container"
 import { initTouchBarWithTexts } from "../scripts/utils"
 
 type SettingsProps = {
-    display: boolean,
-    blocked: boolean,
-    exitting: boolean,
+    display: boolean
+    blocked: boolean
+    exitting: boolean
     close: () => void
 }
 
-class Settings extends React.Component<SettingsProps> { 
-    constructor(props){ 
+class Settings extends React.Component<SettingsProps> {
+    constructor(props) {
         super(props)
     }
 
@@ -30,7 +30,8 @@ class Settings extends React.Component<SettingsProps> {
     componentDidUpdate = (prevProps: SettingsProps) => {
         if (this.props.display !== prevProps.display) {
             if (this.props.display) {
-                if (window.utils.platform === "darwin") window.utils.destroyTouchBar()
+                if (window.utils.platform === "darwin")
+                    window.utils.destroyTouchBar()
                 document.body.addEventListener("keydown", this.onKeyDown)
             } else {
                 if (window.utils.platform === "darwin") initTouchBarWithTexts()
@@ -39,42 +40,71 @@ class Settings extends React.Component<SettingsProps> {
         }
     }
 
-    render = () => this.props.display && (
-        <div className="settings-container">
-            <div className="btn-group" style={{position: "absolute", top: 70, left: "calc(50% - 404px)"}}>
-                <a className={"btn" + (this.props.exitting ? " disabled" : "")} title={intl.get("settings.exit")} onClick={this.props.close}>
-                    <Icon iconName="Back" />
-                </a>
+    render = () =>
+        this.props.display && (
+            <div className="settings-container">
+                <div
+                    className="btn-group"
+                    style={{
+                        position: "absolute",
+                        top: 70,
+                        left: "calc(50% - 404px)",
+                    }}>
+                    <a
+                        className={
+                            "btn" + (this.props.exitting ? " disabled" : "")
+                        }
+                        title={intl.get("settings.exit")}
+                        onClick={this.props.close}>
+                        <Icon iconName="Back" />
+                    </a>
+                </div>
+                <div className={"settings " + AnimationClassNames.slideUpIn20}>
+                    {this.props.blocked && (
+                        <FocusTrapZone
+                            isClickableOutsideFocusTrap={true}
+                            className="loading">
+                            <Spinner
+                                label={intl.get("settings.fetching")}
+                                tabIndex={0}
+                            />
+                        </FocusTrapZone>
+                    )}
+                    <Pivot>
+                        <PivotItem
+                            headerText={intl.get("settings.sources")}
+                            itemIcon="Source">
+                            <SourcesTabContainer />
+                        </PivotItem>
+                        <PivotItem
+                            headerText={intl.get("settings.grouping")}
+                            itemIcon="GroupList">
+                            <GroupsTabContainer />
+                        </PivotItem>
+                        <PivotItem
+                            headerText={intl.get("settings.rules")}
+                            itemIcon="FilterSettings">
+                            <RulesTabContainer />
+                        </PivotItem>
+                        <PivotItem
+                            headerText={intl.get("settings.service")}
+                            itemIcon="CloudImportExport">
+                            <ServiceTabContainer />
+                        </PivotItem>
+                        <PivotItem
+                            headerText={intl.get("settings.app")}
+                            itemIcon="Settings">
+                            <AppTabContainer />
+                        </PivotItem>
+                        <PivotItem
+                            headerText={intl.get("settings.about")}
+                            itemIcon="Info">
+                            <AboutTab />
+                        </PivotItem>
+                    </Pivot>
+                </div>
             </div>
-            <div className={"settings " + AnimationClassNames.slideUpIn20}>
-                {this.props.blocked && (
-                    <FocusTrapZone isClickableOutsideFocusTrap={true} className="loading">
-                        <Spinner label={intl.get("settings.fetching")} tabIndex={0} />
-                    </FocusTrapZone>
-                )}
-                <Pivot>
-                    <PivotItem headerText={intl.get("settings.sources")} itemIcon="Source">
-                        <SourcesTabContainer />
-                    </PivotItem>
-                    <PivotItem headerText={intl.get("settings.grouping")} itemIcon="GroupList">
-                        <GroupsTabContainer />
-                    </PivotItem>
-                    <PivotItem headerText={intl.get("settings.rules")} itemIcon="FilterSettings">
-                        <RulesTabContainer />
-                    </PivotItem>
-                    <PivotItem headerText={intl.get("settings.service")} itemIcon="CloudImportExport">
-                        <ServiceTabContainer />
-                    </PivotItem>
-                    <PivotItem headerText={intl.get("settings.app")} itemIcon="Settings">
-                        <AppTabContainer />
-                    </PivotItem>
-                    <PivotItem headerText={intl.get("settings.about")} itemIcon="Info">
-                        <AboutTab />
-                    </PivotItem>
-                </Pivot>
-            </div>
-        </div>
-    )
+        )
 }
 
 export default Settings

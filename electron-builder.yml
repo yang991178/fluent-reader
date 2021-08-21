@@ -2,61 +2,61 @@ appId: me.hyliu.fluentreader
 productName: Fluent Reader
 copyright: Copyright © 2020 Haoyuan Liu
 files:
-  - "./dist/**/*"
-  - "!**/*.js.map"
+    - "./dist/**/*"
+    - "!**/*.js.map"
 directories:
-  output: "./bin/${platform}/${arch}/"
+    output: "./bin/${platform}/${arch}/"
 mac:
-  darkModeSupport: true
-  target:
-    - dmg
-  category: public.app-category.news
-  electronLanguages:
-    - zh_CN
-    - zh_TW
-    - en
-    - fr
-    - es
-    - de
-    - tr
-    - ja
-    - sv
-    - uk
-    - it
-    - nl
+    darkModeSupport: true
+    target:
+        - dmg
+    category: public.app-category.news
+    electronLanguages:
+        - zh_CN
+        - zh_TW
+        - en
+        - fr
+        - es
+        - de
+        - tr
+        - ja
+        - sv
+        - uk
+        - it
+        - nl
 win:
-  target:
-    - nsis
-    - zip
+    target:
+        - nsis
+        - zip
 appx:
-  applicationId: FluentReader
-  identityName: 25286HaoyuanLiu.FluentReader
-  publisher: CN=FD70E7FA-E5AC-41C4-B9C4-6E8708A6616A
-  backgroundColor: transparent
-  languages:
-    - zh-CN
-    - zh-TW
-    - en-US
-    - fr-FR
-    - es
-    - de
-    - tr
-    - ja
-    - sv
-    - uk
-    - it
-    - nl
-  showNameOnTiles: true
-  setBuildNumber: true
+    applicationId: FluentReader
+    identityName: 25286HaoyuanLiu.FluentReader
+    publisher: CN=FD70E7FA-E5AC-41C4-B9C4-6E8708A6616A
+    backgroundColor: transparent
+    languages:
+        - zh-CN
+        - zh-TW
+        - en-US
+        - fr-FR
+        - es
+        - de
+        - tr
+        - ja
+        - sv
+        - uk
+        - it
+        - nl
+    showNameOnTiles: true
+    setBuildNumber: true
 nsis:
-  oneClick: false
-  perMachine: true
-  allowToChangeInstallationDirectory: true
-  deleteAppDataOnUninstall: true
+    oneClick: false
+    perMachine: true
+    allowToChangeInstallationDirectory: true
+    deleteAppDataOnUninstall: true
 linux:
-  target:
-    - AppImage
-  icon: build/icons
-  category: Utility
-  desktop:
-    StartupWMClass: fluent-reader
+    target:
+        - AppImage
+    icon: build/icons
+    category: Utility
+    desktop:
+        StartupWMClass: fluent-reader

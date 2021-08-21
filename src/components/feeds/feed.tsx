@@ -21,17 +21,15 @@ export type FeedProps = FeedReduxProps & {
     showItem: (fid: string, item: RSSItem) => void
 }
 
-export class Feed extends React.Component<FeedProps> { 
+export class Feed extends React.Component<FeedProps> {
     render() {
         switch (this.props.viewType) {
-            case (ViewType.Cards): return (
-                <CardsFeed {...this.props} />
-            )
-            case (ViewType.Magazine):
-            case (ViewType.Compact):
-            case (ViewType.List): return (
-                <ListFeed {...this.props} />
-            )
+            case ViewType.Cards:
+                return <CardsFeed {...this.props} />
+            case ViewType.Magazine:
+            case ViewType.Compact:
+            case ViewType.List:
+                return <ListFeed {...this.props} />
         }
     }
 }

@@ -43,19 +43,22 @@ class ArticleSearch extends React.Component<SearchProps, SearchState> {
     }
 
     render() {
-        return this.props.searchOn && (
-            <SearchBox 
-                componentRef={this.inputRef}
-                className="article-search"
-                placeholder={intl.get("search")}
-                value={this.state.query}
-                onChange={this.onSearchChange} />
+        return (
+            this.props.searchOn && (
+                <SearchBox
+                    componentRef={this.inputRef}
+                    className="article-search"
+                    placeholder={intl.get("search")}
+                    value={this.state.query}
+                    onChange={this.onSearchChange}
+                />
+            )
         )
     }
 }
 
 const getSearchProps = (state: RootState) => ({
     searchOn: state.page.searchOn,
-    initQuery: state.page.filter.search
+    initQuery: state.page.filter.search,
 })
 export default connect(getSearchProps)(ArticleSearch)

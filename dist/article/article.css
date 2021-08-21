@@ -1,7 +1,9 @@
 @import "../styles/scroll.css";
 
-html, body {
-    font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif;
+html,
+body {
+    font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei",
+        sans-serif;
 }
 html {
     overflow: hidden scroll;
@@ -21,14 +23,22 @@ html {
     }
 }
 
-h1, h2, h3, h4, h5, h6, b, strong {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong {
     font-weight: 600;
 }
 a {
     color: var(--primary);
     text-decoration: none;
 }
-a:hover, a:active {
+a:hover,
+a:active {
     color: var(--primary-alt);
     text-decoration: underline;
 }
@@ -64,7 +74,7 @@ a:hover, a:active {
 }
 #main > p.date {
     color: var(--gray);
-    font-size: .875rem;
+    font-size: 0.875rem;
 }
 
 article {
@@ -81,7 +91,7 @@ article figure {
     text-align: center;
 }
 article figure figcaption {
-    font-size: .875rem;
+    font-size: 0.875rem;
     color: var(--gray);
     -webkit-user-modify: read-only;
 }
@@ -90,7 +100,7 @@ article iframe {
 }
 article code {
     font-family: Monaco, Consolas, monospace;
-    font-size: .875rem;
+    font-size: 0.875rem;
     line-height: 1;
 }
 article blockquote {

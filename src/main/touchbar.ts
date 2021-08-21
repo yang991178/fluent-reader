@@ -1,11 +1,14 @@
 import { TouchBarTexts } from "../schema-types"
 import { BrowserWindow, TouchBar } from "electron"
 
-
-function createTouchBarFunctionButton(window: BrowserWindow, text: string, key: string) {
+function createTouchBarFunctionButton(
+    window: BrowserWindow,
+    text: string,
+    key: string
+) {
     return new TouchBar.TouchBarButton({
         label: text,
-        click: () => window.webContents.send("touchbar-event", key)
+        click: () => window.webContents.send("touchbar-event", key),
     })
 }
 
@@ -18,7 +21,7 @@ export function initMainTouchBar(texts: TouchBarTexts, window: BrowserWindow) {
             createTouchBarFunctionButton(window, texts.refresh, "F5"),
             createTouchBarFunctionButton(window, texts.markAll, "F6"),
             createTouchBarFunctionButton(window, texts.notifications, "F7"),
-        ]
+        ],
     })
     window.setTouchBar(touchBar)
 }

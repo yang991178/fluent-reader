@@ -1,77 +1,77 @@
 name: CI/CD Release
 
 on:
-  push:
-    tags:
-      - 'v*'
-  
+    push:
+        tags:
+            - "v*"
+
 jobs:
-  release:
-    runs-on: windows-latest
+    release:
+        runs-on: windows-latest
 
-    steps:
-    - uses: actions/checkout@v2
+        steps:
+            - uses: actions/checkout@v2
 
-    - name: Build and package the app
-      run: |
-        npm install
-        npm run build
-        npm run package-win-ci
+            - name: Build and package the app
+              run: |
+                  npm install
+                  npm run build
+                  npm run package-win-ci
 
-    - name: Get app version
-      id: package-version
-      run: |
-        PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
-        echo ::set-output name=current-version::$PACKAGE_VERSION
-      shell: bash
+            - name: Get app version
+              id: package-version
+              run: |
+                  PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+                  echo ::set-output name=current-version::$PACKAGE_VERSION
+              shell: bash
 
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Fluent Reader v${{ steps.package-version.outputs.current-version }}
-        draft: true
-        prerelease: false
-    
-    - name: Upload x64 exe to release assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/win32/x64/Fluent Reader Setup ${{ steps.package-version.outputs.current-version }}.exe
-        asset_name: Fluent.Reader.Setup.${{ steps.package-version.outputs.current-version }}.x64.exe
-        asset_content_type: application/vnd.microsoft.portable-executable
+            - name: Create release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ github.ref }}
+                  release_name: Fluent Reader v${{ steps.package-version.outputs.current-version }}
+                  draft: true
+                  prerelease: false
 
-    - name: Upload x86 exe to release assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/win32/ia32/Fluent Reader Setup ${{ steps.package-version.outputs.current-version }}.exe
-        asset_name: Fluent.Reader.Setup.${{ steps.package-version.outputs.current-version }}.x86.exe
-        asset_content_type: application/vnd.microsoft.portable-executable
+            - name: Upload x64 exe to release assets
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./bin/win32/x64/Fluent Reader Setup ${{ steps.package-version.outputs.current-version }}.exe
+                  asset_name: Fluent.Reader.Setup.${{ steps.package-version.outputs.current-version }}.x64.exe
+                  asset_content_type: application/vnd.microsoft.portable-executable
 
-    - name: Upload x64 zip to release assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/win32/x64/Fluent Reader-${{ steps.package-version.outputs.current-version }}-win.zip
-        asset_name: Fluent.Reader.Unpacked.${{ steps.package-version.outputs.current-version }}.x64.zip
-        asset_content_type: application/zip
+            - name: Upload x86 exe to release assets
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./bin/win32/ia32/Fluent Reader Setup ${{ steps.package-version.outputs.current-version }}.exe
+                  asset_name: Fluent.Reader.Setup.${{ steps.package-version.outputs.current-version }}.x86.exe
+                  asset_content_type: application/vnd.microsoft.portable-executable
 
-    - name: Upload x86 zip to release assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/win32/ia32/Fluent Reader-${{ steps.package-version.outputs.current-version }}-ia32-win.zip
-        asset_name: Fluent.Reader.Unpacked.${{ steps.package-version.outputs.current-version }}.x86.zip
-        asset_content_type: application/zip
+            - name: Upload x64 zip to release assets
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./bin/win32/x64/Fluent Reader-${{ steps.package-version.outputs.current-version }}-win.zip
+                  asset_name: Fluent.Reader.Unpacked.${{ steps.package-version.outputs.current-version }}.x64.zip
+                  asset_content_type: application/zip
+
+            - name: Upload x86 zip to release assets
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./bin/win32/ia32/Fluent Reader-${{ steps.package-version.outputs.current-version }}-ia32-win.zip
+                  asset_name: Fluent.Reader.Unpacked.${{ steps.package-version.outputs.current-version }}.x86.zip
+                  asset_content_type: application/zip

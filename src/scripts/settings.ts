@@ -5,7 +5,10 @@ import { ThemeSettings } from "../schema-types"
 import intl from "react-intl-universal"
 
 const lightTheme: IPartialTheme = {
-    defaultFontStyle: { fontFamily: '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif' }
+    defaultFontStyle: {
+        fontFamily:
+            '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif',
+    },
 }
 const darkTheme: IPartialTheme = {
     ...lightTheme,
@@ -33,8 +36,8 @@ const darkTheme: IPartialTheme = {
         themeDarkAlt: "#4ba0e1",
         themeDark: "#65aee6",
         themeDarker: "#8ac2ec",
-        accent: "#3a96dd"
-    }
+        accent: "#3a96dd",
+    },
 }
 
 export function setThemeSettings(theme: ThemeSettings) {
@@ -47,7 +50,7 @@ export function getThemeSettings(): ThemeSettings {
 export function applyThemeSettings() {
     loadTheme(window.settings.shouldUseDarkColors() ? darkTheme : lightTheme)
 }
-window.settings.addThemeUpdateListener((shouldDark) => {
+window.settings.addThemeUpdateListener(shouldDark => {
     loadTheme(shouldDark ? darkTheme : lightTheme)
 })
 
@@ -55,12 +58,15 @@ export function getCurrentLocale() {
     let locale = window.settings.getCurrentLocale()
     if (locale in locales) return locale
     locale = locale.split("-")[0]
-    return (locale in locales) ? locale : "en-US"
+    return locale in locales ? locale : "en-US"
 }
 
 export async function exportAll() {
     const filters = [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
-    const write = await window.utils.showSaveDialog(filters, "*/Fluent_Reader_Backup.frdata")
+    const write = await window.utils.showSaveDialog(
+        filters,
+        "*/Fluent_Reader_Backup.frdata"
+    )
     if (write) {
         let output = window.settings.getAll()
         output["lovefield"] = {
@@ -78,8 +84,10 @@ export async function importAll() {
     let confirmed = await window.utils.showMessageBox(
         intl.get("app.restore"),
         intl.get("app.confirmImport"),
-        intl.get("confirm"), intl.get("cancel"),
-        true, "warning"
+        intl.get("confirm"),
+        intl.get("cancel"),
+        true,
+        "warning"
     )
     if (!confirmed) return true
     let configs = JSON.parse(data)
@@ -90,14 +98,19 @@ export async function importAll() {
         configs.useNeDB = true
         openRequest.onsuccess = () => {
             let db = openRequest.result
-            let objectStore = db.transaction("nedbdata", "readwrite").objectStore("nedbdata")
+            let objectStore = db
+                .transaction("nedbdata", "readwrite")
+                .objectStore("nedbdata")
             let requests = Object.entries(configs.nedb).map(([key, value]) => {
                 return objectStore.put(value, key)
             })
-            let promises = requests.map(req => new Promise<void>((resolve, reject) => {
-                req.onsuccess = () => resolve()
-                req.onerror = () => reject()
-            }))
+            let promises = requests.map(
+                req =>
+                    new Promise<void>((resolve, reject) => {
+                        req.onsuccess = () => resolve()
+                        req.onerror = () => reject()
+                    })
+            )
             Promise.all(promises).then(() => {
                 delete configs.nedb
                 window.settings.setAll(configs)
@@ -117,6 +130,6 @@ export async function importAll() {
         await db.itemsDB.insert().into(db.items).values(iRows).exec()
         delete configs.lovefield
         window.settings.setAll(configs)
-    }  
+    }
     return false
 }

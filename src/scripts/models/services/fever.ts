@@ -17,11 +17,11 @@ export interface FeverConfigs extends ServiceConfigs {
     useInt32?: boolean
 }
 
-async function fetchAPI(configs: FeverConfigs, params="", postparams="") {
+async function fetchAPI(configs: FeverConfigs, params = "", postparams = "") {
     const response = await fetch(configs.endpoint + "?api" + params, {
         method: "POST",
         headers: { "content-type": "application/x-www-form-urlencoded" },
-        body: `api_key=${configs.apiKey}${postparams}`
+        body: `api_key=${configs.apiKey}${postparams}`,
     })
     return await response.json()
 }
@@ -29,14 +29,18 @@ async function fetchAPI(configs: FeverConfigs, params="", postparams="") {
 async function markItem(configs: FeverConfigs, item: RSSItem, as: string) {
     if (item.serviceRef) {
         try {
-            await fetchAPI(configs, "", `&mark=item&as=${as}&id=${item.serviceRef}`)
+            await fetchAPI(
+                configs,
+                "",
+                `&mark=item&as=${as}&id=${item.serviceRef}`
+            )
         } catch (err) {
             console.log(err)
         }
     }
 }
 
-const APIError = () => new Error(intl.get("service.failure")) 
+const APIError = () => new Error(intl.get("service.failure"))
 
 export const feverServiceHooks: ServiceHooks = {
     authenticate: async (configs: FeverConfigs) => {
@@ -57,7 +61,8 @@ export const feverServiceHooks: ServiceHooks = {
         if (configs.importGroups) {
             // Import groups on the first sync
             const groups: any[] = (await fetchAPI(configs, "&groups")).groups
-            if (groups === undefined || feedGroups === undefined) throw APIError()
+            if (groups === undefined || feedGroups === undefined)
+                throw APIError()
             const groupsIdMap = new Map<number, string>()
             for (let group of groups) {
                 const title = group.title.trim()
@@ -90,7 +95,10 @@ export const feverServiceHooks: ServiceHooks = {
             response = await fetchAPI(configs, `&items&max_id=${min}`)
             if (response.items === undefined) throw APIError()
             items.push(...response.items.filter(i => i.id > configs.lastId))
-            if (response.items.length === 0 && min === Number.MAX_SAFE_INTEGER) {
+            if (
+                response.items.length === 0 &&
+                min === Number.MAX_SAFE_INTEGER
+            ) {
                 configs.useInt32 = true
                 min = 2147483647
                 response = undefined
@@ -98,11 +106,14 @@ export const feverServiceHooks: ServiceHooks = {
                 min = response.items.reduce((m, n) => Math.min(m, n.id), min)
             }
         } while (
-            min > configs.lastId && 
-            (response === undefined || response.items.length >= 50) && 
+            min > configs.lastId &&
+            (response === undefined || response.items.length >= 50) &&
             items.length < configs.fetchLimit
         )
-        configs.lastId = items.reduce((m, n) => Math.max(m, n.id), configs.lastId)
+        configs.lastId = items.reduce(
+            (m, n) => Math.max(m, n.id),
+            configs.lastId
+        )
         if (items.length > 0) {
             const fidMap = new Map<string, RSSSource>()
             for (let source of Object.values(state.sources)) {
@@ -129,27 +140,33 @@ export const feverServiceHooks: ServiceHooks = {
                 } as RSSItem
                 // Try to get the thumbnail of the item
                 let dom = domParser.parseFromString(item.content, "text/html")
-                let baseEl = dom.createElement('base')
-                baseEl.setAttribute('href', item.link.split("/").slice(0, 3).join("/"))
+                let baseEl = dom.createElement("base")
+                baseEl.setAttribute(
+                    "href",
+                    item.link.split("/").slice(0, 3).join("/")
+                )
                 dom.head.append(baseEl)
                 let img = dom.querySelector("img")
-                if (img && img.src) { 
+                if (img && img.src) {
                     item.thumb = img.src
-                } else if (configs.useInt32) { // TTRSS Fever Plugin attachments
-                    let a = dom.querySelector("body>ul>li:first-child>a") as HTMLAnchorElement
+                } else if (configs.useInt32) {
+                    // TTRSS Fever Plugin attachments
+                    let a = dom.querySelector(
+                        "body>ul>li:first-child>a"
+                    ) as HTMLAnchorElement
                     if (a && /, image\/generic$/.test(a.innerText) && a.href)
                         item.thumb = a.href
                 }
                 // Apply rules and sync back to the service
                 if (source.rules) SourceRule.applyAll(source.rules, item)
-                if (Boolean(i.is_read) !== item.hasRead) 
+                if (Boolean(i.is_read) !== item.hasRead)
                     markItem(configs, item, item.hasRead ? "read" : "unread")
-                if (Boolean(i.is_saved) !== Boolean(item.starred)) 
+                if (Boolean(i.is_saved) !== Boolean(item.starred))
                     markItem(configs, item, item.starred ? "saved" : "unsaved")
                 return item
             })
             return [parsedItems, configs]
-        } else { 
+        } else {
             return [[], configs]
         }
     },
@@ -157,10 +174,13 @@ export const feverServiceHooks: ServiceHooks = {
     syncItems: () => async (_, getState) => {
         const configs = getState().service as FeverConfigs
         const [unreadResponse, starredResponse] = await Promise.all([
-            fetchAPI(configs, "&unread_item_ids"), 
-            fetchAPI(configs, "&saved_item_ids")
+            fetchAPI(configs, "&unread_item_ids"),
+            fetchAPI(configs, "&saved_item_ids"),
         ])
-        if (typeof unreadResponse.unread_item_ids !== "string" || typeof starredResponse.saved_item_ids !== "string") {
+        if (
+            typeof unreadResponse.unread_item_ids !== "string" ||
+            typeof starredResponse.saved_item_ids !== "string"
+        ) {
             throw APIError()
         }
         const unreadFids: string[] = unreadResponse.unread_item_ids.split(",")
@@ -173,7 +193,9 @@ export const feverServiceHooks: ServiceHooks = {
         const configs = state.service as FeverConfigs
         if (date && !before) {
             const iids = state.feeds[state.page.feedId].iids
-            const items = iids.map(iid => state.items[iid]).filter(i => !i.hasRead && i.date.getTime() >= date.getTime())
+            const items = iids
+                .map(iid => state.items[iid])
+                .filter(i => !i.hasRead && i.date.getTime() >= date.getTime())
             for (let item of items) {
                 if (item.serviceRef) {
                     markItem(configs, item, "read")
@@ -181,10 +203,15 @@ export const feverServiceHooks: ServiceHooks = {
             }
         } else {
             const sources = sids.map(sid => state.sources[sid])
-            const timestamp = Math.floor((date ? date.getTime() : Date.now()) / 1000) + 1
+            const timestamp =
+                Math.floor((date ? date.getTime() : Date.now()) / 1000) + 1
             for (let source of sources) {
                 if (source.serviceRef) {
-                    fetchAPI(configs, "", `&mark=feed&as=read&id=${source.serviceRef}&before=${timestamp}`)
+                    fetchAPI(
+                        configs,
+                        "",
+                        `&mark=feed&as=read&id=${source.serviceRef}&before=${timestamp}`
+                    )
                 }
             }
         }

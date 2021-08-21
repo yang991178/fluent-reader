@@ -1,4 +1,11 @@
-import { SourceGroup, ViewType, ThemeSettings, SearchEngines, ServiceConfigs, ViewConfigs } from "../schema-types"
+import {
+    SourceGroup,
+    ViewType,
+    ThemeSettings,
+    SearchEngines,
+    ServiceConfigs,
+    ViewConfigs,
+} from "../schema-types"
 import { ipcRenderer } from "electron"
 
 const settingsBridge = {
@@ -114,12 +121,12 @@ const settingsBridge = {
         return ipcRenderer.sendSync("get-all-settings") as Object
     },
 
-    setAll: (configs) => {
+    setAll: configs => {
         ipcRenderer.invoke("import-all-settings", configs)
     },
 }
 
-declare global { 
+declare global {
     interface Window {
         settings: typeof settingsBridge
     }

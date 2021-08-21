@@ -15,7 +15,7 @@ export const rootReducer = combineReducers({
     groups: groupReducer,
     page: pageReducer,
     service: serviceReducer,
-    app: appReducer
+    app: appReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>

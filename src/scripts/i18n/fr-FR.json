@@ -125,7 +125,7 @@
         "errorParse": "Une erreur s'est produite lors de l'analyse du fichier OPML.",
         "errorParseHint": "Veuillez vous assurer que le fichier n'est pas corrompu et qu'il est encodé en UTF-8.",
         "errorImport": "Erreur d'importation pour {count, plural, =1 {# source} other {# sources}}.",
-        "exist": "Cette source existe déjà.", 
+        "exist": "Cette source existe déjà.",
         "opmlFile": "Fichier OPML",
         "name": "Nom de la source",
         "editName": "Modifier le nom",

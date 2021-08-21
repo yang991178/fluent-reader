@@ -2,8 +2,8 @@ import { FeedFilter, FilterType } from "./feed"
 import { RSSItem } from "./item"
 
 export const enum ItemAction {
-    Read = "r", 
-    Star = "s", 
+    Read = "r",
+    Star = "s",
     Hide = "h",
     Notify = "n",
 }
@@ -49,7 +49,12 @@ export class SourceRule {
     match: boolean
     actions: RuleActions
 
-    constructor(regex: string, actions: string[], filter: FilterType, match: boolean) {
+    constructor(
+        regex: string,
+        actions: string[],
+        filter: FilterType,
+        match: boolean
+    ) {
         this.filter = new FeedFilter(filter, regex)
         this.match = match
         this.actions = RuleActions.fromKeys(actions)

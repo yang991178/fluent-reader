@@ -1,39 +1,39 @@
 name: CI/CD Release Linux
 
 on:
-  release:
-    types:
-      - published
+    release:
+        types:
+            - published
 
 jobs:
-  release-linux:
-    runs-on: ubuntu-latest
+    release-linux:
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v2
+        steps:
+            - uses: actions/checkout@v2
 
-    - name: Build and package the app
-      run: |
-        sudo npm install --unsafe-perm=true --allow-root
-        npm run build
-        sudo npm run package-linux
+            - name: Build and package the app
+              run: |
+                  sudo npm install --unsafe-perm=true --allow-root
+                  npm run build
+                  sudo npm run package-linux
 
-    - name: Get app version
-      id: package-version
-      uses: martinbeentjes/npm-get-version-action@master
+            - name: Get app version
+              id: package-version
+              uses: martinbeentjes/npm-get-version-action@master
 
-    - name: Get release
-      id: get_release
-      uses: bruceadams/get-release@v1.2.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Get release
+              id: get_release
+              uses: bruceadams/get-release@v1.2.0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload AppImage to release assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: ./bin/linux/x64/Fluent Reader-${{ steps.package-version.outputs.current-version }}.AppImage
-        asset_name: Fluent.Reader.${{ steps.package-version.outputs.current-version }}.AppImage
-        asset_content_type: application/octet-stream
+            - name: Upload AppImage to release assets
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.get_release.outputs.upload_url }}
+                  asset_path: ./bin/linux/x64/Fluent Reader-${{ steps.package-version.outputs.current-version }}.AppImage
+                  asset_name: Fluent.Reader.${{ steps.package-version.outputs.current-version }}.AppImage
+                  asset_content_type: application/octet-stream

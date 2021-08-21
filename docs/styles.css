@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     background-color: #f3f2f1;
     font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
     margin: 0;
@@ -13,13 +14,15 @@ a {
     color: #0078d4;
     text-decoration: none;
 }
-a:hover, a:active {
+a:hover,
+a:active {
     color: #004578;
     text-decoration: underline;
 }
 
 .elevate {
-    box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,.132), 0 1.2px 3.6px 0 rgba(0,0,0,.108);
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132),
+        0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
 }
 
 .logo-container {
@@ -67,14 +70,16 @@ a:hover, a:active {
     position: relative;
     top: -280px;
 }
-.light-container h1, .dark-container h1 {
+.light-container h1,
+.dark-container h1 {
     width: 95%;
     max-width: 800px;
     margin: 48px auto 24px;
     font-weight: 500;
     text-align: center;
 }
-.light-container p, .dark-container p {
+.light-container p,
+.dark-container p {
     width: 85%;
     max-width: 750px;
     margin: 24px auto;
@@ -108,7 +113,7 @@ a:hover, a:active {
 .features-container > section > h3 {
     font-weight: 500;
     color: #605e5c;
-    margin: 0 0 .5em;
+    margin: 0 0 0.5em;
 }
 .features-container > section > h3 > span {
     color: #d2d0ce;
@@ -170,13 +175,16 @@ a:hover, a:active {
     justify-content: center;
     margin: calc(50vh - 210px) 0 48px;
 }
-.links > a { 
+.links > a {
     display: inline-block;
     margin: 0 8px;
 }
 
 @media (max-width: 780px) {
-    html, body { font-size: 14px; }
+    html,
+    body {
+        font-size: 14px;
+    }
     .logo-container img {
         height: 140px;
         width: 140px;

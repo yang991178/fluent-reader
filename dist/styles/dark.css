@@ -2,10 +2,12 @@
     .ms-Button--commandBar.active .ms-Button-icon {
         color: #c7e0f4;
     }
-    .btn-group .btn:hover, .ms-Nav-compositeLink:hover {
+    .btn-group .btn:hover,
+    .ms-Nav-compositeLink:hover {
         background-color: #fff1;
     }
-    .btn-group .btn:active, .ms-Nav-compositeLink:active {
+    .btn-group .btn:active,
+    .ms-Nav-compositeLink:active {
         background-color: #fff2;
     }
     .settings .loading {
@@ -14,25 +16,29 @@
     .default-card {
         box-shadow: #0006 0px 5px 20px;
     }
-    .default-card:hover, .ms-Fabric--isFocusVisible .default-card:focus {
+    .default-card:hover,
+    .ms-Fabric--isFocusVisible .default-card:focus {
         box-shadow: #0008 0px 5px 40px;
     }
     .default-card div.bg {
         background-color: #000b;
     }
-    .list-card:hover, .ms-Fabric--isFocusVisible .list-card:focus {
+    .list-card:hover,
+    .ms-Fabric--isFocusVisible .list-card:focus {
         box-shadow: #0006 0px 5px 15px;
     }
     .list-card:active {
         box-shadow: #0000 0px 5px 15px, inset #0006 0px 0px 15px;
     }
-    .magazine-card:hover, .ms-Fabric--isFocusVisible .magazine-card:focus {
+    .magazine-card:hover,
+    .ms-Fabric--isFocusVisible .magazine-card:focus {
         box-shadow: #0006 0px 5px 20px;
     }
     .magazine-card:active {
         box-shadow: #0000 0px 5px 20px;
     }
-    .compact-card:hover, .ms-Fabric--isFocusVisible .compact-card:focus {
+    .compact-card:hover,
+    .ms-Fabric--isFocusVisible .compact-card:focus {
         box-shadow: #0008 0 0 10px;
     }
     .compact-card:active {
