@@ -129,18 +129,19 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
 
     languageOptions = (): IDropdownOption[] => [
         { key: "default", text: intl.get("followSystem") },
+        { key: "ar", text: "العَرَبِيَّة" },
         { key: "de", text: "Deutsch" },
         { key: "en-US", text: "English" },
         { key: "es", text: "Español" },
+        { key: "fi-FI", text: "Suomi" },
         { key: "fr-FR", text: "Français" },
         { key: "it", text: "Italiano" },
+        { key: "ja", text: "日本語" },
         { key: "nl", text: "Nederlands" },
         { key: "pt-BR", text: "Português do Brasil" },
-        { key: "fi-FI", text: "Suomi" },
         { key: "sv", text: "Svenska" },
         { key: "tr", text: "Türkçe" },
         { key: "uk", text: "Українська" },
-        { key: "ja", text: "日本語" },
         { key: "zh-CN", text: "中文（简体）" },
         { key: "zh-TW", text: "中文（繁體）" },
     ]
