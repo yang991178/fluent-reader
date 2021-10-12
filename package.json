@@ -26,7 +26,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^13.1.4",
+    "electron": "^13.3.0",
     "electron-builder": "^22.11.3",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
