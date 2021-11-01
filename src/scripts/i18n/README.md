@@ -6,6 +6,7 @@ Currently, Fluent Reader supports the following languages.
 | --- | --- | --- |
 | en-US | English | [@yang991178](https://github.com/yang991178) |
 | es | Español | [@kant](https://github.com/kant) |
+| fa | فارسی | [@jmilo97](https://github.com/jmilo97) |
 | fr-FR | Français | [@Toinane](https://github.com/Toinane) |
 | fi-FI | Suomi | [@SUPERHAMSTERI](https://github.com/SUPERHAMSTERI) |
 | zh-CN | 中文（简体） | [@yang991178](https://github.com/yang991178) |
