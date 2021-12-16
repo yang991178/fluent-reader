@@ -170,11 +170,16 @@ const utilsBridge = {
     destroyTouchBar: () => {
         ipcRenderer.invoke("touchbar-destroy")
     },
+
+    initFontList: (): Promise<Array<string>> => {
+        return ipcRenderer.invoke("init-font-list")
+    },
 }
 
 declare global {
     interface Window {
         utils: typeof utilsBridge
+        fontList: Array<string>
     }
 }
 

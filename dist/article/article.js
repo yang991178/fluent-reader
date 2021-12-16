@@ -20,6 +20,8 @@ async function getArticle(url) {
     }
 }
 document.documentElement.style.fontSize = get("s") + "px"
+let font = get("f")
+if (font) document.body.style.fontFamily = `"${font}"`
 let url = get("u")
 getArticle(url).then(article => {
     let domParser = new DOMParser()

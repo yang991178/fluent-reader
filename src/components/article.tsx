@@ -38,6 +38,7 @@ type ArticleProps = {
 }
 
 type ArticleState = {
+    fontFamily: string
     fontSize: number
     loadWebpage: boolean
     loadFull: boolean
@@ -53,7 +54,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     constructor(props: ArticleProps) {
         super(props)
         this.state = {
-            fontSize: this.getFontSize(),
+            fontFamily: window.settings.getFont(),
+            fontSize: window.settings.getFontSize(),
             loadWebpage: props.source.openTarget === SourceOpenTarget.Webpage,
             loadFull: props.source.openTarget === SourceOpenTarget.FullContent,
             fullContent: "",
@@ -68,15 +70,16 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             this.loadFull()
     }
 
-    getFontSize = () => {
-        return window.settings.getFontSize()
-    }
     setFontSize = (size: number) => {
         window.settings.setFontSize(size)
         this.setState({ fontSize: size })
     }
+    setFont = (font: string) => {
+        window.settings.setFont(font)
+        this.setState({ fontFamily: font })
+    }
 
-    fontMenuProps = (): IContextualMenuProps => ({
+    fontSizeMenuProps = (): IContextualMenuProps => ({
         items: FONT_SIZE_OPTIONS.map(size => ({
             key: String(size),
             text: String(size),
@@ -84,6 +87,16 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             checked: size === this.state.fontSize,
             onClick: () => this.setFontSize(size),
         })),
+    })
+
+    fontFamilyMenuProps = (): IContextualMenuProps => ({
+        items: window.fontList.map((font, idx) => ({
+            key: String(idx),
+            text: font === "" ? intl.get("default") : font,
+            canCheck: true,
+            checked: this.state.fontFamily === font,
+            onClick: () => this.setFont(font)
+        }))
     })
 
     updateTextDirection = (direction: SourceTextDirection) => {
@@ -154,10 +167,17 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             },
             {
                 key: "fontMenu",
+                text: intl.get("article.font"),
+                iconProps: { iconName: "Font" },
+                disabled: this.state.loadWebpage,
+                subMenuProps: this.fontFamilyMenuProps(),
+            },
+            {
+                key: "fontSizeMenu",
                 text: intl.get("article.fontSize"),
                 iconProps: { iconName: "FontSize" },
                 disabled: this.state.loadWebpage,
-                subMenuProps: this.fontMenuProps(),
+                subMenuProps: this.fontSizeMenuProps(),
             },
             {
                 key: "directionMenu",
@@ -334,7 +354,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 </>
             )
         )
-        return `article/article.html?a=${a}&h=${h}&s=${
+        return `article/article.html?a=${a}&h=${h}&f=${
+            encodeURIComponent(this.state.fontFamily)
+        }&s=${
             this.state.fontSize
         }&d=${
             this.props.source.textDir

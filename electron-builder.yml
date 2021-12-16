@@ -3,6 +3,7 @@ productName: Fluent Reader
 copyright: Copyright © 2020 Haoyuan Liu
 files:
     - "./dist/**/*"
+    - "!./dist/fontlist"
     - "!**/*.js.map"
 directories:
     output: "./bin/${platform}/${arch}/"

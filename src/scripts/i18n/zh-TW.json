@@ -18,6 +18,7 @@
     "confirmMarkAll": "確認將本頁所有文章標為已讀？",
     "confirm": "確認",
     "cancel": "取消",
+    "default": "預設",
     "time": {
         "now": "now",
         "m": "m",
@@ -70,7 +71,8 @@
         "textDir": "文本方向",
         "LTR": "從左到右",
         "RTL": "從右到左",
-        "Vertical": "縱書"
+        "Vertical": "縱書",
+        "font": "字體"
     },
     "context": {
         "share": "分享",

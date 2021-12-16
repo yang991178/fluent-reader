@@ -128,6 +128,11 @@ article code {
     font-size: 0.875rem;
     line-height: 1;
 }
+article pre {
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: pre-wrap;
+}
 article blockquote {
     border-left: 2px solid var(--gray);
     margin: 1em 0;

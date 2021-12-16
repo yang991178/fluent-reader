@@ -18,6 +18,7 @@
     "confirmMarkAll": "Do you really want to mark all articles on this page as read?",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "default": "Default",
     "time": {
         "now": "now",
         "m": "m",
@@ -70,7 +71,8 @@
         "textDir": "Text direction",
         "LTR": "Left-to-right",
         "RTL": "Right-to-left",
-        "Vertical": "Vertical"
+        "Vertical": "Vertical",
+        "font": "Font"
     },
     "context": {
         "share": "Share",

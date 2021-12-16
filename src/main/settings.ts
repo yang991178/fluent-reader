@@ -122,6 +122,14 @@ ipcMain.handle("set-font-size", (_, size: number) => {
     store.set(FONT_SIZE_STORE_KEY, size)
 })
 
+const FONT_STORE_KEY = "fontFamily"
+ipcMain.on("get-font", event => {
+    event.returnValue = store.get(FONT_STORE_KEY, "")
+})
+ipcMain.handle("set-font", (_, font: string) => {
+    store.set(FONT_STORE_KEY, font)
+})
+
 ipcMain.on("get-all-settings", event => {
     let output = {}
     for (let [key, value] of store) {
