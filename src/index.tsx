@@ -27,7 +27,7 @@ window.utils.addMainContextListener((pos, text) => {
 })
 
 window.fontList = [""]
-window.utils.initFontList().then((fonts) => {
+window.utils.initFontList().then(fonts => {
     window.fontList.push(...fonts)
 })
 

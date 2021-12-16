@@ -17,7 +17,11 @@ import {
     closeContextMenu,
     openImageMenu,
 } from "../scripts/models/app"
-import { RSSSource, SourceTextDirection, updateSource } from "../scripts/models/source"
+import {
+    RSSSource,
+    SourceTextDirection,
+    updateSource,
+} from "../scripts/models/source"
 
 type ArticleContainerProps = {
     itemId: number

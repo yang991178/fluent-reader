@@ -491,7 +491,7 @@ export function sourceReducer(
             }
         case MARK_ALL_READ: {
             let nextState = { ...state }
-            action.sids.forEach((sid) => {
+            action.sids.forEach(sid => {
                 nextState[sid] = {
                     ...state[sid],
                     unreadCount: action.time ? state[sid].unreadCount : 0,

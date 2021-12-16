@@ -20,7 +20,6 @@ import {
     DefaultButton,
     ChoiceGroup,
     IChoiceGroupOption,
-    loadTheme,
     Dropdown,
     IDropdownOption,
     PrimaryButton,

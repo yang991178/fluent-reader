@@ -1,16 +1,9 @@
-import {
-    ipcMain,
-    shell,
-    dialog,
-    app,
-    session,
-    clipboard,
-} from "electron"
+import { ipcMain, shell, dialog, app, session, clipboard } from "electron"
 import { WindowManager } from "./window"
 import fs = require("fs")
 import { ImageCallbackTypes, TouchBarTexts } from "../schema-types"
 import { initMainTouchBar } from "./touchbar"
-import fontList = require('font-list')
+import fontList = require("font-list")
 
 export function setUtilsListeners(manager: WindowManager) {
     async function openExternal(url: string, background = false) {
@@ -28,9 +21,12 @@ export function setUtilsListeners(manager: WindowManager) {
     }
 
     app.on("web-contents-created", (_, contents) => {
-        contents.setWindowOpenHandler((details) => {
+        contents.setWindowOpenHandler(details => {
             if (contents.getType() === "webview")
-                openExternal(details.url, details.disposition === "background-tab")
+                openExternal(
+                    details.url,
+                    details.disposition === "background-tab"
+                )
             return {
                 action: manager.hasWindow() ? "deny" : "allow",
             }

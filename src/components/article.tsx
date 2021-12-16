@@ -12,7 +12,11 @@ import {
     Icon,
     Link,
 } from "@fluentui/react"
-import { RSSSource, SourceOpenTarget, SourceTextDirection } from "../scripts/models/source"
+import {
+    RSSSource,
+    SourceOpenTarget,
+    SourceTextDirection,
+} from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
 import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
 
@@ -95,8 +99,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             text: font === "" ? intl.get("default") : font,
             canCheck: true,
             checked: this.state.fontFamily === font,
-            onClick: () => this.setFont(font)
-        }))
+            onClick: () => this.setFont(font),
+        })),
     })
 
     updateTextDirection = (direction: SourceTextDirection) => {
@@ -111,7 +115,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 iconProps: { iconName: "Forward" },
                 canCheck: true,
                 checked: this.props.source.textDir === SourceTextDirection.LTR,
-                onClick: () => this.updateTextDirection(SourceTextDirection.LTR),
+                onClick: () =>
+                    this.updateTextDirection(SourceTextDirection.LTR),
             },
             {
                 key: "RTL",
@@ -119,17 +124,20 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 iconProps: { iconName: "Back" },
                 canCheck: true,
                 checked: this.props.source.textDir === SourceTextDirection.RTL,
-                onClick: () => this.updateTextDirection(SourceTextDirection.RTL),
+                onClick: () =>
+                    this.updateTextDirection(SourceTextDirection.RTL),
             },
             {
                 key: "Vertical",
                 text: intl.get("article.Vertical"),
                 iconProps: { iconName: "Down" },
                 canCheck: true,
-                checked: this.props.source.textDir === SourceTextDirection.Vertical,
-                onClick: () => this.updateTextDirection(SourceTextDirection.Vertical),
+                checked:
+                    this.props.source.textDir === SourceTextDirection.Vertical,
+                onClick: () =>
+                    this.updateTextDirection(SourceTextDirection.Vertical),
             },
-        ]
+        ],
     })
 
     moreMenuProps = (): IContextualMenuProps => ({
@@ -354,13 +362,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 </>
             )
         )
-        return `article/article.html?a=${a}&h=${h}&f=${
-            encodeURIComponent(this.state.fontFamily)
-        }&s=${
-            this.state.fontSize
-        }&d=${
-            this.props.source.textDir
-        }&u=${
+        return `article/article.html?a=${a}&h=${h}&f=${encodeURIComponent(
+            this.state.fontFamily
+        )}&s=${this.state.fontSize}&d=${this.props.source.textDir}&u=${
             this.props.item.link
         }&m=${this.state.loadFull ? 1 : 0}`
     }
