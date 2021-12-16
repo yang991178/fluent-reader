@@ -4,7 +4,7 @@ import lf from "lovefield"
 import { RSSSource } from "./models/source"
 import { RSSItem } from "./models/item"
 
-const sdbSchema = lf.schema.create("sourcesDB", 1)
+const sdbSchema = lf.schema.create("sourcesDB", 2)
 sdbSchema
     .createTable("sources")
     .addColumn("sid", lf.Type.INTEGER)
@@ -17,6 +17,7 @@ sdbSchema
     .addColumn("serviceRef", lf.Type.STRING)
     .addColumn("fetchFrequency", lf.Type.NUMBER)
     .addColumn("rules", lf.Type.OBJECT)
+    .addColumn("textDir", lf.Type.NUMBER)
     .addNullable(["iconurl", "serviceRef", "rules"])
     .addIndex("idxURL", ["url"], true)
 
@@ -48,8 +49,15 @@ export let sources: lf.schema.Table
 export let itemsDB: lf.Database
 export let items: lf.schema.Table
 
+async function onUpgradeSourceDB(rawDb: lf.raw.BackStore) {
+    const version = rawDb.getVersion()
+    if (version < 2) {
+        await rawDb.addTableColumn("sources", "textDir", 0)
+    }
+}
+
 export async function init() {
-    sourcesDB = await sdbSchema.connect()
+    sourcesDB = await sdbSchema.connect({ onUpgrade: onUpgradeSourceDB })
     sources = sourcesDB.getSchema().table("sources")
     itemsDB = await idbSchema.connect()
     items = itemsDB.getSchema().table("items")
@@ -90,6 +98,7 @@ async function migrateNeDB() {
             // @ts-ignore
             delete doc._id
             if (!doc.fetchFrequency) doc.fetchFrequency = 0
+            doc.textDir = 0
             return sources.createRow(doc)
         })
         const iRows = itemDocs.map(doc => {

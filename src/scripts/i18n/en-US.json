@@ -66,7 +66,11 @@
         "loadWebpage": "Load webpage",
         "loadFull": "Load full content",
         "notify": "Notify if fetched in background",
-        "dontNotify": "Don't notify"
+        "dontNotify": "Don't notify",
+        "textDir": "Text direction",
+        "LTR": "Left-to-right",
+        "RTL": "Right-to-left",
+        "Vertical": "Vertical"
     },
     "context": {
         "share": "Share",

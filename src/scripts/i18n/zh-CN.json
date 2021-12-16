@@ -66,7 +66,11 @@
         "loadWebpage": "加载网页",
         "loadFull": "抓取全文",
         "notify": "后台抓取时发送通知",
-        "dontNotify": "不发送通知"
+        "dontNotify": "不发送通知",
+        "textDir": "文本方向",
+        "LTR": "从左到右",
+        "RTL": "从右到左",
+        "Vertical": "纵书"
     },
     "context": {
         "share": "分享",

@@ -5,7 +5,6 @@ import {
     app,
     session,
     clipboard,
-    TouchBar,
 } from "electron"
 import { WindowManager } from "./window"
 import fs = require("fs")
@@ -28,11 +27,12 @@ export function setUtilsListeners(manager: WindowManager) {
     }
 
     app.on("web-contents-created", (_, contents) => {
-        // TODO: Use contents.setWindowOpenHandler instead of new-window listener
-        contents.on("new-window", (event, url, _, disposition) => {
-            if (manager.hasWindow()) event.preventDefault()
+        contents.setWindowOpenHandler((details) => {
             if (contents.getType() === "webview")
-                openExternal(url, disposition === "background-tab")
+                openExternal(details.url, details.disposition === "background-tab")
+            return {
+                action: manager.hasWindow() ? "deny" : "allow",
+            }
         })
         contents.on("will-navigate", (event, url) => {
             event.preventDefault()

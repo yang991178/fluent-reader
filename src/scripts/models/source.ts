@@ -23,6 +23,12 @@ export const enum SourceOpenTarget {
     FullContent,
 }
 
+export const enum SourceTextDirection {
+    LTR,
+    RTL,
+    Vertical,
+}
+
 export class RSSSource {
     sid: number
     url: string
@@ -34,6 +40,7 @@ export class RSSSource {
     serviceRef?: string
     fetchFrequency: number // in minutes
     rules?: SourceRule[]
+    textDir: SourceTextDirection
 
     constructor(url: string, name: string = null) {
         this.url = url
@@ -41,6 +48,7 @@ export class RSSSource {
         this.openTarget = SourceOpenTarget.Local
         this.lastFetched = new Date()
         this.fetchFrequency = 0
+        this.textDir = SourceTextDirection.LTR
     }
 
     static async fetchMetaData(source: RSSSource) {

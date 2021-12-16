@@ -12,7 +12,7 @@ import {
     Icon,
     Link,
 } from "@fluentui/react"
-import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
+import { RSSSource, SourceOpenTarget, SourceTextDirection } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
 import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
 
@@ -31,6 +31,10 @@ type ArticleProps = {
     textMenu: (position: [number, number], text: string, url: string) => void
     imageMenu: (position: [number, number]) => void
     dismissContextMenu: () => void
+    updateSourceTextDirection: (
+        source: RSSSource,
+        direction: SourceTextDirection
+    ) => void
 }
 
 type ArticleState = {
@@ -82,6 +86,39 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         })),
     })
 
+    updateTextDirection = (direction: SourceTextDirection) => {
+        this.props.updateSourceTextDirection(this.props.source, direction)
+    }
+
+    directionMenuProps = (): IContextualMenuProps => ({
+        items: [
+            {
+                key: "LTR",
+                text: intl.get("article.LTR"),
+                iconProps: { iconName: "Forward" },
+                canCheck: true,
+                checked: this.props.source.textDir === SourceTextDirection.LTR,
+                onClick: () => this.updateTextDirection(SourceTextDirection.LTR),
+            },
+            {
+                key: "RTL",
+                text: intl.get("article.RTL"),
+                iconProps: { iconName: "Back" },
+                canCheck: true,
+                checked: this.props.source.textDir === SourceTextDirection.RTL,
+                onClick: () => this.updateTextDirection(SourceTextDirection.RTL),
+            },
+            {
+                key: "Vertical",
+                text: intl.get("article.Vertical"),
+                iconProps: { iconName: "Down" },
+                canCheck: true,
+                checked: this.props.source.textDir === SourceTextDirection.Vertical,
+                onClick: () => this.updateTextDirection(SourceTextDirection.Vertical),
+            },
+        ]
+    })
+
     moreMenuProps = (): IContextualMenuProps => ({
         items: [
             {
@@ -121,6 +158,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 iconProps: { iconName: "FontSize" },
                 disabled: this.state.loadWebpage,
                 subMenuProps: this.fontMenuProps(),
+            },
+            {
+                key: "directionMenu",
+                text: intl.get("article.textDir"),
+                iconProps: { iconName: "ChangeEntitlements" },
+                disabled: this.state.loadWebpage,
+                subMenuProps: this.directionMenuProps(),
             },
             {
                 key: "divider_1",
@@ -290,7 +334,11 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 </>
             )
         )
-        return `article/article.html?a=${a}&h=${h}&s=${this.state.fontSize}&u=${
+        return `article/article.html?a=${a}&h=${h}&s=${
+            this.state.fontSize
+        }&d=${
+            this.props.source.textDir
+        }&u=${
             this.props.item.link
         }&m=${this.state.loadFull ? 1 : 0}`
     }
@@ -400,7 +448,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                             ? this.props.item.link
                             : this.articleView()
                     }
-                    webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
+                    webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required,nativeWindowOpen=false"
                     partition={this.state.loadWebpage ? "sandbox" : undefined}
                 />
             )}

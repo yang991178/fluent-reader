@@ -17,6 +17,7 @@ import {
     closeContextMenu,
     openImageMenu,
 } from "../scripts/models/app"
+import { RSSSource, SourceTextDirection, updateSource } from "../scripts/models/source"
 
 type ArticleContainerProps = {
     itemId: number
@@ -58,6 +59,14 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
         imageMenu: (position: [number, number]) =>
             dispatch(openImageMenu(position)),
         dismissContextMenu: () => dispatch(closeContextMenu()),
+        updateSourceTextDirection: (
+            source: RSSSource,
+            direction: SourceTextDirection
+        ) => {
+            dispatch(
+                updateSource({ ...source, textDir: direction } as RSSSource)
+            )
+        },
     }
 }
 
