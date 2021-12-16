@@ -28,6 +28,7 @@ mac:
         - uk
         - it
         - nl
+        - ko
     minimumSystemVersion: 10.14.0
 mas:
     entitlements: build/entitlements.mas.plist
