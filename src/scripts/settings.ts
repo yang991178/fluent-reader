@@ -3,6 +3,7 @@ import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import { ThemeSettings } from "../schema-types"
 import intl from "react-intl-universal"
+import { SourceTextDirection } from "./models/source"
 
 const lightTheme: IPartialTheme = {
     defaultFontStyle: {
@@ -119,6 +120,7 @@ export async function importAll() {
     } else {
         const sRows = configs.lovefield.sources.map(s => {
             s.lastFetched = new Date(s.lastFetched)
+            if (!s.textDir) s.textDir = SourceTextDirection.LTR
             return db.sources.createRow(s)
         })
         const iRows = configs.lovefield.items.map(i => {

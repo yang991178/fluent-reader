@@ -138,6 +138,10 @@ i.ms-Nav-chevron {
     color: var(--neutralPrimary);
 }
 
+.ms-Callout-main {
+    border-radius: 5px;
+}
+
 #root > nav {
     height: var(--navHeight);
     -webkit-app-region: drag;

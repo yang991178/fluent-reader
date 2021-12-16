@@ -2,14 +2,25 @@
 
 html,
 body {
+    margin: 0;
     font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei",
         sans-serif;
 }
-html {
+body {
+    padding: 12px 96px 32px;
     overflow: hidden scroll;
 }
+body.rtl {
+    direction: rtl;
+}
+body.vertical {
+    padding: 32px;
+    padding-right: 96px;
+    writing-mode: vertical-rl;
+    overflow: scroll hidden;
+}
+
 :root {
-    margin: 12px 96px 32px;
     --gray: #484644;
     --primary: #0078d4;
     --primary-alt: #004578;
@@ -58,6 +69,11 @@ a:active {
     margin: 0 auto;
     display: none;
 }
+body.vertical #main {
+    max-width: unset;
+    max-height: 700px;
+    margin: auto 0;
+}
 #main.show {
     display: block;
     animation-name: fadeIn;
@@ -80,11 +96,20 @@ a:active {
 article {
     line-height: 1.6;
 }
+body.vertical article {
+    line-height: 1.5;
+}
+body.vertical article p {
+    text-indent: 2rem;
+}
 article * {
     max-width: 100%;
 }
 article img {
     height: auto;
+}
+body.vertical article img {
+    max-height: 75%;
 }
 article figure {
     margin: 16px 0;
@@ -102,6 +127,11 @@ article code {
     font-family: Monaco, Consolas, monospace;
     font-size: 0.875rem;
     line-height: 1;
+}
+article pre {
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: pre-wrap;
 }
 article blockquote {
     border-left: 2px solid var(--gray);

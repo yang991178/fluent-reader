@@ -312,7 +312,8 @@ const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
 })
 
 export function markRead(item: RSSItem): AppThunk {
-    return dispatch => {
+    return (dispatch, getState) => {
+        item = getState().items[item._id]
         if (!item.hasRead) {
             db.itemsDB
                 .update(db.items)
@@ -377,7 +378,8 @@ export function markAllRead(
 }
 
 export function markUnread(item: RSSItem): AppThunk {
-    return dispatch => {
+    return (dispatch, getState) => {
+        item = getState().items[item._id]
         if (item.hasRead) {
             db.itemsDB
                 .update(db.items)

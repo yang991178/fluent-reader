@@ -26,6 +26,11 @@ window.utils.addMainContextListener((pos, text) => {
     store.dispatch(openTextMenu(pos, text))
 })
 
+window.fontList = [""]
+window.utils.initFontList().then(fonts => {
+    window.fontList.push(...fonts)
+})
+
 ReactDOM.render(
     <Provider store={store}>
         <Root />

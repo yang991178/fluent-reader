@@ -1,16 +1,9 @@
-import {
-    ipcMain,
-    shell,
-    dialog,
-    app,
-    session,
-    clipboard,
-    TouchBar,
-} from "electron"
+import { ipcMain, shell, dialog, app, session, clipboard } from "electron"
 import { WindowManager } from "./window"
 import fs = require("fs")
 import { ImageCallbackTypes, TouchBarTexts } from "../schema-types"
 import { initMainTouchBar } from "./touchbar"
+import fontList = require("font-list")
 
 export function setUtilsListeners(manager: WindowManager) {
     async function openExternal(url: string, background = false) {
@@ -28,11 +21,15 @@ export function setUtilsListeners(manager: WindowManager) {
     }
 
     app.on("web-contents-created", (_, contents) => {
-        // TODO: Use contents.setWindowOpenHandler instead of new-window listener
-        contents.on("new-window", (event, url, _, disposition) => {
-            if (manager.hasWindow()) event.preventDefault()
+        contents.setWindowOpenHandler(details => {
             if (contents.getType() === "webview")
-                openExternal(url, disposition === "background-tab")
+                openExternal(
+                    details.url,
+                    details.disposition === "background-tab"
+                )
+            return {
+                action: manager.hasWindow() ? "deny" : "allow",
+            }
         })
         contents.on("will-navigate", (event, url) => {
             event.preventDefault()
@@ -282,5 +279,11 @@ export function setUtilsListeners(manager: WindowManager) {
     })
     ipcMain.handle("touchbar-destroy", () => {
         if (manager.hasWindow()) manager.mainWindow.setTouchBar(null)
+    })
+
+    ipcMain.handle("init-font-list", () => {
+        return fontList.getFonts({
+            disableQuoting: true,
+        })
     })
 }

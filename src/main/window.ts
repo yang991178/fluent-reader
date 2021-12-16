@@ -63,14 +63,13 @@ export class WindowManager {
                 show: false,
                 webPreferences: {
                     webviewTag: true,
-                    enableRemoteModule: false,
                     contextIsolation: true,
-                    worldSafeExecuteJavaScript: true,
                     spellcheck: false,
                     preload: path.join(
                         app.getAppPath(),
                         (app.isPackaged ? "dist/" : "") + "preload.js"
                     ),
+                    nativeWindowOpen: false,
                 },
             })
             this.mainWindowState.manage(this.mainWindow)

@@ -2,6 +2,15 @@ function get(name) {
     if (name = (new RegExp('[?&]' + encodeURIComponent(name) + '=([^&]*)')).exec(location.search))
         return decodeURIComponent(name[1]);
 }
+let dir = get("d")
+if (dir === "1") {
+    document.body.classList.add("rtl")
+} else if (dir === "2") {
+    document.body.classList.add("vertical")
+    document.body.addEventListener("wheel", (evt) => {
+        document.scrollingElement.scrollLeft -= evt.deltaY;
+    });
+}
 async function getArticle(url) {
     let article = get("a")
     if (get("m") === "1") {
@@ -11,6 +20,8 @@ async function getArticle(url) {
     }
 }
 document.documentElement.style.fontSize = get("s") + "px"
+let font = get("f")
+if (font) document.body.style.fontFamily = `"${font}"`
 let url = get("u")
 getArticle(url).then(article => {
     let domParser = new DOMParser()
@@ -32,4 +43,3 @@ getArticle(url).then(article => {
     main.innerHTML = dom.body.innerHTML
     main.classList.add("show")
 })
-

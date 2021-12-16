@@ -4,7 +4,10 @@ productName: Fluent Reader
 copyright: Copyright © 2020 Haoyuan Liu
 files:
     - "./dist/**/*"
+    - "!./dist/fonts.vbs"
     - "!**/*.js.map"
+asarUnpack:
+    - "./dist/fontlist"
 directories:
     output: "./bin/${platform}/${arch}/"
 mac:
@@ -25,6 +28,7 @@ mac:
         - uk
         - it
         - nl
+        - ko
     minimumSystemVersion: 10.14.0
 mas:
     entitlements: build/entitlements.mas.plist

@@ -12,7 +12,11 @@ import {
     Icon,
     Link,
 } from "@fluentui/react"
-import { RSSSource, SourceOpenTarget } from "../scripts/models/source"
+import {
+    RSSSource,
+    SourceOpenTarget,
+    SourceTextDirection,
+} from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
 import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
 
@@ -31,9 +35,14 @@ type ArticleProps = {
     textMenu: (position: [number, number], text: string, url: string) => void
     imageMenu: (position: [number, number]) => void
     dismissContextMenu: () => void
+    updateSourceTextDirection: (
+        source: RSSSource,
+        direction: SourceTextDirection
+    ) => void
 }
 
 type ArticleState = {
+    fontFamily: string
     fontSize: number
     loadWebpage: boolean
     loadFull: boolean
@@ -49,7 +58,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     constructor(props: ArticleProps) {
         super(props)
         this.state = {
-            fontSize: this.getFontSize(),
+            fontFamily: window.settings.getFont(),
+            fontSize: window.settings.getFontSize(),
             loadWebpage: props.source.openTarget === SourceOpenTarget.Webpage,
             loadFull: props.source.openTarget === SourceOpenTarget.FullContent,
             fullContent: "",
@@ -64,15 +74,16 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             this.loadFull()
     }
 
-    getFontSize = () => {
-        return window.settings.getFontSize()
-    }
     setFontSize = (size: number) => {
         window.settings.setFontSize(size)
         this.setState({ fontSize: size })
     }
+    setFont = (font: string) => {
+        window.settings.setFont(font)
+        this.setState({ fontFamily: font })
+    }
 
-    fontMenuProps = (): IContextualMenuProps => ({
+    fontSizeMenuProps = (): IContextualMenuProps => ({
         items: FONT_SIZE_OPTIONS.map(size => ({
             key: String(size),
             text: String(size),
@@ -80,6 +91,53 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             checked: size === this.state.fontSize,
             onClick: () => this.setFontSize(size),
         })),
+    })
+
+    fontFamilyMenuProps = (): IContextualMenuProps => ({
+        items: window.fontList.map((font, idx) => ({
+            key: String(idx),
+            text: font === "" ? intl.get("default") : font,
+            canCheck: true,
+            checked: this.state.fontFamily === font,
+            onClick: () => this.setFont(font),
+        })),
+    })
+
+    updateTextDirection = (direction: SourceTextDirection) => {
+        this.props.updateSourceTextDirection(this.props.source, direction)
+    }
+
+    directionMenuProps = (): IContextualMenuProps => ({
+        items: [
+            {
+                key: "LTR",
+                text: intl.get("article.LTR"),
+                iconProps: { iconName: "Forward" },
+                canCheck: true,
+                checked: this.props.source.textDir === SourceTextDirection.LTR,
+                onClick: () =>
+                    this.updateTextDirection(SourceTextDirection.LTR),
+            },
+            {
+                key: "RTL",
+                text: intl.get("article.RTL"),
+                iconProps: { iconName: "Back" },
+                canCheck: true,
+                checked: this.props.source.textDir === SourceTextDirection.RTL,
+                onClick: () =>
+                    this.updateTextDirection(SourceTextDirection.RTL),
+            },
+            {
+                key: "Vertical",
+                text: intl.get("article.Vertical"),
+                iconProps: { iconName: "Down" },
+                canCheck: true,
+                checked:
+                    this.props.source.textDir === SourceTextDirection.Vertical,
+                onClick: () =>
+                    this.updateTextDirection(SourceTextDirection.Vertical),
+            },
+        ],
     })
 
     moreMenuProps = (): IContextualMenuProps => ({
@@ -117,10 +175,24 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             },
             {
                 key: "fontMenu",
+                text: intl.get("article.font"),
+                iconProps: { iconName: "Font" },
+                disabled: this.state.loadWebpage,
+                subMenuProps: this.fontFamilyMenuProps(),
+            },
+            {
+                key: "fontSizeMenu",
                 text: intl.get("article.fontSize"),
                 iconProps: { iconName: "FontSize" },
                 disabled: this.state.loadWebpage,
-                subMenuProps: this.fontMenuProps(),
+                subMenuProps: this.fontSizeMenuProps(),
+            },
+            {
+                key: "directionMenu",
+                text: intl.get("article.textDir"),
+                iconProps: { iconName: "ChangeEntitlements" },
+                disabled: this.state.loadWebpage,
+                subMenuProps: this.directionMenuProps(),
             },
             {
                 key: "divider_1",
@@ -290,7 +362,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 </>
             )
         )
-        return `article/article.html?a=${a}&h=${h}&s=${this.state.fontSize}&u=${
+        return `article/article.html?a=${a}&h=${h}&f=${encodeURIComponent(
+            this.state.fontFamily
+        )}&s=${this.state.fontSize}&d=${this.props.source.textDir}&u=${
             this.props.item.link
         }&m=${this.state.loadFull ? 1 : 0}`
     }
@@ -400,7 +474,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                             ? this.props.item.link
                             : this.articleView()
                     }
-                    webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
+                    webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required,nativeWindowOpen=false"
                     partition={this.state.loadWebpage ? "sandbox" : undefined}
                 />
             )}

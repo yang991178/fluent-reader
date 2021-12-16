@@ -23,6 +23,9 @@ module.exports = [
             path: __dirname + "/dist",
             filename: "electron.js",
         },
+        node: {
+            __dirname: false,
+        },
         plugins: [new HardSourceWebpackPlugin()],
     },
     {
