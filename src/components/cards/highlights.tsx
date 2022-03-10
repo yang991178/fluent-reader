@@ -1,11 +1,13 @@
 import * as React from "react"
 import { validateRegex } from "../../scripts/utils"
 import { FeedFilter, FilterType } from "../../scripts/models/feed"
+import { SourceTextDirection } from "../../scripts/models/source"
 
 type HighlightsProps = {
     text: string
     filter: FeedFilter
     title?: boolean
+    dir: SourceTextDirection
 }
 
 const Highlights: React.FunctionComponent<HighlightsProps> = props => {
@@ -57,10 +59,25 @@ const Highlights: React.FunctionComponent<HighlightsProps> = props => {
         }
     }
 
+    const testStyle = {
+        direction: "inherit",
+        writingMode: "inherit",
+    } as React.CSSProperties
+    if (props.dir === SourceTextDirection.RTL) {
+        testStyle.direction = "rtl"
+    } else if (props.dir === SourceTextDirection.Vertical) {
+        testStyle.writingMode = "vertical-rl"
+    }
     return (
         <>
             {spans.map(([text, flag]) =>
-                flag ? <span className="h">{text}</span> : text
+                flag ? (
+                    <div className="h" style={testStyle}>
+                        {text}
+                    </div>
+                ) : (
+                    <div style={testStyle}>{text}</div>
+                )
             )}
         </>
     )

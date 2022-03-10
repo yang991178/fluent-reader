@@ -31,6 +31,7 @@ const ListCard: React.FunctionComponent<Card.Props> = props => (
                     text={props.item.title}
                     filter={props.filter}
                     title
+                    dir={props.source.textDir}
                 />
             </h3>
             {Boolean(props.viewConfigs & ViewConfigs.ShowSnippet) && (
@@ -38,6 +39,7 @@ const ListCard: React.FunctionComponent<Card.Props> = props => (
                     <Highlights
                         text={props.item.snippet}
                         filter={props.filter}
+                        dir={props.source.textDir}
                     />
                 </p>
             )}
