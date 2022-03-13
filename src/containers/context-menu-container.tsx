@@ -15,6 +15,7 @@ import {
     toggleHidden,
     markAllRead,
     fetchItems,
+    pauseUpdates,
 } from "../scripts/models/item"
 import {
     showItem,
@@ -62,6 +63,7 @@ const mapStateToProps = createSelector(
                     type: context.type,
                     event: context.event,
                     sids: context.target,
+                    selectedSources: context.selectedSources,
                 }
             case ContextMenuType.Image:
                 return {
@@ -106,6 +108,8 @@ const mapDispatchToProps = dispatch => {
         },
         fetchItems: (sids: number[]) => dispatch(fetchItems(false, sids)),
         settings: (sids: number[]) => dispatch(toggleSettings(true, sids)),
+        pauseUpdates: (sid: number, pause: boolean) =>
+            dispatch(pauseUpdates(sid, pause)),
         close: () => dispatch(closeContextMenu()),
     }
 }

@@ -14,7 +14,8 @@ import {
     DirectionalHint,
 } from "office-ui-fabric-react/lib/ContextualMenu"
 import { ContextMenuType } from "../scripts/models/app"
-import { RSSItem } from "../scripts/models/item"
+import { pauseUpdates, RSSItem } from "../scripts/models/item"
+import { RSSSource } from "../scripts/models/source"
 import { ContextReduxProps } from "../containers/context-menu-container"
 import { ViewType, ImageCallbackTypes, ViewConfigs } from "../schema-types"
 import { FilterType } from "../scripts/models/feed"
@@ -31,6 +32,7 @@ export type ContextMenuProps = ContextReduxProps & {
     viewConfigs?: ViewConfigs
     filter?: FilterType
     sids?: number[]
+    selectedSources?: { [sid: string]: RSSSource }
     showItem: (feedId: string, item: RSSItem) => void
     markRead: (item: RSSItem) => void
     markUnread: (item: RSSItem) => void
@@ -42,6 +44,7 @@ export type ContextMenuProps = ContextReduxProps & {
     toggleFilter: (filter: FilterType) => void
     markAllRead: (sids?: number[], date?: Date, before?: boolean) => void
     fetchItems: (sids: number[]) => void
+    pauseUpdates: typeof pauseUpdates
     settings: (sids: number[]) => void
     close: () => void
 }
@@ -531,7 +534,7 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                     },
                 ]
             case ContextMenuType.Group:
-                return [
+                const menuItems = [
                     {
                         key: "markAllRead",
                         text: intl.get("nav.markAllRead"),
@@ -551,6 +554,36 @@ export class ContextMenu extends React.Component<ContextMenuProps> {
                         onClick: () => this.props.settings(this.props.sids),
                     },
                 ]
+
+                const { selectedSources } = this.props
+
+                // Pausing/resuming only applies to a single source, not group.
+                if (Object.keys(this.props.sids).length === 1) {
+                    const source: RSSSource =
+                        selectedSources[this.props.sids[0]]
+
+                    if (source.fetchingPaused === true) {
+                        menuItems.push({
+                            key: "resume-updates",
+                            text: intl.get("context.resumeUpdates"),
+                            iconProps: { iconName: "Play" },
+                            onClick: () => {
+                                this.props.pauseUpdates(source.sid, false)
+                            },
+                        })
+                    } else {
+                        menuItems.push({
+                            key: "pause-updates",
+                            text: intl.get("context.pauseUpdates"),
+                            iconProps: { iconName: "Pause" },
+                            onClick: () => {
+                                this.props.pauseUpdates(source.sid, true)
+                            },
+                        })
+                    }
+                }
+
+                return menuItems
             case ContextMenuType.MarkRead:
                 return [
                     {

@@ -95,6 +95,11 @@ body.darwin .menu .btn-group {
     color: var(--neutralSecondary);
 }
 
+.menu .link-text-light,
+.menu .link-text-light .unread-count {
+    color: var(--neutralTertiary);
+}
+
 .settings-container {
     position: fixed;
     z-index: 7;

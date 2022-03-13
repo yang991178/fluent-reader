@@ -42,6 +42,14 @@ export class RSSSource {
     rules?: SourceRule[]
     textDir: SourceTextDirection
 
+    /**
+     * If set to true, a source should not be fetched,
+     * unless user requests fetching of that single item.
+     * The exception is made to make it easy to fetch items once from paused source
+     * without having to manually resume, fetch and pause the source again.
+     */
+    fetchingPaused: boolean
+
     constructor(url: string, name: string = null) {
         this.url = url
         this.name = name

@@ -97,6 +97,7 @@ export class Menu extends React.Component<MenuProps> {
         onClick: () => this.props.selectSource(s),
         iconProps: s.iconurl ? this.getIconStyle(s.iconurl) : null,
         url: null,
+        classNames: s.fetchingPaused === true ? ["link-text-light"] : undefined,
     })
 
     getIconStyle = (url: string) => ({
@@ -122,9 +123,15 @@ export class Menu extends React.Component<MenuProps> {
 
     _onRenderLink = (link: INavLink): JSX.Element => {
         let count = link.ariaLabel.split(" ").pop()
+        const classNames: string[] = ["link-stack"]
+
+        if (link.classNames != null) {
+            classNames.push(...link.classNames)
+        }
+
         return (
             <Stack
-                className="link-stack"
+                className={classNames.join(" ")}
                 horizontal
                 grow
                 onContextMenu={event => this.onContext(link, event)}>

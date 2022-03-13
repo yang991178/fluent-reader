@@ -243,6 +243,12 @@ export function fetchItems(
                     : sids
                           .map(sid => sourcesState[sid])
                           .filter(s => !s.serviceRef)
+
+            // It should work to fetch paused item when it is selected explicitly (not in a group)
+            if (sources.length !== 1) {
+                sources = sources.filter(s => s.fetchingPaused !== true)
+            }
+
             for (let source of sources) {
                 let promise = RSSSource.fetchItems(source)
                 promise.then(() =>
@@ -412,6 +418,17 @@ export function toggleStarred(item: RSSItem): AppThunk {
             if (item.starred) dispatch(hooks.unstar?.(item))
             else dispatch(hooks.star?.(item))
         }
+    }
+}
+
+export function pauseUpdates(
+    sid: number,
+    pause: boolean
+): AppThunk<Promise<void>> {
+    return (dispatch, getState) => {
+        const source = getState().sources[sid]
+
+        return dispatch(updateSource({ ...source, fetchingPaused: pause }))
     }
 }
 

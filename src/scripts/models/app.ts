@@ -8,6 +8,7 @@ import {
     initSources,
     SourceOpenTarget,
     updateFavicon,
+    RSSSource,
 } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import {
@@ -103,6 +104,7 @@ export class AppState {
         event?: MouseEvent | string
         position?: [number, number]
         target?: [RSSItem, string] | number[] | [string, string]
+        selectedSources?: { [sid: string]: RSSSource }
     }
 
     constructor() {
@@ -149,6 +151,7 @@ interface OpenGroupMenuAction {
     type: typeof OPEN_GROUP_MENU
     event: MouseEvent
     sids: number[]
+    selectedSources: { [sid: string]: RSSSource }
 }
 
 interface OpenImageMenuAction {
@@ -248,11 +251,22 @@ export const openViewMenu = (): ContextMenuActionTypes => ({
 export function openGroupMenu(
     sids: number[],
     event: React.MouseEvent
-): ContextMenuActionTypes {
-    return {
-        type: OPEN_GROUP_MENU,
-        event: event.nativeEvent,
-        sids: sids,
+): AppThunk<ContextMenuActionTypes> {
+    return (dispatch, getState) => {
+        const allSources = getState().sources
+
+        const selectedSources = {}
+
+        for (const sid of sids) {
+            selectedSources[sid] = allSources[sid]
+        }
+
+        return dispatch({
+            type: OPEN_GROUP_MENU,
+            event: event.nativeEvent,
+            sids: sids,
+            selectedSources: selectedSources,
+        })
     }
 }
 
@@ -631,6 +645,7 @@ export function appReducer(
                     type: ContextMenuType.Group,
                     event: action.event,
                     target: action.sids,
+                    selectedSources: action.selectedSources,
                 },
             }
         case OPEN_IMAGE_MENU:

@@ -98,6 +98,8 @@
         "caseSensitive": "Case sensitive",
         "showCover": "Show cover",
         "showSnippet": "Show snippet",
+        "pauseUpdates": "Pause updates",
+        "resumeUpdates": "Resume updates",
         "fadeRead": "Fade read articles"
     },
     "searchEngine": {

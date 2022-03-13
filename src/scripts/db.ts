@@ -16,6 +16,7 @@ sdbSchema
     .addColumn("lastFetched", lf.Type.DATE_TIME)
     .addColumn("serviceRef", lf.Type.STRING)
     .addColumn("fetchFrequency", lf.Type.NUMBER)
+    .addColumn("fetchingPaused", lf.Type.BOOLEAN)
     .addColumn("rules", lf.Type.OBJECT)
     .addColumn("textDir", lf.Type.NUMBER)
     .addNullable(["iconurl", "serviceRef", "rules"])
