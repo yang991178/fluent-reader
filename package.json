@@ -12,7 +12,7 @@
     "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
     "package-mac": "electron-builder --mac --x64",
     "package-mas": "bash build/resignAndPackage.sh",
-    "package-linux": "electron-builder --linux -p never"
+    "package-linux": "electron-builder --linux --x64 -p never"
   },
   "keywords": [],
   "author": "Haoyuan Liu",
@@ -26,7 +26,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^16.0.2",
+    "electron": "^19.0.0",
     "electron-builder": "^22.11.3",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",

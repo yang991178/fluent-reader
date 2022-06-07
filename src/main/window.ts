@@ -69,7 +69,6 @@ export class WindowManager {
                         app.getAppPath(),
                         (app.isPackaged ? "dist/" : "") + "preload.js"
                     ),
-                    nativeWindowOpen: false,
                 },
             })
             this.mainWindowState.manage(this.mainWindow)
