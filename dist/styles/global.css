@@ -49,11 +49,27 @@ body.darwin {
 html,
 body {
     background-color: transparent;
-    font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei",
+    font-family: "Segoe UI", "Source Han Sans Regular",
         sans-serif;
     height: 100%;
     overflow: hidden;
     margin: 0;
+}
+body:lang(zh-CN) {
+    font-family: "Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei",
+        sans-serif;
+}
+body:lang(zh-TW) {
+    font-family: "Segoe UI", "Source Han Sans TC Regular", "Microsoft JhengHei",
+        sans-serif;
+}
+body:lang(ja) {
+    font-family: "Segoe UI", "Source Han Sans JP Regular", "Yu Gothic UI",
+        sans-serif;
+}
+body:lang(ko) {
+    font-family: "Segoe UI", "Source Han Sans KR Regular", "Malgun Gothic",
+        sans-serif;
 }
 body.win32,
 body.linux {
