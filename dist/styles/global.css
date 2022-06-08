@@ -49,8 +49,7 @@ body.darwin {
 html,
 body {
     background-color: transparent;
-    font-family: "Segoe UI", "Source Han Sans Regular",
-        sans-serif;
+    font-family: "Segoe UI", "Source Han Sans Regular", sans-serif;
     height: 100%;
     overflow: hidden;
     margin: 0;
