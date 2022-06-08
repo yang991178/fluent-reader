@@ -7,7 +7,7 @@ type HighlightsProps = {
     text: string
     filter: FeedFilter
     title?: boolean
-    dir: SourceTextDirection
+    dir?: SourceTextDirection
 }
 
 const Highlights: React.FunctionComponent<HighlightsProps> = props => {
@@ -61,12 +61,9 @@ const Highlights: React.FunctionComponent<HighlightsProps> = props => {
 
     const testStyle = {
         direction: "inherit",
-        writingMode: "inherit",
     } as React.CSSProperties
     if (props.dir === SourceTextDirection.RTL) {
         testStyle.direction = "rtl"
-    } else if (props.dir === SourceTextDirection.Vertical) {
-        testStyle.writingMode = "vertical-rl"
     }
     return (
         <>
