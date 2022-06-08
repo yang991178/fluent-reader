@@ -26,6 +26,7 @@ mac:
         - it
         - nl
         - ko
+        - ru
 win:
     target:
         - nsis
@@ -49,6 +50,7 @@ appx:
         - it
         - nl
         - ko
+        - ru
     showNameOnTiles: true
     setBuildNumber: true
 nsis:

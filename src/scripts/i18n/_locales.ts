@@ -10,6 +10,7 @@ import sv from "./sv.json"
 import tr from "./tr.json"
 import it from "./it.json"
 import uk from "./uk.json"
+import ru from "./ru.json"
 import pt_BR from "./pt-BR.json"
 import fi_FI from "./fi-FI.json"
 import ko from "./ko.json"
@@ -28,6 +29,7 @@ const locales = {
     "tr": tr,
     "it": it,
     "uk": uk,
+    "ru": ru,
     "pt-BR": pt_BR,
     "fi-FI": fi_FI,
     "ko": ko,

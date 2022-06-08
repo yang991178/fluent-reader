@@ -474,7 +474,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                             ? this.props.item.link
                             : this.articleView()
                     }
-                    webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required,nativeWindowOpen=false"
+                    allowpopups={"true" as unknown as boolean}
+                    webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
                     partition={this.state.loadWebpage ? "sandbox" : undefined}
                 />
             )}
