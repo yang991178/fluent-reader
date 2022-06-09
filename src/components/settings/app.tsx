@@ -135,6 +135,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         { key: "it", text: "Italiano" },
         { key: "nl", text: "Nederlands" },
         { key: "pt-BR", text: "Português do Brasil" },
+        { key: "pt-PT", text: "Português de Portugal" },
         { key: "fi-FI", text: "Suomi" },
         { key: "sv", text: "Svenska" },
         { key: "tr", text: "Türkçe" },
