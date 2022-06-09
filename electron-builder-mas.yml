@@ -1,5 +1,5 @@
 appId: DevHYLiu.FluentReader
-buildVersion: 25
+buildVersion: 26
 productName: Fluent Reader
 copyright: Copyright © 2020 Haoyuan Liu
 files:
@@ -29,6 +29,9 @@ mac:
         - it
         - nl
         - ko
+        - ru
+        - pt_BR
+        - pt_PT
     minimumSystemVersion: 10.14.0
 mas:
     entitlements: build/entitlements.mas.plist

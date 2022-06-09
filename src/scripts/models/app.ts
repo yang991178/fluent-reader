@@ -32,7 +32,7 @@ import {
     selectAllArticles,
     showItemFromId,
 } from "./page"
-import { getCurrentLocale } from "../settings"
+import { getCurrentLocale, setThemeDefaultFont } from "../settings"
 import locales from "../i18n/_locales"
 import { SYNC_SERVICE, ServiceActionTypes } from "./service"
 
@@ -369,10 +369,14 @@ export interface InitIntlAction {
     type: typeof INIT_INTL
     locale: string
 }
-export const initIntlDone = (locale: string): InitIntlAction => ({
-    type: INIT_INTL,
-    locale: locale,
-})
+export const initIntlDone = (locale: string): InitIntlAction => {
+    document.documentElement.lang = locale
+    setThemeDefaultFont(locale)
+    return {
+        type: INIT_INTL,
+        locale: locale,
+    }
+}
 
 export function initIntl(): AppThunk<Promise<void>> {
     return dispatch => {

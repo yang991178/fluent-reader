@@ -328,17 +328,22 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
     loadFull = async () => {
         this.setState({ fullContent: "", loaded: false, error: false })
+        const link = this.props.item.link
         try {
-            const result = await fetch(this.props.item.link)
+            const result = await fetch(link)
             if (!result || !result.ok) throw new Error()
             const html = await decodeFetchResponse(result, true)
-            this.setState({ fullContent: html })
+            if (link === this.props.item.link) {
+                this.setState({ fullContent: html })
+            }
         } catch {
-            this.setState({
-                loaded: true,
-                error: true,
-                errorDescription: "MERCURY_PARSER_FAILURE",
-            })
+            if (link === this.props.item.link) {
+                this.setState({
+                    loaded: true,
+                    error: true,
+                    errorDescription: "MERCURY_PARSER_FAILURE",
+                })
+            }
         }
     }
 
@@ -467,7 +472,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     className={this.state.error ? "error" : ""}
                     key={
                         this.props.item._id +
-                        (this.state.loadWebpage ? "_" : "")
+                        (this.state.loadWebpage ? "_" : "") +
+                        (this.state.loadFull ? "__" : "")
                     }
                     src={
                         this.state.loadWebpage

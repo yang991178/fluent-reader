@@ -23,10 +23,15 @@ const CompactCard: React.FunctionComponent<Card.Props> = props => (
                     text={props.item.title}
                     filter={props.filter}
                     title
+                    dir={props.source.textDir}
                 />
             </span>
             <span className="snippet">
-                <Highlights text={props.item.snippet} filter={props.filter} />
+                <Highlights
+                    text={props.item.snippet}
+                    filter={props.filter}
+                    dir={props.source.textDir}
+                />
             </span>
         </div>
         <Time date={props.item.date} />
