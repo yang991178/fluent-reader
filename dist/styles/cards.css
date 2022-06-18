@@ -91,6 +91,10 @@
 .card span.h {
     background: #fce10080;
 }
+.card.rtl .snippet,
+.card.rtl .title {
+    direction: rtl;
+}
 
 .default-card {
     display: inline-block;
