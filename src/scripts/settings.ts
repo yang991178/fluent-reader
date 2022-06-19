@@ -146,6 +146,7 @@ export async function importAll() {
         const sRows = configs.lovefield.sources.map(s => {
             s.lastFetched = new Date(s.lastFetched)
             if (!s.textDir) s.textDir = SourceTextDirection.LTR
+            if (!s.hidden) s.hidden = false
             return db.sources.createRow(s)
         })
         const iRows = configs.lovefield.items.map(i => {

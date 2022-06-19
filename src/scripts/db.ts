@@ -4,7 +4,7 @@ import lf from "lovefield"
 import { RSSSource } from "./models/source"
 import { RSSItem } from "./models/item"
 
-const sdbSchema = lf.schema.create("sourcesDB", 2)
+const sdbSchema = lf.schema.create("sourcesDB", 3)
 sdbSchema
     .createTable("sources")
     .addColumn("sid", lf.Type.INTEGER)
@@ -18,6 +18,7 @@ sdbSchema
     .addColumn("fetchFrequency", lf.Type.NUMBER)
     .addColumn("rules", lf.Type.OBJECT)
     .addColumn("textDir", lf.Type.NUMBER)
+    .addColumn("hidden", lf.Type.BOOLEAN)
     .addNullable(["iconurl", "serviceRef", "rules"])
     .addIndex("idxURL", ["url"], true)
 
@@ -53,6 +54,9 @@ async function onUpgradeSourceDB(rawDb: lf.raw.BackStore) {
     const version = rawDb.getVersion()
     if (version < 2) {
         await rawDb.addTableColumn("sources", "textDir", 0)
+    }
+    if (version < 3) {
+        await rawDb.addTableColumn("sources", "hidden", false)
     }
 }
 
@@ -99,6 +103,7 @@ async function migrateNeDB() {
             delete doc._id
             if (!doc.fetchFrequency) doc.fetchFrequency = 0
             doc.textDir = 0
+            doc.hidden = false
             return sources.createRow(doc)
         })
         const iRows = itemDocs.map(doc => {
