@@ -147,7 +147,8 @@
         "badUrl": "请正确输入URL",
         "deleteWarning": "这将移除订阅源与所有已保存的文章",
         "selected": "选中订阅源",
-        "selectedMulti": "选中多个订阅源"
+        "selectedMulti": "选中多个订阅源",
+        "hidden": "从“全部文章”中隐藏"
     },
     "groups": {
         "exist": "该分组已存在",

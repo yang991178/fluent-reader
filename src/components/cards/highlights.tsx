@@ -7,7 +7,6 @@ type HighlightsProps = {
     text: string
     filter: FeedFilter
     title?: boolean
-    dir?: SourceTextDirection
 }
 
 const Highlights: React.FunctionComponent<HighlightsProps> = props => {
@@ -59,22 +58,10 @@ const Highlights: React.FunctionComponent<HighlightsProps> = props => {
         }
     }
 
-    const testStyle = {
-        direction: "inherit",
-    } as React.CSSProperties
-    if (props.dir === SourceTextDirection.RTL) {
-        testStyle.direction = "rtl"
-    }
     return (
         <>
             {spans.map(([text, flag]) =>
-                flag ? (
-                    <div className="h" style={testStyle}>
-                        {text}
-                    </div>
-                ) : (
-                    <div style={testStyle}>{text}</div>
-                )
+                flag ? <span className="h">{text}</span> : text
             )}
         </>
     )

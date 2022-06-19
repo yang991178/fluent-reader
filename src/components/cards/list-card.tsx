@@ -3,6 +3,7 @@ import { Card } from "./card"
 import CardInfo from "./info"
 import Highlights from "./highlights"
 import { ViewConfigs } from "../../schema-types"
+import { SourceTextDirection } from "../../scripts/models/source"
 
 const className = (props: Card.Props) => {
     let cn = ["card", "list-card"]
@@ -10,6 +11,7 @@ const className = (props: Card.Props) => {
     if (props.selected) cn.push("selected")
     if (props.viewConfigs & ViewConfigs.FadeRead && props.item.hasRead)
         cn.push("read")
+    if (props.source.textDir === SourceTextDirection.RTL) cn.push("rtl")
     return cn.join(" ")
 }
 
@@ -31,7 +33,6 @@ const ListCard: React.FunctionComponent<Card.Props> = props => (
                     text={props.item.title}
                     filter={props.filter}
                     title
-                    dir={props.source.textDir}
                 />
             </h3>
             {Boolean(props.viewConfigs & ViewConfigs.ShowSnippet) && (
@@ -39,7 +40,6 @@ const ListCard: React.FunctionComponent<Card.Props> = props => (
                     <Highlights
                         text={props.item.snippet}
                         filter={props.filter}
-                        dir={props.source.textDir}
                     />
                 </p>
             )}

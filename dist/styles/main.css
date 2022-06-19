@@ -209,7 +209,7 @@ img.favicon.dropdown {
 .main::before {
     content: "";
     display: block;
-    position: sticky;
+    position: relative;
     top: var(--navHeight);
     left: 0;
     width: calc(100% - 16px);

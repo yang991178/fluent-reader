@@ -149,7 +149,8 @@
         "badUrl": "Invalid URL",
         "deleteWarning": "The source and all saved articles will be removed.",
         "selected": "Selected source",
-        "selectedMulti": "Selected multiple sources"
+        "selectedMulti": "Selected multiple sources",
+        "hidden": "Hide in \"all articles\""
     },
     "groups": {
         "exist": "This group already exists.",

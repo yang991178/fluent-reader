@@ -16,6 +16,7 @@ import {
     Dropdown,
     MessageBar,
     MessageBarType,
+    Toggle,
 } from "@fluentui/react"
 import {
     SourceState,
@@ -42,6 +43,7 @@ type SourcesTabProps = {
     deleteSources: (sources: RSSSource[]) => void
     importOPML: () => void
     exportOPML: () => void
+    toggleSourceHidden: (source: RSSSource) => void
 }
 
 type SourcesTabState = {
@@ -213,6 +215,16 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
             selectedSource: {
                 ...this.state.selectedSource,
                 openTarget: newTarget,
+            } as RSSSource,
+        })
+    }
+
+    onToggleHidden = () => {
+        this.props.toggleSourceHidden(this.state.selectedSource)
+        this.setState({
+            selectedSource: {
+                ...this.state.selectedSource,
+                hidden: !this.state.selectedSource.hidden,
             } as RSSSource,
         })
     }
@@ -409,6 +421,17 @@ class SourcesTab extends React.Component<SourcesTabProps, SourcesTabState> {
                         )}
                         onChange={this.onOpenTargetChange}
                     />
+                    <Stack horizontal verticalAlign="baseline">
+                        <Stack.Item grow>
+                            <Label>{intl.get("sources.hidden")}</Label>
+                        </Stack.Item>
+                        <Stack.Item>
+                            <Toggle
+                                checked={this.state.selectedSource.hidden}
+                                onChange={this.onToggleHidden}
+                            />
+                        </Stack.Item>
+                    </Stack>
                     {!this.state.selectedSource.serviceRef && (
                         <Stack horizontal>
                             <Stack.Item>

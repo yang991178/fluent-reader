@@ -10,6 +10,7 @@ import {
     deleteSource,
     SourceOpenTarget,
     deleteSources,
+    toggleSourceHidden,
 } from "../../scripts/models/source"
 import { importOPML, exportOPML } from "../../scripts/models/group"
 import { AppDispatch, validateFavicon } from "../../scripts/utils"
@@ -67,6 +68,8 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
             dispatch(deleteSources(sources)),
         importOPML: () => dispatch(importOPML()),
         exportOPML: () => dispatch(exportOPML()),
+        toggleSourceHidden: (source: RSSSource) =>
+            dispatch(toggleSourceHidden(source)),
     }
 }
 

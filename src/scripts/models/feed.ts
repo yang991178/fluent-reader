@@ -5,6 +5,8 @@ import {
     INIT_SOURCES,
     ADD_SOURCE,
     DELETE_SOURCE,
+    UNHIDE_SOURCE,
+    HIDE_SOURCE,
 } from "./source"
 import {
     ItemActionTypes,
@@ -316,13 +318,16 @@ export function feedReducer(
                         ...state,
                         [ALL]: new RSSFeed(
                             ALL,
-                            Object.values(action.sources).map(s => s.sid)
+                            Object.values(action.sources)
+                                .filter(s => !s.hidden)
+                                .map(s => s.sid)
                         ),
                     }
                 default:
                     return state
             }
         case ADD_SOURCE:
+        case UNHIDE_SOURCE:
             switch (action.status) {
                 case ActionStatus.Success:
                     return {
@@ -336,7 +341,8 @@ export function feedReducer(
                 default:
                     return state
             }
-        case DELETE_SOURCE: {
+        case DELETE_SOURCE:
+        case HIDE_SOURCE: {
             let nextState = {}
             for (let [id, feed] of Object.entries(state)) {
                 nextState[id] = new RSSFeed(

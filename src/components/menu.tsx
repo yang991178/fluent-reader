@@ -49,6 +49,7 @@ export class Menu extends React.Component<MenuProps> {
                         intl.get("allArticles") +
                         this.countOverflow(
                             Object.values(this.props.sources)
+                                .filter(s => !s.hidden)
                                 .map(s => s.unreadCount)
                                 .reduce((a, b) => a + b, 0)
                         ),
