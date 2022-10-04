@@ -18,6 +18,7 @@ import { createSourceGroup, addSourceToGroup } from "./group"
 import { feverServiceHooks } from "./services/fever"
 import { feedbinServiceHooks } from "./services/feedbin"
 import { gReaderServiceHooks } from "./services/greader"
+import { nextcloudServiceHooks } from "./services/nextcloud"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
@@ -45,6 +46,8 @@ export function getServiceHooksFromType(type: SyncService): ServiceHooks {
         case SyncService.GReader:
         case SyncService.Inoreader:
             return gReaderServiceHooks
+        case SyncService.Nextcloud:
+            return nextcloudServiceHooks
         default:
             return {}
     }

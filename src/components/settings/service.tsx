@@ -6,6 +6,7 @@ import FeverConfigsTab from "./services/fever"
 import FeedbinConfigsTab from "./services/feedbin"
 import GReaderConfigsTab from "./services/greader"
 import InoreaderConfigsTab from "./services/inoreader"
+import NextcloudConfigsTab from "./services/nextcloud"
 
 type ServiceTabProps = {
     configs: ServiceConfigs
@@ -41,6 +42,7 @@ export class ServiceTab extends React.Component<
         { key: SyncService.Feedbin, text: "Feedbin" },
         { key: SyncService.GReader, text: "Google Reader API (Beta)" },
         { key: SyncService.Inoreader, text: "Inoreader" },
+        { key: SyncService.Nextcloud, text: "Nextcloud news API" },
         { key: -1, text: intl.get("service.suggest") },
     ]
 
@@ -88,6 +90,13 @@ export class ServiceTab extends React.Component<
                         exit={this.exitConfigsTab}
                     />
                 )
+                case SyncService.Nextcloud:
+                    return (
+                        <NextcloudConfigsTab
+                            {...this.props}
+                            exit={this.exitConfigsTab}
+                        />
+                    )
             default:
                 return null
         }
