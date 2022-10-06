@@ -38,7 +38,7 @@ class NextcloudConfigsTab extends React.Component<
         const configs = props.configs as NextcloudConfigs
         this.state = {
             existing: configs.type === SyncService.Nextcloud,
-            endpoint: configs.endpoint || "https://yawks.net/nextcloud/",
+            endpoint: configs.endpoint || "https://nextcloud.com/",
             username: configs.username || "",
             password: "",
             fetchLimit: configs.fetchLimit || 250,
