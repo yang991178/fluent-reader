@@ -128,18 +128,18 @@ export const minifluxServiceHooks: ServiceHooks = {
     // fetch entries from after the last fetched id (if exists)
     // limit by quantity and maximum safe integer (id)
     // NOTE: miniflux endpoint /entries default order with "published at", and does not offer "created_at"
-    // 		 but does offer id sort, directly correlated with "created". some feeds give strange published_at.
+    //          but does offer id sort, directly correlated with "created". some feeds give strange published_at.
 
     fetchItems: () => async (_, getState) => {
         const state = getState()
         const configs = state.service as MinifluxConfigs
-        let items: Entry[] = new Array()
+        const items: Entry[] = new Array()
         let entriesResponse: Entries
 
         // parameters
         configs.lastId = configs.lastId ?? 0
         // intermediate
-        const quantity = 100
+        const quantity = 125
         let continueId: number
 
         do {
@@ -147,37 +147,28 @@ export const minifluxServiceHooks: ServiceHooks = {
                 if (continueId) {
                     entriesResponse = await fetchAPI(
                         configs,
-                        `entries?
-						order=id
-						&direction=desc
-						&after_entry_id=${configs.lastId}
-						&before_entry_id=${continueId}
-						&limit=${quantity}`
+                        `entries?order=id&direction=desc&after_entry_id=${configs.lastId}&before_entry_id=${continueId}&limit=${quantity}`
                     ).then(response => response.json())
                 } else {
                     entriesResponse = await fetchAPI(
                         configs,
-                        `entries?
-						order=id
-						&direction=desc
-						&after_entry_id=${configs.lastId}
-						&limit=${quantity}`
+                        `entries?order=id&direction=desc&after_entry_id=${configs.lastId}&limit=${quantity}`
                     ).then(response => response.json())
                 }
 
-                items = entriesResponse.entries.concat(items)
+                items.push(...entriesResponse.entries)
                 continueId = items[items.length - 1].id
             } catch {
                 break
             }
         } while (
             entriesResponse.entries &&
-            entriesResponse.total === 100 &&
+            entriesResponse.total >= quantity &&
             items.length < configs.fetchLimit
         )
 
         // break/return nothing if no new items acquired
-        if (items.length == 0) return [[], configs]
+        if (items.length === 0) return [[], configs]
         configs.lastId = items[0].id
 
         // get sources that possess ref/id given by service, associate new items
@@ -245,7 +236,10 @@ export const minifluxServiceHooks: ServiceHooks = {
             configs,
             "entries?starred=true"
         ).then(response => response.json())
-        const [unread, starred] = await Promise.all([unreadPromise, starredPromise])
+        const [unread, starred] = await Promise.all([
+            unreadPromise,
+            starredPromise,
+        ])
 
         return [
             new Set(unread.entries.map((entry: Entry) => String(entry.id))),
@@ -257,9 +251,9 @@ export const minifluxServiceHooks: ServiceHooks = {
         if (!item.serviceRef) return
 
         const body = `{
-			"entry_ids": [${item.serviceRef}],
-			"status": "read"
-		}`
+            "entry_ids": [${item.serviceRef}],
+            "status": "read"
+        }`
 
         const response = await fetchAPI(
             getState().service as MinifluxConfigs,
@@ -275,9 +269,9 @@ export const minifluxServiceHooks: ServiceHooks = {
         if (!item.serviceRef) return
 
         const body = `{
-			"entry_ids": [${item.serviceRef}],
-			"status": "unread"
-		}`
+            "entry_ids": [${item.serviceRef}],
+            "status": "unread"
+        }`
         await fetchAPI(
             getState().service as MinifluxConfigs,
             "entries",
@@ -296,7 +290,8 @@ export const minifluxServiceHooks: ServiceHooks = {
     // if null, state consulted for context sids
 
     markAllRead: (sids, date, before) => async (_, getState) => {
-        let refs: string[]
+        const state = getState()
+        const configs = state.service as MinifluxConfigs
 
         if (date) {
             const predicates: lf.Predicate[] = [
@@ -311,26 +306,24 @@ export const minifluxServiceHooks: ServiceHooks = {
                 .from(db.items)
                 .where(query)
                 .exec()
-            refs = rows.map(row => row["serviceRef"])
+            const refs = rows.map(row => row["serviceRef"])
+            const body = `{
+                "entry_ids": [${refs}],
+                "status": "read"
+            }`
+            await fetchAPI(configs, "entries", "PUT", body)
         } else {
-            const state = getState()
-            const items = state.feeds[state.page.feedId].iids
-            .map(iid => state.items[iid])
-            .filter(item => item.serviceRef && !item.hasRead)
-            refs = items.map(item => item.serviceRef)
+            const sources = state.sources
+            await Promise.all(
+                sids.map(sid =>
+                    fetchAPI(
+                        configs,
+                        `feeds/${sources[sid]?.serviceRef}/mark-all-as-read`,
+                        "PUT"
+                    )
+                )
+            )
         }
-
-        const body = `{
-			"entry_ids": [${refs}],
-			"status": "read"
-		}`
-
-        await fetchAPI(
-            getState().service as MinifluxConfigs,
-            "entries",
-            "PUT",
-            body
-        )
     },
 
     star: (item: RSSItem) => async (_, getState) => {

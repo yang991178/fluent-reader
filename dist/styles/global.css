@@ -237,7 +237,7 @@ body.darwin .btn-group .seperator {
     height: var(--navHeight);
     line-height: var(--navHeight);
 }
-body.darwin.not-fullscreen #root > nav .btn-group .btn:first-of-type {
+body.darwin.not-fullscreen #root > nav .btn-group:first-of-type {
     margin-left: 72px;
 }
 #root > nav .btn-group .btn.system {

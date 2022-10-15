@@ -18,7 +18,6 @@ import {
 } from "@fluentui/react"
 import DangerButton from "../../utils/danger-button"
 import { urlTest } from "../../../scripts/utils"
-import LiteExporter from "./lite-exporter"
 
 type NextcloudConfigsTabState = {
     existing: boolean
@@ -129,17 +128,14 @@ class NextcloudConfigsTab extends React.Component<
                     </MessageBar>
                 )}
                 <Stack horizontalAlign="center" style={{ marginTop: 48 }}>
-                    <svg
+                    <Icon
+                        iconName="AlignLeft"
                         style={{
-                            fill: "var(--black)",
-                            width: 32,
+                            color: "var(--black)",
+                            fontSize: 32,
                             userSelect: "none",
-                            strokeWidth:4.15602
                         }}
-                        viewBox="0 0 120 120">
-                        <path
-                            d="M 6.1560215,2 C 3.8535856,2 2,3.8535856 2,6.1560215 v 8.3120425 c 0,2.302436 1.8535856,4.156022 4.1560215,4.156022 H 114.21258 c 2.30244,0 4.15602,-1.853586 4.15602,-4.156022 V 6.1560215 C 118.3686,3.8535856 116.51502,2 114.21258,2 Z m 0,33.248172 C 3.8535856,35.248172 2,37.101757 2,39.404193 v 8.312043 c 0,2.302436 1.8535856,4.156022 4.1560215,4.156022 H 80.964408 c 2.302436,0 4.156021,-1.853586 4.156021,-4.156022 v -8.312043 c 0,-2.302436 -1.853585,-4.156021 -4.156021,-4.156021 z m 0,33.248172 C 3.8535856,68.496344 2,70.349929 2,72.652365 v 8.312043 c 0,2.302436 1.8535856,4.156021 4.1560215,4.156021 H 105.90054 c 2.30243,0 4.15602,-1.853585 4.15602,-4.156021 v -8.312043 c 0,-2.302436 -1.85359,-4.156021 -4.15602,-4.156021 z m 0,33.248176 C 3.8535856,101.74452 2,103.5981 2,105.90054 v 8.31204 c 0,2.30244 1.8535856,4.15602 4.1560215,4.15602 H 56.028279 c 2.302436,0 4.156022,-1.85358 4.156022,-4.15602 v -8.31204 c 0,-2.30244 -1.853586,-4.15602 -4.156022,-4.15602 z"/>
-                    </svg>
+                    />
                     <Label style={{ margin: "8px 0 36px" }}>Nextcloud</Label>
                     <Stack className="login-form" horizontal>
                         <Stack.Item>
@@ -161,7 +157,7 @@ class NextcloudConfigsTab extends React.Component<
                     </Stack>
                     <Stack className="login-form" horizontal>
                         <Stack.Item>
-                            <Label>User</Label>
+                            <Label>{intl.get("service.username")}</Label>
                         </Stack.Item>
                         <Stack.Item grow>
                             <TextField
@@ -241,9 +237,6 @@ class NextcloudConfigsTab extends React.Component<
                             )}
                         </Stack.Item>
                     </Stack>
-                    {this.state.existing && (
-                        <LiteExporter serviceConfigs={this.props.configs} />
-                    )}
                 </Stack>
             </>
         )

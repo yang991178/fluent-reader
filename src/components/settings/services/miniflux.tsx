@@ -17,7 +17,6 @@ import {
 } from "@fluentui/react"
 import DangerButton from "../../utils/danger-button"
 import { urlTest } from "../../../scripts/utils"
-import LiteExporter from "./lite-exporter"
 import { MinifluxConfigs } from "../../../scripts/models/services/miniflux"
 
 type MinifluxConfigsTabState = {

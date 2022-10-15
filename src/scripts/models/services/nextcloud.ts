@@ -98,7 +98,10 @@ export const nextcloudServiceHooks: ServiceHooks = {
             source.iconurl = s.faviconLink
             source.serviceRef = String(s.id)
             if (s.folderId && groupsByTagId.has(String(s.folderId))) {
-                groupsMap.set(String(s.id), groupsByTagId.get(String(s.folderId)))
+                groupsMap.set(
+                    String(s.id),
+                    groupsByTagId.get(String(s.folderId))
+                )
             }
             return source
         })
@@ -107,7 +110,7 @@ export const nextcloudServiceHooks: ServiceHooks = {
 
     syncItems: () => async (_, getState) => {
         const configs = getState().service as NextcloudConfigs
-        const [unreadResponse, starredResponse]= await Promise.all([
+        const [unreadResponse, starredResponse] = await Promise.all([
             fetchAPI(configs, "/items?getRead=false&type=3&batchSize=-1"),
             fetchAPI(configs, "/items?getRead=true&type=2&batchSize=-1"),
         ])
@@ -133,19 +136,14 @@ export const nextcloudServiceHooks: ServiceHooks = {
             //first sync
             let min = Number.MAX_SAFE_INTEGER
             do {
-                try {
-                    const response = await fetchAPI(
-                        configs,
-                        "/items?getRead=true&type=3&batchSize=125&offset=" + min
-                    )
-                    if (response.status !== 200) throw APIError()
-                    lastFetched = await response.json()
-                    items = [ ...items, ...lastFetched.items]
-                    min = lastFetched.items.reduce((m, n) => Math.min(m, n.id), min)
-                } catch (error) {
-                    console.log(error)
-                    break
-                }
+                const response = await fetchAPI(
+                    configs,
+                    "/items?getRead=true&type=3&batchSize=125&offset=" + min
+                )
+                if (response.status !== 200) throw APIError()
+                lastFetched = await response.json()
+                items = [...items, ...lastFetched.items]
+                min = lastFetched.items.reduce((m, n) => Math.min(m, n.id), min)
             } while (
                 lastFetched.items &&
                 lastFetched.items.length >= 125 &&
@@ -155,18 +153,14 @@ export const nextcloudServiceHooks: ServiceHooks = {
             //incremental sync
             const response = await fetchAPI(
                 configs,
-                "/items/updated?lastModified="+configs.lastModified+"&type=3"
+                "/items/updated?lastModified=" +
+                    configs.lastModified +
+                    "&type=3"
             )
             if (response.status !== 200) throw APIError()
             lastFetched = (await response.json()).items
-            items.push(
-                ...lastFetched.filter(
-                    i => i.id > configs.lastId
-                )
-            )
-
+            items.push(...lastFetched.filter(i => i.id > configs.lastId))
         }
-        const previousLastModified = configs.lastModified
         configs.lastModified = items.reduce(
             (m, n) => Math.max(m, n.lastModified),
             configs.lastModified
@@ -175,7 +169,6 @@ export const nextcloudServiceHooks: ServiceHooks = {
             (m, n) => Math.max(m, n.id),
             configs.lastId
         )
-        console.log("last modified from "+ previousLastModified + " to " + configs.lastModified)
         configs.lastModified++ //+1 to avoid fetching articles with same lastModified next time
         if (items.length > 0) {
             const fidMap = new Map<string, RSSSource>()
@@ -184,7 +177,7 @@ export const nextcloudServiceHooks: ServiceHooks = {
                     fidMap.set(source.serviceRef, source)
                 }
             }
-            
+
             const parsedItems = new Array<RSSItem>()
             items.forEach(i => {
                 if (i.body === null || i.url === null) return
@@ -196,8 +189,8 @@ export const nextcloudServiceHooks: ServiceHooks = {
                     source: source.sid,
                     title: i.title,
                     link: i.url,
-                    date: new Date(i.pubDate*1000),
-                    fetchedDate: new Date(i.pubDate*1000),
+                    date: new Date(i.pubDate * 1000),
+                    fetchedDate: new Date(),
                     content: i.body,
                     snippet: dom.documentElement.textContent.trim(),
                     creator: i.author,
@@ -207,7 +200,7 @@ export const nextcloudServiceHooks: ServiceHooks = {
                     notify: false,
                     serviceRef: String(i.id),
                 } as RSSItem
-                if (i.enclosureLink ) {
+                if (i.enclosureLink) {
                     item.thumb = i.enclosureLink
                 } else {
                     let baseEl = dom.createElement("base")
@@ -235,7 +228,7 @@ export const nextcloudServiceHooks: ServiceHooks = {
                         "POST",
                         [i.id]
                     )
-                
+
                 parsedItems.push(item)
             })
             return [parsedItems, configs]
