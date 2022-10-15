@@ -19,6 +19,7 @@ import { feverServiceHooks } from "./services/fever"
 import { feedbinServiceHooks } from "./services/feedbin"
 import { gReaderServiceHooks } from "./services/greader"
 import { minifluxServiceHooks } from "./services/miniflux"
+import { nextcloudServiceHooks } from "./services/nextcloud"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
@@ -48,6 +49,8 @@ export function getServiceHooksFromType(type: SyncService): ServiceHooks {
             return gReaderServiceHooks
         case SyncService.Miniflux:
             return minifluxServiceHooks
+        case SyncService.Nextcloud:
+            return nextcloudServiceHooks
         default:
             return {}
     }
