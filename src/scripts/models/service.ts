@@ -18,7 +18,7 @@ import { createSourceGroup, addSourceToGroup } from "./group"
 import { feverServiceHooks } from "./services/fever"
 import { feedbinServiceHooks } from "./services/feedbin"
 import { gReaderServiceHooks } from "./services/greader"
-import { minifluxServiceHooks} from "./services/miniflux"
+import { minifluxServiceHooks } from "./services/miniflux"
 
 export interface ServiceHooks {
     authenticate?: (configs: ServiceConfigs) => Promise<boolean>
@@ -46,8 +46,8 @@ export function getServiceHooksFromType(type: SyncService): ServiceHooks {
         case SyncService.GReader:
         case SyncService.Inoreader:
             return gReaderServiceHooks
-		case SyncService.Miniflux:
-			return minifluxServiceHooks
+        case SyncService.Miniflux:
+            return minifluxServiceHooks
         default:
             return {}
     }

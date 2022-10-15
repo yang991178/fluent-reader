@@ -42,7 +42,7 @@ export class ServiceTab extends React.Component<
         { key: SyncService.Feedbin, text: "Feedbin" },
         { key: SyncService.GReader, text: "Google Reader API (Beta)" },
         { key: SyncService.Inoreader, text: "Inoreader" },
-		{ key: SyncService.Miniflux, text: "Miniflux" },
+        { key: SyncService.Miniflux, text: "Miniflux" },
         { key: -1, text: intl.get("service.suggest") },
     ]
 
@@ -90,13 +90,13 @@ export class ServiceTab extends React.Component<
                         exit={this.exitConfigsTab}
                     />
                 )
-			case SyncService.Miniflux:
-				return (
-					<MinifluxConfigsTab
-						{...this.props}
-						exit={this.exitConfigsTab}
-					/>
-			)
+            case SyncService.Miniflux:
+                return (
+                    <MinifluxConfigsTab
+                        {...this.props}
+                        exit={this.exitConfigsTab}
+                    />
+                )
             default:
                 return null
         }
