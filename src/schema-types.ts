@@ -59,6 +59,8 @@ export const enum SyncService {
     Feedbin,
     GReader,
     Inoreader,
+    Miniflux,
+    Nextcloud,
 }
 export interface ServiceConfigs {
     type: SyncService
