@@ -213,6 +213,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     keyDownHandler = (input: Electron.Input) => {
+        if (input.type === "")
+        {
+            
+        }
         if (input.type === "keyDown") {
             switch (input.key) {
                 case "Escape":
@@ -227,10 +231,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     this.toggleWebpage()
                     break
                 case "+":
-                    this.webview.setZoomFactor(this.webview.getZoomFactor() + 0.1);
+                    this.webview.setZoomFactor(this.webview.getZoomFactor() + 0.25);
                     break;
                 case "-":
-                    this.webview.setZoomFactor(this.webview.getZoomFactor()-0.1);
+                    this.webview.setZoomFactor(this.webview.getZoomFactor()-0.25);
                     break;
                 case "#":
                     this.webview.setZoomFactor(1.0);
@@ -264,7 +268,6 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     webviewLoaded = () => {
         
         this.webview.setVisualZoomLevelLimits(1, 3)
-        //this.webview.setZoomFactor(2)
         this.setState({ loaded: true })
     }
     webviewError = (reason: string) => {

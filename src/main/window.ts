@@ -3,6 +3,7 @@ import { BrowserWindow, nativeTheme, app } from "electron"
 import path = require("path")
 import { setThemeListener } from "./settings"
 import { setUtilsListeners } from "./utils"
+import { KeyboardInputEvent } from "electron"
 
 export class WindowManager {
     mainWindow: BrowserWindow = null
@@ -58,7 +59,6 @@ export class WindowManager {
                 minWidth: 992,
                 minHeight: 600,
                 frame: process.platform === "darwin",
-                
                 titleBarStyle: "hiddenInset",
                 fullscreenable: process.platform === "darwin",
                 show: false,
@@ -81,7 +81,7 @@ export class WindowManager {
             this.mainWindow.loadFile(
                 (app.isPackaged ? "dist/" : "") + "index.html"
             )
-
+            
             this.mainWindow.on("maximize", () => {
                 this.mainWindow.webContents.send("maximized")
             })
@@ -109,19 +109,22 @@ export class WindowManager {
                     )
                 }
             })
-            this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
-                this.mainWindow.webContents.send("zoom-changed", zoomDirection);
-                console.log("forward zoom to webContent ", zoomDirection);
-            })
-            /*
+            this.mainWindow.webContents.setVisualZoomLevelLimits(1, 1)
+                        
+            //this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
+            //    this.mainWindow.webContents.send("zoom-changed", zoomDirection);
+            //    console.log("forward zoom to webContent ", zoomDirection);
+            //})
+            
             this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
                 console.log(zoomDirection);
+
                 var currentZoom = this.mainWindow.webContents.getZoomFactor();
                 console.log("Current Zoom Factor - ", currentZoom);
                 // console.log('Current Zoom Level at - '
                 // , win.webContents.getZoomLevel());
                 console.log("Current Zoom Level at - ", this.mainWindow.webContents.zoomLevel);
-
+                
                 if (zoomDirection === "in") {
 
                     // win.webContents.setZoomFactor(currentZoom + 0.20);
@@ -138,7 +141,7 @@ export class WindowManager {
                     console.log("Zoom Factor Decreased to - "
                         , this.mainWindow.webContents.zoomFactor * 100, "%");
                 }
-            });*/
+            })
         }
     }
 

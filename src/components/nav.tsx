@@ -81,6 +81,7 @@ class Nav extends React.Component<NavProps, NavState> {
                 case "F9":
                     if (!this.props.itemShown) this.props.settings()
                     break
+                case "+":
             }
         }
     }
