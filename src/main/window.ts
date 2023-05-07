@@ -58,6 +58,7 @@ export class WindowManager {
                 minWidth: 992,
                 minHeight: 600,
                 frame: process.platform === "darwin",
+                
                 titleBarStyle: "hiddenInset",
                 fullscreenable: process.platform === "darwin",
                 show: false,
@@ -108,6 +109,36 @@ export class WindowManager {
                     )
                 }
             })
+            this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
+                this.mainWindow.webContents.send("zoom-changed", zoomDirection);
+                console.log("forward zoom to webContent ", zoomDirection);
+            })
+            /*
+            this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
+                console.log(zoomDirection);
+                var currentZoom = this.mainWindow.webContents.getZoomFactor();
+                console.log("Current Zoom Factor - ", currentZoom);
+                // console.log('Current Zoom Level at - '
+                // , win.webContents.getZoomLevel());
+                console.log("Current Zoom Level at - ", this.mainWindow.webContents.zoomLevel);
+
+                if (zoomDirection === "in") {
+
+                    // win.webContents.setZoomFactor(currentZoom + 0.20);
+                    this.mainWindow.webContents.zoomFactor = currentZoom + 0.2;
+
+                    console.log("Zoom Factor Increased to - "
+                        , this.mainWindow.webContents.zoomFactor * 100, "%");
+                }
+                if (zoomDirection === "out") {
+
+                    // win.webContents.setZoomFactor(currentZoom - 0.20);
+                    this.mainWindow.webContents.zoomFactor = currentZoom - 0.2;
+
+                    console.log("Zoom Factor Decreased to - "
+                        , this.mainWindow.webContents.zoomFactor * 100, "%");
+                }
+            });*/
         }
     }
 

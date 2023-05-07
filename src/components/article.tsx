@@ -68,6 +68,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             errorDescription: "",
         }
         window.utils.addWebviewContextListener(this.contextMenuHandler)
+
         window.utils.addWebviewKeydownListener(this.keyDownHandler)
         window.utils.addWebviewErrorListener(this.webviewError)
         if (props.source.openTarget === SourceOpenTarget.FullContent)
@@ -225,6 +226,15 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 case "L":
                     this.toggleWebpage()
                     break
+                case "+":
+                    this.webview.setZoomFactor(this.webview.getZoomFactor() + 0.1);
+                    break;
+                case "-":
+                    this.webview.setZoomFactor(this.webview.getZoomFactor()-0.1);
+                    break;
+                case "#":
+                    this.webview.setZoomFactor(1.0);
+                    break;
                 case "w":
                 case "W":
                     this.toggleFull()
@@ -252,6 +262,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     webviewLoaded = () => {
+        
+        this.webview.setVisualZoomLevelLimits(1, 3)
+        //this.webview.setZoomFactor(2)
         this.setState({ loaded: true })
     }
     webviewError = (reason: string) => {
@@ -328,6 +341,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
     loadFull = async () => {
         this.setState({ fullContent: "", loaded: false, error: false })
+        this.webview.setVisualZoomLevelLimits(0, 6)
         const link = this.props.item.link
         try {
             const result = await fetch(link)
