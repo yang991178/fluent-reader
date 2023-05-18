@@ -61,6 +61,7 @@ export class WindowManager {
                 frame: process.platform === "darwin",
                 titleBarStyle: "hiddenInset",
                 fullscreenable: process.platform === "darwin",
+                
                 show: false,
                 webPreferences: {
                     webviewTag: true,
@@ -109,13 +110,32 @@ export class WindowManager {
                     )
                 }
             })
-            this.mainWindow.webContents.setVisualZoomLevelLimits(1, 1)
+            this.mainWindow.webContents.setVisualZoomLevelLimits(1, 3)
+            this.mainWindow.webContents.setZoomFactor(1.5)
                         
             //this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
             //    this.mainWindow.webContents.send("zoom-changed", zoomDirection);
             //    console.log("forward zoom to webContent ", zoomDirection);
             //})
             
+            this.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+                console.log(url);
+                if (url === 'about:blank') {
+                    return {
+                        action: 'allow',
+                        overrideBrowserWindowOptions: {
+                            frame: false,
+                            fullscreenable: false,
+                            backgroundColor: 'black',
+                            webPreferences: {
+                                preload: 'my-child-window-preload-script.js'
+                            }
+                        }
+                    }
+                }
+                return { action: 'deny' }
+            })
+
             this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
                 console.log(zoomDirection);
 

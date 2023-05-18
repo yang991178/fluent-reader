@@ -8,7 +8,8 @@
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
     "format": "prettier --write .",
-    "package-win": "electron-builder -w appx:x64 && electron-builder -w appx:ia32 && electron-builder -w appx:arm64",
+    "cert": "electron-builder create-self-signed-cert -p Riffer",
+    "package-win": "electron-builder -w appx:x64",
     "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
     "package-mac": "electron-builder --mac --x64",
     "package-mas": "bash build/resignAndPackage.sh",
@@ -52,5 +53,26 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   },
-  "dependencies": {}
+  "dependencies": {},
+   "win": {
+      "certificateFile": "./Riffer.pfx",
+      "certificatePassword": "yellow01",
+      "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+
+    "icon": "build/icon.png",
+    "certificateSubjectName": "Interactive Knowledge, Inc",
+    "signingHashAlgorithms": ["sha256"
+    ],
+
+    "publisherName": "Interactive Knowledge, Inc",
+    "signAndEditExecutable": true
+  }
+
 }

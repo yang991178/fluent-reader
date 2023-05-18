@@ -231,10 +231,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     this.toggleWebpage()
                     break
                 case "+":
-                    this.webview.setZoomFactor(this.webview.getZoomFactor() + 0.25);
+                    this.webview.setZoomFactor(this.webview.getZoomFactor() + 0.12);
                     break;
                 case "-":
-                    this.webview.setZoomFactor(this.webview.getZoomFactor()-0.25);
+                    this.webview.setZoomFactor(this.webview.getZoomFactor() - 0.12);
                     break;
                 case "#":
                     this.webview.setZoomFactor(1.0);
@@ -268,6 +268,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     webviewLoaded = () => {
         
         this.webview.setVisualZoomLevelLimits(1, 3)
+        this.webview.addEventListener('new-window', function (e) {
+            this.webview.src = e.url;
+            });
         this.setState({ loaded: true })
     }
     webviewError = (reason: string) => {
