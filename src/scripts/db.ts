@@ -1,5 +1,5 @@
 import intl from "react-intl-universal"
-import Datastore from "nedb"
+import Datastore from "@seald-io/nedb"
 import lf from "lovefield"
 import { RSSSource } from "./models/source"
 import { RSSItem } from "./models/item"

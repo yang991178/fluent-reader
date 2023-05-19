@@ -110,8 +110,8 @@ export class WindowManager {
                     )
                 }
             })
-            this.mainWindow.webContents.setVisualZoomLevelLimits(1, 3)
-            this.mainWindow.webContents.setZoomFactor(1.5)
+            //this.mainWindow.webContents.setVisualZoomLevelLimits(1, 3)
+            //sthis.mainWindow.webContents.setZoomFactor(1.5)
                         
             //this.mainWindow.webContents.on("zoom-changed", (event, zoomDirection) => {
             //    this.mainWindow.webContents.send("zoom-changed", zoomDirection);

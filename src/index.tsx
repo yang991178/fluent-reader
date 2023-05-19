@@ -10,6 +10,8 @@ import { AppDispatch } from "./scripts/utils"
 import { applyThemeSettings } from "./scripts/settings"
 import { initApp, openTextMenu } from "./scripts/models/app"
 
+
+
 window.settings.setProxy()
 
 applyThemeSettings()

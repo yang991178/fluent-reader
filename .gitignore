@@ -6,3 +6,4 @@ bin/*
 .DS_Store
 *.provisionprofile
 *.lock
+*.pfx

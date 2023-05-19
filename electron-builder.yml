@@ -60,7 +60,7 @@ appx:
     showNameOnTiles: true
     setBuildNumber: true
 nsis:
-    oneClick: true
+    oneClick: false
     perMachine: true
     allowToChangeInstallationDirectory: true
     deleteAppDataOnUninstall: true
