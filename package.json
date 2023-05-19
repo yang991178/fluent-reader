@@ -20,44 +20,48 @@
   "license": "BSD-3-Clause",
   "repository": "github:yang991178/fluent-reader",
   "devDependencies": {
-    "@fluentui/react": "^7.204.0",
-    "@types/lovefield": "^2.1.3",
-    "@types/nedb": "^1.8.9",
-    "@types/react": "^16.9.35",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-redux": "^7.1.9",
+    "@fluentui/react": "^8.109.4",
+    "@types/lovefield": "^2.1.4",
+    "@types/nedb": "^1.8.13",
+    "@types/react": "^16.14.0",
+    "@types/react-dom": "^16.0.0",
+    "@types/react-redux": "^7.1.25",
     "@yang991178/rss-parser": "^3.8.1",
-    "electron": "^21.0.1",
-    "electron-builder": "^23.0.3",
+    "electron": "^24.3.1",
+    "electron-builder": "^24.4.0",
     "electron-react-devtools": "^0.5.3",
-    "electron-store": "^5.2.0",
+    "electron-store": "^8.1.0",
     "electron-window-state": "^5.0.3",
-    "font-list": "^1.4.2",
+    "office-ui-fabric-react": "^7.174.1",
+    "font-list": "^1.4.5",
     "hard-source-webpack-plugin": "^0.13.1",
-    "html-webpack-plugin": "^4.3.0",
+    "html-webpack-plugin": "^4.5.2",
     "js-md5": "^0.7.3",
     "lovefield": "^2.1.12",
     "nedb": "^1.8.0",
-    "prettier": "2.3.2",
-    "qrcode.react": "^1.0.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-intl-universal": "^2.2.5",
-    "react-redux": "^7.2.0",
-    "redux": "^4.0.5",
-    "redux-devtools": "^3.5.0",
-    "redux-thunk": "^2.3.0",
-    "reselect": "^4.0.0",
-    "ts-loader": "^8.0.4",
-    "typescript": "^4.3.5",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
+    "prettier": "2.8.8",
+    "qrcode.react": "^3.1.0",
+    "react": "^16.8.4",
+    "react-dom": "^16.0.0",
+    "react-intl-universal": "^2.6.15",
+    "react-redux": "^8.0.5",
+    "redux": "^4.2.1",
+    "redux-devtools": "^3.0.0",
+    "redux-thunk": "^2.4.2",
+    "reselect": "^4.1.8",
+    "ts-loader": "^8.0.0",
+    "typescript": "^5.0.4",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^4.0.0"
   },
-  "dependencies": {},
-   "win": {
-      "certificateFile": "./Riffer.pfx",
-      "certificatePassword": "yellow01",
-      "target": [
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "underscore": "^1.13.6"
+  },
+  "win": {
+    "certificateFile": "./Riffer.pfx",
+    "certificatePassword": "yellow01",
+    "target": [
       {
         "target": "nsis",
         "arch": [
@@ -65,14 +69,12 @@
         ]
       }
     ],
-
     "icon": "build/icon.png",
     "certificateSubjectName": "Interactive Knowledge, Inc",
-    "signingHashAlgorithms": ["sha256"
+    "signingHashAlgorithms": [
+      "sha256"
     ],
-
     "publisherName": "Interactive Knowledge, Inc",
     "signAndEditExecutable": true
   }
-
 }
