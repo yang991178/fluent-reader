@@ -2,7 +2,7 @@ import intl from "react-intl-universal"
 import { ThunkAction, ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
 import { RootState } from "./reducer"
-import Parser from "@yang991178/rss-parser"
+import Parser from "rss-parser"
 import Url from "url"
 import { SearchEngines } from "../schema-types"
 
@@ -29,9 +29,11 @@ const rssParser = new Parser({
             "image",
             ["content:encoded", "fullContent"],
             ["media:content", "mediaContent", { keepArray: true }],
-        ] as Parser.CustomFieldItem[],
+        ],
     },
 })
+type extractGeneric<Type> = Type extends Parser<infer _, infer U> ? U : never
+export type MyParserItem = extractGeneric<typeof rssParser> & Parser.Item
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
 const XML_ENCODING_RE = /^<\?xml.+encoding="(.+?)".*?\?>/i
