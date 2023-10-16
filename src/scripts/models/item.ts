@@ -1,6 +1,7 @@
 import * as db from "../db"
 import lf from "lovefield"
 import intl from "react-intl-universal"
+import type { MyParserItem } from "../utils"
 import {
     domParser,
     htmlDecode,
@@ -9,15 +10,7 @@ import {
     platformCtrl,
 } from "../utils"
 import { RSSSource, updateSource, updateUnreadCounts } from "./source"
-import {
-    FeedActionTypes,
-    INIT_FEED,
-    LOAD_MORE,
-    FilterType,
-    initFeeds,
-    dismissItems,
-} from "./feed"
-import Parser from "@yang991178/rss-parser"
+import { FeedActionTypes, INIT_FEED, LOAD_MORE, dismissItems } from "./feed"
 import {
     pushNotification,
     setupAutoFetch,
@@ -48,7 +41,7 @@ export class RSSItem {
     notify: boolean
     serviceRef?: string
 
-    constructor(item: Parser.Item, source: RSSSource) {
+    constructor(item: MyParserItem, source: RSSSource) {
         for (let field of ["title", "link", "creator"]) {
             const content = item[field]
             if (content && typeof content !== "string") delete item[field]
@@ -65,7 +58,7 @@ export class RSSItem {
         this.notify = false
     }
 
-    static parseContent(item: RSSItem, parsed: Parser.Item) {
+    static parseContent(item: RSSItem, parsed: MyParserItem) {
         for (let field of ["thumb", "content", "fullContent"]) {
             const content = parsed[field]
             if (content && typeof content !== "string") delete parsed[field]
@@ -79,7 +72,7 @@ export class RSSItem {
         }
         if (parsed.thumb) {
             item.thumb = parsed.thumb
-        } else if (parsed.image && parsed.image.$ && parsed.image.$.url) {
+        } else if (parsed.image?.$?.url) {
             item.thumb = parsed.image.$.url
         } else if (parsed.image && typeof parsed.image === "string") {
             item.thumb = parsed.image

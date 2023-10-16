@@ -17,8 +17,8 @@ const utilsBridge = {
         ipcRenderer.invoke("open-external", url, background)
     },
 
-    showErrorBox: (title: string, content: string) => {
-        ipcRenderer.invoke("show-error-box", title, content)
+    showErrorBox: (title: string, content: string, copy?: string) => {
+        ipcRenderer.invoke("show-error-box", title, content, copy)
     },
 
     showMessageBox: async (

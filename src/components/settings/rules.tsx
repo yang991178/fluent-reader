@@ -24,9 +24,8 @@ import {
 } from "@fluentui/react"
 import { SourceRule, RuleActions } from "../../scripts/models/rule"
 import { FilterType } from "../../scripts/models/feed"
-import { validateRegex } from "../../scripts/utils"
+import { MyParserItem, validateRegex } from "../../scripts/utils"
 import { RSSItem } from "../../scripts/models/item"
-import Parser from "@yang991178/rss-parser"
 
 const actionKeyMap = {
     "r-true": "article.markRead",
@@ -337,7 +336,7 @@ class RulesTab extends React.Component<RulesTabProps, RulesTabState> {
     testMockItem = () => {
         let parsed = { title: this.state.mockTitle }
         let source = this.props.sources[parseInt(this.state.sid)]
-        let item = new RSSItem(parsed as Parser.Item, source)
+        let item = new RSSItem(parsed as MyParserItem, source)
         item.snippet = this.state.mockContent
         item.creator = this.state.mockCreator
         SourceRule.applyAll(this.getSourceRules(), item)
