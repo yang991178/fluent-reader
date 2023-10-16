@@ -300,7 +300,8 @@ export function importOPML(): AppThunk {
                                 .map(e => {
                                     return e[0] + "\n" + String(e[1])
                                 })
-                                .join("\n")
+                                .join("\n"),
+                            intl.get("context.copy")
                         )
                     }
                 })

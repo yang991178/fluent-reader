@@ -323,7 +323,8 @@ export function addSource(
                 if (!batch) {
                     window.utils.showErrorBox(
                         intl.get("sources.errorAdd"),
-                        String(e)
+                        String(e),
+                        intl.get("context.copy")
                     )
                 }
                 throw e
