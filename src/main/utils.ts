@@ -45,24 +45,30 @@ export function setUtilsListeners(manager: WindowManager) {
         openExternal(url, background)
     })
 
-    ipcMain.handle("show-error-box", async (_, title, content, copy?: string) => {
-        if (manager.hasWindow() && copy != null) {
-            const response = await dialog.showMessageBox(manager.mainWindow, {
-                type: 'error',
-                title: title,
-                message: title,
-                detail: content,
-                buttons: ["OK", copy],
-                cancelId: 0,
-                defaultId: 0,
-            })
-            if (response.response === 1) {
-                clipboard.writeText(`${title}: ${content}`);
+    ipcMain.handle(
+        "show-error-box",
+        async (_, title, content, copy?: string) => {
+            if (manager.hasWindow() && copy != null) {
+                const response = await dialog.showMessageBox(
+                    manager.mainWindow,
+                    {
+                        type: "error",
+                        title: title,
+                        message: title,
+                        detail: content,
+                        buttons: ["OK", copy],
+                        cancelId: 0,
+                        defaultId: 0,
+                    }
+                )
+                if (response.response === 1) {
+                    clipboard.writeText(`${title}: ${content}`)
+                }
+            } else {
+                dialog.showErrorBox(title, content)
             }
-        } else {
-            dialog.showErrorBox(title, content)
         }
-    })
+    )
 
     ipcMain.handle(
         "show-message-box",

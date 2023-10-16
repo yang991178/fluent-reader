@@ -1,5 +1,5 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin")
-const HardSourceWebpackPlugin = require("hard-source-webpack-plugin")
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 
 module.exports = [
     {
@@ -26,7 +26,6 @@ module.exports = [
         node: {
             __dirname: false,
         },
-        plugins: [new HardSourceWebpackPlugin()],
     },
     {
         mode: "production",
@@ -48,7 +47,6 @@ module.exports = [
             path: __dirname + "/dist",
             filename: "preload.js",
         },
-        plugins: [new HardSourceWebpackPlugin()],
     },
     {
         mode: "production",
@@ -75,7 +73,7 @@ module.exports = [
             filename: "index.js",
         },
         plugins: [
-            new HardSourceWebpackPlugin(),
+            new NodePolyfillPlugin(),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
             }),
