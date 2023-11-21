@@ -240,6 +240,9 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                     />
                 </Stack.Item>
             </Stack>
+            <span className="settings-hint up">
+                {intl.get("app.webViewOpenUrlHint")}
+            </span>
 
             <Stack horizontal verticalAlign="baseline">
                 <Stack.Item grow>

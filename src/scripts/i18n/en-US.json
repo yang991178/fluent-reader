@@ -232,6 +232,7 @@
         "lightTheme": "Light mode",
         "darkTheme": "Dark mode",
         "enableWebViewOpenUrl": "Enable WebView open url",
+        "webViewOpenUrlHint": "Enabling this switch will save cookies data for the built-in browser.",
         "enableProxy": "Enable Proxy",
         "badUrl": "Invalid URL",
         "pac": "PAC Address",

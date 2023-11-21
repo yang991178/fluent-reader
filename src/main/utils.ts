@@ -6,6 +6,7 @@ import { initMainTouchBar } from "./touchbar"
 import fontList = require("font-list")
 import settingsBridge from "../bridges/settings"
 import { getWebViewOpenUrlStatus } from "./settings"
+import { loadCookies, saveCookies } from "./cookies"
 
 export function setUtilsListeners(manager: WindowManager) {
     async function openExternal(url: string, background = false) {
@@ -242,6 +243,12 @@ export function setUtilsListeners(manager: WindowManager) {
                     contents.send("webview-keydown", input)
                 }
             })
+            if (getWebViewOpenUrlStatus()) {
+                loadCookies(contents)
+                contents.on('did-finish-load', () => {
+                    saveCookies(contents)
+                })
+            }
         }
     })
 
