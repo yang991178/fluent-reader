@@ -4,6 +4,8 @@ import fs = require("fs")
 import { ImageCallbackTypes, TouchBarTexts } from "../schema-types"
 import { initMainTouchBar } from "./touchbar"
 import fontList = require("font-list")
+import settingsBridge from "../bridges/settings"
+import { getWebViewOpenUrlStatus } from "./settings"
 
 export function setUtilsListeners(manager: WindowManager) {
     async function openExternal(url: string, background = false) {
@@ -32,6 +34,11 @@ export function setUtilsListeners(manager: WindowManager) {
             }
         })
         contents.on("will-navigate", (event, url) => {
+            if (getWebViewOpenUrlStatus()) {
+                return;
+            }
+            event.preventDefault()
+            if (contents.getType() === "webview") openExternal(url)
         })
     })
 

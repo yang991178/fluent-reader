@@ -34,6 +34,7 @@ type AppTabProps = {
 }
 
 type AppTabState = {
+    webViewOpenUrlStatus: boolean
     pacStatus: boolean
     pacUrl: string
     themeSettings: ThemeSettings
@@ -46,6 +47,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     constructor(props) {
         super(props)
         this.state = {
+            webViewOpenUrlStatus: window.settings.getWebViewOpenUrlStatus(),
             pacStatus: window.settings.getProxyStatus(),
             pacUrl: window.settings.getProxy(),
             themeSettings: getThemeSettings(),
@@ -148,6 +150,13 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         { key: "zh-TW", text: "中文（繁體）" },
     ]
 
+    toggleWebViewOpenUrlStatus = () => {
+        window.settings.toggleWebViewOpenUrlStatus()
+        this.setState({
+            webViewOpenUrlStatus: window.settings.getWebViewOpenUrlStatus(),
+        })
+    }
+
     toggleStatus = () => {
         window.settings.toggleProxyStatus()
         this.setState({
@@ -216,6 +225,18 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                         options={this.searchEngineOptions()}
                         onChanged={this.onSearchEngineChanged}
                         style={{ width: 200 }}
+                    />
+                </Stack.Item>
+            </Stack>
+
+            <Stack horizontal verticalAlign="baseline">
+                <Stack.Item grow>
+                    <Label>{intl.get("app.enableWebViewOpenUrl")}</Label>
+                </Stack.Item>
+                <Stack.Item>
+                    <Toggle
+                        checked={this.state.webViewOpenUrlStatus}
+                        onChange={this.toggleWebViewOpenUrlStatus}
                     />
                 </Stack.Item>
             </Stack>

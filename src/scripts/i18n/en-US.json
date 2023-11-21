@@ -231,6 +231,7 @@
         "theme": "Theme",
         "lightTheme": "Light mode",
         "darkTheme": "Dark mode",
+        "enableWebViewOpenUrl": "Enable WebView open url",
         "enableProxy": "Enable Proxy",
         "badUrl": "Invalid URL",
         "pac": "PAC Address",

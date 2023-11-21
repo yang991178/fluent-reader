@@ -30,6 +30,20 @@ ipcMain.handle("set-menu", (_, state: boolean) => {
     store.set(MENU_STORE_KEY, state)
 })
 
+const WEBVIEW_OPEN_URL_STATUS_KEY = "webViewOpenUrlStatus"
+export function getWebViewOpenUrlStatus() {
+    return store.get(WEBVIEW_OPEN_URL_STATUS_KEY, false)
+}
+function toggleWebViewOpenUrlStatus() {
+    store.set(WEBVIEW_OPEN_URL_STATUS_KEY, !getWebViewOpenUrlStatus())
+}
+ipcMain.on("get-webview-open-url-status", event => {
+    event.returnValue = getWebViewOpenUrlStatus()
+})
+ipcMain.on("toggle-webview-open-url-status", () => {
+    toggleWebViewOpenUrlStatus()
+})
+
 const PAC_STORE_KEY = "pac"
 const PAC_STATUS_KEY = "pacOn"
 function getProxyStatus() {
