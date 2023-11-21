@@ -32,8 +32,6 @@ export function setUtilsListeners(manager: WindowManager) {
             }
         })
         contents.on("will-navigate", (event, url) => {
-            event.preventDefault()
-            if (contents.getType() === "webview") openExternal(url)
         })
     })
 
