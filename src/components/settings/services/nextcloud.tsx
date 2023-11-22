@@ -92,7 +92,7 @@ class NextcloudConfigsTab extends React.Component<
         } else {
             configs = {
                 type: SyncService.Nextcloud,
-                endpoint: this.state.endpoint + "index.php/apps/news/api/v1-3",
+                endpoint: this.state.endpoint.replace(/\/$/, "") + "/index.php/apps/news/api/v1-3",
                 username: this.state.username,
                 password: this.state.password,
                 fetchLimit: this.state.fetchLimit,
