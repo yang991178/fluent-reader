@@ -23,6 +23,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-menu", state)
     },
 
+    getWebViewOpenUrlStatus: (): boolean => {
+        return ipcRenderer.sendSync("get-webview-open-url-status")
+    },
+    toggleWebViewOpenUrlStatus: () => {
+        ipcRenderer.send("toggle-webview-open-url-status")
+    },
+    
     getProxyStatus: (): boolean => {
         return ipcRenderer.sendSync("get-proxy-status")
     },

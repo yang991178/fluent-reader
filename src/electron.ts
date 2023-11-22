@@ -1,8 +1,9 @@
 import { app, ipcMain, Menu, nativeTheme } from "electron"
 import { ThemeSettings, SchemaTypes } from "./schema-types"
-import { store } from "./main/settings"
+import { getWebViewOpenUrlStatus, store } from "./main/settings"
 import performUpdate from "./main/update-scripts"
 import { WindowManager } from "./main/window"
+import { saveCookies } from "./main/cookies"
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -106,10 +107,12 @@ if (process.platform === "darwin") {
 const winManager = new WindowManager()
 
 app.on("window-all-closed", () => {
-    if (winManager.hasWindow()) {
-        winManager.mainWindow.webContents.session.clearStorageData({
-            storages: ["cookies", "localstorage"],
-        })
+    if (!getWebViewOpenUrlStatus()) {
+        if (winManager.hasWindow()) {
+            winManager.mainWindow.webContents.session.clearStorageData({
+                storages: ["cookies", "localstorage"],
+            })
+        }
     }
     winManager.mainWindow = null
     if (restarting) {
