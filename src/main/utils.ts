@@ -25,11 +25,16 @@ export function setUtilsListeners(manager: WindowManager) {
 
     app.on("web-contents-created", (_, contents) => {
         contents.setWindowOpenHandler(details => {
-            if (contents.getType() === "webview")
-                openExternal(
-                    details.url,
-                    details.disposition === "background-tab"
-                )
+            if (contents.getType() === "webview") {
+                if (getWebViewOpenUrlStatus()) {
+                    contents.loadURL(details.url)
+                } else {
+                    openExternal(
+                        details.url,
+                        details.disposition === "background-tab"
+                    )
+                }
+            }
             return {
                 action: manager.hasWindow() ? "deny" : "allow",
             }
