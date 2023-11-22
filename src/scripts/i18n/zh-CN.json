@@ -234,6 +234,8 @@
         "pac": "PAC地址",
         "setPac": "设置PAC",
         "pacHint": "对于Socks代理建议PAC返回“SOCKS5”以启用代理端解析。关闭代理需重启应用后生效。",
+        "enableDoubleClick": "卡片双击直接用内置浏览器打开",
+        "doubleClickHint": "开启会导致单击存在200毫秒延迟。",
         "fetchInterval": "自动抓取频率",
         "never": "从不"
     }

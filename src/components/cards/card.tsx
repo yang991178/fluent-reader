@@ -43,6 +43,11 @@ export namespace Card {
                 break
             }
             default: {
+                if (!window.settings.getDoubleClickStatus()) {
+                    props.markRead(props.item)
+                    props.showItem(props.feedId, props.item)
+                    break
+                }
                 if (timeouts[0] == null) {
                     timeouts[0] = setTimeout(() => {
                         clearTimeout(timeouts[0])
