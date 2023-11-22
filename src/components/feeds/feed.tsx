@@ -5,6 +5,7 @@ import { RSSFeed, FeedFilter } from "../../scripts/models/feed"
 import { ViewType, ViewConfigs } from "../../schema-types"
 import CardsFeed from "./cards-feed"
 import ListFeed from "./list-feed"
+import { SourceOpenTarget } from "../../scripts/models/source"
 
 export type FeedProps = FeedReduxProps & {
     feed: RSSFeed
@@ -19,6 +20,7 @@ export type FeedProps = FeedReduxProps & {
     contextMenu: (feedId: string, item: RSSItem, e) => void
     loadMore: (feed: RSSFeed) => void
     showItem: (fid: string, item: RSSItem) => void
+    showItemOnTarget: (fid: string, item: RSSItem, openTarget: SourceOpenTarget) => void
 }
 
 export class Feed extends React.Component<FeedProps> {

@@ -26,6 +26,7 @@ type ArticleProps = {
     item: RSSItem
     source: RSSSource
     locale: string
+    openTarget: SourceOpenTarget
     shortcuts: (item: RSSItem, e: KeyboardEvent) => void
     dismiss: () => void
     offsetItem: (offset: number) => void
@@ -57,11 +58,12 @@ class Article extends React.Component<ArticleProps, ArticleState> {
 
     constructor(props: ArticleProps) {
         super(props)
+        let openTarget = props.openTarget ?? props.source.openTarget;
         this.state = {
             fontFamily: window.settings.getFont(),
             fontSize: window.settings.getFontSize(),
-            loadWebpage: props.source.openTarget === SourceOpenTarget.Webpage,
-            loadFull: props.source.openTarget === SourceOpenTarget.FullContent,
+            loadWebpage: openTarget === SourceOpenTarget.Webpage,
+            loadFull: openTarget === SourceOpenTarget.FullContent,
             fullContent: "",
             loaded: false,
             error: false,
@@ -70,7 +72,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         window.utils.addWebviewContextListener(this.contextMenuHandler)
         window.utils.addWebviewKeydownListener(this.keyDownHandler)
         window.utils.addWebviewErrorListener(this.webviewError)
-        if (props.source.openTarget === SourceOpenTarget.FullContent)
+        if (openTarget === SourceOpenTarget.FullContent)
             this.loadFull()
     }
 
@@ -283,15 +285,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         }
     }
     componentDidUpdate = (prevProps: ArticleProps) => {
-        if (prevProps.item._id != this.props.item._id) {
+        if (prevProps.item._id != this.props.item._id || prevProps.openTarget != this.props.openTarget) {
+            let openTarget = this.props.openTarget ?? this.props.source.openTarget;
             this.setState({
-                loadWebpage:
-                    this.props.source.openTarget === SourceOpenTarget.Webpage,
-                loadFull:
-                    this.props.source.openTarget ===
-                    SourceOpenTarget.FullContent,
+                loadWebpage: openTarget === SourceOpenTarget.Webpage,
+                loadFull: openTarget === SourceOpenTarget.FullContent,
             })
-            if (this.props.source.openTarget === SourceOpenTarget.FullContent)
+            if (openTarget === SourceOpenTarget.FullContent)
                 this.loadFull()
         }
         this.componentDidMount()

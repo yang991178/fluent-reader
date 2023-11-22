@@ -17,6 +17,7 @@ export namespace Card {
         markRead: (item: RSSItem) => void
         contextMenu: (feedId: string, item: RSSItem, e) => void
         showItem: (fid: string, item: RSSItem) => void
+        showItemOnTarget: (fid: string, item: RSSItem, openTarget: SourceOpenTarget) => void
     }
 
     const openInBrowser = (props: Props, e: React.MouseEvent) => {
@@ -24,13 +25,16 @@ export namespace Card {
         window.utils.openExternal(props.item.link, platformCtrl(e))
     }
 
-    export const bindEventsToProps = (props: Props) => ({
-        onClick: (e: React.MouseEvent) => onClick(props, e),
-        onMouseUp: (e: React.MouseEvent) => onMouseUp(props, e),
-        onKeyDown: (e: React.KeyboardEvent) => onKeyDown(props, e),
-    })
+    export const bindEventsToProps = (props: Props) => {
+        const timeouts: Array<NodeJS.Timeout> = [null]
+        return ({
+            onClick: (e: React.MouseEvent) => onClick(props, e, timeouts),
+            onMouseUp: (e: React.MouseEvent) => onMouseUp(props, e),
+            onKeyDown: (e: React.KeyboardEvent) => onKeyDown(props, e),
+        })
+    }
 
-    const onClick = (props: Props, e: React.MouseEvent) => {
+    const onClick = (props: Props, e: React.MouseEvent, timeouts: Array<NodeJS.Timeout>) => {
         e.preventDefault()
         e.stopPropagation()
         switch (props.source.openTarget) {
@@ -39,8 +43,19 @@ export namespace Card {
                 break
             }
             default: {
-                props.markRead(props.item)
-                props.showItem(props.feedId, props.item)
+                if (timeouts[0] == null) {
+                    timeouts[0] = setTimeout(() => {
+                        clearTimeout(timeouts[0])
+                        timeouts[0] = null
+                        props.markRead(props.item)
+                        props.showItem(props.feedId, props.item)
+                    }, 200)
+                } else {
+                    clearTimeout(timeouts[0])
+                    timeouts[0] = null
+                    props.markRead(props.item)
+                    props.showItemOnTarget(props.feedId, props.item, SourceOpenTarget.Webpage)
+                }
                 break
             }
         }

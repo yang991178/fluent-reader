@@ -21,6 +21,7 @@ const mapStateToProps = createSelector(
         contextOn: contextOn,
         itemId: page.itemId,
         itemFromFeed: page.itemFromFeed,
+        openTarget: page.openTarget,
         viewType: page.viewType,
     })
 )
