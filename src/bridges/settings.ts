@@ -36,6 +36,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-proxy", address)
     },
 
+    getDoubleClickStatus: (): boolean => {
+        return ipcRenderer.sendSync("get-double-click-status")
+    },
+    toggleDoubleClickStatus: () => {
+        ipcRenderer.send("toggle-double-click-status")
+    },
+
     getDefaultView: (): ViewType => {
         return ipcRenderer.sendSync("get-view")
     },

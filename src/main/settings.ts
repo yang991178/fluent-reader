@@ -67,6 +67,20 @@ ipcMain.handle("set-proxy", (_, address = null) => {
     setProxy(address)
 })
 
+const DOUBLE_CLICK_STATUS_KEY = "doubleClickStatus"
+export function getDoubleClickStatus() {
+    return store.get(DOUBLE_CLICK_STATUS_KEY, false)
+}
+function toggleDoubleClickStatus() {
+    store.set(DOUBLE_CLICK_STATUS_KEY, !getDoubleClickStatus())
+}
+ipcMain.on("get-double-click-status", event => {
+    event.returnValue = getDoubleClickStatus()
+})
+ipcMain.on("toggle-double-click-status", () => {
+    toggleDoubleClickStatus()
+})
+
 const VIEW_STORE_KEY = "view"
 ipcMain.on("get-view", event => {
     event.returnValue = store.get(VIEW_STORE_KEY, ViewType.Cards)

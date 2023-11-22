@@ -19,12 +19,14 @@ import {
 } from "../scripts/models/app"
 import {
     RSSSource,
+    SourceOpenTarget,
     SourceTextDirection,
     updateSource,
 } from "../scripts/models/source"
 
 type ArticleContainerProps = {
     itemId: number
+    openTarget: SourceOpenTarget
 }
 
 const getItem = (state: RootState, props: ArticleContainerProps) =>
@@ -32,14 +34,16 @@ const getItem = (state: RootState, props: ArticleContainerProps) =>
 const getSource = (state: RootState, props: ArticleContainerProps) =>
     state.sources[state.items[props.itemId].source]
 const getLocale = (state: RootState) => state.app.locale
+const getOpenTarget = (state: RootState, props: ArticleContainerProps) => props.openTarget
 
 const makeMapStateToProps = () => {
     return createSelector(
-        [getItem, getSource, getLocale],
-        (item, source, locale) => ({
+        [getItem, getSource, getLocale, getOpenTarget],
+        (item, source, locale, openTarget) => ({
             item: item,
             source: source,
             locale: locale,
+            openTarget: openTarget,
         })
     )
 }

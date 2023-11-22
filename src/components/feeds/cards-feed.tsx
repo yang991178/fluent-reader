@@ -58,6 +58,7 @@ class CardsFeed extends React.Component<FeedProps> {
                 markRead={this.props.markRead}
                 contextMenu={this.props.contextMenu}
                 showItem={this.props.showItem}
+                showItemOnTarget={this.props.showItemOnTarget}
             />
         ) : (
             <div className="flex-fix" key={"f-" + index}></div>

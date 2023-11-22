@@ -10,7 +10,7 @@ import {
 } from "./feed"
 import { getWindowBreakpoint, AppThunk, ActionStatus } from "../utils"
 import { RSSItem, markRead } from "./item"
-import { SourceActionTypes, DELETE_SOURCE } from "./source"
+import { SourceActionTypes, DELETE_SOURCE, SourceOpenTarget } from "./source"
 import { toggleMenu } from "./app"
 import { ViewType, ViewConfigs } from "../../schema-types"
 
@@ -54,6 +54,7 @@ interface ShowItemAction {
     type: typeof SHOW_ITEM
     feedId: string
     item: RSSItem
+    openTarget: SourceOpenTarget
 }
 
 interface ApplyFilterAction {
@@ -138,6 +139,23 @@ export function showItem(feedId: string, item: RSSItem): AppThunk {
                 type: SHOW_ITEM,
                 feedId: feedId,
                 item: item,
+                openTarget: null,
+            })
+        }
+    }
+}
+export function showItemOnTarget(feedId: string, item: RSSItem, openTarget: SourceOpenTarget): AppThunk {
+    return (dispatch, getState) => {
+        const state = getState()
+        if (
+            state.items.hasOwnProperty(item._id) &&
+            state.sources.hasOwnProperty(item.source)
+        ) {
+            dispatch({
+                type: SHOW_ITEM,
+                feedId: feedId,
+                item: item,
+                openTarget: openTarget,
             })
         }
     }
@@ -278,6 +296,7 @@ export class PageState {
     feedId = ALL
     itemId = null as number
     itemFromFeed = true
+    openTarget = null as SourceOpenTarget
     searchOn = false
 }
 
@@ -325,6 +344,7 @@ export function pageReducer(
                 ...state,
                 itemId: action.item._id,
                 itemFromFeed: Boolean(action.feedId),
+                openTarget: action.openTarget
             }
         case INIT_FEED:
             switch (action.status) {
