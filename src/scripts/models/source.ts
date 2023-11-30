@@ -37,6 +37,7 @@ export const enum SourceTextDirection {
 export class RSSSource {
     sid: number
     url: string
+    originUrl?: string
     iconurl?: string
     name: string
     openTarget: SourceOpenTarget
@@ -60,6 +61,7 @@ export class RSSSource {
 
     static async fetchMetaData(source: RSSSource) {
         let feed = await parseRSS(source.url)
+        source.originUrl = feed.link
         if (!source.name) {
             if (feed.title) source.name = feed.title.trim()
             source.name = source.name || intl.get("sources.untitled")
@@ -426,8 +428,8 @@ export function updateFavicon(
             sids = sids.filter(sid => sid in initSources)
         }
         const promises = sids.map(async sid => {
-            const url = initSources[sid].url
-            let favicon = (await fetchFavicon(url)) || ""
+            const { originUrl, url }= initSources[sid]
+            let favicon = (await fetchFavicon(originUrl || url)) || ""
             const source = getState().sources[sid]
             if (
                 source &&
