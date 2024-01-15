@@ -35,61 +35,17 @@ const rssParser = new Parser({
 type extractGeneric<Type> = Type extends Parser<infer _, infer U> ? U : never
 export type MyParserItem = extractGeneric<typeof rssParser> & Parser.Item
 
-const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
-const XML_ENCODING_RE = /^<\?xml.+encoding="(.+?)".*?\?>/i
-export async function decodeFetchResponse(response: Response, isHTML = false) {
-    const buffer = await response.arrayBuffer()
-    let ctype =
-        response.headers.has("content-type") &&
-        response.headers.get("content-type")
-    let charset =
-        ctype && CHARSET_RE.test(ctype) ? CHARSET_RE.exec(ctype)[1] : undefined
-    let content = new TextDecoder(charset).decode(buffer)
-    if (charset === undefined) {
-        if (isHTML) {
-            const dom = domParser.parseFromString(content, "text/html")
-            charset = dom
-                .querySelector("meta[charset]")
-                ?.getAttribute("charset")
-                ?.toLowerCase()
-            if (!charset) {
-                ctype = dom
-                    .querySelector("meta[http-equiv='Content-Type']")
-                    ?.getAttribute("content")
-                charset =
-                    ctype &&
-                    CHARSET_RE.test(ctype) &&
-                    CHARSET_RE.exec(ctype)[1].toLowerCase()
-            }
-        } else {
-            charset =
-                XML_ENCODING_RE.test(content) &&
-                XML_ENCODING_RE.exec(content)[1].toLowerCase()
-        }
-        if (charset && charset !== "utf-8" && charset !== "utf8") {
-            content = new TextDecoder(charset).decode(buffer)
-        }
-    }
-    return content
-}
-
 export async function parseRSS(url: string) {
-    let result: Response
+    let html: string
     try {
-        result = await fetch(url, { credentials: "omit" })
-    } catch {
+        html = await window.utils.fetchText(url)
+    } catch (e) {
         throw new Error(intl.get("log.networkError"))
     }
-    if (result && result.ok) {
-        try {
-            return await rssParser.parseString(
-                await decodeFetchResponse(result)
-            )
-        } catch {
-            throw new Error(intl.get("log.parseError"))
-        }
-    } else {
-        throw new Error(result.status + " " + result.statusText)
+    try {
+        return await rssParser.parseString(html)
+    } catch {
+        throw new Error(intl.get("log.parseError"))
     }
 }
 
@@ -98,23 +54,20 @@ export const domParser = new DOMParser()
 export async function fetchFavicon(url: string) {
     try {
         url = url.split("/").slice(0, 3).join("/")
-        let result = await fetch(url, { credentials: "omit" })
-        if (result.ok) {
-            let html = await result.text()
-            let dom = domParser.parseFromString(html, "text/html")
-            let links = dom.getElementsByTagName("link")
-            for (let link of links) {
-                let rel = link.getAttribute("rel")
-                if (
-                    (rel === "icon" || rel === "shortcut icon") &&
-                    link.hasAttribute("href")
-                ) {
-                    let href = link.getAttribute("href")
-                    let parsedUrl = Url.parse(url)
-                    if (href.startsWith("//")) return parsedUrl.protocol + href
-                    else if (href.startsWith("/")) return url + href
-                    else return href
-                }
+        const html = await window.utils.fetchText(url)
+        let dom = domParser.parseFromString(html, "text/html")
+        let links = dom.getElementsByTagName("link")
+        for (let link of links) {
+            let rel = link.getAttribute("rel")
+            if (
+                (rel === "icon" || rel === "shortcut icon") &&
+                link.hasAttribute("href")
+            ) {
+                let href = link.getAttribute("href")
+                let parsedUrl = Url.parse(url)
+                if (href.startsWith("//")) return parsedUrl.protocol + href
+                else if (href.startsWith("/")) return url + href
+                else return href
             }
         }
         url = url + "/favicon.ico"
