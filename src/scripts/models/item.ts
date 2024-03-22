@@ -197,6 +197,7 @@ export function fetchItemsIntermediate(): ItemActionTypes {
 
 export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     items.sort((a, b) => a.date.getTime() - b.date.getTime())
+    items.forEach(item => item.title = item.title == null ? '' : item.title)
     const rows = items.map(item => db.items.createRow(item))
     return (await db.itemsDB
         .insert()
