@@ -49,6 +49,12 @@ interface Entries {
     entries: Entry[]
 }
 
+interface IconEntity {
+    id: number
+    mime_type: string
+    data: string
+}
+
 const APIError = () => new Error(intl.get("service.failure"))
 
 // base endpoint, authorization with dedicated token or http basic user/pass pair
@@ -286,6 +292,29 @@ export const minifluxServiceHooks: ServiceHooks = {
             new Set(unread.map((entry: Entry) => String(entry.id))),
             new Set(starred.map((entry: Entry) => String(entry.id))),
         ]
+    },
+
+    fetchFavicon: (source: RSSSource) => async (_, getState) => {
+        const configs = getState().service as MinifluxConfigs
+        try {
+            let response = await fetchAPI(configs, `feeds/${source.serviceRef}/icon`)
+            if (response.ok) {
+                let iconEntity: IconEntity = await response.json()
+                if (iconEntity.data === undefined || iconEntity.data == null) {
+                    return null
+                }
+                if (iconEntity.data.length <= 0) {
+                    return null
+                }
+                if (!iconEntity.data.startsWith("image/")) {
+                    return null
+                }
+                return "data:" + iconEntity.data
+            }
+            return null
+        } catch {
+            return null
+        }
     },
 
     markRead: (item: RSSItem) => async (_, getState) => {

@@ -11,9 +11,9 @@ import {
     insertSource,
     addSourceSuccess,
     updateSource,
-    updateFavicon,
 } from "./source"
 import { createSourceGroup, addSourceToGroup } from "./group"
+import { fetchFavicon } from "../utils"
 
 import { feverServiceHooks } from "./services/fever"
 import { feedbinServiceHooks } from "./services/feedbin"
@@ -27,6 +27,7 @@ export interface ServiceHooks {
     updateSources?: () => AppThunk<Promise<[RSSSource[], Map<string, string>]>>
     fetchItems?: () => AppThunk<Promise<[RSSItem[], ServiceConfigs]>>
     syncItems?: () => AppThunk<Promise<[Set<string>, Set<string>]>>
+    fetchFavicon?: (item: RSSSource) => AppThunk<Promise<string>>
     markRead?: (item: RSSItem) => AppThunk
     markUnread?: (item: RSSItem) => AppThunk
     markAllRead?: (
@@ -100,6 +101,42 @@ function reauthenticate(hooks: ServiceHooks): AppThunk<Promise<void>> {
             configs = await hooks.reauthenticate(configs)
             dispatch(saveServiceConfigs(configs))
         }
+    }
+}
+
+export function updateFavicon(
+    sids?: number[],
+    force = false
+): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        const initSources = getState().sources
+        if (!sids) {
+            sids = Object.values(initSources)
+                .filter(s => s.iconurl === undefined)
+                .map(s => s.sid)
+        } else {
+            sids = sids.filter(sid => sid in initSources)
+        }
+        const promises = sids.map(async sid => {
+            const url = initSources[sid].url
+            const source = getState().sources[sid]
+            if (
+                source &&
+                source.url === url &&
+                (force || source.iconurl === undefined)
+            ) {
+                const hooks = dispatch(getServiceHooks())
+                let favicon: string
+                if (hooks.fetchFavicon) {
+                    favicon = await dispatch(hooks.fetchFavicon(source))
+                } else {
+                    favicon = await fetchFavicon(url)
+                }
+                source.iconurl = favicon || ""
+                await dispatch(updateSource(source))
+            }
+        })
+        await Promise.all(promises)
     }
 }
 
