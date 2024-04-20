@@ -82,6 +82,37 @@ async function fetchAPI(
     }
 }
 
+async function fetchByPage(
+    configs: MinifluxConfigs,
+    params: string = ""
+): Promise<Entry[]> {
+    const quantity = 125
+    let continueId: number
+    let entriesResponse: Entries
+
+    const items: Entry[] = new Array()
+    do {
+        try {
+            let endpoint = `entries?order=id&direction=desc&limit=${quantity}&${params}`
+            if (continueId) {
+                endpoint += `&before_entry_id=${continueId}`
+            }
+            entriesResponse = await fetchAPI(configs, endpoint).then(response =>
+                response.json()
+            )
+
+            items.push(...entriesResponse.entries)
+            continueId = items[items.length - 1].id
+        } catch {
+            break
+        }
+    } while (
+        entriesResponse.entries &&
+        entriesResponse.total > entriesResponse.entries.length
+    )
+    return items
+}
+
 export const minifluxServiceHooks: ServiceHooks = {
     // poll service info endpoint to verify auth
     authenticate: async (configs: MinifluxConfigs) => {
@@ -228,22 +259,32 @@ export const minifluxServiceHooks: ServiceHooks = {
     syncItems: () => async (_, getState) => {
         const configs = getState().service as MinifluxConfigs
 
-        const unreadPromise: Promise<Entries> = fetchAPI(
-            configs,
-            "entries?status=unread"
-        ).then(response => response.json())
-        const starredPromise: Promise<Entries> = fetchAPI(
-            configs,
-            "entries?starred=true"
-        ).then(response => response.json())
+        // const unreadPromise: Promise<Entries> = fetchAPI(
+        //     configs,
+        //     "entries?status=unread"
+        // ).then(response => response.json())
+        // const starredPromise: Promise<Entries> = fetchAPI(
+        //     configs,
+        //     "entries?starred=true"
+        // ).then(response => response.json())
+        // const [unread, starred] = await Promise.all([
+        //     unreadPromise,
+        //     starredPromise,
+        // ])
+
+        // return [
+        //     new Set(unread.entries.map((entry: Entry) => String(entry.id))),
+        //     new Set(starred.entries.map((entry: Entry) => String(entry.id))),
+        // ]
+
         const [unread, starred] = await Promise.all([
-            unreadPromise,
-            starredPromise,
+            fetchByPage(configs, "status=unread"),
+            fetchByPage(configs, "starred=true"),
         ])
 
         return [
-            new Set(unread.entries.map((entry: Entry) => String(entry.id))),
-            new Set(starred.entries.map((entry: Entry) => String(entry.id))),
+            new Set(unread.map((entry: Entry) => String(entry.id))),
+            new Set(starred.map((entry: Entry) => String(entry.id))),
         ]
     },
 
