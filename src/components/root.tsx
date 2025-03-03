@@ -4,10 +4,10 @@ import { closeContextMenu } from "../scripts/models/app"
 import PageContainer from "../containers/page-container"
 import MenuContainer from "../containers/menu-container"
 import NavContainer from "../containers/nav-container"
-import LogMenuContainer from "../containers/log-menu-container"
 import SettingsContainer from "../containers/settings-container"
 import { RootState } from "../scripts/reducer"
 import { ContextMenu } from "./context-menu"
+import LogMenu from "./log-menu"
 
 const Root = ({ locale, dispatch }) =>
     locale && (
@@ -17,7 +17,7 @@ const Root = ({ locale, dispatch }) =>
             onMouseDown={() => dispatch(closeContextMenu())}>
             <NavContainer />
             <PageContainer />
-            <LogMenuContainer />
+            <LogMenu />
             <MenuContainer />
             <SettingsContainer />
             <ContextMenu />

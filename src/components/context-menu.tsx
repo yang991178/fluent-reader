@@ -538,7 +538,7 @@ function GroupContextMenu() {
 
 function MarkReadContextMenu() {
     const dispatch = useAppDispatch()
-    
+
     const menuItems: IContextualMenuItem[] = [
         {
             key: "section_1",
