@@ -1,19 +1,81 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Debug Main Process",
-        "type": "node",
-        "request": "launch",
-        "cwd": "${workspaceRoot}",
-        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-        "windows": {
-          "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
-        },
-        "program": "${workspaceRoot}/dist/electron.js",
-        "args" : ["."],
-        "outputCapture": "std",
-        "sourceMaps": true
-      }
-    ]
-  }
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Main Process",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+      },
+      "program": "${workspaceRoot}/dist/electron.js",
+      "args": [
+        "."
+      ],
+      "outputCapture": "std",
+      "sourceMaps": true
+    },
+    {
+      "name": "Electron: Main",
+      "type": "node", //use the node debugger that comes with VS Code
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+      },
+      "program": "${workspaceRoot}/dist/electron.js",
+      "runtimeArgs": [
+        // "--enable-logging",
+        //open debugging port for renderer process
+        "--remote-debugging-port=9222"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/*.js"
+      ],
+      "args": [
+        "."
+      ],
+      "outputCapture": "std",
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        //use source maps for files in workspace folder
+        "${workspaceFolder}/**",
+        //but ignore everything in the node_modules folder
+        "!**/node_modules/**"
+      ],
+      "env": {
+        "ELECTRON_DISABLE_SECURITY_WARNINGS": "true",
+        "ELECTRON_IS_DEV": "1"
+      },
+    },
+    {
+      // Please comment BrowserWindow.webContents.openDevTools() before using this debugging
+      // https://stackoverflow.com/a/57085144
+      "name": "Electron: Renderer",
+      //use the Chrome debugger that comes with VS Code
+      "type": "chrome",
+      "request": "attach",
+      //use debug port opened in Electron: Main configuration
+      "port": 9222,
+      "webRoot": "${workspaceFolder}",
+      "timeout": 30000,
+    }
+  ],
+  "compounds": [ //launch multiple configurations concurrently
+    {
+      "name": "Electron: All",
+      "configurations": [
+        "Electron: Main",
+        "Electron: Renderer"
+      ],
+      //recompile before debugging (execute the compile script defined in package.json)
+      "preLaunchTask": "npm: build",
+    }
+  ]
+}
