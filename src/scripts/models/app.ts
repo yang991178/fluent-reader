@@ -7,7 +7,6 @@ import {
     DELETE_SOURCE,
     initSources,
     SourceOpenTarget,
-    updateFavicon,
 } from "./source"
 import { RSSItem, ItemActionTypes, FETCH_ITEMS, fetchItems } from "./item"
 import {
@@ -34,7 +33,7 @@ import {
 } from "./page"
 import { getCurrentLocale, setThemeDefaultFont } from "../settings"
 import locales from "../i18n/_locales"
-import { SYNC_SERVICE, ServiceActionTypes } from "./service"
+import { SYNC_SERVICE, ServiceActionTypes, updateFavicon } from "./service"
 
 export const enum ContextMenuType {
     Hidden,
