@@ -18,7 +18,7 @@ import {
     SourceTextDirection,
 } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
-import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
+import { platformCtrl } from "../scripts/utils"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -330,9 +330,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         this.setState({ fullContent: "", loaded: false, error: false })
         const link = this.props.item.link
         try {
-            const result = await fetch(link)
-            if (!result || !result.ok) throw new Error()
-            const html = await decodeFetchResponse(result, true)
+            const html = await window.utils.fetchText(link, true)
+            if (!html) throw new Error()
             if (link === this.props.item.link) {
                 this.setState({ fullContent: html })
             }

@@ -174,6 +174,10 @@ const utilsBridge = {
     initFontList: (): Promise<Array<string>> => {
         return ipcRenderer.invoke("init-font-list")
     },
+
+    fetchText: (url: string, isHtml: boolean = false) => {
+        return ipcRenderer.invoke("fetchText", url, isHtml)
+    }
 }
 
 declare global {
