@@ -1,4 +1,5 @@
 import en_US from "./en-US.json"
+import gr from "./gr.json"
 import cs from "./cs.json"
 import zh_CN from "./zh-CN.json"
 import zh_TW from "./zh-TW.json"
@@ -25,6 +26,7 @@ const locales = {
     "ja": ja,
     "fr-FR": fr_FR,
     "de": de,
+    "gr": gr,
     "nl": nl,
     "es": es,
     "sv": sv,
