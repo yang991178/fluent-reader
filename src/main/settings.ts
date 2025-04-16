@@ -204,3 +204,11 @@ ipcMain.on("get-nedb-status", event => {
 ipcMain.handle("set-nedb-status", (_, flag: boolean) => {
     store.set(NEDB_STATUS_STORE_KEY, flag)
 })
+
+const MARK_READ_DAYS_STORE_KEY = "markReadDays";
+ipcMain.on("get-mark-read-days", (event) => {
+    event.returnValue = store.get(MARK_READ_DAYS_STORE_KEY, null);
+});
+ipcMain.handle("set-mark-read-days", (_, days: number | null) => {
+    store.set(MARK_READ_DAYS_STORE_KEY, days);
+});

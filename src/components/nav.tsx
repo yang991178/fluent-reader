@@ -1,7 +1,7 @@
 import * as React from "react"
 import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
-import { AppState } from "../scripts/models/app"
+import { AppState, ContextMenuType } from "../scripts/models/app"
 import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
 import { getWindowBreakpoint } from "../scripts/utils"
 import { WindowStateListenerType } from "../schema-types"
@@ -11,7 +11,8 @@ type NavProps = {
     itemShown: boolean
     menu: () => void
     search: () => void
-    markAllRead: () => void
+    markAllMenu: () => void
+    markAllRead: (sids?, date?) => void
     fetch: () => void
     logs: () => void
     views: () => void
@@ -70,7 +71,7 @@ class Nav extends React.Component<NavProps, NavState> {
                     this.fetch()
                     break
                 case "F6":
-                    this.props.markAllRead()
+                    this.props.markAllMenu()
                     break
                 case "F7":
                     if (!this.props.itemShown) this.props.logs()
@@ -163,14 +164,26 @@ class Nav extends React.Component<NavProps, NavState> {
                     <a
                         className="btn"
                         id="mark-all-toggle"
-                        onClick={this.props.markAllRead}
                         title={intl.get("nav.markAllRead")}
                         onMouseDown={e => {
-                            if (
-                                this.props.state.contextMenu.event ===
-                                "#mark-all-toggle"
-                            )
+                            if (this.props.state.contextMenu.event === "#mark-all-toggle")
                                 e.stopPropagation()
+                        }}
+                        onClick={() => {
+                            const lastMarkReadDays = window.settings.getMarkReadDays();
+                            if (lastMarkReadDays) {
+                                let date = new Date();
+                                date.setTime(date.getTime() - lastMarkReadDays * 86400000);
+                                this.props.markAllRead(null, date);
+                            } else {
+                                this.props.markAllRead();
+                            }
+                            if (this.props.state.contextMenu.type === ContextMenuType.MarkRead) {
+                                this.props.markAllMenu() // Close the menu on left-click if open.
+                            }
+                        }}
+                        onContextMenu={() => {
+                            this.props.markAllMenu()
                         }}>
                         <Icon iconName="InboxCheck" />
                     </a>
