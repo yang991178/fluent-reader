@@ -33,7 +33,8 @@ const mapDispatchToProps = dispatch => ({
     views: () => dispatch(openViewMenu()),
     settings: () => dispatch(toggleSettings()),
     search: () => dispatch(toggleSearch()),
-    markAllRead: () => dispatch(openMarkAllMenu()),
+    markAllMenu: () => dispatch(openMarkAllMenu()),
+    markAllRead: () => dispatch(markAllRead()),
 })
 
 const NavContainer = connect(mapStateToProps, mapDispatchToProps)(Nav)

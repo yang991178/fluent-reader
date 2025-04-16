@@ -11,6 +11,7 @@ type NavProps = {
     itemShown: boolean
     menu: () => void
     search: () => void
+    markAllMenu: () => void
     markAllRead: () => void
     fetch: () => void
     logs: () => void
@@ -70,7 +71,7 @@ class Nav extends React.Component<NavProps, NavState> {
                     this.fetch()
                     break
                 case "F6":
-                    this.props.markAllRead()
+                    this.props.markAllMenu()
                     break
                 case "F7":
                     if (!this.props.itemShown) this.props.logs()
@@ -163,14 +164,18 @@ class Nav extends React.Component<NavProps, NavState> {
                     <a
                         className="btn"
                         id="mark-all-toggle"
-                        onClick={this.props.markAllRead}
                         title={intl.get("nav.markAllRead")}
                         onMouseDown={e => {
-                            if (
-                                this.props.state.contextMenu.event ===
-                                "#mark-all-toggle"
-                            )
+                            if (this.props.state.contextMenu.event === "#mark-all-toggle")
                                 e.stopPropagation()
+                        }}
+                        onClick={() => {
+                            console.log(this.props.state.contextMenu.type)
+                            this.props.markAllRead()
+                        }}
+                        onContextMenu={() => {
+                            console.log(this.props.state.contextMenu.type)
+                            this.props.markAllMenu()
                         }}>
                         <Icon iconName="InboxCheck" />
                     </a>
