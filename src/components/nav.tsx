@@ -1,7 +1,7 @@
 import * as React from "react"
 import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
-import { AppState } from "../scripts/models/app"
+import { AppState, ContextMenuType } from "../scripts/models/app"
 import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
 import { getWindowBreakpoint } from "../scripts/utils"
 import { WindowStateListenerType } from "../schema-types"
@@ -12,7 +12,7 @@ type NavProps = {
     menu: () => void
     search: () => void
     markAllMenu: () => void
-    markAllRead: () => void
+    markAllRead: (sids?, date?) => void
     fetch: () => void
     logs: () => void
     views: () => void
@@ -170,11 +170,19 @@ class Nav extends React.Component<NavProps, NavState> {
                                 e.stopPropagation()
                         }}
                         onClick={() => {
-                            console.log(this.props.state.contextMenu.type)
-                            this.props.markAllRead()
+                            const lastMarkReadDays = window.settings.getMarkReadDays();
+                            if (lastMarkReadDays) {
+                                let date = new Date();
+                                date.setTime(date.getTime() - lastMarkReadDays * 86400000);
+                                this.props.markAllRead(null, date);
+                            } else {
+                                this.props.markAllRead();
+                            }
+                            if (this.props.state.contextMenu.type === ContextMenuType.MarkRead) {
+                                this.props.markAllMenu() // Close the menu on left-click if open.
+                            }
                         }}
                         onContextMenu={() => {
-                            console.log(this.props.state.contextMenu.type)
                             this.props.markAllMenu()
                         }}>
                         <Icon iconName="InboxCheck" />

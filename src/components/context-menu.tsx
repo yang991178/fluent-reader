@@ -539,6 +539,8 @@ function GroupContextMenu() {
 function MarkReadContextMenu() {
     const dispatch = useAppDispatch()
 
+    const currentMarkReadDays = window.settings.getMarkReadDays()
+
     const menuItems: IContextualMenuItem[] = [
         {
             key: "section_1",
@@ -549,36 +551,51 @@ function MarkReadContextMenu() {
                     {
                         key: "all",
                         text: intl.get("allArticles"),
-                        iconProps: { iconName: "ReceiptCheck" },
+                        iconProps:
+                            currentMarkReadDays === null
+                                ? { iconName: "CheckMark" }
+                                : undefined,
                         onClick: () => {
-                            dispatch(markAllRead())
+                            window.settings.setMarkReadDays(null)
                         },
                     },
                     {
                         key: "1d",
                         text: intl.get("app.daysAgo", { days: 1 }),
+                        iconProps:
+                            currentMarkReadDays === 1
+                                ? { iconName: "CheckMark" }
+                                : undefined,
                         onClick: () => {
                             let date = new Date()
                             date.setTime(date.getTime() - 86400000)
-                            dispatch(markAllRead(null, date))
+                            window.settings.setMarkReadDays(1)
                         },
                     },
                     {
                         key: "3d",
                         text: intl.get("app.daysAgo", { days: 3 }),
+                        iconProps:
+                            currentMarkReadDays === 3
+                                ? { iconName: "CheckMark" }
+                                : undefined,
                         onClick: () => {
                             let date = new Date()
                             date.setTime(date.getTime() - 3 * 86400000)
-                            dispatch(markAllRead(null, date))
+                            window.settings.setMarkReadDays(3)
                         },
                     },
                     {
                         key: "7d",
                         text: intl.get("app.daysAgo", { days: 7 }),
+                        iconProps:
+                            currentMarkReadDays === 7
+                                ? { iconName: "CheckMark" }
+                                : undefined,
                         onClick: () => {
                             let date = new Date()
                             date.setTime(date.getTime() - 7 * 86400000)
-                            dispatch(markAllRead(null, date))
+                            window.settings.setMarkReadDays(7)
                         },
                     },
                 ],

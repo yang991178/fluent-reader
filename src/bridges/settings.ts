@@ -124,6 +124,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-nedb-status", flag)
     },
 
+    getMarkReadDays: (): number => {
+        return ipcRenderer.sendSync("get-mark-read-days");
+    },
+    setMarkReadDays: (days: number) => {
+        ipcRenderer.invoke("set-mark-read-days", days);
+    },
+
     getAll: () => {
         return ipcRenderer.sendSync("get-all-settings") as Object
     },
