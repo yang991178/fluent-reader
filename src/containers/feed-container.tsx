@@ -35,7 +35,9 @@ const makeMapStateToProps = () => {
         ],
         (sources, items, feed, viewType, filter, viewConfigs, currentItem) => ({
             feed: feed,
-            items: feed.iids.map(iid => items[iid]),
+            items: feed.iids
+                .map(iid => items[iid])
+                .filter(item => ((new Date()).getTime() - item.date.getTime()) > window.settings.getFeedDelay() * 86400000),
             sourceMap: sources,
             filter: filter,
             viewType: viewType,

@@ -93,6 +93,7 @@ export type SchemaTypes = {
     fontFamily: string
     menuOn: boolean
     fetchInterval: number
+    feedDelay: number
     searchEngine: SearchEngines
     serviceConfigs: ServiceConfigs
     filterType: number

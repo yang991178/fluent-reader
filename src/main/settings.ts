@@ -146,6 +146,14 @@ ipcMain.handle("set-fetch-interval", (_, interval: number) => {
     store.set(FETCH_INTEVAL_STORE_KEY, interval)
 })
 
+const FEED_DELAY_STORE_KEY = "feedDelay"
+ipcMain.on("get-feed-delay", event => {
+    event.returnValue = store.get(FEED_DELAY_STORE_KEY, 0)
+})
+ipcMain.handle("set-feed-delay", (_, interval: number) => {
+    store.set(FEED_DELAY_STORE_KEY, interval)
+})
+
 const SEARCH_ENGINE_STORE_KEY = "searchEngine"
 ipcMain.on("get-search-engine", event => {
     event.returnValue = store.get(SEARCH_ENGINE_STORE_KEY, SearchEngines.Google)

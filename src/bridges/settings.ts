@@ -89,6 +89,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-fetch-interval", interval)
     },
 
+    getFeedDelay: (): number => {
+        return ipcRenderer.sendSync("get-feed-delay")
+    },
+    setFeedDelay: (delay: number) => {
+        ipcRenderer.invoke("set-feed-delay", delay)
+    },
+
     getSearchEngine: (): SearchEngines => {
         return ipcRenderer.sendSync("get-search-engine")
     },

@@ -19,6 +19,9 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
         window.settings.setFetchInterval(interval)
         dispatch(setupAutoFetch())
     },
+    setFeedDelay: (delay: number) => {
+        window.settings.setFeedDelay(delay)
+    },
     deleteArticles: async (days: number) => {
         dispatch(saveSettings())
         let date = new Date()
