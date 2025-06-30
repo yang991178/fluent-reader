@@ -64,6 +64,8 @@
         "star": "Star",
         "unstar": "Remove star",
         "fontSize": "Font size",
+        "translate": "Translate article",
+        "showOriginal": "Show original",
         "loadWebpage": "Load webpage",
         "loadFull": "Load full content",
         "notify": "Notify if fetched in background",
