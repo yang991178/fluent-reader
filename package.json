@@ -30,6 +30,7 @@
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
     "electron-window-state": "^5.0.3",
+    "dexie": "^4.0.11",
     "font-list": "^1.4.2",
     "html-webpack-plugin": "^5.5.3",
     "js-md5": "^0.7.3",

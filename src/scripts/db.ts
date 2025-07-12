@@ -1,26 +1,30 @@
 import intl from "react-intl-universal"
-import Datastore from "nedb"
-import lf from "lovefield"
 import { RSSSource } from "./models/source"
+import { SourceRule } from "./models/rule"
 import { RSSItem } from "./models/item"
+import lf from "lovefield"
+import { Dexie, type EntityTable } from "dexie"
 
-const sdbSchema = lf.schema.create("sourcesDB", 3)
-sdbSchema
-    .createTable("sources")
-    .addColumn("sid", lf.Type.INTEGER)
-    .addPrimaryKey(["sid"], false)
-    .addColumn("url", lf.Type.STRING)
-    .addColumn("iconurl", lf.Type.STRING)
-    .addColumn("name", lf.Type.STRING)
-    .addColumn("openTarget", lf.Type.NUMBER)
-    .addColumn("lastFetched", lf.Type.DATE_TIME)
-    .addColumn("serviceRef", lf.Type.STRING)
-    .addColumn("fetchFrequency", lf.Type.NUMBER)
-    .addColumn("rules", lf.Type.OBJECT)
-    .addColumn("textDir", lf.Type.NUMBER)
-    .addColumn("hidden", lf.Type.BOOLEAN)
-    .addNullable(["iconurl", "serviceRef", "rules"])
-    .addIndex("idxURL", ["url"], true)
+export interface SourceEntry {
+    sid: number
+    url: string
+    iconurl?: string
+    name: string
+    openTarget: number
+    lastFetched: Date
+    serviceRef?: string
+    fetchFrequency: number
+    rules?: SourceRule[]
+    textDir: number
+    hidden: boolean
+}
+
+export const fluentDB = new Dexie("MainDB") as Dexie & {
+    sources: EntityTable<SourceEntry, "sid">
+}
+fluentDB.version(1).stores({
+    sources: `++sid, &url`,
+})
 
 const idbSchema = lf.schema.create("itemsDB", 1)
 idbSchema
@@ -45,95 +49,76 @@ idbSchema
     .addIndex("idxDate", ["date"], false, lf.Order.DESC)
     .addIndex("idxService", ["serviceRef"], false)
 
-export let sourcesDB: lf.Database
-export let sources: lf.schema.Table
 export let itemsDB: lf.Database
 export let items: lf.schema.Table
 
-async function onUpgradeSourceDB(rawDb: lf.raw.BackStore) {
-    const version = rawDb.getVersion()
-    if (version < 2) {
-        await rawDb.addTableColumn("sources", "textDir", 0)
+/**
+ * Migrate old Lovefield Sources Database into the new MainDB Dexie DB.
+ */
+async function migrateLovefieldSourcesDB(dbName: string, version: number) {
+    const databases = await indexedDB.databases()
+    if (!databases.map(d => d.name).some(d => d === dbName)) {
+        return
     }
-    if (version < 3) {
-        await rawDb.addTableColumn("sources", "hidden", false)
+    const request = indexedDB.open(dbName, version)
+    request.onsuccess = () => {
+        const db = request.result
+        const transaction = db.transaction("sources")
+        const store = transaction.objectStore("sources")
+        const entryQuery = store.getAll()
+        entryQuery.onsuccess = () => {
+            const result = entryQuery.result
+            const txFunc = async () => {
+                for (const row of result) {
+                    const source = row.value
+
+                    // Skip entries that already exist.
+                    const query = await fluentDB.sources
+                        .where("url")
+                        .equals(source.url)
+                        .toArray()
+                    if (query.length > 0) {
+                        continue
+                    }
+
+                    const newEntry = {
+                        sid: source.sid,
+                        url: source.url,
+                        iconurl: source.iconurl,
+                        name: source.name,
+                        openTarget: source.openTarget,
+                        lastFetched: source.lastFetched,
+                        serviceRef: source.serviceRef,
+                        fetchFrequency: source.fetchFrequency,
+                        rules: source.rules,
+                        textDir: source.textDir,
+                        hidden: source.hidden,
+                    }
+                    await fluentDB.sources.add(newEntry)
+                }
+            }
+            fluentDB
+                .transaction("rw", "sources", txFunc)
+                .then(() => {
+                    console.log(
+                        `Successfully Migrated.` +
+                            `Attempting to deleting old DB ${dbName}.`,
+                    )
+                    const deletion = indexedDB.deleteDatabase(dbName)
+                    deletion.onsuccess = () => {
+                        console.log(`Successfully deleted old DB ${dbName}`)
+                    }
+                    deletion.onerror = () => {
+                        console.error(`Failed to delete old DB ${dbName}`)
+                    }
+                })
+                .catch(error => console.error(error.inner))
+        }
     }
 }
 
 export async function init() {
-    sourcesDB = await sdbSchema.connect({ onUpgrade: onUpgradeSourceDB })
-    sources = sourcesDB.getSchema().table("sources")
+    migrateLovefieldSourcesDB("sourcesDB", 3)
     itemsDB = await idbSchema.connect()
     items = itemsDB.getSchema().table("items")
-    if (window.settings.getNeDBStatus()) {
-        await migrateNeDB()
-    }
-}
-
-async function migrateNeDB() {
-    try {
-        const sdb = new Datastore<RSSSource>({
-            filename: "sources",
-            autoload: true,
-            onload: err => {
-                if (err) window.console.log(err)
-            },
-        })
-        const idb = new Datastore<RSSItem>({
-            filename: "items",
-            autoload: true,
-            onload: err => {
-                if (err) window.console.log(err)
-            },
-        })
-        const sourceDocs = await new Promise<RSSSource[]>(resolve => {
-            sdb.find({}, (_, docs) => {
-                resolve(docs)
-            })
-        })
-        const itemDocs = await new Promise<RSSItem[]>(resolve => {
-            idb.find({}, (_, docs) => {
-                resolve(docs)
-            })
-        })
-        const sRows = sourceDocs.map(doc => {
-            if (doc.serviceRef !== undefined)
-                doc.serviceRef = String(doc.serviceRef)
-            // @ts-ignore
-            delete doc._id
-            if (!doc.fetchFrequency) doc.fetchFrequency = 0
-            doc.textDir = 0
-            doc.hidden = false
-            return sources.createRow(doc)
-        })
-        const iRows = itemDocs.map(doc => {
-            if (doc.serviceRef !== undefined)
-                doc.serviceRef = String(doc.serviceRef)
-            if (!doc.title) doc.title = intl.get("article.untitled")
-            if (!doc.content) doc.content = ""
-            if (!doc.snippet) doc.snippet = ""
-            delete doc._id
-            doc.starred = Boolean(doc.starred)
-            doc.hidden = Boolean(doc.hidden)
-            doc.notify = Boolean(doc.notify)
-            return items.createRow(doc)
-        })
-        await Promise.all([
-            sourcesDB.insert().into(sources).values(sRows).exec(),
-            itemsDB.insert().into(items).values(iRows).exec(),
-        ])
-        window.settings.setNeDBStatus(false)
-        sdb.remove({}, { multi: true }, () => {
-            sdb.persistence.compactDatafile()
-        })
-        idb.remove({}, { multi: true }, () => {
-            idb.persistence.compactDatafile()
-        })
-    } catch (err) {
-        window.utils.showErrorBox(
-            "An error has occured during update. Please report this error on GitHub.",
-            String(err)
-        )
-        window.utils.closeWindow()
-    }
 }

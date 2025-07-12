@@ -40,7 +40,7 @@ export class RSSSource {
     iconurl?: string
     name: string
     openTarget: SourceOpenTarget
-    unreadCount: number
+    unreadCount?: number
     lastFetched: Date
     serviceRef?: string
     fetchFrequency: number // in minutes
@@ -205,6 +205,15 @@ async function unreadCount(sources: SourceState): Promise<SourceState> {
         .groupBy(db.items.source)
         .exec()
     for (let row of rows) {
+        if (sources[row["source"]] == null) {
+            // This can happen if the itemDB and sourcesDB don't
+            // match.
+            throw new Error(
+                `could not set 'unreadCount' for` +
+                    `source '${row["source"]}'` +
+                    `as it does not exist in the sourcesDB`,
+            )
+        }
         sources[row["source"]].unreadCount = row["COUNT(_id)"]
     }
     return sources
@@ -230,10 +239,7 @@ export function initSources(): AppThunk<Promise<void>> {
     return async dispatch => {
         dispatch(initSourcesRequest())
         await db.init()
-        const sources = (await db.sourcesDB
-            .select()
-            .from(db.sources)
-            .exec()) as RSSSource[]
+        const sources = (await db.fluentDB.sources.toArray()) as RSSSource[]
         const state: SourceState = {}
         for (let source of sources) {
             source.unreadCount = 0
@@ -281,14 +287,9 @@ export function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
             insertPromises = insertPromises.then(async () => {
                 let sids = Object.values(getState().sources).map(s => s.sid)
                 source.sid = Math.max(...sids, -1) + 1
-                const row = db.sources.createRow(source)
                 try {
-                    const inserted = (await db.sourcesDB
-                        .insert()
-                        .into(db.sources)
-                        .values([row])
-                        .exec()) as RSSSource[]
-                    resolve(inserted[0])
+                    await db.fluentDB.sources.add(source)
+                    resolve(source)
                 } catch (err) {
                     if (err.code === 201) reject(intl.get("sources.exist"))
                     else reject(err)
@@ -345,12 +346,7 @@ export function updateSource(source: RSSSource): AppThunk<Promise<void>> {
     return async dispatch => {
         let sourceCopy = { ...source }
         delete sourceCopy.unreadCount
-        const row = db.sources.createRow(sourceCopy)
-        await db.sourcesDB
-            .insertOrReplace()
-            .into(db.sources)
-            .values([row])
-            .exec()
+        await db.fluentDB.sources.put(sourceCopy)
         dispatch(updateSourceDone(source))
     }
 }
@@ -374,11 +370,7 @@ export function deleteSource(
                 .from(db.items)
                 .where(db.items.source.eq(source.sid))
                 .exec()
-            await db.sourcesDB
-                .delete()
-                .from(db.sources)
-                .where(db.sources.sid.eq(source.sid))
-                .exec()
+            await db.fluentDB.sources.where("sid").equals(source.sid).delete()
             dispatch(deleteSourceDone(source))
             window.settings.saveGroups(getState().groups)
         } catch (err) {

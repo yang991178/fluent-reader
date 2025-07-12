@@ -123,11 +123,10 @@ function updateSources(
                 existing.delete(s.serviceRef)
                 return doc
             } else {
-                const docs = (await db.sourcesDB
-                    .select()
-                    .from(db.sources)
-                    .where(db.sources.url.eq(s.url))
-                    .exec()) as RSSSource[]
+                const docs = (await db.fluentDB.sources
+                    .where("url")
+                    .equals(s.url)
+                    .toArray()) as RSSSource[]
                 if (docs.length === 0) {
                     // Create a new source
                     forceSettings()
