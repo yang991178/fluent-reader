@@ -1,5 +1,5 @@
 tabWidth: 4
 semi: false
-jsxBracketSameLine: true
+bracketSameLine: true
 arrowParens: "avoid"
 quoteProps: "consistent"
