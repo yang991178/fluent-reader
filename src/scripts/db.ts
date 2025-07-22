@@ -60,65 +60,58 @@ async function migrateLovefieldSourcesDB(dbName: string, version: number) {
     if (!databases.map(d => d.name).some(d => d === dbName)) {
         return
     }
-    const request = indexedDB.open(dbName, version)
-    request.onsuccess = () => {
-        const db = request.result
-        const transaction = db.transaction("sources")
-        const store = transaction.objectStore("sources")
-        const entryQuery = store.getAll()
-        entryQuery.onsuccess = () => {
-            const result = entryQuery.result
-            const txFunc = async () => {
-                for (const row of result) {
-                    const source = row.value
-
-                    // Skip entries that already exist.
-                    const query = await fluentDB.sources
-                        .where("url")
-                        .equals(source.url)
-                        .toArray()
-                    if (query.length > 0) {
-                        continue
-                    }
-
-                    const newEntry = {
-                        sid: source.sid,
-                        url: source.url,
-                        iconurl: source.iconurl,
-                        name: source.name,
-                        openTarget: source.openTarget,
-                        lastFetched: source.lastFetched,
-                        serviceRef: source.serviceRef,
-                        fetchFrequency: source.fetchFrequency,
-                        rules: source.rules,
-                        textDir: source.textDir,
-                        hidden: source.hidden,
-                    }
-                    await fluentDB.sources.add(newEntry)
-                }
+    const db = (await wrapRequest(indexedDB.open(dbName, version))).result
+    const transaction = db.transaction("sources")
+    const store = transaction.objectStore("sources")
+    const entryQueryResult = (await wrapRequest(store.getAll())).result
+    const txFunc = async () => {
+        for (const row of entryQueryResult) {
+            const source = row.value
+            // Skip entries that already exist.
+            const query = await fluentDB.sources
+                .where("url")
+                .equals(source.url)
+                .toArray()
+            if (query.length > 0) {
+                continue
             }
-            fluentDB
-                .transaction("rw", "sources", txFunc)
-                .then(() => {
-                    console.log(
-                        `Successfully Migrated.` +
-                            `Attempting to deleting old DB ${dbName}.`,
-                    )
-                    const deletion = indexedDB.deleteDatabase(dbName)
-                    deletion.onsuccess = () => {
-                        console.log(`Successfully deleted old DB ${dbName}`)
-                    }
-                    deletion.onerror = () => {
-                        console.error(`Failed to delete old DB ${dbName}`)
-                    }
-                })
-                .catch(error => console.error(error.inner))
+            const newEntry = {
+                sid: source.sid,
+                url: source.url,
+                iconurl: source.iconurl,
+                name: source.name,
+                openTarget: source.openTarget,
+                lastFetched: new Date(source.lastFetched),
+                serviceRef: source.serviceRef,
+                fetchFrequency: source.fetchFrequency,
+                rules: source.rules,
+                textDir: source.textDir,
+                hidden: source.hidden,
+            }
+            await fluentDB.sources.add(newEntry)
         }
     }
+    await fluentDB.transaction("rw", "sources", txFunc)
+    console.log(
+        `Successfully Migrated. Attempting to deleting old DB ${dbName}.`,
+    )
+    // Can't await on this, as it will delete only after the last connection is closed.
+    wrapRequest(indexedDB.deleteDatabase(dbName))
+}
+
+function wrapRequest<T>(req: T & IDBRequest): Promise<T> {
+    return new Promise((resolve, reject) => {
+        req.onsuccess = _ => {
+            resolve(req)
+        }
+        req.onerror = out => {
+            reject(out)
+        }
+    })
 }
 
 export async function init() {
-    migrateLovefieldSourcesDB("sourcesDB", 3)
+    await migrateLovefieldSourcesDB("sourcesDB", 3)
     itemsDB = await idbSchema.connect()
     items = itemsDB.getSchema().table("items")
 }
