@@ -26,7 +26,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "electron": "^34.3.0",
-    "electron-builder": "^23.0.3",
+    "electron-builder": "^26.0.12",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^5.2.0",
     "electron-window-state": "^5.0.3",
