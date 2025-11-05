@@ -72,16 +72,20 @@ export class RSSSource {
         item: MyParserItem
     ): Promise<RSSItem> {
         let i = new RSSItem(item, source)
+        const predicate = i.link
+            ? lf.op.and(
+                db.items.source.eq(i.source),
+                db.items.link.eq(i.link)
+            )
+            : lf.op.and(
+                db.items.source.eq(i.source),
+                db.items.title.eq(i.title),
+                db.items.date.eq(i.date)
+            )
         const items = (await db.itemsDB
             .select()
             .from(db.items)
-            .where(
-                lf.op.and(
-                    db.items.source.eq(i.source),
-                    db.items.title.eq(i.title),
-                    db.items.date.eq(i.date)
-                )
-            )
+            .where(predicate)
             .limit(1)
             .exec()) as RSSItem[]
         if (items.length === 0) {
