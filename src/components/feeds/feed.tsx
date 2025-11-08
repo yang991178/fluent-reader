@@ -10,6 +10,8 @@ export type FeedProps = FeedReduxProps & {
     feed: RSSFeed
     viewType: ViewType
     viewConfigs?: ViewConfigs
+    fontSize?: number
+    fontFamily?: string
     items: RSSItem[]
     currentItem: number
     sourceMap: Object

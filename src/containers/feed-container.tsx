@@ -20,6 +20,7 @@ const getFeed = (state: RootState, props: FeedContainerProps) =>
 const getFilter = (state: RootState) => state.page.filter
 const getView = (_, props: FeedContainerProps) => props.viewType
 const getViewConfigs = (state: RootState) => state.page.viewConfigs
+const getViewFontConfigs = (state: RootState) => state.page.viewFontConfigs
 const getCurrentItem = (state: RootState) => state.page.itemId
 
 const makeMapStateToProps = () => {
@@ -31,15 +32,18 @@ const makeMapStateToProps = () => {
             getView,
             getFilter,
             getViewConfigs,
+            getViewFontConfigs,
             getCurrentItem,
         ],
-        (sources, items, feed, viewType, filter, viewConfigs, currentItem) => ({
+        (sources, items, feed, viewType, filter, viewConfigs, viewFontConfigs, currentItem) => ({
             feed: feed,
             items: feed.iids.map(iid => items[iid]),
             sourceMap: sources,
             filter: filter,
             viewType: viewType,
             viewConfigs: viewConfigs,
+            fontSize: viewFontConfigs.fontSize,
+            fontFamily: viewFontConfigs.fontFamily,
             currentItem: currentItem,
         })
     )

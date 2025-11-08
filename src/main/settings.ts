@@ -8,6 +8,7 @@ import {
     SyncService,
     ServiceConfigs,
     ViewConfigs,
+    ViewFontConfigs,
 } from "../schema-types"
 import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
@@ -194,6 +195,24 @@ ipcMain.handle(
                 store.set(LIST_CONFIGS_STORE_KEY, configs)
                 break
         }
+    }
+)
+
+const VIEW_FONT_CONFIGS_STORE_KEY = "viewFontConfigs"
+const DEFAULT_VIEW_FONT_CONFIGS: ViewFontConfigs = {
+    fontSize: 16,
+    fontFamily: "",
+}
+ipcMain.on("get-view-font-configs", (event, view: ViewType) => {
+    const allConfigs = store.get(VIEW_FONT_CONFIGS_STORE_KEY, {} as Partial<Record<ViewType, ViewFontConfigs>>)
+    event.returnValue = allConfigs[view] || DEFAULT_VIEW_FONT_CONFIGS
+})
+ipcMain.handle(
+    "set-view-font-configs",
+    (_, view: ViewType, configs: ViewFontConfigs) => {
+        const allConfigs = store.get(VIEW_FONT_CONFIGS_STORE_KEY, {} as Partial<Record<ViewType, ViewFontConfigs>>)
+        allConfigs[view] = configs
+        store.set(VIEW_FONT_CONFIGS_STORE_KEY, allConfigs)
     }
 )
 

@@ -13,6 +13,8 @@ export namespace Card {
         filter: FeedFilter
         selected?: boolean
         viewConfigs?: ViewConfigs
+        fontSize?: number
+        fontFamily?: string
         shortcuts: (item: RSSItem, e: KeyboardEvent) => void
         markRead: (item: RSSItem) => void
         contextMenu: (feedId: string, item: RSSItem, e) => void

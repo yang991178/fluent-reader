@@ -12,11 +12,12 @@ import { getWindowBreakpoint, AppThunk, ActionStatus } from "../utils"
 import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
 import { toggleMenu } from "./app"
-import { ViewType, ViewConfigs } from "../../schema-types"
+import { ViewType, ViewConfigs, ViewFontConfigs } from "../../schema-types"
 
 export const SELECT_PAGE = "SELECT_PAGE"
 export const SWITCH_VIEW = "SWITCH_VIEW"
 export const SET_VIEW_CONFIGS = "SET_VIEW_CONFIGS"
+export const SET_VIEW_FONT_CONFIGS = "SET_VIEW_FONT_CONFIGS"
 export const SHOW_ITEM = "SHOW_ITEM"
 export const SHOW_OFFSET_ITEM = "SHOW_OFFSET_ITEM"
 export const DISMISS_ITEM = "DISMISS_ITEM"
@@ -50,6 +51,11 @@ interface SetViewConfigsAction {
     configs: ViewConfigs
 }
 
+interface SetViewFontConfigsAction {
+    type: typeof SET_VIEW_FONT_CONFIGS
+    configs: ViewFontConfigs
+}
+
 interface ShowItemAction {
     type: typeof SHOW_ITEM
     feedId: string
@@ -76,6 +82,7 @@ export type PageActionTypes =
     | ApplyFilterAction
     | ToggleSearchAction
     | SetViewConfigsAction
+    | SetViewFontConfigsAction
 
 export function selectAllArticles(init = false): AppThunk {
     return (dispatch, getState) => {
@@ -110,10 +117,13 @@ export function selectSources(
     }
 }
 
-export function switchView(viewType: ViewType): PageActionTypes {
-    return {
-        type: SWITCH_VIEW,
-        viewType: viewType,
+export function switchView(viewType: ViewType): AppThunk {
+    return (dispatch) => {
+        window.settings.setDefaultView(viewType)
+        dispatch({
+            type: SWITCH_VIEW,
+            viewType: viewType,
+        })
     }
 }
 
@@ -122,6 +132,16 @@ export function setViewConfigs(configs: ViewConfigs): AppThunk {
         window.settings.setViewConfigs(getState().page.viewType, configs)
         dispatch({
             type: "SET_VIEW_CONFIGS",
+            configs: configs,
+        })
+    }
+}
+
+export function setViewFontConfigs(configs: ViewFontConfigs): AppThunk {
+    return (dispatch, getState) => {
+        window.settings.setViewFontConfigs(getState().page.viewType, configs)
+        dispatch({
+            type: "SET_VIEW_FONT_CONFIGS",
             configs: configs,
         })
     }
@@ -274,6 +294,9 @@ export class PageState {
     viewConfigs = window.settings.getViewConfigs(
         window.settings.getDefaultView()
     )
+    viewFontConfigs = window.settings.getViewFontConfigs(
+        window.settings.getDefaultView()
+    )
     filter = new FeedFilter()
     feedId = ALL
     itemId = null as number
@@ -308,12 +331,18 @@ export function pageReducer(
                 ...state,
                 viewType: action.viewType,
                 viewConfigs: window.settings.getViewConfigs(action.viewType),
+                viewFontConfigs: window.settings.getViewFontConfigs(action.viewType),
                 itemId: null,
             }
         case SET_VIEW_CONFIGS:
             return {
                 ...state,
                 viewConfigs: action.configs,
+            }
+        case SET_VIEW_FONT_CONFIGS:
+            return {
+                ...state,
+                viewFontConfigs: action.configs,
             }
         case APPLY_FILTER:
             return {
