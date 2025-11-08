@@ -41,7 +41,7 @@ export class RSSItem {
     notify: boolean
     serviceRef?: string
 
-    constructor(item: MyParserItem, source: RSSSource) {
+    constructor(item: MyParserItem, source: RSSSource, index: number = 0) {
         for (let field of ["title", "link", "creator"]) {
             const content = item[field]
             if (content && typeof content !== "string") delete item[field]
@@ -50,7 +50,14 @@ export class RSSItem {
         this.title = item.title || intl.get("article.untitled")
         this.link = item.link || ""
         this.fetchedDate = new Date()
-        this.date = new Date(item.isoDate ?? item.pubDate ?? this.fetchedDate)
+        const fallbackDate = item.isoDate ?? item.pubDate
+        if (fallbackDate) {
+            this.date = new Date(fallbackDate)
+        } else {
+            // for items without pubDate: put them at the bottom while preserving feed order
+            const offsetMs = (100 * 365 * 24 * 60 * 60 * 1000) + (index * 1000)
+            this.date = new Date(this.fetchedDate.getTime() - offsetMs)
+        }
         this.creator = item.creator
         this.hasRead = false
         this.starred = false
