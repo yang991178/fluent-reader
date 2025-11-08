@@ -32,6 +32,11 @@ export const enum ViewConfigs {
     FadeRead = 1 << 2,
 }
 
+export interface ViewFontConfigs {
+    fontSize: number
+    fontFamily: string
+}
+
 export const enum ThemeSettings {
     Default = "system",
     Light = "light",
@@ -97,5 +102,8 @@ export type SchemaTypes = {
     serviceConfigs: ServiceConfigs
     filterType: number
     listViewConfigs: ViewConfigs
+    viewFontConfigs: Partial<Record<ViewType, ViewFontConfigs>>
     useNeDB: boolean
+    magazineWidth?: number
+    listPanelWidth?: number
 }

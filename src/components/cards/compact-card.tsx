@@ -12,27 +12,41 @@ const className = (props: Card.Props) => {
     return cn.join(" ")
 }
 
-const CompactCard: React.FunctionComponent<Card.Props> = props => (
-    <div
-        className={className(props)}
-        {...Card.bindEventsToProps(props)}
-        data-iid={props.item._id}
-        data-is-focusable>
-        <CardInfo source={props.source} item={props.item} hideTime />
-        <div className="data">
-            <span className="title">
-                <Highlights
-                    text={props.item.title}
-                    filter={props.filter}
-                    title
-                />
-            </span>
-            <span className="snippet">
-                <Highlights text={props.item.snippet} filter={props.filter} />
-            </span>
+const CompactCard: React.FunctionComponent<Card.Props> = props => {
+    const titleStyle: React.CSSProperties = {}
+    const snippetStyle: React.CSSProperties = {}
+
+    if (props.fontSize) {
+        titleStyle.fontSize = `${props.fontSize}px`
+        snippetStyle.fontSize = `${props.fontSize * 0.85}px`
+    }
+    if (props.fontFamily) {
+        titleStyle.fontFamily = props.fontFamily
+        snippetStyle.fontFamily = props.fontFamily
+    }
+
+    return (
+        <div
+            className={className(props)}
+            {...Card.bindEventsToProps(props)}
+            data-iid={props.item._id}
+            data-is-focusable>
+            <CardInfo source={props.source} item={props.item} hideTime />
+            <div className="data">
+                <span className="title" style={titleStyle}>
+                    <Highlights
+                        text={props.item.title}
+                        filter={props.filter}
+                        title
+                    />
+                </span>
+                <span className="snippet" style={snippetStyle}>
+                    <Highlights text={props.item.snippet} filter={props.filter} />
+                </span>
+            </div>
+            <Time date={props.item.date} />
         </div>
-        <Time date={props.item.date} />
-    </div>
-)
+    )
+}
 
 export default CompactCard

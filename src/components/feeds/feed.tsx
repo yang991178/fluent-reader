@@ -10,10 +10,13 @@ export type FeedProps = FeedReduxProps & {
     feed: RSSFeed
     viewType: ViewType
     viewConfigs?: ViewConfigs
+    fontSize?: number
+    fontFamily?: string
     items: RSSItem[]
     currentItem: number
     sourceMap: Object
     filter: FeedFilter
+    magazineWidth: number
     shortcuts: (item: RSSItem, e: KeyboardEvent) => void
     markRead: (item: RSSItem) => void
     contextMenu: (feedId: string, item: RSSItem, e) => void

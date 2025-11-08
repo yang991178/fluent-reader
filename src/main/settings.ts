@@ -8,6 +8,7 @@ import {
     SyncService,
     ServiceConfigs,
     ViewConfigs,
+    ViewFontConfigs,
 } from "../schema-types"
 import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
@@ -197,10 +198,44 @@ ipcMain.handle(
     }
 )
 
+const VIEW_FONT_CONFIGS_STORE_KEY = "viewFontConfigs"
+const DEFAULT_VIEW_FONT_CONFIGS: ViewFontConfigs = {
+    fontSize: 16,
+    fontFamily: "",
+}
+ipcMain.on("get-view-font-configs", (event, view: ViewType) => {
+    const allConfigs = store.get(VIEW_FONT_CONFIGS_STORE_KEY, {} as Partial<Record<ViewType, ViewFontConfigs>>)
+    event.returnValue = allConfigs[view] || DEFAULT_VIEW_FONT_CONFIGS
+})
+ipcMain.handle(
+    "set-view-font-configs",
+    (_, view: ViewType, configs: ViewFontConfigs) => {
+        const allConfigs = store.get(VIEW_FONT_CONFIGS_STORE_KEY, {} as Partial<Record<ViewType, ViewFontConfigs>>)
+        allConfigs[view] = configs
+        store.set(VIEW_FONT_CONFIGS_STORE_KEY, allConfigs)
+    }
+)
+
 const NEDB_STATUS_STORE_KEY = "useNeDB"
 ipcMain.on("get-nedb-status", event => {
     event.returnValue = store.get(NEDB_STATUS_STORE_KEY, true)
 })
 ipcMain.handle("set-nedb-status", (_, flag: boolean) => {
     store.set(NEDB_STATUS_STORE_KEY, flag)
+})
+
+const MAGAZINE_WIDTH_STORE_KEY = "magazineWidth"
+ipcMain.on("get-magazine-width", event => {
+    event.returnValue = store.get(MAGAZINE_WIDTH_STORE_KEY, 70)
+})
+ipcMain.handle("set-magazine-width", (_, width: number) => {
+    store.set(MAGAZINE_WIDTH_STORE_KEY, width)
+})
+
+const LIST_PANEL_WIDTH_STORE_KEY = "listPanelWidth"
+ipcMain.on("get-list-panel-width", event => {
+    event.returnValue = store.get(LIST_PANEL_WIDTH_STORE_KEY, 350)
+})
+ipcMain.handle("set-list-panel-width", (_, width: number) => {
+    store.set(LIST_PANEL_WIDTH_STORE_KEY, width)
 })

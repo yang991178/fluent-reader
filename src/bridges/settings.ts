@@ -5,6 +5,7 @@ import {
     SearchEngines,
     ServiceConfigs,
     ViewConfigs,
+    ViewFontConfigs,
 } from "../schema-types"
 import { ipcRenderer } from "electron"
 
@@ -117,11 +118,32 @@ const settingsBridge = {
         ipcRenderer.invoke("set-view-configs", view, configs)
     },
 
+    getViewFontConfigs: (view: ViewType): ViewFontConfigs => {
+        return ipcRenderer.sendSync("get-view-font-configs", view)
+    },
+    setViewFontConfigs: (view: ViewType, configs: ViewFontConfigs) => {
+        ipcRenderer.invoke("set-view-font-configs", view, configs)
+    },
+
     getNeDBStatus: (): boolean => {
         return ipcRenderer.sendSync("get-nedb-status")
     },
     setNeDBStatus: (flag: boolean) => {
         ipcRenderer.invoke("set-nedb-status", flag)
+    },
+
+    getMagazineWidth: (): number => {
+        return ipcRenderer.sendSync("get-magazine-width")
+    },
+    setMagazineWidth: (width: number) => {
+        ipcRenderer.invoke("set-magazine-width", width)
+    },
+
+    getListPanelWidth: (): number => {
+        return ipcRenderer.sendSync("get-list-panel-width")
+    },
+    setListPanelWidth: (width: number) => {
+        ipcRenderer.invoke("set-list-panel-width", width)
     },
 
     getAll: () => {

@@ -24,6 +24,8 @@ class ListFeed extends React.Component<FeedProps> {
             source: this.props.sourceMap[item.source],
             filter: this.props.filter,
             viewConfigs: this.props.viewConfigs,
+            fontSize: this.props.fontSize,
+            fontFamily: this.props.fontFamily,
             shortcuts: this.props.shortcuts,
             markRead: this.props.markRead,
             contextMenu: this.props.contextMenu,
@@ -38,7 +40,7 @@ class ListFeed extends React.Component<FeedProps> {
 
         switch (this.props.viewType) {
             case ViewType.Magazine:
-                return <MagazineCard {...props} />
+                return <MagazineCard {...props} magazineWidth={this.props.magazineWidth} />
             case ViewType.Compact:
                 return <CompactCard {...props} />
             default:
