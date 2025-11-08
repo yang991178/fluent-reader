@@ -15,36 +15,50 @@ const className = (props: Card.Props) => {
     return cn.join(" ")
 }
 
-const ListCard: React.FunctionComponent<Card.Props> = props => (
-    <div
-        className={className(props)}
-        {...Card.bindEventsToProps(props)}
-        data-iid={props.item._id}
-        data-is-focusable>
-        {props.item.thumb && props.viewConfigs & ViewConfigs.ShowCover ? (
-            <div className="head">
-                <img src={props.item.thumb} />
-            </div>
-        ) : null}
-        <div className="data">
-            <CardInfo source={props.source} item={props.item} />
-            <h3 className="title">
-                <Highlights
-                    text={props.item.title}
-                    filter={props.filter}
-                    title
-                />
-            </h3>
-            {Boolean(props.viewConfigs & ViewConfigs.ShowSnippet) && (
-                <p className="snippet">
+const ListCard: React.FunctionComponent<Card.Props> = props => {
+    const titleStyle: React.CSSProperties = {}
+    const snippetStyle: React.CSSProperties = {}
+
+    if (props.fontSize) {
+        titleStyle.fontSize = `${props.fontSize}px`
+        snippetStyle.fontSize = `${props.fontSize * 0.85}px`
+    }
+    if (props.fontFamily) {
+        titleStyle.fontFamily = props.fontFamily
+        snippetStyle.fontFamily = props.fontFamily
+    }
+
+    return (
+        <div
+            className={className(props)}
+            {...Card.bindEventsToProps(props)}
+            data-iid={props.item._id}
+            data-is-focusable>
+            {props.item.thumb && props.viewConfigs & ViewConfigs.ShowCover ? (
+                <div className="head">
+                    <img src={props.item.thumb} />
+                </div>
+            ) : null}
+            <div className="data">
+                <CardInfo source={props.source} item={props.item} />
+                <h3 className="title" style={titleStyle}>
                     <Highlights
-                        text={props.item.snippet}
+                        text={props.item.title}
                         filter={props.filter}
+                        title
                     />
-                </p>
-            )}
+                </h3>
+                {Boolean(props.viewConfigs & ViewConfigs.ShowSnippet) && (
+                    <p className="snippet" style={snippetStyle}>
+                        <Highlights
+                            text={props.item.snippet}
+                            filter={props.filter}
+                        />
+                    </p>
+                )}
+            </div>
         </div>
-    </div>
-)
+    )
+}
 
 export default ListCard

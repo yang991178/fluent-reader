@@ -5,6 +5,7 @@ import {
     SearchEngines,
     ServiceConfigs,
     ViewConfigs,
+    ViewFontConfigs,
 } from "../schema-types"
 import { ipcRenderer } from "electron"
 
@@ -115,6 +116,13 @@ const settingsBridge = {
     },
     setViewConfigs: (view: ViewType, configs: ViewConfigs) => {
         ipcRenderer.invoke("set-view-configs", view, configs)
+    },
+
+    getViewFontConfigs: (view: ViewType): ViewFontConfigs => {
+        return ipcRenderer.sendSync("get-view-font-configs", view)
+    },
+    setViewFontConfigs: (view: ViewType, configs: ViewFontConfigs) => {
+        ipcRenderer.invoke("set-view-font-configs", view, configs)
     },
 
     getNeDBStatus: (): boolean => {

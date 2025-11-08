@@ -24,6 +24,8 @@ class ListFeed extends React.Component<FeedProps> {
             source: this.props.sourceMap[item.source],
             filter: this.props.filter,
             viewConfigs: this.props.viewConfigs,
+            fontSize: this.props.fontSize,
+            fontFamily: this.props.fontFamily,
             shortcuts: this.props.shortcuts,
             markRead: this.props.markRead,
             contextMenu: this.props.contextMenu,

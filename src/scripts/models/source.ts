@@ -69,19 +69,24 @@ export class RSSSource {
 
     private static async checkItem(
         source: RSSSource,
-        item: MyParserItem
+        item: MyParserItem,
+        index: number = 0
     ): Promise<RSSItem> {
-        let i = new RSSItem(item, source)
+        let i = new RSSItem(item, source, index)
+        const predicate = i.link
+            ? lf.op.and(
+                db.items.source.eq(i.source),
+                db.items.link.eq(i.link)
+            )
+            : lf.op.and(
+                db.items.source.eq(i.source),
+                db.items.title.eq(i.title),
+                db.items.date.eq(i.date)
+            )
         const items = (await db.itemsDB
             .select()
             .from(db.items)
-            .where(
-                lf.op.and(
-                    db.items.source.eq(i.source),
-                    db.items.title.eq(i.title),
-                    db.items.date.eq(i.date)
-                )
-            )
+            .where(predicate)
             .limit(1)
             .exec()) as RSSItem[]
         if (items.length === 0) {
@@ -99,8 +104,8 @@ export class RSSSource {
     ): Promise<RSSItem[]> {
         return new Promise<RSSItem[]>((resolve, reject) => {
             let p = new Array<Promise<RSSItem>>()
-            for (let item of items) {
-                p.push(this.checkItem(source, item))
+            for (let i = 0; i < items.length; i++) {
+                p.push(this.checkItem(source, items[i], i))
             }
             Promise.all(p)
                 .then(values => {

@@ -27,11 +27,14 @@ import { FilterType } from "../scripts/models/feed"
 import { useAppDispatch, useAppSelector } from "../scripts/reducer"
 import {
     setViewConfigs,
+    setViewFontConfigs,
     showItem,
     switchFilter,
     switchView,
     toggleFilter,
 } from "../scripts/models/page"
+
+const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
 export const shareSubmenu = (item: RSSItem): IContextualMenuItem[] => [
     { key: "qr", url: item.link, onRender: renderShareQR },
@@ -362,6 +365,7 @@ function ImageContextMenu() {
 function ViewContextMenu() {
     const dispatch = useAppDispatch()
     const viewType = useAppSelector(state => state.page.viewType)
+    const viewFontConfigs = useAppSelector(state => state.page.viewFontConfigs)
     const filter = useAppSelector(state => state.page.filter.type)
 
     const menuItems: IContextualMenuItem[] = [
@@ -403,6 +407,50 @@ function ViewContextMenu() {
                         canCheck: true,
                         checked: viewType === ViewType.Compact,
                         onClick: () => dispatch(switchView(ViewType.Compact)),
+                    },
+                    {
+                        key: "divider_1",
+                        itemType: ContextualMenuItemType.Divider,
+                    },
+                    {
+                        key: "fontFamily",
+                        text: intl.get("article.font"),
+                        iconProps: { iconName: "Font" },
+                        subMenuProps: {
+                            items: window.fontList.map((font, idx) => ({
+                                key: String(idx),
+                                text: font === "" ? intl.get("default") : font,
+                                canCheck: true,
+                                checked: font === viewFontConfigs.fontFamily,
+                                onClick: () =>
+                                    dispatch(
+                                        setViewFontConfigs({
+                                            ...viewFontConfigs,
+                                            fontFamily: font,
+                                        })
+                                    ),
+                            })),
+                        },
+                    },
+                    {
+                        key: "fontSize",
+                        text: intl.get("article.fontSize"),
+                        iconProps: { iconName: "FontSize" },
+                        subMenuProps: {
+                            items: FONT_SIZE_OPTIONS.map(size => ({
+                                key: String(size),
+                                text: String(size),
+                                canCheck: true,
+                                checked: size === viewFontConfigs.fontSize,
+                                onClick: () =>
+                                    dispatch(
+                                        setViewFontConfigs({
+                                            ...viewFontConfigs,
+                                            fontSize: size,
+                                        })
+                                    ),
+                            })),
+                        },
                     },
                 ],
             },
