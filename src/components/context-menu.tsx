@@ -13,7 +13,7 @@ import {
     ContextualMenuItemType,
     DirectionalHint,
 } from "office-ui-fabric-react/lib/ContextualMenu"
-import { closeContextMenu, ContextMenuType } from "../scripts/models/app"
+import { closeContextMenu, ContextMenuType, setMagazineWidth } from "../scripts/models/app"
 import {
     markAllRead,
     markRead,
@@ -35,6 +35,7 @@ import {
 } from "../scripts/models/page"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
+const MAGAZINE_WIDTH_OPTIONS = [50, 55, 60, 65, 70, 75, 80, 85, 90, 95]
 
 export const shareSubmenu = (item: RSSItem): IContextualMenuItem[] => [
     { key: "qr", url: item.link, onRender: renderShareQR },
@@ -367,6 +368,7 @@ function ViewContextMenu() {
     const viewType = useAppSelector(state => state.page.viewType)
     const viewFontConfigs = useAppSelector(state => state.page.viewFontConfigs)
     const filter = useAppSelector(state => state.page.filter.type)
+    const magazineWidth = useAppSelector(state => state.app.magazineWidth)
 
     const menuItems: IContextualMenuItem[] = [
         {
@@ -412,6 +414,20 @@ function ViewContextMenu() {
                         key: "divider_1",
                         itemType: ContextualMenuItemType.Divider,
                     },
+                    ...(viewType === ViewType.Magazine ? [{
+                        key: "magazineWidth",
+                        text: "Width",
+                        iconProps: { iconName: "FullWidth" },
+                        subMenuProps: {
+                            items: MAGAZINE_WIDTH_OPTIONS.map(width => ({
+                                key: String(width),
+                                text: `${width}%`,
+                                canCheck: true,
+                                checked: width === magazineWidth,
+                                onClick: () => dispatch(setMagazineWidth(width)),
+                            })),
+                        },
+                    }] : []),
                     {
                         key: "fontFamily",
                         text: intl.get("article.font"),

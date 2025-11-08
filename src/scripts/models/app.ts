@@ -86,6 +86,8 @@ export class AppState {
     menu = getWindowBreakpoint() && window.settings.getDefaultMenu()
     menuKey = ALL
     title = ""
+    magazineWidth = window.settings.getMagazineWidth()
+    listPanelWidth = window.settings.getListPanelWidth()
     settings = {
         display: false,
         changed: false,
@@ -208,6 +210,21 @@ export type SettingsActionTypes =
     | SaveSettingsAction
     | FreeMemoryAction
 
+export const SET_MAGAZINE_WIDTH = "SET_MAGAZINE_WIDTH"
+export const SET_LIST_PANEL_WIDTH = "SET_LIST_PANEL_WIDTH"
+
+interface SetMagazineWidthAction {
+    type: typeof SET_MAGAZINE_WIDTH
+    width: number
+}
+interface SetListPanelWidthAction {
+    type: typeof SET_LIST_PANEL_WIDTH
+    width: number
+}
+export type ViewWidthActionTypes =
+    | SetMagazineWidthAction
+    | SetListPanelWidthAction
+
 export function closeContextMenu(): AppThunk {
     return (dispatch, getState) => {
         if (getState().app.contextMenu.type !== ContextMenuType.Hidden) {
@@ -284,6 +301,26 @@ export const toggleSettings = (open = true, sids = new Array<number>()) => ({
     open: open,
     sids: sids,
 })
+
+export function setMagazineWidth(width: number): AppThunk {
+    return (dispatch) => {
+        window.settings.setMagazineWidth(width)
+        dispatch({
+            type: SET_MAGAZINE_WIDTH,
+            width: width,
+        })
+    }
+}
+
+export function setListPanelWidth(width: number): AppThunk {
+    return (dispatch) => {
+        window.settings.setListPanelWidth(width)
+        dispatch({
+            type: SET_LIST_PANEL_WIDTH,
+            width: width,
+        })
+    }
+}
 
 export function exitSettings(): AppThunk<Promise<void>> {
     return async (dispatch, getState) => {
@@ -426,6 +463,7 @@ export function appReducer(
         | PageActionTypes
         | SourceGroupActionTypes
         | ServiceActionTypes
+        | ViewWidthActionTypes
 ): AppState {
     switch (action.type) {
         case INIT_INTL:
@@ -706,6 +744,16 @@ export function appReducer(
                         ),
                     ],
                 },
+            }
+        case SET_MAGAZINE_WIDTH:
+            return {
+                ...state,
+                magazineWidth: action.width,
+            }
+        case SET_LIST_PANEL_WIDTH:
+            return {
+                ...state,
+                listPanelWidth: action.width,
             }
         default:
             return state

@@ -4,6 +4,7 @@ import { AnimationClassNames, Icon, FocusTrapZone } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
 import { ViewType } from "../schema-types"
 import ArticleSearch from "./utils/article-search"
+import ResizeHandle from "./utils/resize-handle"
 
 type PageProps = {
     menuOn: boolean
@@ -13,17 +14,38 @@ type PageProps = {
     itemId: number
     itemFromFeed: boolean
     viewType: ViewType
+    listPanelWidth: number
     dismissItem: () => void
     offsetItem: (offset: number) => void
+    setListPanelWidth: (width: number) => void
 }
 
-class Page extends React.Component<PageProps> {
+type PageState = {
+    isResizing: boolean
+}
+
+class Page extends React.Component<PageProps, PageState> {
+    constructor(props: PageProps) {
+        super(props)
+        this.state = {
+            isResizing: false,
+        }
+    }
+
     offsetItem = (event: React.MouseEvent, offset: number) => {
         event.stopPropagation()
         this.props.offsetItem(offset)
     }
     prevItem = (event: React.MouseEvent) => this.offsetItem(event, -1)
     nextItem = (event: React.MouseEvent) => this.offsetItem(event, 1)
+
+    handleResizeDragStart = () => {
+        this.setState({ isResizing: true })
+    }
+
+    handleResizeDragEnd = () => {
+        this.setState({ isResizing: false })
+    }
 
     render = () =>
         this.props.viewType !== ViewType.List ? (
@@ -82,7 +104,9 @@ class Page extends React.Component<PageProps> {
                             "list-main" + (this.props.menuOn ? " menu-on" : "")
                         }>
                         <ArticleSearch />
-                        <div className="list-feed-container">
+                        <div
+                            className="list-feed-container"
+                            style={{ width: `${this.props.listPanelWidth}px` }}>
                             {this.props.feeds.map(fid => (
                                 <FeedContainer
                                     viewType={this.props.viewType}
@@ -91,7 +115,14 @@ class Page extends React.Component<PageProps> {
                                 />
                             ))}
                         </div>
-                        {this.props.itemId ? (
+                        <ResizeHandle
+                            onResize={this.props.setListPanelWidth}
+                            minWidth={300}
+                            maxWidthPercent={50}
+                            onDragStart={this.handleResizeDragStart}
+                            onDragEnd={this.handleResizeDragEnd}
+                        />
+                        {this.props.itemId && !this.state.isResizing ? (
                             <div className="side-article-wrapper">
                                 <ArticleContainer itemId={this.props.itemId} />
                             </div>

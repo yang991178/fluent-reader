@@ -15,6 +15,7 @@ const className = (props: Card.Props) => {
 const MagazineCard: React.FunctionComponent<Card.Props> = props => {
     const titleStyle: React.CSSProperties = {}
     const snippetStyle: React.CSSProperties = {}
+    const cardStyle: React.CSSProperties = {}
 
     if (props.fontSize) {
         titleStyle.fontSize = `${props.fontSize}px`
@@ -24,10 +25,15 @@ const MagazineCard: React.FunctionComponent<Card.Props> = props => {
         titleStyle.fontFamily = props.fontFamily
         snippetStyle.fontFamily = props.fontFamily
     }
+    if (props.magazineWidth) {
+        cardStyle.width = `${props.magazineWidth}%`
+        cardStyle.margin = '0 auto'
+    }
 
     return (
         <div
             className={className(props)}
+            style={cardStyle}
             {...Card.bindEventsToProps(props)}
             data-iid={props.item._id}
             data-is-focusable>

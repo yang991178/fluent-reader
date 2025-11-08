@@ -15,6 +15,7 @@ export namespace Card {
         viewConfigs?: ViewConfigs
         fontSize?: number
         fontFamily?: string
+        magazineWidth?: number
         shortcuts: (item: RSSItem, e: KeyboardEvent) => void
         markRead: (item: RSSItem) => void
         contextMenu: (feedId: string, item: RSSItem, e) => void

@@ -132,6 +132,20 @@ const settingsBridge = {
         ipcRenderer.invoke("set-nedb-status", flag)
     },
 
+    getMagazineWidth: (): number => {
+        return ipcRenderer.sendSync("get-magazine-width")
+    },
+    setMagazineWidth: (width: number) => {
+        ipcRenderer.invoke("set-magazine-width", width)
+    },
+
+    getListPanelWidth: (): number => {
+        return ipcRenderer.sendSync("get-list-panel-width")
+    },
+    setListPanelWidth: (width: number) => {
+        ipcRenderer.invoke("set-list-panel-width", width)
+    },
+
     getAll: () => {
         return ipcRenderer.sendSync("get-all-settings") as Object
     },

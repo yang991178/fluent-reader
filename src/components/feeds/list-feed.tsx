@@ -40,7 +40,7 @@ class ListFeed extends React.Component<FeedProps> {
 
         switch (this.props.viewType) {
             case ViewType.Magazine:
-                return <MagazineCard {...props} />
+                return <MagazineCard {...props} magazineWidth={this.props.magazineWidth} />
             case ViewType.Compact:
                 return <CompactCard {...props} />
             default:

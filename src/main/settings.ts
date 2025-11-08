@@ -223,3 +223,19 @@ ipcMain.on("get-nedb-status", event => {
 ipcMain.handle("set-nedb-status", (_, flag: boolean) => {
     store.set(NEDB_STATUS_STORE_KEY, flag)
 })
+
+const MAGAZINE_WIDTH_STORE_KEY = "magazineWidth"
+ipcMain.on("get-magazine-width", event => {
+    event.returnValue = store.get(MAGAZINE_WIDTH_STORE_KEY, 70)
+})
+ipcMain.handle("set-magazine-width", (_, width: number) => {
+    store.set(MAGAZINE_WIDTH_STORE_KEY, width)
+})
+
+const LIST_PANEL_WIDTH_STORE_KEY = "listPanelWidth"
+ipcMain.on("get-list-panel-width", event => {
+    event.returnValue = store.get(LIST_PANEL_WIDTH_STORE_KEY, 350)
+})
+ipcMain.handle("set-list-panel-width", (_, width: number) => {
+    store.set(LIST_PANEL_WIDTH_STORE_KEY, width)
+})
