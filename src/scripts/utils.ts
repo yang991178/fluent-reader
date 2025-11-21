@@ -275,3 +275,64 @@ export function initTouchBarWithTexts() {
         notifications: intl.get("nav.notifications"),
     })
 }
+
+// Google Translate API를 사용한 번역 함수
+export async function translateText(
+    text: string,
+    targetLang: string = 'ko',
+    sourceLang: string = 'auto'
+): Promise<string> {
+    // 설정에서 API 키 가져오기
+    const API_KEY = window.settings.getGoogleTranslateApiKey()
+    
+    if (!API_KEY || API_KEY.trim() === '') {
+        throw new Error('API 키가 설정되지 않았습니다. 설정 화면에서 Google Translate API 키를 입력해주세요.')
+    }
+    
+    // HTML 태그 제거
+    const plainText = text.replace(/<[^>]*>/g, '').trim()
+    
+    if (!plainText) {
+        throw new Error('번역할 텍스트가 없습니다.')
+    }
+    
+    // 텍스트가 너무 길면 잘라내기 (Google API 제한: 5000자)
+    const maxLength = 5000
+    const textToTranslate = plainText.length > maxLength 
+        ? plainText.substring(0, maxLength) + '...' 
+        : plainText
+    
+    try {
+        const response = await fetch(
+            `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    q: textToTranslate,
+                    target: targetLang,
+                    format: 'text'
+                })
+            }
+        )
+        
+        if (!response.ok) {
+            if (response.status === 400) {
+                throw new Error('잘못된 API 키입니다.')
+            } else if (response.status === 403) {
+                throw new Error('API 키 권한이 없습니다. Cloud Translation API가 활성화되어 있는지 확인하세요.')
+            } else if (response.status === 429) {
+                throw new Error('API 요청 한도를 초과했습니다.')
+            }
+            throw new Error(`번역 오류: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        return data.data.translations[0].translatedText
+    } catch (error) {
+        console.error('Translation failed:', error)
+        throw error
+    }
+}

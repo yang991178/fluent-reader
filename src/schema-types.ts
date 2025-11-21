@@ -98,4 +98,5 @@ export type SchemaTypes = {
     filterType: number
     listViewConfigs: ViewConfigs
     useNeDB: boolean
+    googleTranslateApiKey: string  // 번역 기능을 위한 Google API 키
 }

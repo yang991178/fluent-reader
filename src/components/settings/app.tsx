@@ -23,6 +23,7 @@ import {
     Dropdown,
     IDropdownOption,
     PrimaryButton,
+    Link,
 } from "@fluentui/react"
 import DangerButton from "../utils/danger-button"
 
@@ -40,6 +41,7 @@ type AppTabState = {
     itemSize: string
     cacheSize: string
     deleteIndex: string
+    googleTranslateApiKey: string
 }
 
 class AppTab extends React.Component<AppTabProps, AppTabState> {
@@ -52,6 +54,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             itemSize: null,
             cacheSize: null,
             deleteIndex: null,
+            googleTranslateApiKey: window.settings.getGoogleTranslateApiKey(),
         }
         this.getItemSize()
         this.getCacheSize()
@@ -173,6 +176,10 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         this.setState({ themeSettings: option.key as ThemeSettings })
     }
 
+    saveApiKey = () => {
+        window.settings.setGoogleTranslateApiKey(this.state.googleTranslateApiKey)
+    }
+
     render = () => (
         <div className="tab-body">
             <Label>{intl.get("app.language")}</Label>
@@ -219,6 +226,36 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                     />
                 </Stack.Item>
             </Stack>
+
+            <Label>Google Translate API Key</Label>
+            <Stack horizontal>
+                <Stack.Item grow>
+                    <TextField
+                        type="password"
+                        placeholder="AIzaSy..."
+                        name="googleTranslateApiKey"
+                        value={this.state.googleTranslateApiKey}
+                        onChange={this.handleInputChange}
+                    />
+                </Stack.Item>
+                <Stack.Item>
+                    <DefaultButton
+                        text={intl.get("confirm") || "Save"}
+                        onClick={this.saveApiKey}
+                    />
+                </Stack.Item>
+            </Stack>
+            <span className="settings-hint up">
+                Get your API key from{" "}
+                <Link
+                    onClick={() =>
+                        window.utils.openExternal(
+                            "https://console.cloud.google.com/"
+                        )
+                    }>
+                    Google Cloud Console
+                </Link>
+            </span>
 
             <Stack horizontal verticalAlign="baseline">
                 <Stack.Item grow>

@@ -204,3 +204,12 @@ ipcMain.on("get-nedb-status", event => {
 ipcMain.handle("set-nedb-status", (_, flag: boolean) => {
     store.set(NEDB_STATUS_STORE_KEY, flag)
 })
+
+// Google Translate API 키 관련 핸들러
+const GOOGLE_TRANSLATE_API_KEY_STORE_KEY = "googleTranslateApiKey"
+ipcMain.on("get-google-translate-api-key", event => {
+    event.returnValue = store.get(GOOGLE_TRANSLATE_API_KEY_STORE_KEY, "")
+})
+ipcMain.handle("set-google-translate-api-key", (_, apiKey: string) => {
+    store.set(GOOGLE_TRANSLATE_API_KEY_STORE_KEY, apiKey)
+})

@@ -18,7 +18,7 @@ import {
     SourceTextDirection,
 } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
-import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
+import { platformCtrl, decodeFetchResponse, translateText } from "../scripts/utils"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -50,6 +50,9 @@ type ArticleState = {
     loaded: boolean
     error: boolean
     errorDescription: string
+    isTranslated: boolean
+    translatedContent: string
+    isTranslating: boolean
 }
 
 class Article extends React.Component<ArticleProps, ArticleState> {
@@ -66,6 +69,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             loaded: false,
             error: false,
             errorDescription: "",
+            isTranslated: false,
+            translatedContent: "",
+            isTranslating: false,
         }
         window.utils.addWebviewContextListener(this.contextMenuHandler)
         window.utils.addWebviewKeydownListener(this.keyDownHandler)
@@ -139,6 +145,29 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             },
         ],
     })
+
+    handleTranslate = async () => {
+        if (this.state.isTranslated) {
+            this.setState({ isTranslated: false })
+            return
+        }
+        
+        this.setState({ isTranslating: true })
+        try {
+            const contentToTranslate = this.state.loadFull 
+                ? this.state.fullContent 
+                : this.props.item.content
+            const translated = await translateText(contentToTranslate, 'ko')
+            this.setState({ 
+                translatedContent: translated,
+                isTranslated: true,
+                isTranslating: false
+            })
+        } catch (error) {
+            alert('번역 실패: ' + error.message)
+            this.setState({ isTranslating: false })
+        }
+    }
 
     moreMenuProps = (): IContextualMenuProps => ({
         items: [
@@ -233,6 +262,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 case "h":
                     if (!input.meta) this.props.toggleHidden(this.props.item)
                     break
+                case "t":
+                case "T":
+                    this.handleTranslate()
+                    break
                 default:
                     const keyboardEvent = new KeyboardEvent("keydown", {
                         code: input.code,
@@ -290,6 +323,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 loadFull:
                     this.props.source.openTarget ===
                     SourceOpenTarget.FullContent,
+                isTranslated: false,
+                translatedContent: "",
             })
             if (this.props.source.openTarget === SourceOpenTarget.FullContent)
                 this.loadFull()
@@ -348,11 +383,11 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     articleView = () => {
-        const a = encodeURIComponent(
-            this.state.loadFull
-                ? this.state.fullContent
-                : this.props.item.content
-        )
+        let content = this.state.loadFull ? this.state.fullContent : this.props.item.content
+        if (this.state.isTranslated) {
+            content = this.state.translatedContent
+        }
+        const a = encodeURIComponent(content)
         const h = encodeURIComponent(
             renderToString(
                 <>
@@ -440,6 +475,13 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         }
                     />
                     <CommandBarButton
+                        title={this.state.isTranslating ? "Translating..." : (this.state.isTranslated ? "Show Original (T)" : "Translate to Korean (T)")}
+                        className={this.state.isTranslated ? "active" : ""}
+                        iconProps={{ iconName: "LocaleLanguage" }}
+                        disabled={this.state.isTranslating || this.state.loadWebpage}
+                        onClick={this.handleTranslate}
+                    />
+                    <CommandBarButton
                         title={intl.get("article.loadFull")}
                         className={this.state.loadFull ? "active" : ""}
                         iconProps={{ iconName: "RawSource" }}
@@ -473,7 +515,8 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     key={
                         this.props.item._id +
                         (this.state.loadWebpage ? "_" : "") +
-                        (this.state.loadFull ? "__" : "")
+                        (this.state.loadFull ? "__" : "") +
+                        (this.state.isTranslated ? "___" : "")
                     }
                     src={
                         this.state.loadWebpage

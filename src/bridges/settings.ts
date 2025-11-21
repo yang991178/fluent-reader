@@ -124,6 +124,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-nedb-status", flag)
     },
 
+    getGoogleTranslateApiKey: (): string => {
+        return ipcRenderer.sendSync("get-google-translate-api-key")
+    },
+    setGoogleTranslateApiKey: (apiKey: string) => {
+        ipcRenderer.invoke("set-google-translate-api-key", apiKey)
+    },
+
     getAll: () => {
         return ipcRenderer.sendSync("get-all-settings") as Object
     },
