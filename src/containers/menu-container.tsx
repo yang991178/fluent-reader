@@ -3,7 +3,7 @@ import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { Menu } from "../components/menu"
 import { toggleMenu, openGroupMenu } from "../scripts/models/app"
-import { toggleGroupExpansion } from "../scripts/models/group"
+import { toggleGroupExpansion, sortSourceGroups, SortOption } from "../scripts/models/group"
 import { SourceGroup } from "../schema-types"
 import {
     selectAllArticles,
@@ -61,6 +61,7 @@ const mapDispatchToProps = dispatch => ({
         }
     },
     toggleSearch: () => dispatch(toggleSearch()),
+    sortGroups: (sortOption: SortOption) => dispatch(sortSourceGroups(sortOption)),
 })
 
 const MenuContainer = connect(mapStateToProps, mapDispatchToProps)(Menu)

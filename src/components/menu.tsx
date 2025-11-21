@@ -5,7 +5,8 @@ import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
 import { SourceGroup } from "../schema-types"
 import { SourceState, RSSSource } from "../scripts/models/source"
 import { ALL } from "../scripts/models/feed"
-import { AnimationClassNames, Stack, FocusZone } from "@fluentui/react"
+import { AnimationClassNames, Stack, FocusZone, Dropdown, IDropdownOption } from "@fluentui/react"
+import { SortOption } from "../scripts/models/group"
 
 export type MenuProps = {
     status: boolean
@@ -26,10 +27,35 @@ export type MenuProps = {
         selected: string
     ) => void
     toggleSearch: () => void
+    sortGroups: (sortOption: SortOption) => void
 }
 
-export class Menu extends React.Component<MenuProps> {
+type MenuState = {
+    sortOption: SortOption
+}
+
+export class Menu extends React.Component<MenuProps, MenuState> {
+    constructor(props: MenuProps) {
+        super(props)
+        this.state = {
+            sortOption: SortOption.Default
+        }
+    }
+
     countOverflow = (count: number) => (count >= 1000 ? " 999+" : ` ${count}`)
+
+    sortOptions = (): IDropdownOption[] => [
+        { key: SortOption.Default, text: intl.get("menu.sortDefault") || "기본 순서" },
+        { key: SortOption.Alphabetical, text: intl.get("menu.sortAlphabetical") || "이름순 (A→Z)" },
+        { key: SortOption.UnreadCountDesc, text: intl.get("menu.sortUnreadDesc") || "미읽음 많은 순" },
+        { key: SortOption.UnreadCountAsc, text: intl.get("menu.sortUnreadAsc") || "미읽음 적은 순" },
+    ]
+
+    onSortChange = (_, option: IDropdownOption) => {
+        const sortOption = option.key as SortOption
+        this.setState({ sortOption })
+        this.props.sortGroups(sortOption)
+    }
 
     getLinkGroups = (): INavLinkGroup[] => [
         {
@@ -177,6 +203,28 @@ export class Menu extends React.Component<MenuProps> {
                                     }
                                 />
                             </a>
+                            <div style={{ flex: 1 }}></div>
+                            <Dropdown
+                                placeholder={intl.get("menu.sort") || "정렬"}
+                                selectedKey={this.state.sortOption}
+                                options={this.sortOptions()}
+                                onChange={this.onSortChange}
+                                styles={{
+                                    dropdown: { 
+                                        width: 140,
+                                        border: 'none',
+                                        fontSize: 13,
+                                    },
+                                    title: {
+                                        border: 'none',
+                                        backgroundColor: 'transparent',
+                                        fontSize: 13,
+                                    },
+                                    caretDownWrapper: {
+                                        fontSize: 10,
+                                    }
+                                }}
+                            />
                         </div>
                         <FocusZone
                             as="div"

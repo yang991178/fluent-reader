@@ -24,6 +24,13 @@ export const REORDER_SOURCE_GROUPS = "REORDER_SOURCE_GROUPS"
 export const DELETE_SOURCE_GROUP = "DELETE_SOURCE_GROUP"
 export const TOGGLE_GROUP_EXPANSION = "TOGGLE_GROUP_EXPANSION"
 
+export enum SortOption {
+    Default = 0,
+    Alphabetical = 1,
+    UnreadCountDesc = 2,
+    UnreadCountAsc = 3,
+}
+
 interface CreateSourceGroupAction {
     type: typeof CREATE_SOURCE_GROUP
     group: SourceGroup
@@ -178,6 +185,69 @@ export function reorderSourceGroups(groups: SourceGroup[]): AppThunk {
     return (dispatch, getState) => {
         dispatch(reorderSourceGroupsDone(groups))
         window.settings.saveGroups(getState().groups)
+    }
+}
+
+export function sortSourceGroups(sortOption: SortOption): AppThunk {
+    return (dispatch, getState) => {
+        const state = getState()
+        const groups = [...state.groups]
+        const sources = state.sources
+
+        switch (sortOption) {
+            case SortOption.Alphabetical:
+                // 이름순 정렬 (한글, 영어, 일본어, 중국어 자동 정렬)
+                groups.sort((a, b) => {
+                    const nameA = a.isMultiple
+                        ? a.name
+                        : sources[a.sids[0]]?.name || ""
+                    const nameB = b.isMultiple
+                        ? b.name
+                        : sources[b.sids[0]]?.name || ""
+                    return nameA.localeCompare(nameB, undefined, {
+                        numeric: true,
+                        sensitivity: "base",
+                    })
+                })
+                break
+
+            case SortOption.UnreadCountDesc:
+                // 미읽음 많은 순
+                groups.sort((a, b) => {
+                    const countA = a.sids.reduce(
+                        (sum, sid) => sum + (sources[sid]?.unreadCount || 0),
+                        0
+                    )
+                    const countB = b.sids.reduce(
+                        (sum, sid) => sum + (sources[sid]?.unreadCount || 0),
+                        0
+                    )
+                    return countB - countA
+                })
+                break
+
+            case SortOption.UnreadCountAsc:
+                // 미읽음 적은 순
+                groups.sort((a, b) => {
+                    const countA = a.sids.reduce(
+                        (sum, sid) => sum + (sources[sid]?.unreadCount || 0),
+                        0
+                    )
+                    const countB = b.sids.reduce(
+                        (sum, sid) => sum + (sources[sid]?.unreadCount || 0),
+                        0
+                    )
+                    return countA - countB
+                })
+                break
+
+            case SortOption.Default:
+            default:
+                // 기본값 (변경 없음)
+                return
+        }
+
+        dispatch(reorderSourceGroups(groups))
     }
 }
 
