@@ -50,7 +50,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     constructor(props) {
         super(props)
         const currentInterval = window.settings.getFetchInterval()
-        const isCustomInterval = ![0, 10, 15, 20, 30, 45, 60].includes(currentInterval)
+        const isCustomInterval = ![0, 1, 10, 15, 20, 30, 45, 60].includes(currentInterval)
         
         this.state = {
             pacStatus: window.settings.getProxyStatus(),
@@ -92,6 +92,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
 
     fetchIntervalOptions = (): IDropdownOption[] => [
         { key: 0, text: intl.get("app.never") },
+        { key: 1, text: intl.get("time.minute", { m: 1 }) },
         { key: 10, text: intl.get("time.minute", { m: 10 }) },
         { key: 15, text: intl.get("time.minute", { m: 15 }) },
         { key: 20, text: intl.get("time.minute", { m: 20 }) },
@@ -224,7 +225,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
 
     getCurrentIntervalKey = (): number => {
         const current = window.settings.getFetchInterval()
-        const standardValues = [0, 10, 15, 20, 30, 45, 60]
+        const standardValues = [0, 1, 10, 15, 20, 30, 45, 60]
         return standardValues.includes(current) ? current : -1
     }
 

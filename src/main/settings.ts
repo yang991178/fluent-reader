@@ -138,9 +138,10 @@ ipcMain.on("get-all-settings", event => {
     event.returnValue = output
 })
 
+//수정: 1분 기본값
 const FETCH_INTEVAL_STORE_KEY = "fetchInterval"
 ipcMain.on("get-fetch-interval", event => {
-    event.returnValue = store.get(FETCH_INTEVAL_STORE_KEY, 0)
+    event.returnValue = store.get(FETCH_INTEVAL_STORE_KEY, 1)
 })
 ipcMain.handle("set-fetch-interval", (_, interval: number) => {
     store.set(FETCH_INTEVAL_STORE_KEY, interval)
@@ -205,11 +206,11 @@ ipcMain.handle("set-nedb-status", (_, flag: boolean) => {
     store.set(NEDB_STATUS_STORE_KEY, flag)
 })
 
-// Google Translate API 키 관련 핸들러
-const GOOGLE_TRANSLATE_API_KEY_STORE_KEY = "googleTranslateApiKey"
+// 추가: Google Translate API 키 저장/로드
+const GOOGLE_TRANSLATE_API_KEY = "googleTranslateApiKey"
 ipcMain.on("get-google-translate-api-key", event => {
-    event.returnValue = store.get(GOOGLE_TRANSLATE_API_KEY_STORE_KEY, "")
+    event.returnValue = store.get(GOOGLE_TRANSLATE_API_KEY, "")
 })
 ipcMain.handle("set-google-translate-api-key", (_, apiKey: string) => {
-    store.set(GOOGLE_TRANSLATE_API_KEY_STORE_KEY, apiKey)
+    store.set(GOOGLE_TRANSLATE_API_KEY, apiKey)
 })
