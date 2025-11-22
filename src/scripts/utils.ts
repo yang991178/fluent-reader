@@ -336,3 +336,20 @@ export async function translateText(
         throw error
     }
 }
+// 읽기 시간 계산 함수 (200단어/분 기준)
+export function calculateReadingTime(content: string): number {
+    if (!content || content.trim() === '') {
+        return 0
+    }
+    
+    // HTML 태그 제거
+    const plainText = content.replace(/<[^>]*>/g, ' ')
+    
+    // 단어 수 계산 (공백 기준으로 분리)
+    const words = plainText.trim().split(/\s+/).filter(word => word.length > 0).length
+    
+    // 200단어/분 기준으로 계산 (최소 1분)
+    const minutes = Math.ceil(words / 200)
+    
+    return minutes > 0 ? minutes : 1
+}

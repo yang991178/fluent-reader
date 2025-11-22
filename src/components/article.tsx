@@ -18,7 +18,7 @@ import {
     SourceTextDirection,
 } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
-import { platformCtrl, decodeFetchResponse, translateText } from "../scripts/utils"
+import { platformCtrl, decodeFetchResponse, translateText, calculateReadingTime } from "../scripts/utils"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -397,6 +397,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                             this.props.locale,
                             { hour12: !this.props.locale.startsWith("zh") }
                         )}
+                        {" · 예상 " + calculateReadingTime(this.props.item.content) + "분 읽기"}
                     </p>
                     <article></article>
                 </>
