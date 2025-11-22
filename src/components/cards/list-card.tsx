@@ -4,6 +4,7 @@ import CardInfo from "./info"
 import Highlights from "./highlights"
 import { ViewConfigs } from "../../schema-types"
 import { SourceTextDirection } from "../../scripts/models/source"
+import { useLazyImage, PLACEHOLDER_IMAGE } from "../../scripts/useLazyImage"
 
 const className = (props: Card.Props) => {
     let cn = ["card", "list-card"]
@@ -15,36 +16,44 @@ const className = (props: Card.Props) => {
     return cn.join(" ")
 }
 
-const ListCard: React.FunctionComponent<Card.Props> = props => (
-    <div
-        className={className(props)}
-        {...Card.bindEventsToProps(props)}
-        data-iid={props.item._id}
-        data-is-focusable>
-        {props.item.thumb && props.viewConfigs & ViewConfigs.ShowCover ? (
-            <div className="head">
-                <img src={props.item.thumb} />
-            </div>
-        ) : null}
-        <div className="data">
-            <CardInfo source={props.source} item={props.item} />
-            <h3 className="title">
-                <Highlights
-                    text={props.item.title}
-                    filter={props.filter}
-                    title
-                />
-            </h3>
-            {Boolean(props.viewConfigs & ViewConfigs.ShowSnippet) && (
-                <p className="snippet">
-                    <Highlights
-                        text={props.item.snippet}
-                        filter={props.filter}
+const ListCard: React.FunctionComponent<Card.Props> = props => {
+    const imgRef = useLazyImage()
+
+    return (
+        <div
+            className={className(props)}
+            {...Card.bindEventsToProps(props)}
+            data-iid={props.item._id}
+            data-is-focusable>
+            {props.item.thumb && props.viewConfigs & ViewConfigs.ShowCover ? (
+                <div className="head">
+                    <img 
+                        ref={imgRef}
+                        src={PLACEHOLDER_IMAGE}
+                        data-src={props.item.thumb}
                     />
-                </p>
-            )}
+                </div>
+            ) : null}
+            <div className="data">
+                <CardInfo source={props.source} item={props.item} />
+                <h3 className="title">
+                    <Highlights
+                        text={props.item.title}
+                        filter={props.filter}
+                        title
+                    />
+                </h3>
+                {Boolean(props.viewConfigs & ViewConfigs.ShowSnippet) && (
+                    <p className="snippet">
+                        <Highlights
+                            text={props.item.snippet}
+                            filter={props.filter}
+                        />
+                    </p>
+                )}
+            </div>
         </div>
-    </div>
-)
+    )
+}
 
 export default ListCard
