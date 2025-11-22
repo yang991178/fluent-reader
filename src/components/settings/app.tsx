@@ -42,11 +42,16 @@ type AppTabState = {
     cacheSize: string
     deleteIndex: string
     googleTranslateApiKey: string
+    showCustomInterval: boolean
+    customInterval: string
 }
 
 class AppTab extends React.Component<AppTabProps, AppTabState> {
     constructor(props) {
         super(props)
+        const currentInterval = window.settings.getFetchInterval()
+        const isCustomInterval = ![0, 10, 15, 20, 30, 45, 60].includes(currentInterval)
+        
         this.state = {
             pacStatus: window.settings.getProxyStatus(),
             pacUrl: window.settings.getProxy(),
@@ -55,6 +60,8 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             cacheSize: null,
             deleteIndex: null,
             googleTranslateApiKey: window.settings.getGoogleTranslateApiKey(),
+            showCustomInterval: isCustomInterval,
+            customInterval: isCustomInterval ? String(currentInterval) : "",
         }
         this.getItemSize()
         this.getCacheSize()
@@ -91,9 +98,40 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         { key: 30, text: intl.get("time.minute", { m: 30 }) },
         { key: 45, text: intl.get("time.minute", { m: 45 }) },
         { key: 60, text: intl.get("time.hour", { h: 1 }) },
+        { key: -1, text: intl.get("app.customInterval") || "사용자 지정" },
     ]
+
     onFetchIntervalChanged = (item: IDropdownOption) => {
-        this.props.setFetchInterval(item.key as number)
+        if (item.key === -1) {
+            this.setState({ showCustomInterval: true })
+        } else {
+            this.setState({ showCustomInterval: false })
+            this.props.setFetchInterval(item.key as number)
+        }
+    }
+
+    validateCustomInterval = (value: string): string => {
+        if (!value || value.trim() === "") {
+            return intl.get("app.intervalRequired") || "간격을 입력하세요"
+        }
+        const num = parseInt(value)
+        if (isNaN(num)) {
+            return intl.get("app.intervalNumber") || "숫자만 입력하세요"
+        }
+        if (num < 1) {
+            return intl.get("app.intervalMin") || "최소 1분 이상이어야 합니다"
+        }
+        if (num > 1440) {
+            return intl.get("app.intervalMax") || "최대 1440분(24시간)까지 설정 가능합니다"
+        }
+        return ""
+    }
+
+    saveCustomInterval = () => {
+        const error = this.validateCustomInterval(this.state.customInterval)
+        if (!error) {
+            this.props.setFetchInterval(parseInt(this.state.customInterval))
+        }
     }
 
     searchEngineOptions = (): IDropdownOption[] =>
@@ -165,6 +203,10 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         this.setState({ [name]: event.target.value.trim() })
     }
 
+    handleCustomIntervalChange = (event, newValue?: string) => {
+        this.setState({ customInterval: newValue || "" })
+    }
+
     setUrl = (event: React.FormEvent) => {
         event.preventDefault()
         if (urlTest(this.state.pacUrl))
@@ -178,6 +220,12 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
 
     saveApiKey = () => {
         window.settings.setGoogleTranslateApiKey(this.state.googleTranslateApiKey)
+    }
+
+    getCurrentIntervalKey = (): number => {
+        const current = window.settings.getFetchInterval()
+        const standardValues = [0, 10, 15, 20, 30, 45, 60]
+        return standardValues.includes(current) ? current : -1
     }
 
     render = () => (
@@ -207,13 +255,44 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             <Stack horizontal>
                 <Stack.Item>
                     <Dropdown
-                        defaultSelectedKey={window.settings.getFetchInterval()}
+                        selectedKey={this.getCurrentIntervalKey()}
                         options={this.fetchIntervalOptions()}
                         onChanged={this.onFetchIntervalChanged}
                         style={{ width: 200 }}
                     />
                 </Stack.Item>
             </Stack>
+            {this.state.showCustomInterval && (
+                <Stack horizontal style={{ marginTop: 8 }}>
+                    <Stack.Item grow>
+                        <TextField
+                            type="number"
+                            min={1}
+                            max={1440}
+                            placeholder={intl.get("app.intervalPlaceholder") || "간격 (분)"}
+                            value={this.state.customInterval}
+                            onChange={this.handleCustomIntervalChange}
+                            onGetErrorMessage={this.validateCustomInterval}
+                            validateOnLoad={false}
+                        />
+                    </Stack.Item>
+                    <Stack.Item>
+                        <span style={{ padding: "0 8px", lineHeight: "32px" }}>
+                            {intl.get("time.minute", { m: "" }) || "분"}
+                        </span>
+                    </Stack.Item>
+                    <Stack.Item>
+                        <DefaultButton
+                            text={intl.get("confirm") || "저장"}
+                            onClick={this.saveCustomInterval}
+                            disabled={!!this.validateCustomInterval(this.state.customInterval)}
+                        />
+                    </Stack.Item>
+                </Stack>
+            )}
+            <span className="settings-hint up">
+                {intl.get("app.intervalHint") || "1분에서 1440분(24시간) 사이로 설정하세요"}
+            </span>
 
             <Label>{intl.get("searchEngine.name")}</Label>
             <Stack horizontal>
