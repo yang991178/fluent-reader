@@ -53,6 +53,9 @@ Refer to the repo of [react-intl-universal](https://github.com/alibaba/react-int
 If you enjoy using this app, consider supporting its development by donating through [GitHub Sponsors](https://github.com/sponsors/yang991178), [Paypal](https://www.paypal.me/yang991178), or [Alipay](https://hyliu.me/fluent-reader/imgs/alipay.jpg).
 
 ### Build from source
+
+#### npm
+
 ```bash
 # Install dependencies
 npm install
@@ -68,6 +71,27 @@ electron-builder create-self-signed-cert
 # Package the app for Windows
 npm run package-win
 
+```
+
+#### pnpm
+
+```bash
+# Install dependencies
+pnpm install
+
+# Approve packages (otherwise electron will fail)
+pnpm approve-packages
+
+# Compile ts & dependencies
+pnpm run build
+
+# Start the application
+pnpm run electron
+
+# Generate certificate for signature
+electron-builder create-self-signed-cert
+# Package the app for Windows
+pnpm run package-win
 ```
 
 ### Developed with
