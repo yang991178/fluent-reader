@@ -9,6 +9,7 @@ import { List, AnimationClassNames } from "@fluentui/react"
 class CardsFeed extends React.Component<FeedProps> {
     observer: ResizeObserver
     state = { width: window.innerWidth, height: window.innerHeight }
+    pollTimer: NodeJS.Timeout | null = null
 
     updateWindowSize = (entries: ResizeObserverEntry[]) => {
         if (entries) {
@@ -25,9 +26,42 @@ class CardsFeed extends React.Component<FeedProps> {
         })
         this.observer = new ResizeObserver(this.updateWindowSize)
         this.observer.observe(document.querySelector(".main"))
+        this.bindScrollEvent()
     }
+
+    componentDidUpdate(prevProps: FeedProps) {
+        this.bindScrollEvent()
+    }
+
     componentWillUnmount() {
         this.observer.disconnect()
+        this.unbindScrollEvent()
+    }
+
+    bindScrollEvent = () => {
+        this.unbindScrollEvent()
+        this.pollTimer = setInterval(() => {
+            const container = document.getElementById("refocus")
+            if (container) {
+                container.addEventListener(
+                    "scroll",
+                    this.handleAutoLoadByScroll
+                )
+                clearInterval(this.pollTimer!)
+                this.pollTimer = null
+            }
+        }, 100)
+    }
+
+    unbindScrollEvent = () => {
+        if (this.pollTimer) {
+            clearInterval(this.pollTimer)
+            this.pollTimer = null
+        }
+        const container = document.getElementById("refocus")
+        if (container) {
+            container.removeEventListener("scroll", this.handleAutoLoadByScroll)
+        }
     }
 
     getItemCountForPage = () => {
@@ -67,13 +101,39 @@ class CardsFeed extends React.Component<FeedProps> {
         if (el.id === "load-more") {
             const container = document.getElementById("refocus")
             const result =
+                container &&
                 container.scrollTop >
-                container.scrollHeight - 2 * container.offsetHeight
-            if (!result) container.scrollTop += 100
-            return result
+                    container.scrollHeight - 2 * container.offsetHeight
+            if (container && !result) container.scrollTop += 100
+            return result || false
         } else {
             return true
         }
+    }
+
+    autoTriggerLoadMore = () => {
+        const loadMoreBtn = document.getElementById(
+            "load-more"
+        ) as HTMLButtonElement
+        if (
+            loadMoreBtn &&
+            !loadMoreBtn.disabled &&
+            !this.props.feed.allLoaded
+        ) {
+            loadMoreBtn.click()
+        }
+    }
+
+    // 滚动触底自动加载
+    handleAutoLoadByScroll = () => {
+        const container = document.getElementById("refocus")
+        if (!container) return
+        const isBottom =
+            container.scrollHeight -
+                container.scrollTop -
+                container.clientHeight <
+            200
+        if (isBottom) this.autoTriggerLoadMore()
     }
 
     render() {
