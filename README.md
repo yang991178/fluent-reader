@@ -4,9 +4,9 @@
 <h3 align="center">Fluent Reader</h3>
 <p align="center">A modern desktop RSS reader</p>
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/HaleShaw/fluent-reader?label=version" />
-  <img src="https://img.shields.io/github/downloads/HaleShaw/fluent-reader/total" />
-  <img src="https://github.com/HaleShaw/fluent-reader/workflows/CI%2FCD%20Release/badge.svg" />
+  <img src="https://img.shields.io/github/v/release/yang991178/fluent-reader?label=version" />
+  <img src="https://img.shields.io/github/downloads/yang991178/fluent-reader/total" />
+  <img src="https://github.com/yang991178/fluent-reader/workflows/CI%2FCD%20Release/badge.svg" />
 </p>
 <hr />
 
@@ -39,7 +39,7 @@ The repo of the mobile version of this app [can be found here](https://github.co
 - Hide, mark as read, or star articles automatically as they arrive with regular expression rules.
 - Fetch articles in the background and send push notifications.
 
-Support for other RSS services are [under fundraising](https://github.com/HaleShaw/fluent-reader/issues/23).
+Support for other RSS services are [under fundraising](https://github.com/yang991178/fluent-reader/issues/23).
 
 ## Development
 
