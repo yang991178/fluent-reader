@@ -22,7 +22,7 @@ class AboutTab extends React.Component {
                         <Link
                             onClick={() =>
                                 window.utils.openExternal(
-                                    "https://github.com/yang991178/fluent-reader/wiki/Support#keyboard-shortcuts"
+                                    "https://github.com/HaleShaw/fluent-reader/wiki/Support#keyboard-shortcuts"
                                 )
                             }>
                             {intl.get("settings.shortcuts")}
@@ -32,7 +32,7 @@ class AboutTab extends React.Component {
                         <Link
                             onClick={() =>
                                 window.utils.openExternal(
-                                    "https://github.com/yang991178/fluent-reader"
+                                    "https://github.com/HaleShaw/fluent-reader"
                                 )
                             }>
                             {intl.get("settings.openSource")}
@@ -42,7 +42,7 @@ class AboutTab extends React.Component {
                         <Link
                             onClick={() =>
                                 window.utils.openExternal(
-                                    "https://github.com/yang991178/fluent-reader/issues"
+                                    "https://github.com/HaleShaw/fluent-reader/issues"
                                 )
                             }>
                             {intl.get("settings.feedback")}
