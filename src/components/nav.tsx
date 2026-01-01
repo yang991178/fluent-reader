@@ -5,6 +5,8 @@ import { AppState } from "../scripts/models/app"
 import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
 import { getWindowBreakpoint } from "../scripts/utils"
 import { WindowStateListenerType } from "../schema-types"
+import { markAllRead } from "../scripts/models/item"
+import { rootStore } from "../scripts/reducer"
 
 type NavProps = {
     state: AppState
@@ -65,6 +67,9 @@ class Nav extends React.Component<NavProps, NavState> {
                     break
                 case "F2":
                     this.props.search()
+                    break
+                case "F4":
+                    rootStore.dispatch(markAllRead())
                     break
                 case "F5":
                     this.fetch()
