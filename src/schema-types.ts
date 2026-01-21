@@ -98,4 +98,5 @@ export type SchemaTypes = {
     filterType: number
     listViewConfigs: ViewConfigs
     useNeDB: boolean
+    refreshOnStart: boolean
 }

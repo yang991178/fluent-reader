@@ -146,6 +146,14 @@ ipcMain.handle("set-fetch-interval", (_, interval: number) => {
     store.set(FETCH_INTEVAL_STORE_KEY, interval)
 })
 
+const REFRESH_ON_START_STORE_KEY = "refreshOnStart"
+ipcMain.on("get-refresh-on-start", event => {
+    event.returnValue = store.get(REFRESH_ON_START_STORE_KEY, true)
+})
+ipcMain.handle("set-refresh-on-start", (_, flag: boolean) => {
+    store.set(REFRESH_ON_START_STORE_KEY, flag)
+})
+
 const SEARCH_ENGINE_STORE_KEY = "searchEngine"
 ipcMain.on("get-search-engine", event => {
     event.returnValue = store.get(SEARCH_ENGINE_STORE_KEY, SearchEngines.Google)

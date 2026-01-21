@@ -13,6 +13,7 @@ type NavProps = {
     search: () => void
     markAllRead: () => void
     fetch: () => void
+    stopFetch: () => void
     logs: () => void
     views: () => void
     settings: () => void
@@ -155,10 +156,18 @@ class Nav extends React.Component<NavProps, NavState> {
                 <span className="title">{this.props.state.title}</span>
                 <div className="btn-group" style={{ float: "right" }}>
                     <a
-                        className={"btn" + this.fetching()}
-                        onClick={this.fetch}
-                        title={intl.get("nav.refresh")}>
-                        <Icon iconName="Refresh" />
+                        className="btn"
+                        onClick={
+                            this.canFetch() ? this.fetch : this.props.stopFetch
+                        }
+                        title={
+                            this.canFetch()
+                                ? intl.get("nav.refresh")
+                                : intl.get("nav.stop")
+                        }>
+                        <Icon
+                            iconName={this.canFetch() ? "Refresh" : "Cancel"}
+                        />
                     </a>
                     <a
                         className="btn"

@@ -2,6 +2,7 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { RootState } from "../scripts/reducer"
 import { exitSettings } from "../scripts/models/app"
+import { stopFetchItems } from "../scripts/models/item"
 import Settings from "../components/settings"
 
 const getApp = (state: RootState) => state.app
@@ -19,6 +20,7 @@ const mapStateToProps = createSelector([getApp], app => ({
 const mapDispatchToProps = dispatch => {
     return {
         close: () => dispatch(exitSettings()),
+        stopFetch: () => dispatch(stopFetchItems()),
     }
 }
 
