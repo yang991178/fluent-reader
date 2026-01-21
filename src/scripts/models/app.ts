@@ -404,7 +404,11 @@ export function initApp(): AppThunk {
             .then(() => dispatch(initFeeds()))
             .then(async () => {
                 dispatch(selectAllArticles())
-                await dispatch(fetchItems())
+                if (window.settings.getRefreshOnStart()) {
+                    await dispatch(fetchItems())
+                } else {
+                    dispatch(setupAutoFetch())
+                }
             })
             .then(() => {
                 dispatch(updateFavicon())
@@ -555,17 +559,17 @@ export function appReducer(
                             action.items.length == 0
                                 ? state.logMenu
                                 : {
-                                      ...state.logMenu,
-                                      logs: [
-                                          ...state.logMenu.logs,
-                                          new AppLog(
-                                              AppLogType.Info,
-                                              intl.get("log.fetchSuccess", {
-                                                  count: action.items.length,
-                                              })
-                                          ),
-                                      ],
-                                  },
+                                    ...state.logMenu,
+                                    logs: [
+                                        ...state.logMenu.logs,
+                                        new AppLog(
+                                            AppLogType.Info,
+                                            intl.get("log.fetchSuccess", {
+                                                count: action.items.length,
+                                            })
+                                        ),
+                                    ],
+                                },
                     }
                 case ActionStatus.Intermediate:
                     return {

@@ -89,6 +89,13 @@ const settingsBridge = {
         ipcRenderer.invoke("set-fetch-interval", interval)
     },
 
+    getRefreshOnStart: (): boolean => {
+        return ipcRenderer.sendSync("get-refresh-on-start")
+    },
+    setRefreshOnStart: (flag: boolean) => {
+        ipcRenderer.invoke("set-refresh-on-start", flag)
+    },
+
     getSearchEngine: (): SearchEngines => {
         return ipcRenderer.sendSync("get-search-engine")
     },

@@ -3,7 +3,7 @@ import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AnimationClassNames } from "@fluentui/react/lib/Styling"
 import AboutTab from "./settings/about"
-import { Pivot, PivotItem, Spinner, FocusTrapZone } from "@fluentui/react"
+import { Pivot, PivotItem, Spinner, FocusTrapZone, DefaultButton } from "@fluentui/react"
 import SourcesTabContainer from "../containers/settings/sources-container"
 import GroupsTabContainer from "../containers/settings/groups-container"
 import AppTabContainer from "../containers/settings/app-container"
@@ -16,6 +16,7 @@ type SettingsProps = {
     blocked: boolean
     exitting: boolean
     close: () => void
+    stopFetch: () => void
 }
 
 class Settings extends React.Component<SettingsProps> {
@@ -68,6 +69,12 @@ class Settings extends React.Component<SettingsProps> {
                                 label={intl.get("settings.fetching")}
                                 tabIndex={0}
                             />
+                            <div style={{ marginTop: 12, textAlign: "center" }}>
+                                <DefaultButton
+                                    text="Stop"
+                                    onClick={this.props.stopFetch}
+                                />
+                            </div>
                         </FocusTrapZone>
                     )}
                     <Pivot>

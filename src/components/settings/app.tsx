@@ -40,6 +40,7 @@ type AppTabState = {
     itemSize: string
     cacheSize: string
     deleteIndex: string
+    refreshOnStart: boolean
 }
 
 class AppTab extends React.Component<AppTabProps, AppTabState> {
@@ -52,6 +53,7 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             itemSize: null,
             cacheSize: null,
             deleteIndex: null,
+            refreshOnStart: window.settings.getRefreshOnStart(),
         }
         this.getItemSize()
         this.getCacheSize()
@@ -156,6 +158,11 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
         })
     }
 
+    toggleRefreshOnStart = (_: any, checked: boolean) => {
+        window.settings.setRefreshOnStart(checked)
+        this.setState({ refreshOnStart: checked })
+    }
+
     handleInputChange = event => {
         const name: string = event.target.name
         // @ts-ignore
@@ -195,6 +202,18 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                 onChange={this.onThemeChange}
                 selectedKey={this.state.themeSettings}
             />
+
+            <Stack horizontal verticalAlign="baseline">
+                <Stack.Item grow>
+                    <Label>{intl.get("app.refreshOnStart")}</Label>
+                </Stack.Item>
+                <Stack.Item>
+                    <Toggle
+                        checked={this.state.refreshOnStart}
+                        onChange={this.toggleRefreshOnStart}
+                    />
+                </Stack.Item>
+            </Stack>
 
             <Label>{intl.get("app.fetchInterval")}</Label>
             <Stack horizontal>

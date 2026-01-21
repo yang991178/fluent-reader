@@ -205,6 +205,14 @@ export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
         .exec()) as RSSItem[]
 }
 
+let cancelFetch: () => void = null
+
+export function stopFetchItems(): AppThunk {
+    return () => {
+        if (cancelFetch) cancelFetch()
+    }
+}
+
 export function fetchItems(
     background = false,
     sids: number[] = null
@@ -225,32 +233,50 @@ export function fetchItems(
             let sources =
                 sids === null
                     ? Object.values(sourcesState).filter(s => {
-                          let last = s.lastFetched ? s.lastFetched.getTime() : 0
-                          return (
-                              !s.serviceRef &&
-                              (last > timenow ||
-                                  last + (s.fetchFrequency || 0) * 60000 <=
-                                      timenow)
-                          )
-                      })
+                        let last = s.lastFetched ? s.lastFetched.getTime() : 0
+                        return (
+                            !s.serviceRef &&
+                            (last > timenow ||
+                                last + (s.fetchFrequency || 0) * 60000 <=
+                                timenow)
+                        )
+                    })
                     : sids
-                          .map(sid => sourcesState[sid])
-                          .filter(s => !s.serviceRef)
-            for (let source of sources) {
+                        .map(sid => sourcesState[sid])
+                        .filter(s => !s.serviceRef)
+
+            let results: { status: 'fulfilled' | 'rejected', value?: RSSItem[], reason?: any }[] = new Array(sources.length)
+
+            for (let i = 0; i < sources.length; i++) {
+                let source = sources[i]
                 let promise = RSSSource.fetchItems(source)
-                promise.then(() =>
+                promise.then((items) => {
+                    results[i] = { status: 'fulfilled', value: items }
                     dispatch(
                         updateSource({ ...source, lastFetched: new Date() })
                     )
-                )
-                promise.finally(() => dispatch(fetchItemsIntermediate()))
+                }).catch(err => {
+                    results[i] = { status: 'rejected', reason: err }
+                }).finally(() => dispatch(fetchItemsIntermediate()))
                 promises.push(promise)
             }
             dispatch(fetchItemsRequest(promises.length))
-            const results = await Promise.allSettled(promises)
+
+            const cancelPromise = new Promise<void>(resolve => {
+                cancelFetch = resolve
+            })
+
+            await Promise.race([
+                Promise.allSettled(promises),
+                cancelPromise
+            ])
+
+            cancelFetch = null
+
             return await new Promise<void>((resolve, reject) => {
                 let items = new Array<RSSItem>()
                 results.map((r, i) => {
+                    if (!r) return // Cancelled/Pending
                     if (r.status === "fulfilled") items.push(...r.value)
                     else {
                         console.log(r.reason)

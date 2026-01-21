@@ -39,6 +39,7 @@
     "nav": {
         "menu": "Menu",
         "refresh": "Refresh",
+        "stop": "Stop refresh",
         "markAllRead": "Mark all as read",
         "notifications": "Notifications",
         "view": "View",
@@ -237,6 +238,7 @@
         "setPac": "Set PAC",
         "pacHint": "For Socks proxies, it is recommended for PAC to return \"SOCKS5\" for proxy-side DNS. Turning off proxy requires restart.",
         "fetchInterval": "Automatic fetch interval",
+        "refreshOnStart": "Refresh feeds on app start",
         "never": "Never"
     }
 }
