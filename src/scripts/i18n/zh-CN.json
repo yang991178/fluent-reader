@@ -229,6 +229,8 @@
         "theme": "应用主题",
         "lightTheme": "浅色模式",
         "darkTheme": "深色模式",
+        "enableWebViewOpenUrl": "允许内置浏览器打开网页",
+        "webViewOpenUrlHint": "开启后会保存内置浏览器的cookie数据。",
         "enableProxy": "启用代理",
         "badUrl": "请正确输入URL",
         "pac": "PAC地址",
