@@ -28,6 +28,7 @@ class ListFeed extends React.Component<FeedProps> {
             markRead: this.props.markRead,
             contextMenu: this.props.contextMenu,
             showItem: this.props.showItem,
+            showItemOnTarget: this.props.showItemOnTarget,
         } as Card.Props
         if (
             this.props.viewType === ViewType.List &&

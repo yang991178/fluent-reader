@@ -4,9 +4,10 @@ import { RootState } from "../scripts/reducer"
 import { markRead, RSSItem, itemShortcuts } from "../scripts/models/item"
 import { openItemMenu } from "../scripts/models/app"
 import { loadMore, RSSFeed } from "../scripts/models/feed"
-import { showItem } from "../scripts/models/page"
+import { showItem, showItemOnTarget } from "../scripts/models/page"
 import { ViewType } from "../schema-types"
 import { Feed } from "../components/feeds/feed"
+import { SourceOpenTarget } from "../scripts/models/source"
 
 interface FeedContainerProps {
     feedId: string
@@ -53,6 +54,7 @@ const mapDispatchToProps = dispatch => {
             dispatch(openItemMenu(item, feedId, e)),
         loadMore: (feed: RSSFeed) => dispatch(loadMore(feed)),
         showItem: (fid: string, item: RSSItem) => dispatch(showItem(fid, item)),
+        showItemOnTarget: (fid: string, item: RSSItem, openTarget: SourceOpenTarget) => dispatch(showItemOnTarget(fid, item, openTarget)),
     }
 }
 

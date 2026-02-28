@@ -4,6 +4,7 @@ import { AnimationClassNames, Icon, FocusTrapZone } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
 import { ViewType } from "../schema-types"
 import ArticleSearch from "./utils/article-search"
+import { SourceOpenTarget } from "../scripts/models/source"
 
 type PageProps = {
     menuOn: boolean
@@ -12,6 +13,7 @@ type PageProps = {
     feeds: string[]
     itemId: number
     itemFromFeed: boolean
+    openTarget: SourceOpenTarget
     viewType: ViewType
     dismissItem: () => void
     offsetItem: (offset: number) => void
@@ -54,7 +56,10 @@ class Page extends React.Component<PageProps> {
                         <div
                             className="article-wrapper"
                             onClick={e => e.stopPropagation()}>
-                            <ArticleContainer itemId={this.props.itemId} />
+                            <ArticleContainer 
+                                itemId={this.props.itemId}
+                                openTarget={this.props.openTarget}
+                            />
                         </div>
                         {this.props.itemFromFeed && (
                             <>
@@ -93,7 +98,10 @@ class Page extends React.Component<PageProps> {
                         </div>
                         {this.props.itemId ? (
                             <div className="side-article-wrapper">
-                                <ArticleContainer itemId={this.props.itemId} />
+                                <ArticleContainer 
+                                    itemId={this.props.itemId}
+                                    openTarget={this.props.openTarget}
+                                />
                             </div>
                         ) : (
                             <div className="side-logo-wrapper">
