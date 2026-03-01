@@ -330,9 +330,16 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         this.setState({ fullContent: "", loaded: false, error: false })
         const link = this.props.item.link
         try {
-            const result = await fetch(link)
-            if (!result || !result.ok) throw new Error()
-            const html = await decodeFetchResponse(result, true)
+            const buffer = await window.utils.fetchArticleHTML(link)
+
+            if (!buffer) throw new Error()
+
+            const response = new Response(buffer, {
+                headers: { "content-type": "text/html" },
+            })
+            
+            const html = await decodeFetchResponse(response, true)
+            
             if (link === this.props.item.link) {
                 this.setState({ fullContent: html })
             }
