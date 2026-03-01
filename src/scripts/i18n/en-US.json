@@ -26,7 +26,8 @@
         "d": "d",
         "minute": "{m, plural, =1 {# minute} other {# minutes}}",
         "hour": "{h, plural, =1 {# hour} other {# hours}}",
-        "day": "{d, plural, =1 {# day} other {# days}}"
+        "day": "{d, plural, =1 {# day} other {# days}}",
+        "week": "{w, plural, =1 {# week} other {# weeks}}"
     },
     "log": {
         "empty": "No notifications",
@@ -237,6 +238,8 @@
         "setPac": "Set PAC",
         "pacHint": "For Socks proxies, it is recommended for PAC to return \"SOCKS5\" for proxy-side DNS. Turning off proxy requires restart.",
         "fetchInterval": "Automatic fetch interval",
-        "never": "Never"
+        "feedDelay": "Feed delay",
+        "never": "Never",
+        "nodelay": "No delay"
     }
 }

@@ -29,6 +29,7 @@ import DangerButton from "../utils/danger-button"
 type AppTabProps = {
     setLanguage: (option: string) => void
     setFetchInterval: (interval: number) => void
+    setFeedDelay: (delay: number) => void
     deleteArticles: (days: number) => Promise<void>
     importAll: () => Promise<void>
 }
@@ -91,6 +92,19 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
     ]
     onFetchIntervalChanged = (item: IDropdownOption) => {
         this.props.setFetchInterval(item.key as number)
+    }
+
+    feedDelayOptions = (): IDropdownOption[] => [
+        { key: 0, text: intl.get("app.nodelay") },
+        { key: 1, text: intl.get("time.day", { d: 1 }) },
+        { key: 2, text: intl.get("time.day", { d: 2 }) },
+        { key: 3, text: intl.get("time.day", { d: 3 }) },
+        { key: 7, text: intl.get("time.week", { w: 1 }) },
+        { key: 14, text: intl.get("time.week", { w: 2 }) },
+        { key: 21, text: intl.get("time.week", { w: 3 }) },
+    ]
+    onFeedDelayChanged = (item: IDropdownOption) => {
+        this.props.setFeedDelay(item.key as number)
     }
 
     searchEngineOptions = (): IDropdownOption[] =>
@@ -195,6 +209,18 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                 onChange={this.onThemeChange}
                 selectedKey={this.state.themeSettings}
             />
+
+            <Label>{intl.get("app.feedDelay")}</Label>
+            <Stack horizontal>
+                <Stack.Item>
+                    <Dropdown
+                        defaultSelectedKey={window.settings.getFeedDelay()}
+                        options={this.feedDelayOptions()}
+                        onChanged={this.onFeedDelayChanged}
+                        style={{ width: 200 }}
+                    />
+                </Stack.Item>
+            </Stack>
 
             <Label>{intl.get("app.fetchInterval")}</Label>
             <Stack horizontal>
