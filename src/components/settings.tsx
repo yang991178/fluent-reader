@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useEffect, useRef, useCallback } from "react"
 import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AnimationClassNames } from "@fluentui/react/lib/Styling"
@@ -10,38 +11,45 @@ import AppTabContainer from "../containers/settings/app-container"
 import RulesTabContainer from "../containers/settings/rules-container"
 import ServiceTabContainer from "../containers/settings/service-container"
 import { initTouchBarWithTexts } from "../scripts/utils"
+import { useAppSelector, useAppDispatch } from "../scripts/reducer"
+import { exitSettings } from "../scripts/models/app"
 
-type SettingsProps = {
-    display: boolean
-    blocked: boolean
-    exitting: boolean
-    close: () => void
-}
+const Settings: React.FC = () => {
+    const dispatch = useAppDispatch()
 
-class Settings extends React.Component<SettingsProps> {
-    constructor(props) {
-        super(props)
-    }
+    const display = useAppSelector(s => s.app.settings.display)
+    const blocked = useAppSelector(
+        s =>
+            !s.app.sourceInit ||
+            s.app.syncing ||
+            s.app.fetchingItems ||
+            s.app.settings.saving
+    )
+    const exitting = useAppSelector(s => s.app.settings.saving)
 
-    onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === "Escape" && !this.props.exitting) this.props.close()
-    }
+    const exittingRef = useRef(exitting)
+    exittingRef.current = exitting
 
-    componentDidUpdate = (prevProps: SettingsProps) => {
-        if (this.props.display !== prevProps.display) {
-            if (this.props.display) {
-                if (window.utils.platform === "darwin")
-                    window.utils.destroyTouchBar()
-                document.body.addEventListener("keydown", this.onKeyDown)
-            } else {
-                if (window.utils.platform === "darwin") initTouchBarWithTexts()
-                document.body.removeEventListener("keydown", this.onKeyDown)
-            }
+    const close = useCallback(() => dispatch(exitSettings()), [])
+
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && !exittingRef.current) close()
         }
-    }
+        if (display) {
+            if (globalThis.utils.platform === "darwin")
+                globalThis.utils.destroyTouchBar()
+            document.body.addEventListener("keydown", onKeyDown)
+        } else if (globalThis.utils.platform === "darwin") {
+            initTouchBarWithTexts()
+        }
+        return () => {
+            document.body.removeEventListener("keydown", onKeyDown)
+        }
+    }, [display])
 
-    render = () =>
-        this.props.display && (
+    return (
+        display && (
             <div className="settings-container">
                 <div
                     className="btn-group"
@@ -50,17 +58,17 @@ class Settings extends React.Component<SettingsProps> {
                         top: 70,
                         left: "calc(50% - 404px)",
                     }}>
-                    <a
-                        className={
-                            "btn" + (this.props.exitting ? " disabled" : "")
-                        }
+                    <button
+                        className={"btn" + (exitting ? " disabled" : "")}
                         title={intl.get("settings.exit")}
-                        onClick={this.props.close}>
+                        aria-label={intl.get("settings.exit")}
+                        disabled={exitting}
+                        onClick={close}>
                         <Icon iconName="Back" />
-                    </a>
+                    </button>
                 </div>
                 <div className={"settings " + AnimationClassNames.slideUpIn20}>
-                    {this.props.blocked && (
+                    {blocked && (
                         <FocusTrapZone
                             isClickableOutsideFocusTrap={true}
                             className="loading">
@@ -105,6 +113,7 @@ class Settings extends React.Component<SettingsProps> {
                 </div>
             </div>
         )
+    )
 }
 
 export default Settings

@@ -4,7 +4,7 @@ import { closeContextMenu } from "../scripts/models/app"
 import Page from "./page"
 import { Menu } from "./menu"
 import Nav from "./nav"
-import SettingsContainer from "../containers/settings-container"
+import Settings from "./settings"
 import { RootState } from "../scripts/reducer"
 import { ContextMenu } from "./context-menu"
 import LogMenu from "./log-menu"
@@ -19,7 +19,7 @@ const Root = ({ locale, dispatch }) =>
             <Page />
             <LogMenu />
             <Menu />
-            <SettingsContainer />
+            <Settings />
             <ContextMenu />
         </div>
     )
