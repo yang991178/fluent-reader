@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import { closeContextMenu } from "../scripts/models/app"
-import PageContainer from "../containers/page-container"
+import Page from "./page"
 import { Menu } from "./menu"
 import Nav from "./nav"
 import SettingsContainer from "../containers/settings-container"
@@ -16,7 +16,7 @@ const Root = ({ locale, dispatch }) =>
             key={locale}
             onMouseDown={() => dispatch(closeContextMenu())}>
             <Nav />
-            <PageContainer />
+            <Page />
             <LogMenu />
             <Menu />
             <SettingsContainer />
