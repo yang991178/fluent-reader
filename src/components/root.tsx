@@ -2,7 +2,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 import { closeContextMenu } from "../scripts/models/app"
 import PageContainer from "../containers/page-container"
-import MenuContainer from "../containers/menu-container"
+import { Menu } from "./menu"
 import Nav from "./nav"
 import SettingsContainer from "../containers/settings-container"
 import { RootState } from "../scripts/reducer"
@@ -18,7 +18,7 @@ const Root = ({ locale, dispatch }) =>
             <Nav />
             <PageContainer />
             <LogMenu />
-            <MenuContainer />
+            <Menu />
             <SettingsContainer />
             <ContextMenu />
         </div>

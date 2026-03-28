@@ -1,106 +1,78 @@
 import * as React from "react"
+import { useMemo, useCallback } from "react"
 import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
-import { SourceGroup } from "../schema-types"
-import { SourceState, RSSSource } from "../scripts/models/source"
-import { ALL } from "../scripts/models/feed"
+import { SourceGroup, ViewType } from "../schema-types"
+import { RSSSource } from "../scripts/models/source"
+import { ALL, initFeeds } from "../scripts/models/feed"
 import { AnimationClassNames, Stack, FocusZone } from "@fluentui/react"
+import { useAppSelector, useAppDispatch } from "../scripts/reducer"
+import { toggleMenu, openGroupMenu } from "../scripts/models/app"
+import { toggleGroupExpansion } from "../scripts/models/group"
+import {
+    selectAllArticles,
+    selectSources,
+    toggleSearch,
+} from "../scripts/models/page"
 
-export type MenuProps = {
-    status: boolean
-    display: boolean
-    selected: string
-    sources: SourceState
-    groups: SourceGroup[]
-    searchOn: boolean
-    itemOn: boolean
-    toggleMenu: () => void
-    allArticles: (init?: boolean) => void
-    selectSourceGroup: (group: SourceGroup, menuKey: string) => void
-    selectSource: (source: RSSSource) => void
-    groupContextMenu: (sids: number[], event: React.MouseEvent) => void
-    updateGroupExpansion: (
-        event: React.MouseEvent<HTMLElement>,
-        key: string,
-        selected: string
-    ) => void
-    toggleSearch: () => void
-}
+export const Menu: React.FC = () => {
+    const dispatch = useAppDispatch()
 
-export class Menu extends React.Component<MenuProps> {
-    countOverflow = (count: number) => (count >= 1000 ? " 999+" : ` ${count}`)
+    const status = useAppSelector(
+        s => s.app.sourceInit && !s.app.settings.display
+    )
+    const display = useAppSelector(s => s.app.menu)
+    const selected = useAppSelector(s => s.app.menuKey)
+    const sources = useAppSelector(s => s.sources)
+    const rawGroups = useAppSelector(s => s.groups)
+    const groups = useMemo(
+        () => rawGroups.map((g, i) => ({ ...g, index: i })),
+        [rawGroups]
+    )
+    const searchOn = useAppSelector(s => s.page.searchOn)
+    const itemOn = useAppSelector(
+        s => s.page.itemId !== null && s.page.viewType !== ViewType.List
+    )
 
-    getLinkGroups = (): INavLinkGroup[] => [
-        {
-            links: [
-                {
-                    name: intl.get("search"),
-                    ariaLabel:
-                        intl.get("search") + (this.props.searchOn ? " ✓" : " "),
-                    key: "search",
-                    icon: "Search",
-                    onClick: this.props.toggleSearch,
-                    url: null,
-                },
-                {
-                    name: intl.get("allArticles"),
-                    ariaLabel:
-                        intl.get("allArticles") +
-                        this.countOverflow(
-                            Object.values(this.props.sources)
-                                .filter(s => !s.hidden)
-                                .map(s => s.unreadCount)
-                                .reduce((a, b) => a + b, 0)
-                        ),
-                    key: ALL,
-                    icon: "TextDocument",
-                    onClick: () =>
-                        this.props.allArticles(this.props.selected !== ALL),
-                    url: null,
-                },
-            ],
+    const handleToggleMenu = useCallback(() => dispatch(toggleMenu()), [])
+    const handleToggleSearch = useCallback(() => dispatch(toggleSearch()), [])
+    const handleAllArticles = useCallback((init = false) => {
+        dispatch(selectAllArticles(init))
+        dispatch(initFeeds())
+    }, [])
+    const handleSelectSourceGroup = useCallback(
+        (group: SourceGroup, menuKey: string) => {
+            dispatch(selectSources(group.sids, menuKey, group.name))
+            dispatch(initFeeds())
         },
-        {
-            name: intl.get("menu.subscriptions"),
-            links: this.props.groups
-                .filter(g => g.sids.length > 0)
-                .map(g => {
-                    if (g.isMultiple) {
-                        let sources = g.sids.map(sid => this.props.sources[sid])
-                        return {
-                            name: g.name,
-                            ariaLabel:
-                                g.name +
-                                this.countOverflow(
-                                    sources
-                                        .map(s => s.unreadCount)
-                                        .reduce((a, b) => a + b, 0)
-                                ),
-                            key: "g-" + g.index,
-                            url: null,
-                            isExpanded: g.expanded,
-                            onClick: () =>
-                                this.props.selectSourceGroup(g, "g-" + g.index),
-                            links: sources.map(this.getSource),
-                        }
-                    } else {
-                        return this.getSource(this.props.sources[g.sids[0]])
-                    }
-                }),
+        []
+    )
+    const handleSelectSource = useCallback((source: RSSSource) => {
+        dispatch(selectSources([source.sid], "s-" + source.sid, source.name))
+        dispatch(initFeeds())
+    }, [])
+    const handleGroupContextMenu = useCallback(
+        (sids: number[], event: React.MouseEvent) => {
+            dispatch(openGroupMenu(sids, event))
         },
-    ]
+        []
+    )
+    const handleUpdateGroupExpansion = useCallback(
+        (event: React.MouseEvent<HTMLElement>, key: string, sel: string) => {
+            if ((event.target as HTMLElement).tagName === "I" || key === sel) {
+                const [type, index] = key.split("-")
+                if (type === "g")
+                    dispatch(toggleGroupExpansion(Number.parseInt(index)))
+            }
+        },
+        []
+    )
 
-    getSource = (s: RSSSource): INavLink => ({
-        name: s.name,
-        ariaLabel: s.name + this.countOverflow(s.unreadCount),
-        key: "s-" + s.sid,
-        onClick: () => this.props.selectSource(s),
-        iconProps: s.iconurl ? this.getIconStyle(s.iconurl) : null,
-        url: null,
-    })
+    const countOverflow = (count: number) =>
+        count >= 1000 ? " 999+" : ` ${count}`
 
-    getIconStyle = (url: string) => ({
+    const getIconStyle = (url: string) => ({
         style: { width: 16 },
         imageProps: {
             style: { width: "100%" },
@@ -108,27 +80,94 @@ export class Menu extends React.Component<MenuProps> {
         },
     })
 
-    onContext = (item: INavLink, event: React.MouseEvent) => {
+    const getSource = (s: RSSSource): INavLink => ({
+        name: s.name,
+        ariaLabel: s.name + countOverflow(s.unreadCount),
+        key: "s-" + s.sid,
+        onClick: () => handleSelectSource(s),
+        iconProps: s.iconurl ? getIconStyle(s.iconurl) : null,
+        url: null,
+    })
+
+    const getLinkGroups = (): INavLinkGroup[] => [
+        {
+            links: [
+                {
+                    name: intl.get("search"),
+                    ariaLabel: intl.get("search") + (searchOn ? " ✓" : " "),
+                    key: "search",
+                    icon: "Search",
+                    onClick: handleToggleSearch,
+                    url: null,
+                },
+                {
+                    name: intl.get("allArticles"),
+                    ariaLabel:
+                        intl.get("allArticles") +
+                        countOverflow(
+                            Object.values(sources)
+                                .filter(s => !s.hidden)
+                                .map(s => s.unreadCount)
+                                .reduce((a, b) => a + b, 0)
+                        ),
+                    key: ALL,
+                    icon: "TextDocument",
+                    onClick: () => handleAllArticles(selected !== ALL),
+                    url: null,
+                },
+            ],
+        },
+        {
+            name: intl.get("menu.subscriptions"),
+            links: groups
+                .filter(g => g.sids.length > 0)
+                .map(g => {
+                    if (g.isMultiple) {
+                        const groupSources = g.sids.map(sid => sources[sid])
+                        return {
+                            name: g.name,
+                            ariaLabel:
+                                g.name +
+                                countOverflow(
+                                    groupSources
+                                        .map(s => s.unreadCount)
+                                        .reduce((a, b) => a + b, 0)
+                                ),
+                            key: "g-" + g.index,
+                            url: null,
+                            isExpanded: g.expanded,
+                            onClick: () =>
+                                handleSelectSourceGroup(g, "g-" + g.index),
+                            links: groupSources.map(getSource),
+                        }
+                    } else {
+                        return getSource(sources[g.sids[0]])
+                    }
+                }),
+        },
+    ]
+
+    const onContext = (item: INavLink, event: React.MouseEvent) => {
+        const [type, index] = item.key.split("-")
         let sids: number[]
-        let [type, index] = item.key.split("-")
         if (type === "s") {
-            sids = [parseInt(index)]
+            sids = [Number.parseInt(index)]
         } else if (type === "g") {
-            sids = this.props.groups[parseInt(index)].sids
+            sids = groups[Number.parseInt(index)].sids
         } else {
             return
         }
-        this.props.groupContextMenu(sids, event)
+        handleGroupContextMenu(sids, event)
     }
 
-    _onRenderLink = (link: INavLink): JSX.Element => {
-        let count = link.ariaLabel.split(" ").pop()
+    const onRenderLink = (link: INavLink): JSX.Element => {
+        const count = link.ariaLabel.split(" ").pop()
         return (
             <Stack
                 className="link-stack"
                 horizontal
                 grow
-                onContextMenu={event => this.onContext(link, event)}>
+                onContextMenu={event => onContext(link, event)}>
                 <div className="link-text">{link.name}</div>
                 {count && count !== "0" && (
                     <div className="unread-count">{count}</div>
@@ -137,7 +176,7 @@ export class Menu extends React.Component<MenuProps> {
         )
     }
 
-    _onRenderGroupHeader = (group: INavLinkGroup): JSX.Element => {
+    const onRenderGroupHeader = (group: INavLinkGroup): JSX.Element => {
         return (
             <p className={"subs-header " + AnimationClassNames.slideDownIn10}>
                 {group.name}
@@ -145,60 +184,56 @@ export class Menu extends React.Component<MenuProps> {
         )
     }
 
-    render() {
-        return (
-            this.props.status && (
+    return (
+        status && (
+            <div
+                className={"menu-container" + (display ? " show" : "")}
+                onClick={handleToggleMenu}>
                 <div
-                    className={
-                        "menu-container" + (this.props.display ? " show" : "")
-                    }
-                    onClick={this.props.toggleMenu}>
-                    <div
-                        className={
-                            "menu" + (this.props.itemOn ? " item-on" : "")
-                        }
-                        onClick={e => e.stopPropagation()}>
-                        <div className="btn-group">
-                            <a
-                                className="btn hide-wide"
-                                title={intl.get("menu.close")}
-                                onClick={this.props.toggleMenu}>
-                                <Icon iconName="Back" />
-                            </a>
-                            <a
-                                className="btn inline-block-wide"
-                                title={intl.get("menu.close")}
-                                onClick={this.props.toggleMenu}>
-                                <Icon
-                                    iconName={
-                                        window.utils.platform === "darwin"
-                                            ? "SidePanel"
-                                            : "GlobalNavButton"
-                                    }
-                                />
-                            </a>
-                        </div>
-                        <FocusZone
-                            as="div"
-                            disabled={!this.props.display}
-                            className="nav-wrapper">
-                            <Nav
-                                onRenderGroupHeader={this._onRenderGroupHeader}
-                                onRenderLink={this._onRenderLink}
-                                groups={this.getLinkGroups()}
-                                selectedKey={this.props.selected}
-                                onLinkExpandClick={(event, item) =>
-                                    this.props.updateGroupExpansion(
-                                        event,
-                                        item.key,
-                                        this.props.selected
-                                    )
+                    className={"menu" + (itemOn ? " item-on" : "")}
+                    onClick={e => e.stopPropagation()}>
+                    <div className="btn-group">
+                        <button
+                            className="btn hide-wide"
+                            title={intl.get("menu.close")}
+                            aria-label={intl.get("menu.close")}
+                            onClick={handleToggleMenu}>
+                            <Icon iconName="Back" />
+                        </button>
+                        <button
+                            className="btn inline-block-wide"
+                            title={intl.get("menu.close")}
+                            aria-label={intl.get("menu.close")}
+                            onClick={handleToggleMenu}>
+                            <Icon
+                                iconName={
+                                    globalThis.utils.platform === "darwin"
+                                        ? "SidePanel"
+                                        : "GlobalNavButton"
                                 }
                             />
-                        </FocusZone>
+                        </button>
                     </div>
+                    <FocusZone
+                        as="div"
+                        disabled={!display}
+                        className="nav-wrapper">
+                        <Nav
+                            onRenderGroupHeader={onRenderGroupHeader}
+                            onRenderLink={onRenderLink}
+                            groups={getLinkGroups()}
+                            selectedKey={selected}
+                            onLinkExpandClick={(event, item) =>
+                                handleUpdateGroupExpansion(
+                                    event,
+                                    item.key,
+                                    selected
+                                )
+                            }
+                        />
+                    </FocusZone>
                 </div>
-            )
+            </div>
         )
-    }
+    )
 }
