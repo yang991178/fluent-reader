@@ -181,6 +181,8 @@ declare global {
         utils: typeof utilsBridge
         fontList: Array<string>
     }
+    var utils: typeof utilsBridge
+    var fontList: Array<string>
 }
 
 export default utilsBridge

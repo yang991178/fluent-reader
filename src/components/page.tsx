@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useCallback } from "react"
-import { FeedContainer } from "../containers/feed-container"
+import { Feed } from "./feeds/feed"
 import { Icon, FocusTrapZone } from "@fluentui/react"
 import ArticleContainer from "../containers/article-container"
 import { ViewType } from "../schema-types"
@@ -47,7 +47,7 @@ const Page: React.FC = () => {
                     className={"list-main" + (menuOn ? " menu-on" : "")}>
                     <ArticleSearch />
                     <div className="list-feed-container">
-                        <FeedContainer
+                        <Feed
                             viewType={viewType}
                             feedId={feedId}
                             key={feedId}
@@ -79,7 +79,7 @@ const Page: React.FC = () => {
             {settingsOn ? null : (
                 <div key="card" className={"main" + (menuOn ? " menu-on" : "")}>
                     <ArticleSearch />
-                    <FeedContainer
+                    <Feed
                         viewType={viewType}
                         feedId={feedId}
                         key={feedId + viewType}

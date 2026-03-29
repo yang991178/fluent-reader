@@ -14,15 +14,16 @@ import {
     openMarkAllMenu,
 } from "../scripts/models/app"
 import { toggleSearch } from "../scripts/models/page"
-import { ViewType , WindowStateListenerType } from "../schema-types"
+import { ViewType, WindowStateListenerType } from "../schema-types"
 
 const Nav: React.FC = () => {
     const dispatch = useDispatch()
     const state = useSelector((state: RootState) => state.app)
     const itemShown = useSelector(
-        (state: RootState) => state.page.itemId && state.page.viewType !== ViewType.List
+        (state: RootState) =>
+            state.page.itemId && state.page.viewType !== ViewType.List
     )
-    const [maximized, setMaximized] = useState(window.utils.isMaximized())
+    const [maximized, setMaximized] = useState(globalThis.utils.isMaximized())
 
     const setBodyFocusState = useCallback((focused: boolean) => {
         if (focused) document.body.classList.remove("blur")
@@ -103,13 +104,23 @@ const Nav: React.FC = () => {
                 }
             }
         },
-        [state.settings.display, itemShown, menu, search, fetch, markAll, logs, views, settings]
+        [
+            state.settings.display,
+            itemShown,
+            menu,
+            search,
+            fetch,
+            markAll,
+            logs,
+            views,
+            settings,
+        ]
     )
 
     useEffect(() => {
-        setBodyFocusState(window.utils.isFocused())
-        setBodyFullscreenState(window.utils.isFullscreen())
-        window.utils.addWindowStateListener(windowStateListener)
+        setBodyFocusState(globalThis.utils.isFocused())
+        setBodyFullscreenState(globalThis.utils.isFullscreen())
+        globalThis.utils.addWindowStateListener(windowStateListener)
 
         return () => {
             // Cleanup will be handled by the event listener removal effect
@@ -118,8 +129,8 @@ const Nav: React.FC = () => {
 
     useEffect(() => {
         document.addEventListener("keydown", navShortcutsHandler)
-        if (window.utils.platform === "darwin")
-            window.utils.addTouchBarEventsListener(navShortcutsHandler)
+        if (globalThis.utils.platform === "darwin")
+            globalThis.utils.addTouchBarEventsListener(navShortcutsHandler)
 
         return () => {
             document.removeEventListener("keydown", navShortcutsHandler)
@@ -127,19 +138,19 @@ const Nav: React.FC = () => {
     }, [navShortcutsHandler])
 
     const minimize = () => {
-        window.utils.minimizeWindow()
+        globalThis.utils.minimizeWindow()
     }
 
     const maximize = () => {
-        window.utils.maximizeWindow()
+        globalThis.utils.maximizeWindow()
         setMaximized(!maximized)
     }
 
     const close = () => {
-        window.utils.closeWindow()
+        globalThis.utils.closeWindow()
     }
 
-    const fetching = () => (!canFetch() ? " fetching" : "")
+    const fetching = () => (canFetch() ? "" : " fetching")
 
     const getClassNames = () => {
         const classNames = new Array<string>()
@@ -158,42 +169,39 @@ const Nav: React.FC = () => {
     return (
         <nav className={getClassNames()}>
             <div className="btn-group">
-                <a
+                <button
                     className="btn hide-wide"
                     title={intl.get("nav.menu")}
                     onClick={menu}>
                     <Icon
                         iconName={
-                            window.utils.platform === "darwin"
+                            globalThis.utils.platform === "darwin"
                                 ? "SidePanel"
                                 : "GlobalNavButton"
                         }
                     />
-                </a>
+                </button>
             </div>
             <span className="title">{state.title}</span>
             <div className="btn-group" style={{ float: "right" }}>
-                <a
+                <button
                     className={"btn" + fetching()}
                     onClick={fetch}
                     title={intl.get("nav.refresh")}>
                     <Icon iconName="Refresh" />
-                </a>
-                <a
+                </button>
+                <button
                     className="btn"
                     id="mark-all-toggle"
                     onClick={markAll}
                     title={intl.get("nav.markAllRead")}
                     onMouseDown={e => {
-                        if (
-                            state.contextMenu.event ===
-                            "#mark-all-toggle"
-                        )
+                        if (state.contextMenu.event === "#mark-all-toggle")
                             e.stopPropagation()
                     }}>
                     <Icon iconName="InboxCheck" />
-                </a>
-                <a
+                </button>
+                <button
                     className="btn"
                     id="log-toggle"
                     title={intl.get("nav.notifications")}
@@ -203,36 +211,33 @@ const Nav: React.FC = () => {
                     ) : (
                         <Icon iconName="Ringer" />
                     )}
-                </a>
-                <a
+                </button>
+                <button
                     className="btn"
                     id="view-toggle"
                     title={intl.get("nav.view")}
                     onClick={views}
                     onMouseDown={e => {
-                        if (
-                            state.contextMenu.event ===
-                            "#view-toggle"
-                        )
+                        if (state.contextMenu.event === "#view-toggle")
                             e.stopPropagation()
                     }}>
                     <Icon iconName="View" />
-                </a>
-                <a
+                </button>
+                <button
                     className="btn"
                     title={intl.get("nav.settings")}
                     onClick={settings}>
                     <Icon iconName="Settings" />
-                </a>
+                </button>
                 <span className="seperator"></span>
-                <a
+                <button
                     className="btn system"
                     title={intl.get("nav.minimize")}
                     onClick={minimize}
                     style={{ fontSize: 12 }}>
                     <Icon iconName="Remove" />
-                </a>
-                <a
+                </button>
+                <button
                     className="btn system"
                     title={intl.get("nav.maximize")}
                     onClick={maximize}>
@@ -242,18 +247,15 @@ const Nav: React.FC = () => {
                             style={{ fontSize: 11 }}
                         />
                     ) : (
-                        <Icon
-                            iconName="Checkbox"
-                            style={{ fontSize: 10 }}
-                        />
+                        <Icon iconName="Checkbox" style={{ fontSize: 10 }} />
                     )}
-                </a>
-                <a
+                </button>
+                <button
                     className="btn system close"
                     title={intl.get("close")}
                     onClick={close}>
                     <Icon iconName="Cancel" />
-                </a>
+                </button>
             </div>
             {!canFetch() && (
                 <ProgressIndicator
