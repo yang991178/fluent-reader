@@ -73,7 +73,9 @@ module.exports = [
             filename: "index.js",
         },
         plugins: [
-            new NodePolyfillPlugin(),
+            new NodePolyfillPlugin({
+                additionalAliases: ["process"],
+            }),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
             }),
