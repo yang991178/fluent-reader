@@ -2,14 +2,19 @@ import * as React from "react"
 import intl from "react-intl-universal"
 import { Stack, Link } from "@fluentui/react"
 
-class AboutTab extends React.Component {
-    render = () => (
+const AboutTab: React.FC = () => {
+    return (
         <div className="tab-body">
             <Stack className="settings-about" horizontalAlign="center">
-                <img src="icons/logo.svg" style={{ width: 120, height: 120 }} />
+                <img
+                    src="icons/logo.svg"
+                    alt="Fluent Reader Logo"
+                    style={{ width: 120, height: 120 }}
+                />
                 <h3 style={{ fontWeight: 600 }}>Fluent Reader</h3>
                 <small>
-                    {intl.get("settings.version")} {window.utils.getVersion()}
+                    {intl.get("settings.version")}{" "}
+                    {globalThis.utils.getVersion()}
                 </small>
                 <p className="settings-hint">
                     Copyright © 2020 Haoyuan Liu. All rights reserved.
@@ -21,7 +26,7 @@ class AboutTab extends React.Component {
                     <small>
                         <Link
                             onClick={() =>
-                                window.utils.openExternal(
+                                globalThis.utils.openExternal(
                                     "https://github.com/yang991178/fluent-reader/wiki/Support#keyboard-shortcuts"
                                 )
                             }>
@@ -31,7 +36,7 @@ class AboutTab extends React.Component {
                     <small>
                         <Link
                             onClick={() =>
-                                window.utils.openExternal(
+                                globalThis.utils.openExternal(
                                     "https://github.com/yang991178/fluent-reader"
                                 )
                             }>
@@ -41,7 +46,7 @@ class AboutTab extends React.Component {
                     <small>
                         <Link
                             onClick={() =>
-                                window.utils.openExternal(
+                                globalThis.utils.openExternal(
                                     "https://github.com/yang991178/fluent-reader/issues"
                                 )
                             }>
