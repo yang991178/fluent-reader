@@ -1,7 +1,7 @@
 # Name of your app.
 APP="Fluent Reader"
 # Your Certificate name.
-CERT="Jieyu Yan (EM8VE646TZ)"
+CERT="Haoyuan Liu (P2CG8QD3BP)"
 # The path of your app to sign.
 APP_PATH="bin/darwin/universal/mas-universal/Fluent Reader.app"
 # The path to the location you want to put the signed package.
@@ -19,9 +19,10 @@ FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
 # FONTLIST_PATH="node_modules/font-list/libs/darwin/fontlist.m"
 # clang -arch arm64 -arch x86_64 "$FONTLIST_PATH" -fmodules -o "dist/fontlist"
 # Build the MAS app
-CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder -c electron-builder-mas.yml --mac mas:universal
+CSC_IDENTITY_AUTO_DISCOVERY=false
+npx electron-builder -c electron-builder-mas.yml --mac mas:universal
 # Add ElectronTeamID to Info.plist
-sed -i '' -e 's/<\/dict>/<key>ElectronTeamID<\/key><string>EM8VE646TZ<\/string><\/dict>/g' "bin/darwin/universal/mas-universal/Fluent Reader.app/Contents/Info.plist"
+sed -i '' -e 's/<\/dict>/<key>ElectronTeamID<\/key><string>P2CG8QD3BP<\/string><\/dict>/g' "bin/darwin/universal/mas-universal/Fluent Reader.app/Contents/Info.plist"
 
 printf "......................\nresignAndPackage start\n\n"
 codesign --deep --force --verify --verbose=4 --timestamp --options runtime --entitlements "$CHILD_PLIST" -s "$APP_KEY" "$APP_PATH/Contents/Resources/app.asar.unpacked/dist/fontlist"

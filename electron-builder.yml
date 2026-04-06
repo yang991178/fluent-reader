@@ -9,6 +9,11 @@ directories:
     output: "./bin/${platform}/${arch}/"
 mac:
     darkModeSupport: true
+    hardenedRuntime: true
+    gatekeeperAssess: false
+    entitlements: "./build/entitlements.mac.plist"
+    entitlementsInherit: "./build/entitlements.mac.plist"
+    notarize: true
     target:
         - dmg
     category: public.app-category.news
@@ -70,4 +75,5 @@ linux:
     icon: build/icons
     category: Utility
     desktop:
-        StartupWMClass: fluent-reader
+        entry:
+            StartupWMClass: fluent-reader

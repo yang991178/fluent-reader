@@ -5,7 +5,7 @@
     <key>com.apple.security.app-sandbox</key><true/>
     <key>com.apple.security.application-groups</key>  
     <array> 
-      <string>EM8VE646TZ.DevHYLiu.FluentReader</string>  
+      <string>P2CG8QD3BP.me.hyliu.fluent-reader-mas</string>  
     </array>  
     <!-- Put any entitlements your app requires here. Below is a example --> 
     <key>com.apple.security.network.client</key><true/>
