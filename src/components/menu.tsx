@@ -18,7 +18,8 @@ import {
 import { makeStyles, mergeClasses } from "@fluentui/react-components"
 import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
-import { useIsWideScreen } from "./utils/useIsWideScreen"
+import { useIsWideScreen } from "./utils/hooks/useIsWideScreen"
+import { useIsBlurred } from "./utils/hooks/useIsBlurred"
 
 const useMenuClasses = makeStyles({
     menuBtn: {
@@ -39,18 +40,7 @@ export const Menu: React.FC = () => {
     const menuClasses = useMenuClasses()
     const isWideScreen = useIsWideScreen()
     const isDarwin = globalThis.utils.platform === "darwin"
-    const [blurred, setBlurred] = useState(!globalThis.utils.isFocused())
-
-    useEffect(() => {
-        const onFocus = () => setBlurred(false)
-        const onBlur = () => setBlurred(true)
-        window.addEventListener("focus", onFocus)
-        window.addEventListener("blur", onBlur)
-        return () => {
-            window.removeEventListener("focus", onFocus)
-            window.removeEventListener("blur", onBlur)
-        }
-    }, [])
+    const blurred = useIsBlurred()
 
     const status = useAppSelector(
         s => s.app.sourceInit && !s.app.settings.display

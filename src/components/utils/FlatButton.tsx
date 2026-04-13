@@ -123,8 +123,8 @@ export const FlatButton: React.FC<FlatButtonProps> = ({
             title={title}
             aria-label={ariaLabel || title}
             id={id}
-            onClick={onClick}
-            onMouseDown={onMouseDown}
+            onClick={disabled ? undefined : onClick}
+            onMouseDown={disabled ? undefined : onMouseDown}
             disabled={disabled}>
             {children}
         </button>

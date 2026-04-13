@@ -167,9 +167,6 @@ i.ms-Nav-chevron {
     z-index: 1;
     position: relative;
 }
-body.blur #root > nav {
-    --black: var(--neutralSecondaryAlt);
-}
 .ms-ProgressIndicator-itemProgress {
     padding: 0;
 }
