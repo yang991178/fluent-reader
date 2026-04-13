@@ -4,6 +4,7 @@
   "description": "Modern desktop RSS reader",
   "main": "./dist/electron.js",
   "scripts": {
+    "postinstall": "node patch-griffel.js",
     "build": "webpack --config ./webpack.config.js",
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
