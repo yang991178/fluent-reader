@@ -19,7 +19,8 @@ import { ViewType, WindowStateListenerType } from "../schema-types"
 import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 import { FlatButtonSeparator } from "./utils/FlatButtonSeparator"
-import { useIsWideScreen } from "./utils/useIsWideScreen"
+import { useIsWideScreen } from "./utils/hooks/useIsWideScreen"
+import { useIsBlurred } from "./utils/hooks/useIsBlurred"
 
 const useClasses = makeStyles({
     progress: {
@@ -30,6 +31,9 @@ const useClasses = makeStyles({
         width: "100%",
         height: "2px",
         overflow: "hidden",
+    },
+    navBlurred: {
+        "--black": "var(--neutralSecondaryAlt)",
     },
     navBtn: {
         height: "var(--navHeight)",
@@ -65,12 +69,8 @@ const Nav: React.FC = () => {
     )
     const [maximized, setMaximized] = useState(globalThis.utils.isMaximized())
     const isWideScreen = useIsWideScreen()
+    const blurred = useIsBlurred()
     const isDarwin = globalThis.utils.platform === "darwin"
-
-    const setBodyFocusState = useCallback((focused: boolean) => {
-        if (focused) document.body.classList.remove("blur")
-        else document.body.classList.add("blur")
-    }, [])
 
     const setBodyFullscreenState = useCallback((fullscreen: boolean) => {
         if (fullscreen) document.body.classList.remove("not-fullscreen")
@@ -86,12 +86,9 @@ const Nav: React.FC = () => {
                 case WindowStateListenerType.Fullscreen:
                     setBodyFullscreenState(windowState)
                     break
-                case WindowStateListenerType.Focused:
-                    setBodyFocusState(windowState)
-                    break
             }
         },
-        [setBodyFocusState, setBodyFullscreenState]
+        [setBodyFullscreenState]
     )
 
     const canFetch = useCallback(
@@ -160,14 +157,13 @@ const Nav: React.FC = () => {
     )
 
     useEffect(() => {
-        setBodyFocusState(globalThis.utils.isFocused())
         setBodyFullscreenState(globalThis.utils.isFullscreen())
         globalThis.utils.addWindowStateListener(windowStateListener)
 
         return () => {
             // Cleanup will be handled by the event listener removal effect
         }
-    }, [setBodyFocusState, setBodyFullscreenState, windowStateListener])
+    }, [setBodyFullscreenState, windowStateListener])
 
     useEffect(() => {
         document.addEventListener("keydown", navShortcutsHandler)
@@ -199,6 +195,7 @@ const Nav: React.FC = () => {
         if (state.settings.display) classNames.push("hide-btns")
         if (state.menu) classNames.push("menu-on")
         if (itemShown) classNames.push("item-on")
+        if (blurred) classNames.push(classes.navBlurred)
         return classNames.join(" ")
     }
 

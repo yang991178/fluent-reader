@@ -13,8 +13,13 @@ import {
     ContextualMenuItemType,
     DirectionalHint,
 } from "office-ui-fabric-react/lib/ContextualMenu"
-import { closeContextMenu, ContextMenuType } from "../scripts/models/app"
 import {
+    closeContextMenu,
+    ContextMenuType,
+    toggleSettings,
+} from "../scripts/models/app"
+import {
+    fetchItems,
     markAllRead,
     markRead,
     markUnread,
@@ -44,7 +49,7 @@ export const renderShareQR = (item: IContextualMenuItem) => (
 )
 
 function getSearchItem(text: string): IContextualMenuItem {
-    const engine = window.settings.getSearchEngine()
+    const engine = globalThis.settings.getSearchEngine()
     return {
         key: "searchText",
         text: intl.get("context.search", {
@@ -100,7 +105,7 @@ function ItemContextMenu() {
             iconProps: { iconName: "NavigateExternalInline" },
             onClick: e => {
                 dispatch(markRead(item))
-                window.utils.openExternal(item.link, platformCtrl(e))
+                globalThis.utils.openExternal(item.link, platformCtrl(e))
             },
         },
         {
@@ -189,18 +194,19 @@ function ItemContextMenu() {
             key: "copyTitle",
             text: intl.get("context.copyTitle"),
             onClick: () => {
-                window.utils.writeClipboard(item.title)
+                globalThis.utils.writeClipboard(item.title)
             },
         },
         {
             key: "copyURL",
             text: intl.get("context.copyURL"),
             onClick: () => {
-                window.utils.writeClipboard(item.link)
+                globalThis.utils.writeClipboard(item.link)
             },
         },
-        ...(viewConfigs !== undefined
-            ? [
+        ...(viewConfigs === undefined
+            ? []
+            : [
                   {
                       key: "divider_2",
                       itemType: ContextualMenuItemType.Divider,
@@ -257,8 +263,7 @@ function ItemContextMenu() {
                           ],
                       },
                   },
-              ]
-            : []),
+              ]),
     ]
     return <ContextMenuBase menuItems={menuItems} />
 }
@@ -277,7 +282,7 @@ function TextContextMenu() {
                   text: intl.get("context.copy"),
                   iconProps: { iconName: "Copy" },
                   onClick: () => {
-                      window.utils.writeClipboard(text)
+                      globalThis.utils.writeClipboard(text)
                   },
               },
               getSearchItem(text),
@@ -297,7 +302,7 @@ function TextContextMenu() {
                             iconName: "NavigateExternalInline",
                         },
                         onClick: e => {
-                            window.utils.openExternal(url, platformCtrl(e))
+                            globalThis.utils.openExternal(url, platformCtrl(e))
                         },
                     },
                     {
@@ -305,7 +310,7 @@ function TextContextMenu() {
                         text: intl.get("context.copyURL"),
                         iconProps: { iconName: "Link" },
                         onClick: () => {
-                            window.utils.writeClipboard(url)
+                            globalThis.utils.writeClipboard(url)
                         },
                     },
                 ],
@@ -323,11 +328,13 @@ function ImageContextMenu() {
             iconProps: { iconName: "NavigateExternalInline" },
             onClick: e => {
                 if (platformCtrl(e)) {
-                    window.utils.imageCallback(
+                    globalThis.utils.imageCallback(
                         ImageCallbackTypes.OpenExternalBg
                     )
                 } else {
-                    window.utils.imageCallback(ImageCallbackTypes.OpenExternal)
+                    globalThis.utils.imageCallback(
+                        ImageCallbackTypes.OpenExternal
+                    )
                 }
             },
         },
@@ -336,7 +343,7 @@ function ImageContextMenu() {
             text: intl.get("context.saveImageAs"),
             iconProps: { iconName: "SaveTemplate" },
             onClick: () => {
-                window.utils.imageCallback(ImageCallbackTypes.SaveAs)
+                globalThis.utils.imageCallback(ImageCallbackTypes.SaveAs)
             },
         },
         {
@@ -344,7 +351,7 @@ function ImageContextMenu() {
             text: intl.get("context.copyImage"),
             iconProps: { iconName: "FileImage" },
             onClick: () => {
-                window.utils.imageCallback(ImageCallbackTypes.Copy)
+                globalThis.utils.imageCallback(ImageCallbackTypes.Copy)
             },
         },
         {
@@ -352,7 +359,7 @@ function ImageContextMenu() {
             text: intl.get("context.copyImageURL"),
             iconProps: { iconName: "Link" },
             onClick: () => {
-                window.utils.imageCallback(ImageCallbackTypes.CopyLink)
+                globalThis.utils.imageCallback(ImageCallbackTypes.CopyLink)
             },
         },
     ]
@@ -521,7 +528,7 @@ function GroupContextMenu() {
             text: intl.get("nav.refresh"),
             iconProps: { iconName: "Sync" },
             onClick: () => {
-                dispatch(markAllRead(sids))
+                dispatch(fetchItems(false, sids))
             },
         },
         {
@@ -529,7 +536,7 @@ function GroupContextMenu() {
             text: intl.get("context.manageSources"),
             iconProps: { iconName: "Settings" },
             onClick: () => {
-                dispatch(markAllRead(sids))
+                dispatch(toggleSettings(true, sids))
             },
         },
     ]

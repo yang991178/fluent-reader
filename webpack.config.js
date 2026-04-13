@@ -61,6 +61,13 @@ module.exports = [
         module: {
             rules: [
                 {
+                    test: /\.(js|ts|tsx)$/,
+                    include: [/src/, /node_modules\/@fluentui/],
+                    use: {
+                        loader: "@griffel/webpack-plugin/loader",
+                    },
+                },
+                {
                     test: /\.ts(x?)$/,
                     include: /src/,
                     resolve: {
@@ -68,16 +75,6 @@ module.exports = [
                     },
                     use: {
                         loader: "ts-loader",
-                        options: {
-                            ignoreDiagnostics: [2882],
-                        },
-                    },
-                },
-                {
-                    test: /\.(js|ts|tsx)$/,
-                    include: /src/,
-                    use: {
-                        loader: "@griffel/webpack-plugin/loader",
                     },
                 },
                 {
