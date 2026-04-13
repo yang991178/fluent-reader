@@ -6,7 +6,7 @@ import { Icon } from "@fluentui/react/lib/Icon"
 import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
 import { RootState } from "../scripts/reducer"
 import { fetchItems } from "../scripts/models/item"
-import { makeStyles } from "@fluentui/react-components"
+import { makeStyles, mergeClasses } from "@fluentui/react-components"
 import {
     toggleMenu,
     toggleLogMenu,
@@ -16,6 +16,10 @@ import {
 } from "../scripts/models/app"
 import { toggleSearch } from "../scripts/models/page"
 import { ViewType, WindowStateListenerType } from "../schema-types"
+import { FlatButton } from "./utils/FlatButton"
+import { FlatButtonGroup } from "./utils/FlatButtonGroup"
+import { FlatButtonSeparator } from "./utils/FlatButtonSeparator"
+import { useIsWideScreen } from "./utils/useIsWideScreen"
 
 const useClasses = makeStyles({
     progress: {
@@ -26,6 +30,28 @@ const useClasses = makeStyles({
         width: "100%",
         height: "2px",
         overflow: "hidden",
+    },
+    navBtn: {
+        height: "var(--navHeight)",
+        lineHeight: "var(--navHeight)",
+        zIndex: 1,
+        position: "relative",
+    },
+    navBtnSystem: {
+        position: "relative",
+        zIndex: 10,
+    },
+    navBtnSystemItemOn: {
+        color: "var(--whiteConstant)",
+    },
+    navBtnMinimize: {
+        fontSize: "12px",
+    },
+    navGroupFirst: {
+        marginLeft: "72px",
+    },
+    navGroupRight: {
+        float: "right",
     },
 })
 
@@ -38,6 +64,8 @@ const Nav: React.FC = () => {
             state.page.itemId && state.page.viewType !== ViewType.List
     )
     const [maximized, setMaximized] = useState(globalThis.utils.isMaximized())
+    const isWideScreen = useIsWideScreen()
+    const isDarwin = globalThis.utils.platform === "darwin"
 
     const setBodyFocusState = useCallback((focused: boolean) => {
         if (focused) document.body.classList.remove("blur")
@@ -164,7 +192,7 @@ const Nav: React.FC = () => {
         globalThis.utils.closeWindow()
     }
 
-    const fetching = () => (canFetch() ? "" : " fetching")
+    const isFetching = !canFetch()
 
     const getClassNames = () => {
         const classNames = new Array<string>()
@@ -180,98 +208,137 @@ const Nav: React.FC = () => {
             : null
     }
 
+    const isNonNavButtonShown = !state.settings.display
+    const menuOn = state.menu
+    const systemItemOnClass = itemShown ? classes.navBtnSystemItemOn : undefined
+    const firstGroupClass = mergeClasses(
+        isDarwin && !globalThis.utils.isFullscreen()
+            ? classes.navGroupFirst
+            : undefined
+    )
+
     return (
         <nav className={getClassNames()}>
-            <div className="btn-group">
-                <button
-                    className="btn hide-wide"
-                    title={intl.get("nav.menu")}
-                    onClick={menu}>
-                    <Icon
-                        iconName={
-                            globalThis.utils.platform === "darwin"
-                                ? "SidePanel"
-                                : "GlobalNavButton"
-                        }
-                    />
-                </button>
-            </div>
-            <span className="title">{state.title}</span>
-            <div className="btn-group" style={{ float: "right" }}>
-                <button
-                    className={"btn" + fetching()}
-                    onClick={fetch}
-                    title={intl.get("nav.refresh")}>
-                    <Icon iconName="Refresh" />
-                </button>
-                <button
-                    className="btn"
-                    id="mark-all-toggle"
-                    onClick={markAll}
-                    title={intl.get("nav.markAllRead")}
-                    onMouseDown={e => {
-                        if (state.contextMenu.event === "#mark-all-toggle")
-                            e.stopPropagation()
-                    }}>
-                    <Icon iconName="InboxCheck" />
-                </button>
-                <button
-                    className="btn"
-                    id="log-toggle"
-                    title={intl.get("nav.notifications")}
-                    onClick={logs}>
-                    {state.logMenu.notify ? (
-                        <Icon iconName="RingerSolid" />
-                    ) : (
-                        <Icon iconName="Ringer" />
-                    )}
-                </button>
-                <button
-                    className="btn"
-                    id="view-toggle"
-                    title={intl.get("nav.view")}
-                    onClick={views}
-                    onMouseDown={e => {
-                        if (state.contextMenu.event === "#view-toggle")
-                            e.stopPropagation()
-                    }}>
-                    <Icon iconName="View" />
-                </button>
-                <button
-                    className="btn"
-                    title={intl.get("nav.settings")}
-                    onClick={settings}>
-                    <Icon iconName="Settings" />
-                </button>
-                <span className="seperator"></span>
-                <button
-                    className="btn system"
-                    title={intl.get("nav.minimize")}
-                    onClick={minimize}
-                    style={{ fontSize: 12 }}>
-                    <Icon iconName="Remove" />
-                </button>
-                <button
-                    className="btn system"
-                    title={intl.get("nav.maximize")}
-                    onClick={maximize}>
-                    {maximized ? (
+            {(!isWideScreen || !menuOn) && isNonNavButtonShown && (
+                <FlatButtonGroup styleClass={firstGroupClass}>
+                    <FlatButton
+                        styleClass={classes.navBtn}
+                        title={intl.get("nav.menu")}
+                        onClick={menu}>
                         <Icon
-                            iconName="ChromeRestore"
-                            style={{ fontSize: 11 }}
+                            iconName={
+                                isDarwin ? "SidePanel" : "GlobalNavButton"
+                            }
                         />
-                    ) : (
-                        <Icon iconName="Checkbox" style={{ fontSize: 10 }} />
-                    )}
-                </button>
-                <button
-                    className="btn system close"
-                    title={intl.get("close")}
-                    onClick={close}>
-                    <Icon iconName="Cancel" />
-                </button>
-            </div>
-            {!canFetch() && (
+                    </FlatButton>
+                </FlatButtonGroup>
+            )}
+            <span className="title">{state.title}</span>
+            <FlatButtonGroup styleClass={classes.navGroupRight}>
+                {isNonNavButtonShown && (
+                    <>
+                        <FlatButton
+                            styleClass={classes.navBtn}
+                            fetching={isFetching}
+                            onClick={fetch}
+                            title={intl.get("nav.refresh")}>
+                            <Icon iconName="Refresh" />
+                        </FlatButton>
+                        <FlatButton
+                            styleClass={classes.navBtn}
+                            id="mark-all-toggle"
+                            onClick={markAll}
+                            title={intl.get("nav.markAllRead")}
+                            onMouseDown={e => {
+                                if (
+                                    state.contextMenu.event ===
+                                    "#mark-all-toggle"
+                                )
+                                    e.stopPropagation()
+                            }}>
+                            <Icon iconName="InboxCheck" />
+                        </FlatButton>
+                        <FlatButton
+                            styleClass={classes.navBtn}
+                            id="log-toggle"
+                            title={intl.get("nav.notifications")}
+                            onClick={logs}>
+                            {state.logMenu.notify ? (
+                                <Icon iconName="RingerSolid" />
+                            ) : (
+                                <Icon iconName="Ringer" />
+                            )}
+                        </FlatButton>
+                        <FlatButton
+                            styleClass={classes.navBtn}
+                            id="view-toggle"
+                            title={intl.get("nav.view")}
+                            onClick={views}
+                            onMouseDown={e => {
+                                if (state.contextMenu.event === "#view-toggle")
+                                    e.stopPropagation()
+                            }}>
+                            <Icon iconName="View" />
+                        </FlatButton>
+                        <FlatButton
+                            styleClass={classes.navBtn}
+                            title={intl.get("nav.settings")}
+                            onClick={settings}>
+                            <Icon iconName="Settings" />
+                        </FlatButton>
+                    </>
+                )}
+                {!isDarwin && (
+                    <>
+                        {!isDarwin && <FlatButtonSeparator />}
+                        <FlatButton
+                            variant="system"
+                            styleClass={mergeClasses(
+                                classes.navBtn,
+                                classes.navBtnSystem,
+                                classes.navBtnMinimize,
+                                systemItemOnClass
+                            )}
+                            title={intl.get("nav.minimize")}
+                            onClick={minimize}>
+                            <Icon iconName="Remove" />
+                        </FlatButton>
+                        <FlatButton
+                            variant="system"
+                            styleClass={mergeClasses(
+                                classes.navBtn,
+                                classes.navBtnSystem,
+                                systemItemOnClass
+                            )}
+                            title={intl.get("nav.maximize")}
+                            onClick={maximize}>
+                            {maximized ? (
+                                <Icon
+                                    iconName="ChromeRestore"
+                                    style={{ fontSize: 11 }}
+                                />
+                            ) : (
+                                <Icon
+                                    iconName="Checkbox"
+                                    style={{ fontSize: 10 }}
+                                />
+                            )}
+                        </FlatButton>
+                        <FlatButton
+                            variant="close"
+                            styleClass={mergeClasses(
+                                classes.navBtn,
+                                classes.navBtnSystem,
+                                systemItemOnClass
+                            )}
+                            title={intl.get("close")}
+                            onClick={close}>
+                            <Icon iconName="Cancel" />
+                        </FlatButton>
+                    </>
+                )}
+            </FlatButtonGroup>
+            {isFetching && (
                 <ProgressIndicator
                     className={classes.progress}
                     percentComplete={getProgress()}

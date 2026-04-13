@@ -134,6 +134,9 @@ Contains app icons (`build/icons/`), macOS entitlements plists, provisioning pro
 - Enums use `const enum` pattern in `schema-types.ts`.
 - Components use both class components and function components (no strict rule).
 - Redux containers in `containers/` use `connect()` from react-redux.
+- **Griffel styling**: Use `makeStyles` from `@griffel/react` for component-scoped styles. Import `mergeClasses` for combining classes. Prefer Griffel over adding new CSS rules to `dist/styles/`.
+- **`styleClass` prop convention**: Reusable components expose a `styleClass?: string` prop applied to the component's main element, allowing parents to pass Griffel-generated class overrides. If a component has multiple customizable elements, use element-specific prop names (e.g., `buttonStyleClass?: string`). Combine base and override classes with `mergeClasses`.
+- **Flat button components**: `FlatButton`, `FlatButtonGroup`, and `FlatButtonSeparator` in `src/components/utils/` implement the Griffel + `styleClass` pattern. Use these instead of raw `<button>`/`<div>` with CSS class names for toolbar-style buttons.
 
 ## Validation Checklist
 

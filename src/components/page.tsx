@@ -8,9 +8,29 @@ import ArticleSearch from "./utils/article-search"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
 import { dismissItem, showOffsetItem } from "../scripts/models/page"
 import { ContextMenuType } from "../scripts/models/app"
+import { makeStyles, mergeClasses } from "@fluentui/react-components"
+import { FlatButton } from "./utils/FlatButton"
+import { FlatButtonGroup } from "./utils/FlatButtonGroup"
+
+const usePageClasses = makeStyles({
+    articleBtn: {
+        color: "#fff",
+    },
+    articleGroup: {
+        position: "absolute",
+        top: "calc(50% - 32px)",
+    },
+    articleGroupPrev: {
+        left: "calc(50% - 486px)",
+    },
+    articleGroupNext: {
+        right: "calc(50% - 486px)",
+    },
+})
 
 const Page: React.FC = () => {
     const dispatch = useAppDispatch()
+    const pageClasses = usePageClasses()
 
     const feedId = useAppSelector(s => s.page.feedId)
     const settingsOn = useAppSelector(s => s.app.settings.display)
@@ -100,22 +120,30 @@ const Page: React.FC = () => {
                     </div>
                     {itemFromFeed && (
                         <>
-                            <div className="btn-group prev">
-                                <button
-                                    className="btn"
-                                    aria-label="Previous article"
+                            <FlatButtonGroup
+                                styleClass={mergeClasses(
+                                    pageClasses.articleGroup,
+                                    pageClasses.articleGroupPrev
+                                )}>
+                                <FlatButton
+                                    styleClass={pageClasses.articleBtn}
+                                    ariaLabel="Previous article"
                                     onClick={prevItem}>
                                     <Icon iconName="Back" />
-                                </button>
-                            </div>
-                            <div className="btn-group next">
-                                <button
-                                    className="btn"
-                                    aria-label="Next article"
+                                </FlatButton>
+                            </FlatButtonGroup>
+                            <FlatButtonGroup
+                                styleClass={mergeClasses(
+                                    pageClasses.articleGroup,
+                                    pageClasses.articleGroupNext
+                                )}>
+                                <FlatButton
+                                    styleClass={pageClasses.articleBtn}
+                                    ariaLabel="Next article"
                                     onClick={nextItem}>
                                     <Icon iconName="Forward" />
-                                </button>
-                            </div>
+                                </FlatButton>
+                            </FlatButtonGroup>
                         </>
                     )}
                 </FocusTrapZone>

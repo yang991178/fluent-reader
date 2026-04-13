@@ -163,7 +163,6 @@ i.ms-Nav-chevron {
     user-select: none;
     overflow: hidden;
 }
-#root > nav .btn,
 #root > nav span {
     z-index: 1;
     position: relative;
@@ -193,101 +192,12 @@ body.blur #root > nav {
 body.darwin #root > nav span.title {
     max-width: 220px;
 }
-.btn-group {
-    display: inline-block;
-    user-select: none;
-    -webkit-app-region: none;
-}
-.btn-group .seperator {
-    display: inline-block;
-    width: var(--navHeight);
-    font-size: 12px;
-    color: #c8c6c4;
-    text-align: center;
-    vertical-align: middle;
-}
-body.darwin .btn-group .seperator {
-    display: none;
-}
-.btn-group .seperator::before {
-    content: "|";
-}
-.btn-group .btn {
-    display: inline-block;
-    width: 48px;
-    height: 32px;
-    text-decoration: none;
-    text-align: center;
-    line-height: 32px;
-    color: var(--black);
-    font-size: 14px;
-    vertical-align: top;
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: inherit;
-    font-family: inherit;
-}
-#root > nav .btn-group .btn,
-.menu .btn-group .btn {
-    height: var(--navHeight);
-    line-height: var(--navHeight);
-}
-body.darwin.not-fullscreen #root > nav .btn-group:first-of-type {
-    margin-left: 72px;
-}
-#root > nav .btn-group .btn.system {
-    position: relative;
-    z-index: 10;
-}
-nav.hide-btns .btn-group .btn {
-    display: none;
-}
-nav.hide-btns .btn-group .btn.system {
-    display: inline-block;
-}
-nav.item-on .btn-group .btn.system {
-    color: var(--whiteConstant);
-}
-.btn-group .btn:hover,
 .ms-Nav-compositeLink:hover {
     background-color: #0001;
 }
-.btn-group .btn:active,
 .ms-Nav-compositeLink:active {
     background-color: #0002;
 }
 .ms-Nav-compositeLink:hover .ms-Nav-link {
     background: none;
-}
-.btn-group .btn.disabled,
-.btn-group .btn.fetching {
-    background-color: unset !important;
-    color: var(--neutralSecondaryAlt);
-}
-.btn-group .btn.fetching {
-    animation: rotating linear 1.5s infinite;
-}
-@keyframes rotating {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-.btn-group .btn.close:hover {
-    background-color: #e81123;
-    color: var(--whiteConstant) !important;
-}
-.btn-group .btn.close:active {
-    background-color: #f1707a;
-    color: var(--whiteConstant) !important;
-}
-.btn-group .btn.inline-block-wide {
-    display: none;
-}
-body.darwin .btn-group .btn.system {
-    display: none;
 }
