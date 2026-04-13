@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useMemo, useCallback, useState, useEffect } from "react"
+import { useMemo, useCallback } from "react"
 import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
@@ -40,7 +40,7 @@ export const Menu: React.FC = () => {
     const menuClasses = useMenuClasses()
     const isWideScreen = useIsWideScreen()
     const isDarwin = globalThis.utils.platform === "darwin"
-    const blurred = useIsBlurred()
+    const isBlurred = useIsBlurred()
 
     const status = useAppSelector(
         s => s.app.sourceInit && !s.app.settings.display
@@ -222,7 +222,7 @@ export const Menu: React.FC = () => {
                         <FlatButton
                             styleClass={mergeClasses(
                                 menuClasses.menuBtn,
-                                blurred ? menuClasses.menuBtnBlurred : undefined
+                                isBlurred ? menuClasses.menuBtnBlurred : undefined
                             )}
                             title={intl.get("menu.close")}
                             ariaLabel={intl.get("menu.close")}
