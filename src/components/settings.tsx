@@ -13,9 +13,21 @@ import ServiceTabContainer from "../containers/settings/service-container"
 import { initTouchBarWithTexts } from "../scripts/utils"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
 import { exitSettings } from "../scripts/models/app"
+import { makeStyles } from "@fluentui/react-components"
+import { FlatButton } from "./utils/FlatButton"
+import { FlatButtonGroup } from "./utils/FlatButtonGroup"
+
+const useSettingsClasses = makeStyles({
+    settingsGroup: {
+        position: "absolute",
+        top: "70px",
+        left: "calc(50% - 404px)",
+    },
+})
 
 const Settings: React.FC = () => {
     const dispatch = useAppDispatch()
+    const settingsClasses = useSettingsClasses()
 
     const display = useAppSelector(s => s.app.settings.display)
     const blocked = useAppSelector(
@@ -51,22 +63,15 @@ const Settings: React.FC = () => {
     return (
         display && (
             <div className="settings-container">
-                <div
-                    className="btn-group"
-                    style={{
-                        position: "absolute",
-                        top: 70,
-                        left: "calc(50% - 404px)",
-                    }}>
-                    <button
-                        className={"btn" + (exitting ? " disabled" : "")}
-                        title={intl.get("settings.exit")}
-                        aria-label={intl.get("settings.exit")}
+                <FlatButtonGroup styleClass={settingsClasses.settingsGroup}>
+                    <FlatButton
                         disabled={exitting}
+                        title={intl.get("settings.exit")}
+                        ariaLabel={intl.get("settings.exit")}
                         onClick={close}>
                         <Icon iconName="Back" />
-                    </button>
-                </div>
+                    </FlatButton>
+                </FlatButtonGroup>
                 <div className={"settings " + AnimationClassNames.slideUpIn20}>
                     {blocked && (
                         <FocusTrapZone

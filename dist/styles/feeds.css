@@ -17,19 +17,6 @@
     overflow: hidden;
     animation-name: slideUp20;
 }
-.article-container .btn-group .btn {
-    color: #fff;
-}
-.article-container .btn-group {
-    position: absolute;
-    top: calc(50% - 32px);
-}
-.article-container .btn-group.prev {
-    left: calc(50% - 486px);
-}
-.article-container .btn-group.next {
-    right: calc(50% - 486px);
-}
 .article {
     height: 100%;
     user-select: none;

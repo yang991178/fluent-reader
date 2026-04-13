@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useMemo, useCallback } from "react"
+import { useMemo, useCallback, useState, useEffect } from "react"
 import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
@@ -15,9 +15,42 @@ import {
     selectSources,
     toggleSearch,
 } from "../scripts/models/page"
+import { makeStyles, mergeClasses } from "@fluentui/react-components"
+import { FlatButton } from "./utils/FlatButton"
+import { FlatButtonGroup } from "./utils/FlatButtonGroup"
+import { useIsWideScreen } from "./utils/useIsWideScreen"
+
+const useMenuClasses = makeStyles({
+    menuBtn: {
+        height: "var(--navHeight)",
+        lineHeight: "var(--navHeight)",
+    },
+    menuBtnBlurred: {
+        color: "var(--neutralSecondaryAlt)",
+    },
+    menuGroupDarwin: {
+        display: "flex",
+        flexDirection: "row-reverse",
+    },
+})
 
 export const Menu: React.FC = () => {
     const dispatch = useAppDispatch()
+    const menuClasses = useMenuClasses()
+    const isWideScreen = useIsWideScreen()
+    const isDarwin = globalThis.utils.platform === "darwin"
+    const [blurred, setBlurred] = useState(!globalThis.utils.isFocused())
+
+    useEffect(() => {
+        const onFocus = () => setBlurred(false)
+        const onBlur = () => setBlurred(true)
+        window.addEventListener("focus", onFocus)
+        window.addEventListener("blur", onBlur)
+        return () => {
+            window.removeEventListener("focus", onFocus)
+            window.removeEventListener("blur", onBlur)
+        }
+    }, [])
 
     const status = useAppSelector(
         s => s.app.sourceInit && !s.app.settings.display
@@ -192,28 +225,31 @@ export const Menu: React.FC = () => {
                 <div
                     className={"menu" + (itemOn ? " item-on" : "")}
                     onClick={e => e.stopPropagation()}>
-                    <div className="btn-group">
-                        <button
-                            className="btn hide-wide"
+                    <FlatButtonGroup
+                        styleClass={
+                            isDarwin ? menuClasses.menuGroupDarwin : undefined
+                        }>
+                        <FlatButton
+                            styleClass={mergeClasses(
+                                menuClasses.menuBtn,
+                                blurred ? menuClasses.menuBtnBlurred : undefined
+                            )}
                             title={intl.get("menu.close")}
-                            aria-label={intl.get("menu.close")}
+                            ariaLabel={intl.get("menu.close")}
                             onClick={handleToggleMenu}>
-                            <Icon iconName="Back" />
-                        </button>
-                        <button
-                            className="btn inline-block-wide"
-                            title={intl.get("menu.close")}
-                            aria-label={intl.get("menu.close")}
-                            onClick={handleToggleMenu}>
-                            <Icon
-                                iconName={
-                                    globalThis.utils.platform === "darwin"
-                                        ? "SidePanel"
-                                        : "GlobalNavButton"
-                                }
-                            />
-                        </button>
-                    </div>
+                            {isWideScreen ? (
+                                <Icon
+                                    iconName={
+                                        isDarwin
+                                            ? "SidePanel"
+                                            : "GlobalNavButton"
+                                    }
+                                />
+                            ) : (
+                                <Icon iconName="Back" />
+                            )}
+                        </FlatButton>
+                    </FlatButtonGroup>
                     <FocusZone
                         as="div"
                         disabled={!display}

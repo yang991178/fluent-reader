@@ -2,11 +2,9 @@
     .ms-Button--commandBar.active .ms-Button-icon {
         color: #c7e0f4;
     }
-    .btn-group .btn:hover,
     .ms-Nav-compositeLink:hover {
         background-color: #fff1;
     }
-    .btn-group .btn:active,
     .ms-Nav-compositeLink:active {
         background-color: #fff2;
     }
