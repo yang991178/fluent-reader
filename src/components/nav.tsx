@@ -69,7 +69,8 @@ const Nav: React.FC = () => {
     )
     const [maximized, setMaximized] = useState(globalThis.utils.isMaximized())
     const isWideScreen = useIsWideScreen()
-    const blurred = useIsBlurred()
+    const isBlurred = useIsBlurred()
+    const [isFullscreen, setIsFullscreen] = useState(() => globalThis.utils.isFullscreen())
     const isDarwin = globalThis.utils.platform === "darwin"
 
     const setBodyFullscreenState = useCallback((fullscreen: boolean) => {
@@ -84,6 +85,7 @@ const Nav: React.FC = () => {
                     setMaximized(windowState)
                     break
                 case WindowStateListenerType.Fullscreen:
+                    setIsFullscreen(windowState)
                     setBodyFullscreenState(windowState)
                     break
             }
@@ -195,7 +197,7 @@ const Nav: React.FC = () => {
         if (state.settings.display) classNames.push("hide-btns")
         if (state.menu) classNames.push("menu-on")
         if (itemShown) classNames.push("item-on")
-        if (blurred) classNames.push(classes.navBlurred)
+        if (isBlurred) classNames.push(classes.navBlurred)
         return classNames.join(" ")
     }
 
@@ -209,7 +211,7 @@ const Nav: React.FC = () => {
     const menuOn = state.menu
     const systemItemOnClass = itemShown ? classes.navBtnSystemItemOn : undefined
     const firstGroupClass = mergeClasses(
-        isDarwin && !globalThis.utils.isFullscreen()
+        isDarwin && !isFullscreen
             ? classes.navGroupFirst
             : undefined
     )
