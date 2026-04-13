@@ -33,11 +33,10 @@ mac:
         - pt_BR
         - pt_PT
         - cs
-    minimumSystemVersion: 10.15.0
+    minimumSystemVersion: 12.0.0
 mas:
     entitlements: build/entitlements.mas.plist
     entitlementsInherit: build/entitlements.mas.inherit.plist
-    provisioningProfile: build/embedded.provisionprofile
     hardenedRuntime: false
     gatekeeperAssess: false
     asarUnpack: []

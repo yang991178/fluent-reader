@@ -1,5 +1,5 @@
 import { app } from "electron"
-import Store = require("electron-store")
+import Store from "electron-store"
 import { SchemaTypes } from "../schema-types"
 
 export default function performUpdate(store: Store<SchemaTypes>) {

@@ -6,6 +6,7 @@ import { Icon } from "@fluentui/react/lib/Icon"
 import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
 import { RootState } from "../scripts/reducer"
 import { fetchItems } from "../scripts/models/item"
+import { makeStyles } from "@fluentui/react-components"
 import {
     toggleMenu,
     toggleLogMenu,
@@ -16,7 +17,20 @@ import {
 import { toggleSearch } from "../scripts/models/page"
 import { ViewType, WindowStateListenerType } from "../schema-types"
 
+const useClasses = makeStyles({
+    progress: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 10,
+        width: "100%",
+        height: "2px",
+        overflow: "hidden",
+    },
+})
+
 const Nav: React.FC = () => {
+    const classes = useClasses()
     const dispatch = useDispatch()
     const state = useSelector((state: RootState) => state.app)
     const itemShown = useSelector(
@@ -259,7 +273,7 @@ const Nav: React.FC = () => {
             </div>
             {!canFetch() && (
                 <ProgressIndicator
-                    className="progress"
+                    className={classes.progress}
                     percentComplete={getProgress()}
                 />
             )}

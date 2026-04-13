@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
+const { GriffelPlugin } = require("@griffel/webpack-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = [
     {
@@ -64,7 +66,23 @@ module.exports = [
                     resolve: {
                         extensions: [".ts", ".tsx", ".js"],
                     },
-                    use: [{ loader: "ts-loader" }],
+                    use: {
+                        loader: "ts-loader",
+                        options: {
+                            ignoreDiagnostics: [2882],
+                        },
+                    },
+                },
+                {
+                    test: /\.(js|ts|tsx)$/,
+                    include: /src/,
+                    use: {
+                        loader: "@griffel/webpack-plugin/loader",
+                    },
+                },
+                {
+                    test: /\.css$/,
+                    use: [MiniCssExtractPlugin.loader, "css-loader"],
                 },
             ],
         },
@@ -79,6 +97,8 @@ module.exports = [
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
             }),
+            new MiniCssExtractPlugin(),
+            new GriffelPlugin(),
         ],
     },
 ]

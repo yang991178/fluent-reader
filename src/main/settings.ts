@@ -1,4 +1,4 @@
-import Store = require("electron-store")
+import Store from "electron-store"
 import {
     SchemaTypes,
     SourceGroup,

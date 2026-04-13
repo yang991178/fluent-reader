@@ -1,6 +1,7 @@
 node_modules
 dist/**/*.js
 dist/**/*.js.map
+dist/griffel.css
 bin/*
 .DS_Store
 *.provisionprofile

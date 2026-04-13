@@ -1,6 +1,6 @@
-import windowStateKeeper = require("electron-window-state")
+import windowStateKeeper from "electron-window-state"
 import { BrowserWindow, nativeTheme, app } from "electron"
-import path = require("path")
+import * as path from "node:path"
 import { setThemeListener } from "./settings"
 import { setUtilsListeners } from "./utils"
 
