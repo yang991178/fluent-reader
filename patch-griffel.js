@@ -2,8 +2,8 @@
 // path contains spaces. The ESM file uses `new URL(import.meta.url).pathname`
 // which returns a URL-encoded string (e.g. %20 for spaces) on Windows, causing
 // webpack to fail to resolve the virtual loader. `fileURLToPath` decodes it correctly.
-const fs = require("fs")
-const path = require("path")
+const fs = require("node:fs")
+const path = require("node:path")
 
 const filePath = path.join(
     __dirname,
@@ -36,4 +36,6 @@ content = content.replace(
 )
 
 fs.writeFileSync(filePath, content, "utf8")
-console.log("patch-griffel.js: patched @griffel/webpack-plugin for Windows compatibility.")
+console.log(
+    "patch-griffel.js: patched @griffel/webpack-plugin for Windows compatibility."
+)

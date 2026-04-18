@@ -222,7 +222,9 @@ export const Menu: React.FC = () => {
                         <FlatButton
                             styleClass={mergeClasses(
                                 menuClasses.menuBtn,
-                                isBlurred ? menuClasses.menuBtnBlurred : undefined
+                                isBlurred
+                                    ? menuClasses.menuBtnBlurred
+                                    : undefined
                             )}
                             title={intl.get("menu.close")}
                             ariaLabel={intl.get("menu.close")}

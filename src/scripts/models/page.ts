@@ -110,16 +110,19 @@ export function selectSources(
     }
 }
 
-export function switchView(viewType: ViewType): PageActionTypes {
-    return {
-        type: SWITCH_VIEW,
-        viewType: viewType,
+export function switchView(viewType: ViewType): AppThunk {
+    return dispatch => {
+        globalThis.settings.setDefaultView(viewType)
+        dispatch({
+            type: SWITCH_VIEW,
+            viewType: viewType,
+        })
     }
 }
 
 export function setViewConfigs(configs: ViewConfigs): AppThunk {
     return (dispatch, getState) => {
-        window.settings.setViewConfigs(getState().page.viewType, configs)
+        globalThis.settings.setViewConfigs(getState().page.viewType, configs)
         dispatch({
             type: "SET_VIEW_CONFIGS",
             configs: configs,
@@ -225,7 +228,7 @@ function applyFilter(filter: FeedFilter): AppThunk {
     return (dispatch, getState) => {
         const oldFilterType = getState().page.filter.type
         if (filter.type !== oldFilterType)
-            window.settings.setFilterType(filter.type)
+            globalThis.settings.setFilterType(filter.type)
         dispatch(applyFilterDone(filter))
         dispatch(initFeeds(true))
     }
@@ -270,9 +273,9 @@ export function performSearch(query: string): AppThunk {
 }
 
 export class PageState {
-    viewType = window.settings.getDefaultView()
-    viewConfigs = window.settings.getViewConfigs(
-        window.settings.getDefaultView()
+    viewType = globalThis.settings.getDefaultView()
+    viewConfigs = globalThis.settings.getViewConfigs(
+        globalThis.settings.getDefaultView()
     )
     filter = new FeedFilter()
     feedId = ALL
@@ -307,7 +310,9 @@ export function pageReducer(
             return {
                 ...state,
                 viewType: action.viewType,
-                viewConfigs: window.settings.getViewConfigs(action.viewType),
+                viewConfigs: globalThis.settings.getViewConfigs(
+                    action.viewType
+                ),
                 itemId: null,
             }
         case SET_VIEW_CONFIGS:
