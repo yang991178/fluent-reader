@@ -137,6 +137,7 @@ declare global {
     interface Window {
         settings: typeof settingsBridge
     }
+    var settings: typeof settingsBridge
 }
 
 export default settingsBridge

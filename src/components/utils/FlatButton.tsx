@@ -44,17 +44,17 @@ const useStyles = makeStyles({
         },
     },
     disabled: {
-        "backgroundColor": "unset",
+        "backgroundColor": "unset !important",
         "color": "var(--neutralSecondaryAlt)",
         ":hover": {
-            backgroundColor: "unset",
+            backgroundColor: "unset !important",
         },
         ":active": {
-            backgroundColor: "unset",
+            backgroundColor: "unset !important",
         },
     },
     fetching: {
-        "backgroundColor": "unset",
+        "backgroundColor": "unset !important",
         "color": "var(--neutralSecondaryAlt)",
         "animationName": {
             from: { transform: "rotate(0deg)" },
@@ -64,10 +64,10 @@ const useStyles = makeStyles({
         "animationTimingFunction": "linear",
         "animationIterationCount": "infinite",
         ":hover": {
-            backgroundColor: "unset",
+            backgroundColor: "unset !important",
         },
         ":active": {
-            backgroundColor: "unset",
+            backgroundColor: "unset !important",
         },
     },
     close: {

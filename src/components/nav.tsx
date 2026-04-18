@@ -70,7 +70,9 @@ const Nav: React.FC = () => {
     const [maximized, setMaximized] = useState(globalThis.utils.isMaximized())
     const isWideScreen = useIsWideScreen()
     const isBlurred = useIsBlurred()
-    const [isFullscreen, setIsFullscreen] = useState(() => globalThis.utils.isFullscreen())
+    const [isFullscreen, setIsFullscreen] = useState(() =>
+        globalThis.utils.isFullscreen()
+    )
     const isDarwin = globalThis.utils.platform === "darwin"
 
     const setBodyFullscreenState = useCallback((fullscreen: boolean) => {
@@ -211,9 +213,7 @@ const Nav: React.FC = () => {
     const menuOn = state.menu
     const systemItemOnClass = itemShown ? classes.navBtnSystemItemOn : undefined
     const firstGroupClass = mergeClasses(
-        isDarwin && !isFullscreen
-            ? classes.navGroupFirst
-            : undefined
+        isDarwin && !isFullscreen ? classes.navGroupFirst : undefined
     )
 
     return (
@@ -239,6 +239,7 @@ const Nav: React.FC = () => {
                         <FlatButton
                             styleClass={classes.navBtn}
                             fetching={isFetching}
+                            disabled={isFetching}
                             onClick={fetch}
                             title={intl.get("nav.refresh")}>
                             <Icon iconName="Refresh" />
