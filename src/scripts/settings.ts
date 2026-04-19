@@ -40,30 +40,24 @@ let darkTheme: IPartialTheme = {
     },
 }
 
-export function setThemeDefaultFont(locale: string) {
+export function getFontFamilyForLocale(locale: string): string {
     switch (locale) {
         case "zh-CN":
-            lightTheme.defaultFontStyle.fontFamily =
-                '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif'
-            break
+            return '"Segoe UI", "Source Han Sans SC Regular", "Microsoft YaHei", sans-serif'
         case "zh-TW":
-            lightTheme.defaultFontStyle.fontFamily =
-                '"Segoe UI", "Source Han Sans TC Regular", "Microsoft JhengHei", sans-serif'
-            break
+            return '"Segoe UI", "Source Han Sans TC Regular", "Microsoft JhengHei", sans-serif'
         case "ja":
-            lightTheme.defaultFontStyle.fontFamily =
-                '"Segoe UI", "Source Han Sans JP Regular", "Yu Gothic UI", sans-serif'
-            break
+            return '"Segoe UI", "Source Han Sans JP Regular", "Yu Gothic UI", sans-serif'
         case "ko":
-            lightTheme.defaultFontStyle.fontFamily =
-                '"Segoe UI", "Source Han Sans KR Regular", "Malgun Gothic", sans-serif'
-            break
+            return '"Segoe UI", "Source Han Sans KR Regular", "Malgun Gothic", sans-serif'
         default:
-            lightTheme.defaultFontStyle.fontFamily =
-                '"Segoe UI", "Source Han Sans Regular", sans-serif'
+            return '"Segoe UI", "Source Han Sans Regular", sans-serif'
     }
-    darkTheme.defaultFontStyle.fontFamily =
-        lightTheme.defaultFontStyle.fontFamily
+}
+export function setThemeDefaultFont(locale: string) {
+    const fontFamily = getFontFamilyForLocale(locale)
+    lightTheme.defaultFontStyle.fontFamily = fontFamily
+    darkTheme.defaultFontStyle.fontFamily = fontFamily
     applyThemeSettings()
 }
 export function setThemeSettings(theme: ThemeSettings) {

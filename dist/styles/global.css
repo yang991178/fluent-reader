@@ -88,14 +88,6 @@ body.linux {
     font-size: 13px;
     user-select: none;
 }
-.ms-Nav-link,
-.ms-Nav-chevronButton {
-    font-size: 12px;
-    line-height: 32px;
-    height: 32px;
-    background-color: transparent;
-    color: var(--neutralPrimary);
-}
 .ms-Button--primary.danger {
     background: #d13438;
     border-color: #d13438;
@@ -118,13 +110,6 @@ body.linux {
 }
 .ms-Button--commandBar.active .ms-Button-icon {
     color: #005a9e;
-}
-i.ms-Nav-chevron {
-    line-height: 32px;
-    height: 32px;
-}
-.ms-Nav-groupContent {
-    margin-bottom: 24px;
 }
 .ms-ActivityItem-activityTypeIcon,
 .ms-ActivityItem-timeStamp {
@@ -188,13 +173,4 @@ i.ms-Nav-chevron {
 }
 body.darwin #root > nav span.title {
     max-width: 220px;
-}
-.ms-Nav-compositeLink:hover {
-    background-color: #0001;
-}
-.ms-Nav-compositeLink:active {
-    background-color: #0002;
-}
-.ms-Nav-compositeLink:hover .ms-Nav-link {
-    background: none;
 }

@@ -2,12 +2,6 @@
     .ms-Button--commandBar.active .ms-Button-icon {
         color: #c7e0f4;
     }
-    .ms-Nav-compositeLink:hover {
-        background-color: #fff1;
-    }
-    .ms-Nav-compositeLink:active {
-        background-color: #fff2;
-    }
     .settings .loading {
         background-color: #000a;
     }

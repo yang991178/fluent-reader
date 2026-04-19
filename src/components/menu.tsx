@@ -1,12 +1,9 @@
 import * as React from "react"
 import { useMemo, useCallback } from "react"
 import intl from "react-intl-universal"
-import { Icon } from "@fluentui/react/lib/Icon"
-import { Nav, INavLink, INavLinkGroup } from "office-ui-fabric-react/lib/Nav"
 import { SourceGroup, ViewType } from "../schema-types"
 import { RSSSource } from "../scripts/models/source"
 import { ALL, initFeeds } from "../scripts/models/feed"
-import { AnimationClassNames, Stack, FocusZone } from "@fluentui/react"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
 import { toggleMenu, openGroupMenu } from "../scripts/models/app"
 import { toggleGroupExpansion } from "../scripts/models/group"
@@ -15,11 +12,26 @@ import {
     selectSources,
     toggleSearch,
 } from "../scripts/models/page"
-import { makeStyles, mergeClasses } from "@fluentui/react-components"
+import {
+    makeStyles,
+    mergeClasses,
+    tokens,
+    Tree,
+    TreeItem,
+    TreeItemLayout,
+    TreeOpenChangeData,
+    useSubtreeContext_unstable,
+} from "@fluentui/react-components"
+import {
+    Checkmark16Regular,
+    DocumentOnePageMultiple16Regular,
+    Search16Regular,
+} from "@fluentui/react-icons"
 import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 import { useIsWideScreen } from "./utils/hooks/useIsWideScreen"
 import { useIsBlurred } from "./utils/hooks/useIsBlurred"
+import { Icon } from "@fluentui/react"
 
 const useMenuClasses = makeStyles({
     menuBtn: {
@@ -32,6 +44,96 @@ const useMenuClasses = makeStyles({
     menuGroupDarwin: {
         display: "flex",
         flexDirection: "row-reverse",
+    },
+    menuContainer: {
+        "position": "fixed",
+        "zIndex": 5,
+        "left": 0,
+        "top": 0,
+        "width": "100%",
+        "height": "100%",
+        "pointerEvents": "none",
+        "@media (min-width: 1440px)": {
+            width: "280px",
+            background: "none",
+            backdropFilter: "none",
+        },
+    },
+    menuContainerShow: {
+        pointerEvents: "unset",
+    },
+    menuInner: {
+        "position": "absolute",
+        "left": 0,
+        "top": 0,
+        "width": "280px",
+        "height": "100%",
+        "backgroundColor": "var(--neutralLighterAltOpacity)",
+        "backdropFilter": "var(--blur)",
+        "boxShadow": "5px 0 25px #0004",
+        "transition":
+            "clip-path var(--transition-timing) 0.367s, opacity cubic-bezier(0, 0, 0.2, 1) 0.367s",
+        "clipPath": "inset(0 100% 0 0)",
+        "opacity": 0,
+        "@media (min-width: 1440px)": {
+            "backgroundColor": "var(--neutralLight)",
+            "boxShadow": "none",
+            "::after": {
+                content: '""',
+                display: "block",
+                pointerEvents: "none",
+                position: "absolute",
+                top: "-10%",
+                right: 0,
+                width: "120%",
+                height: "120%",
+                boxShadow: "inset 5px 0 25px #0004",
+            },
+        },
+    },
+    menuInnerShow: {
+        "clipPath": "inset(0 -50px 0 0)",
+        "opacity": 1,
+        "@media (min-width: 1440px)": {
+            clipPath: "inset(0)",
+        },
+    },
+    menuInnerDarwin: {
+        "@media (min-width: 1440px)": {
+            background: "none",
+        },
+    },
+    menuInnerItemOnDarwin: {
+        "@media (min-width: 1440px)": {
+            backgroundColor: "var(--neutralLight)",
+        },
+    },
+    navWrapper: {
+        maxHeight: "calc(100% - var(--navHeight))",
+        overflowX: "hidden",
+        overflowY: "auto",
+    },
+    tree: {
+        paddingTop: 0,
+        paddingBottom: 0,
+    },
+    subsHeader: {
+        fontSize: "12px",
+        color: tokens.colorNeutralForeground4,
+        marginTop: "16px",
+        marginBottom: "4px",
+        marginLeft: "8px",
+        marginRight: "8px",
+        userSelect: "none",
+    },
+    favicon: {
+        width: "16px",
+        height: "16px",
+        verticalAlign: "middle",
+        userSelect: "none",
+    },
+    primaryIcon: {
+        color: tokens.colorCompoundBrandForeground1,
     },
 })
 
@@ -58,6 +160,16 @@ export const Menu: React.FC = () => {
         s => s.page.itemId !== null && s.page.viewType !== ViewType.List
     )
 
+    const openItems = useMemo(
+        () =>
+            new Set(
+                groups
+                    .filter(g => g.isMultiple && g.expanded)
+                    .map(g => "g-" + g.index)
+            ),
+        [groups]
+    )
+
     const handleToggleMenu = useCallback(() => dispatch(toggleMenu()), [])
     const handleToggleSearch = useCallback(() => dispatch(toggleSearch()), [])
     const handleAllArticles = useCallback((init = false) => {
@@ -81,139 +193,74 @@ export const Menu: React.FC = () => {
         },
         []
     )
-    const handleUpdateGroupExpansion = useCallback(
-        (event: React.MouseEvent<HTMLElement>, key: string, sel: string) => {
-            if ((event.target as HTMLElement).tagName === "I" || key === sel) {
-                const [type, index] = key.split("-")
-                if (type === "g")
-                    dispatch(toggleGroupExpansion(Number.parseInt(index)))
+
+    const handleOpenChange = useCallback(
+        (_event: any, data: TreeOpenChangeData) => {
+            if (
+                data.type === "ExpandIconClick" ||
+                data.type === "ArrowRight" ||
+                data.type === "ArrowLeft"
+            ) {
+                const value = String(data.value)
+                if (value.startsWith("g-")) {
+                    const index = Number.parseInt(value.split("-")[1])
+                    dispatch(toggleGroupExpansion(index))
+                }
             }
         },
         []
     )
 
-    const countOverflow = (count: number) =>
-        count >= 1000 ? " 999+" : ` ${count}`
+    const totalUnread = useMemo(
+        () =>
+            Object.values(sources)
+                .filter(s => !s.hidden)
+                .map(s => s.unreadCount)
+                .reduce((a, b) => a + b, 0),
+        [sources]
+    )
 
-    const getIconStyle = (url: string) => ({
-        style: { width: 16 },
-        imageProps: {
-            style: { width: "100%" },
-            src: url,
-        },
-    })
-
-    const getSource = (s: RSSSource): INavLink => ({
-        name: s.name,
-        ariaLabel: s.name + countOverflow(s.unreadCount),
-        key: "s-" + s.sid,
-        onClick: () => handleSelectSource(s),
-        iconProps: s.iconurl ? getIconStyle(s.iconurl) : null,
-        url: null,
-    })
-
-    const getLinkGroups = (): INavLinkGroup[] => [
-        {
-            links: [
-                {
-                    name: intl.get("search"),
-                    ariaLabel: intl.get("search") + (searchOn ? " ✓" : " "),
-                    key: "search",
-                    icon: "Search",
-                    onClick: handleToggleSearch,
-                    url: null,
-                },
-                {
-                    name: intl.get("allArticles"),
-                    ariaLabel:
-                        intl.get("allArticles") +
-                        countOverflow(
-                            Object.values(sources)
-                                .filter(s => !s.hidden)
-                                .map(s => s.unreadCount)
-                                .reduce((a, b) => a + b, 0)
-                        ),
-                    key: ALL,
-                    icon: "TextDocument",
-                    onClick: () => handleAllArticles(selected !== ALL),
-                    url: null,
-                },
-            ],
-        },
-        {
-            name: intl.get("menu.subscriptions"),
-            links: groups
-                .filter(g => g.sids.length > 0)
-                .map(g => {
-                    if (g.isMultiple) {
-                        const groupSources = g.sids.map(sid => sources[sid])
-                        return {
-                            name: g.name,
-                            ariaLabel:
-                                g.name +
-                                countOverflow(
-                                    groupSources
-                                        .map(s => s.unreadCount)
-                                        .reduce((a, b) => a + b, 0)
-                                ),
-                            key: "g-" + g.index,
-                            url: null,
-                            isExpanded: g.expanded,
-                            onClick: () =>
-                                handleSelectSourceGroup(g, "g-" + g.index),
-                            links: groupSources.map(getSource),
-                        }
-                    } else {
-                        return getSource(sources[g.sids[0]])
-                    }
-                }),
-        },
-    ]
-
-    const onContext = (item: INavLink, event: React.MouseEvent) => {
-        const [type, index] = item.key.split("-")
-        let sids: number[]
-        if (type === "s") {
-            sids = [Number.parseInt(index)]
-        } else if (type === "g") {
-            sids = groups[Number.parseInt(index)].sids
-        } else {
-            return
-        }
-        handleGroupContextMenu(sids, event)
-    }
-
-    const onRenderLink = (link: INavLink): JSX.Element => {
-        const count = link.ariaLabel.split(" ").pop()
+    const renderSourceItem = (s: RSSSource) => {
+        const key = "s-" + s.sid
         return (
-            <Stack
-                className="link-stack"
-                horizontal
-                grow
-                onContextMenu={event => onContext(link, event)}>
-                <div className="link-text">{link.name}</div>
-                {count && count !== "0" && (
-                    <div className="unread-count">{count}</div>
-                )}
-            </Stack>
-        )
-    }
-
-    const onRenderGroupHeader = (group: INavLinkGroup): JSX.Element => {
-        return (
-            <p className={"subs-header " + AnimationClassNames.slideDownIn10}>
-                {group.name}
-            </p>
+            <MenuTreeItem
+                key={key}
+                value={key}
+                label={s.name}
+                isSelected={selected === key}
+                icon={
+                    s.iconurl ? (
+                        <img
+                            alt=""
+                            className={menuClasses.favicon}
+                            src={s.iconurl}
+                        />
+                    ) : undefined
+                }
+                unreadCount={s.unreadCount}
+                onClick={() => handleSelectSource(s)}
+                onContextMenu={e => {
+                    handleGroupContextMenu([s.sid], e)
+                }}
+            />
         )
     }
 
     return (
         status && (
             <div
-                className={"menu-container" + (display ? " show" : "")}
+                className={mergeClasses(
+                    menuClasses.menuContainer,
+                    display && menuClasses.menuContainerShow
+                )}
                 onClick={handleToggleMenu}>
                 <div
-                    className={"menu" + (itemOn ? " item-on" : "")}
+                    className={mergeClasses(
+                        menuClasses.menuInner,
+                        display && menuClasses.menuInnerShow,
+                        isDarwin && menuClasses.menuInnerDarwin,
+                        isDarwin && itemOn && menuClasses.menuInnerItemOnDarwin
+                    )}
                     onClick={e => e.stopPropagation()}>
                     <FlatButtonGroup
                         styleClass={
@@ -242,26 +289,204 @@ export const Menu: React.FC = () => {
                             )}
                         </FlatButton>
                     </FlatButtonGroup>
-                    <FocusZone
-                        as="div"
-                        disabled={!display}
-                        className="nav-wrapper">
-                        <Nav
-                            onRenderGroupHeader={onRenderGroupHeader}
-                            onRenderLink={onRenderLink}
-                            groups={getLinkGroups()}
-                            selectedKey={selected}
-                            onLinkExpandClick={(event, item) =>
-                                handleUpdateGroupExpansion(
-                                    event,
-                                    item.key,
-                                    selected
-                                )
-                            }
-                        />
-                    </FocusZone>
+                    <div className={menuClasses.navWrapper}>
+                        <Tree
+                            className={menuClasses.tree}
+                            size="small"
+                            appearance="subtle-alpha">
+                            <MenuTreeItem
+                                value="search"
+                                label={intl.get("search")}
+                                icon={
+                                    <Search16Regular
+                                        className={menuClasses.primaryIcon}
+                                    />
+                                }
+                                aside={
+                                    searchOn ? (
+                                        <Checkmark16Regular
+                                            className={menuClasses.primaryIcon}
+                                        />
+                                    ) : undefined
+                                }
+                                onClick={handleToggleSearch}
+                            />
+                            <MenuTreeItem
+                                value={ALL}
+                                label={intl.get("allArticles")}
+                                isSelected={selected === ALL}
+                                icon={
+                                    <DocumentOnePageMultiple16Regular
+                                        className={menuClasses.primaryIcon}
+                                    />
+                                }
+                                unreadCount={totalUnread}
+                                onClick={() =>
+                                    handleAllArticles(selected !== ALL)
+                                }
+                            />
+                        </Tree>
+                        {groups.length > 0 && (
+                            <p className={menuClasses.subsHeader}>
+                                {intl.get("menu.subscriptions")}
+                            </p>
+                        )}
+                        <Tree
+                            className={menuClasses.tree}
+                            size="small"
+                            appearance="subtle-alpha"
+                            openItems={openItems}
+                            onOpenChange={handleOpenChange}>
+                            {groups
+                                .filter(g => g.sids.length > 0)
+                                .map(g => {
+                                    if (g.isMultiple) {
+                                        const groupSources = g.sids.map(
+                                            sid => sources[sid]
+                                        )
+                                        const groupKey = "g-" + g.index
+                                        const isGroupSelected =
+                                            selected === groupKey
+                                        const groupUnread = groupSources
+                                            .map(s => s.unreadCount)
+                                            .reduce((a, b) => a + b, 0)
+                                        return (
+                                            <MenuTreeItem
+                                                key={groupKey}
+                                                value={groupKey}
+                                                itemType="branch"
+                                                label={g.name}
+                                                isSelected={isGroupSelected}
+                                                unreadCount={groupUnread}
+                                                onClick={() =>
+                                                    handleSelectSourceGroup(
+                                                        g,
+                                                        groupKey
+                                                    )
+                                                }
+                                                onContextMenu={e =>
+                                                    handleGroupContextMenu(
+                                                        g.sids,
+                                                        e
+                                                    )
+                                                }>
+                                                <Tree>
+                                                    {groupSources.map(
+                                                        renderSourceItem
+                                                    )}
+                                                </Tree>
+                                            </MenuTreeItem>
+                                        )
+                                    } else {
+                                        return renderSourceItem(
+                                            sources[g.sids[0]]
+                                        )
+                                    }
+                                })}
+                        </Tree>
+                    </div>
                 </div>
             </div>
         )
+    )
+}
+
+const useTreeItemClasses = makeStyles({
+    treeBranchItem: {
+        paddingBlock: "6px",
+    },
+    treeLeafItem: {
+        paddingBlock: "8px",
+        paddingLeft: "12px",
+    },
+    treeLeafSubItem: {
+        paddingLeft: "24px",
+    },
+    subTreeItem: {},
+    selectedItem: {
+        "::after": {
+            content: '""',
+            position: "absolute",
+            left: 0,
+            top: "4px",
+            width: "4px",
+            height: "24px",
+            borderRadius: tokens.borderRadiusCircular,
+            backgroundColor: tokens.colorCompoundBrandForeground1,
+        },
+    },
+    selectedItemText: {
+        color: tokens.colorNeutralForeground1,
+        fontWeight: tokens.fontWeightSemibold,
+    },
+    unreadCount: {
+        color: tokens.colorNeutralForeground3,
+        marginLeft: "auto",
+        paddingLeft: "4px",
+        flexShrink: 0,
+    },
+})
+
+interface MenuTreeItemProps {
+    value: string
+    itemType?: "leaf" | "branch"
+    label: React.ReactNode
+    isSelected?: boolean
+    icon?: React.ReactElement
+    unreadCount?: number
+    aside?: React.ReactElement
+    onClick: () => void
+    onContextMenu?: (e: React.MouseEvent) => void
+    children?: React.ReactNode
+}
+
+const MenuTreeItem: React.FC<MenuTreeItemProps> = ({
+    value,
+    itemType = "leaf",
+    label,
+    isSelected = false,
+    icon,
+    unreadCount,
+    aside,
+    onClick,
+    onContextMenu,
+    children,
+}) => {
+    const c = useTreeItemClasses()
+    const { level } = useSubtreeContext_unstable()
+    let resolvedAside: React.ReactElement | undefined = aside
+    if (resolvedAside === undefined && unreadCount && unreadCount > 0) {
+        resolvedAside = (
+            <span className={c.unreadCount}>
+                {unreadCount >= 1000 ? "999+" : String(unreadCount)}
+            </span>
+        )
+    }
+    const handleContextMenu = onContextMenu
+        ? (e: React.MouseEvent) => {
+              e.stopPropagation()
+              onContextMenu(e)
+          }
+        : undefined
+    return (
+        <TreeItem
+            value={value}
+            itemType={itemType}
+            onClick={onClick}
+            onContextMenu={handleContextMenu}>
+            <TreeItemLayout
+                className={mergeClasses(
+                    itemType === "leaf" ? c.treeLeafItem : c.treeBranchItem,
+                    level > 1 && c.treeLeafSubItem,
+                    isSelected && c.selectedItem
+                )}
+                iconBefore={icon}
+                aside={resolvedAside}>
+                <span className={isSelected ? c.selectedItemText : undefined}>
+                    {label}
+                </span>
+            </TreeItemLayout>
+            {children}
+        </TreeItem>
     )
 }
