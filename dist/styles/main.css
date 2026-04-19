@@ -13,7 +13,6 @@
         opacity: 1;
     }
 }
-.menu-container,
 .article-container {
     position: fixed;
     z-index: 5;
@@ -27,65 +26,14 @@
     animation-name: fade;
     background-color: #0008;
 }
-.menu-container,
 .article-container,
 .article-wrapper {
     animation-duration: 0.5s;
     animation-timing-function: var(--transition-timing);
     animation-fill-mode: both;
 }
-.menu-container {
-    pointer-events: none;
-}
-.menu-container.show {
-    pointer-events: unset;
-}
 .article-container {
     z-index: 6;
-}
-.menu-container .menu {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 280px;
-    height: 100%;
-    background-color: var(--neutralLighterAltOpacity);
-    backdrop-filter: var(--blur);
-    box-shadow: 5px 0 25px #0004;
-    transition: clip-path var(--transition-timing) 0.367s,
-        opacity cubic-bezier(0, 0, 0.2, 1) 0.367s;
-    clip-path: inset(0 100% 0 0);
-    opacity: 0;
-}
-.menu-container.show .menu {
-    clip-path: inset(0 -50px 0 0);
-    opacity: 1;
-}
-.menu-container .menu .nav-wrapper {
-    max-height: calc(100% - var(--navHeight));
-    overflow: hidden auto;
-}
-.menu-container .menu p.subs-header {
-    font-size: 12px;
-    color: var(--neutralSecondaryAlt);
-    margin: 2px 8px;
-    user-select: none;
-}
-.menu .link-stack {
-    overflow: hidden;
-}
-.menu .link-text {
-    margin-top: 0px;
-    margin-right: 4px;
-    margin-bottom: 0px;
-    margin-left: 4px;
-    text-align: left;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    flex-grow: 1;
-}
-.menu .unread-count {
-    color: var(--neutralSecondary);
 }
 
 .settings-container {
@@ -252,35 +200,6 @@ body.darwin .list-main .article-search {
     #root > nav.menu-on span.title,
     body.darwin #root > nav.menu-on span.title {
         max-width: 300px;
-    }
-    .menu-container {
-        width: 280px;
-        background: none;
-        backdrop-filter: none;
-    }
-    .menu-container .menu {
-        background-color: var(--neutralLight);
-        box-shadow: none;
-    }
-    .menu-container.show .menu {
-        clip-path: inset(0);
-    }
-    body.darwin .menu-container .menu {
-        background: none;
-    }
-    body.darwin .menu-container .menu.item-on {
-        background-color: var(--neutralLight);
-    }
-    .menu-container .menu::after {
-        content: "";
-        display: block;
-        pointer-events: none;
-        position: absolute;
-        top: -10%;
-        right: 0;
-        width: 120%;
-        height: 120%;
-        box-shadow: inset 5px 0 25px #0004;
     }
     .main.menu-on,
     .list-main.menu-on {
