@@ -3,10 +3,14 @@ import { useState, useEffect, useCallback } from "react"
 import intl from "react-intl-universal"
 import { useSelector, useDispatch } from "react-redux"
 import { Icon } from "@fluentui/react/lib/Icon"
-import { ProgressIndicator, IObjectWithKey } from "@fluentui/react"
+import { IObjectWithKey } from "@fluentui/react"
 import { RootState } from "../scripts/reducer"
 import { fetchItems } from "../scripts/models/item"
-import { makeStyles, mergeClasses } from "@fluentui/react-components"
+import {
+    makeStyles,
+    mergeClasses,
+    ProgressBar,
+} from "@fluentui/react-components"
 import {
     toggleMenu,
     toggleLogMenu,
@@ -20,7 +24,10 @@ import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 import { FlatButtonSeparator } from "./utils/FlatButtonSeparator"
 import { useIsWideScreen } from "./utils/hooks/useIsWideScreen"
-import { useIsBlurred } from "./utils/hooks/useIsBlurred"
+import {
+    AppWindowFocusChangeEvent,
+    useIsBlurred,
+} from "./utils/hooks/useIsBlurred"
 
 const useClasses = makeStyles({
     progress: {
@@ -29,8 +36,8 @@ const useClasses = makeStyles({
         left: 0,
         zIndex: 10,
         width: "100%",
-        height: "2px",
         overflow: "hidden",
+        background: "none",
     },
     navBlurred: {
         "--black": "var(--neutralSecondaryAlt)",
@@ -89,6 +96,14 @@ const Nav: React.FC = () => {
                 case WindowStateListenerType.Fullscreen:
                     setIsFullscreen(windowState)
                     setBodyFullscreenState(windowState)
+                    break
+                case WindowStateListenerType.Focused:
+                    globalThis.dispatchEvent(
+                        new CustomEvent<AppWindowFocusChangeEvent["detail"]>(
+                            "app-window-focus-change",
+                            { detail: { focused: windowState } }
+                        )
+                    )
                     break
             }
         },
@@ -206,7 +221,7 @@ const Nav: React.FC = () => {
     const getProgress = () => {
         return state.fetchingTotal > 0
             ? state.fetchingProgress / state.fetchingTotal
-            : null
+            : undefined
     }
 
     const isNonNavButtonShown = !state.settings.display
@@ -339,9 +354,10 @@ const Nav: React.FC = () => {
                 )}
             </FlatButtonGroup>
             {isFetching && (
-                <ProgressIndicator
+                <ProgressBar
                     className={classes.progress}
-                    percentComplete={getProgress()}
+                    shape="square"
+                    value={getProgress()}
                 />
             )}
         </nav>

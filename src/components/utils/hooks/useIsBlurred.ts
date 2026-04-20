@@ -1,16 +1,23 @@
 import { useState, useEffect } from "react"
 
+export interface AppWindowFocusChangeEvent
+    extends CustomEvent<{ focused: boolean }> {
+    type: "app-window-focus-change"
+}
+
 export const useIsBlurred = () => {
     const [blurred, setBlurred] = useState(false)
     useEffect(() => {
         setBlurred(!globalThis.utils.isFocused())
-        const onFocus = () => setBlurred(false)
-        const onBlur = () => setBlurred(true)
-        window.addEventListener("focus", onFocus)
-        window.addEventListener("blur", onBlur)
+        const onFocusChange = (e: AppWindowFocusChangeEvent) => {
+            setBlurred(!e.detail.focused)
+        }
+        globalThis.addEventListener("app-window-focus-change", onFocusChange)
         return () => {
-            window.removeEventListener("focus", onFocus)
-            window.removeEventListener("blur", onBlur)
+            globalThis.removeEventListener(
+                "app-window-focus-change",
+                onFocusChange
+            )
         }
     }, [])
     return blurred
