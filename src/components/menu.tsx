@@ -54,7 +54,7 @@ const useMenuClasses = makeStyles({
         "height": "100%",
         "pointerEvents": "none",
         "@media (min-width: 1440px)": {
-            width: "280px",
+            width: "280px !important",
             background: "none",
             backdropFilter: "none",
         },
@@ -392,17 +392,15 @@ export const Menu: React.FC = () => {
 }
 
 const useTreeItemClasses = makeStyles({
-    treeBranchItem: {
-        paddingBlock: "6px",
+    treeItem: {
+        minHeight: "32px",
     },
     treeLeafItem: {
-        paddingBlock: "8px",
         paddingLeft: "12px",
     },
     treeLeafSubItem: {
         paddingLeft: "24px",
     },
-    subTreeItem: {},
     selectedItem: {
         "::after": {
             content: '""',
@@ -430,7 +428,7 @@ const useTreeItemClasses = makeStyles({
 interface MenuTreeItemProps {
     value: string
     itemType?: "leaf" | "branch"
-    label: React.ReactNode
+    label: string
     isSelected?: boolean
     icon?: React.ReactElement
     unreadCount?: number
@@ -475,8 +473,10 @@ const MenuTreeItem: React.FC<MenuTreeItemProps> = ({
             onClick={onClick}
             onContextMenu={handleContextMenu}>
             <TreeItemLayout
+                aria-label={`${isSelected ? "Selected: " : ""}${label}`}
                 className={mergeClasses(
-                    itemType === "leaf" ? c.treeLeafItem : c.treeBranchItem,
+                    c.treeItem,
+                    itemType === "leaf" && c.treeLeafItem,
                     level > 1 && c.treeLeafSubItem,
                     isSelected && c.selectedItem
                 )}
