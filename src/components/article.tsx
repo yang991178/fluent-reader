@@ -44,6 +44,7 @@ type ArticleProps = {
 type ArticleState = {
     fontFamily: string
     fontSize: number
+    translate: boolean
     loadWebpage: boolean
     loadFull: boolean
     fullContent: string
@@ -60,6 +61,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         this.state = {
             fontFamily: window.settings.getFont(),
             fontSize: window.settings.getFontSize(),
+            translate: false,
             loadWebpage: props.source.openTarget === SourceOpenTarget.Webpage,
             loadFull: props.source.openTarget === SourceOpenTarget.FullContent,
             fullContent: "",
@@ -288,8 +290,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 loadWebpage:
                     this.props.source.openTarget === SourceOpenTarget.Webpage,
                 loadFull:
-                    this.props.source.openTarget ===
-                    SourceOpenTarget.FullContent,
+                    this.props.source.openTarget === SourceOpenTarget.FullContent,
             })
             if (this.props.source.openTarget === SourceOpenTarget.FullContent)
                 this.loadFull()
@@ -302,6 +303,17 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             `#refocus div[data-iid="${this.props.item._id}"]`
         ) as HTMLElement
         if (refocus) refocus.focus()
+    }
+
+    toggleTranslation = () => {
+        if (this.state.translate) {
+            this.setState({ translate: false })
+        } else if (
+            this.props.item.link.startsWith("https://") ||
+            this.props.item.link.startsWith("http://")
+        ) {
+            this.setState({ translate: true })
+        }
     }
 
     toggleWebpage = () => {
@@ -439,6 +451,18 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                             this.props.toggleStarred(this.props.item)
                         }
                     />
+                    {this.state.loadWebpage && (
+                        <CommandBarButton
+                            title={
+                                this.state.translate
+                                    ? intl.get("article.showOriginal")
+                                    : intl.get("article.translate")
+                            }
+                            className={this.state.translate ? "active" : ""}
+                            iconProps={{ iconName: "Translate" }}
+                            onClick={this.toggleTranslation}
+                        />
+                    )}
                     <CommandBarButton
                         title={intl.get("article.loadFull")}
                         className={this.state.loadFull ? "active" : ""}
@@ -477,7 +501,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     }
                     src={
                         this.state.loadWebpage
-                            ? this.props.item.link
+                            ? this.state.translate
+                                ? `https://translate.google.com/translate?sl=auto&tl=${this.props.locale.split("-")[0]}&u=${encodeURIComponent(this.props.item.link)}`
+                                : this.props.item.link
                             : this.articleView()
                     }
                     allowpopups={"true" as unknown as boolean}
