@@ -7,13 +7,10 @@ import Settings from "./settings"
 import { useAppDispatch, useAppSelector } from "../scripts/reducer"
 import { ContextMenu } from "./context-menu"
 import LogMenu from "./log-menu"
-import { FluentProvider, makeStyles, Theme } from "@fluentui/react-components"
+import { FluentProvider, makeStyles } from "@fluentui/react-components"
 import { useEffect, useMemo, useState } from "react"
-import {
-    CUSTOM_STYLE_HOOKS,
-    customDarkTheme,
-    customLightTheme,
-} from "./utils/theme"
+import { ThemeProvider } from "@fluentui/react"
+import { CUSTOM_STYLE_HOOKS, createAppTheme } from "./utils/theme"
 import { CustomStyleHooksProvider_unstable as CustomStyleHooksProvider } from "@fluentui/react-shared-contexts"
 import { getFontFamilyForLocale } from "../scripts/settings"
 
@@ -37,30 +34,34 @@ const Root: React.FC = () => {
             setIsDarkMode(shouldDark)
         })
     }, [])
-    const fluentTheme: Theme = useMemo(() => {
-        const baseTheme = isDarkMode ? customDarkTheme : customLightTheme
-        return {
-            ...baseTheme,
-            fontFamilyBase: getFontFamilyForLocale(locale),
-        }
-    }, [isDarkMode, locale])
+    const themeBundle = useMemo(
+        () => createAppTheme(isDarkMode, getFontFamilyForLocale(locale)),
+        [isDarkMode, locale]
+    )
     return (
         locale && (
-            <FluentProvider theme={fluentTheme} className={classes.root}>
-                <CustomStyleHooksProvider value={CUSTOM_STYLE_HOOKS}>
-                    <div
-                        id="root"
-                        key={locale}
-                        onMouseDown={() => dispatch(closeContextMenu())}>
-                        <Nav />
-                        <Page />
-                        <LogMenu />
-                        <Menu />
-                        <Settings />
-                        <ContextMenu />
-                    </div>
-                </CustomStyleHooksProvider>
-            </FluentProvider>
+            <ThemeProvider
+                theme={themeBundle.v8Theme}
+                applyTo="none"
+                style={{ height: "100%" }}>
+                <FluentProvider
+                    theme={themeBundle.v9Theme}
+                    className={classes.root}>
+                    <CustomStyleHooksProvider value={CUSTOM_STYLE_HOOKS}>
+                        <div
+                            id="root"
+                            key={locale}
+                            onMouseDown={() => dispatch(closeContextMenu())}>
+                            <Nav />
+                            <Page />
+                            <LogMenu />
+                            <Menu />
+                            <Settings />
+                            <ContextMenu />
+                        </div>
+                    </CustomStyleHooksProvider>
+                </FluentProvider>
+            </ThemeProvider>
         )
     )
 }

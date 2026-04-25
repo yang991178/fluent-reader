@@ -8,7 +8,6 @@ import {
     IContextualMenuProps,
     FocusZone,
     ContextualMenuItemType,
-    Spinner,
     Icon,
     Link,
 } from "@fluentui/react"
@@ -19,6 +18,7 @@ import {
 } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
 import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
+import { Spinner } from "@fluentui/react-components"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
@@ -393,7 +393,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                                     />
                                 )
                             ) : (
-                                <Spinner size={1} />
+                                <Spinner size="extra-tiny" />
                             )}
                             {this.props.source.name}
                             {this.props.item.creator && (

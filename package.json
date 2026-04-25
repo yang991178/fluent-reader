@@ -25,6 +25,7 @@
   "devDependencies": {
     "@fluentui/react": "^7.126.2",
     "@fluentui/react-components": "^9.73.7",
+    "@fluentui/react-migration-v8-v9": "^9.10.9",
     "@fluentui/react-shared-contexts": "^9.26.2",
     "@griffel/react": "^1.6.1",
     "@griffel/webpack-plugin": "^4.0.1",

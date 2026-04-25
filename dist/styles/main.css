@@ -73,10 +73,10 @@ div[role="tabpanel"] {
     background-color: #fffa;
     z-index: 8;
 }
-.settings .loading .ms-Spinner {
+.settings .loading .fui-Spinner {
     margin-top: 180px;
 }
-.settings .loading .ms-Spinner:focus {
+.settings .loading .fui-Spinner:focus {
     outline: none;
 }
 .tab-body .ms-StackItem {

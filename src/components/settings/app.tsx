@@ -18,12 +18,11 @@ import {
     Toggle,
     TextField,
     DefaultButton,
-    ChoiceGroup,
-    IChoiceGroupOption,
     Dropdown,
     IDropdownOption,
     PrimaryButton,
 } from "@fluentui/react"
+import { RadioGroup, Radio } from "@fluentui/react-components"
 import DangerButton from "../utils/danger-button"
 
 type AppTabProps = {
@@ -73,12 +72,6 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             this.getCacheSize()
         })
     }
-
-    themeChoices = (): IChoiceGroupOption[] => [
-        { key: ThemeSettings.Default, text: intl.get("followSystem") },
-        { key: ThemeSettings.Light, text: intl.get("app.lightTheme") },
-        { key: ThemeSettings.Dark, text: intl.get("app.darkTheme") },
-    ]
 
     fetchIntervalOptions = (): IDropdownOption[] => [
         { key: 0, text: intl.get("app.never") },
@@ -168,9 +161,12 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
             window.settings.setProxy(this.state.pacUrl)
     }
 
-    onThemeChange = (_, option: IChoiceGroupOption) => {
-        setThemeSettings(option.key as ThemeSettings)
-        this.setState({ themeSettings: option.key as ThemeSettings })
+    onThemeChange = (
+        _: React.ChangeEvent<HTMLInputElement>,
+        data: { value: string }
+    ) => {
+        setThemeSettings(data.value as ThemeSettings)
+        this.setState({ themeSettings: data.value as ThemeSettings })
     }
 
     render = () => (
@@ -189,12 +185,23 @@ class AppTab extends React.Component<AppTabProps, AppTabState> {
                 </Stack.Item>
             </Stack>
 
-            <ChoiceGroup
-                label={intl.get("app.theme")}
-                options={this.themeChoices()}
-                onChange={this.onThemeChange}
-                selectedKey={this.state.themeSettings}
-            />
+            <Label>{intl.get("app.theme")}</Label>
+            <RadioGroup
+                value={this.state.themeSettings}
+                onChange={this.onThemeChange}>
+                <Radio
+                    value={ThemeSettings.Default}
+                    label={intl.get("followSystem")}
+                />
+                <Radio
+                    value={ThemeSettings.Light}
+                    label={intl.get("app.lightTheme")}
+                />
+                <Radio
+                    value={ThemeSettings.Dark}
+                    label={intl.get("app.darkTheme")}
+                />
+            </RadioGroup>
 
             <Label>{intl.get("app.fetchInterval")}</Label>
             <Stack horizontal>

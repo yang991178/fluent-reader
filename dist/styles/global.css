@@ -16,7 +16,7 @@
     --black: #000;
     --white: #fff;
     --whiteConstant: #fff;
-    --primary: #0078d4;
+    --primary: #0f6cbd;
     --navHeight: 32px;
     --transition-timing: cubic-bezier(0.1, 0.9, 0.2, 1);
     --blur: saturate(150%) blur(20px);
@@ -39,7 +39,8 @@
         --neutralDarker: #f4f4f4;
         --black: #f8f8f8;
         --white: #1f1f1f;
-        --whiteConstant: #f8f8f8;
+        --whiteConstant: #fff;
+        --primary: #2886de;
     }
 }
 body.darwin {
@@ -115,8 +116,7 @@ body.linux {
 .ms-ActivityItem-timeStamp {
     user-select: none;
 }
-.ms-Label,
-.ms-Spinner-label {
+.ms-Label {
     user-select: none;
 }
 .ms-ActivityItem,
@@ -151,6 +151,10 @@ body.linux {
 #root > nav span {
     z-index: 1;
     position: relative;
+}
+i[data-icon-name="StatusCircleCheckmark"] {
+    top: -1px;
+    left: 0px;
 }
 .ms-ProgressIndicator-itemProgress {
     padding: 0;
