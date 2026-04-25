@@ -39,11 +39,11 @@
     border-bottom: 1px solid var(--neutralQuaternaryAlt);
 }
 .article .actions .favicon,
-.article .actions .ms-Spinner {
+.article .actions .fui-Spinner {
     margin: 8px 8px 11px 0;
 }
-.article .actions .ms-Spinner {
-    display: inline-block;
+.article .actions .fui-Spinner {
+    display: inline-flex;
     vertical-align: middle;
 }
 .article .actions .source-name {

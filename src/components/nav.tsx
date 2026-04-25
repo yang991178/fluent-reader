@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { IObjectWithKey } from "@fluentui/react"
 import { RootState } from "../scripts/reducer"
-import { fetchItems } from "../scripts/models/item"
+import { fetchItems, markAllRead } from "../scripts/models/item"
 import {
     makeStyles,
     mergeClasses,
@@ -128,6 +128,7 @@ const Nav: React.FC = () => {
     const search = useCallback(() => dispatch(toggleSearch()), [dispatch])
     const settings = useCallback(() => dispatch(toggleSettings()), [dispatch])
     const markAll = useCallback(() => dispatch(openMarkAllMenu()), [dispatch])
+    const markAllDirect = useCallback(() => dispatch(markAllRead()), [dispatch])
     const views = useCallback(() => {
         if (state.contextMenu.event !== "#view-toggle") {
             dispatch(openViewMenu())
@@ -148,7 +149,7 @@ const Nav: React.FC = () => {
                         fetch()
                         break
                     case "F6":
-                        markAll()
+                        markAllDirect()
                         break
                     case "F7":
                         if (!itemShown) logs()
@@ -168,7 +169,7 @@ const Nav: React.FC = () => {
             menu,
             search,
             fetch,
-            markAll,
+            markAllDirect,
             logs,
             views,
             settings,

@@ -1,44 +1,8 @@
 import * as db from "./db"
-import { IPartialTheme, loadTheme } from "@fluentui/react"
 import locales from "./i18n/_locales"
 import { ThemeSettings } from "../schema-types"
 import intl from "react-intl-universal"
 import { SourceTextDirection } from "./models/source"
-
-let lightTheme: IPartialTheme = {
-    defaultFontStyle: {
-        fontFamily: '"Segoe UI", "Source Han Sans Regular", sans-serif',
-    },
-}
-let darkTheme: IPartialTheme = {
-    ...lightTheme,
-    palette: {
-        neutralLighterAlt: "#282828",
-        neutralLighter: "#313131",
-        neutralLight: "#3f3f3f",
-        neutralQuaternaryAlt: "#484848",
-        neutralQuaternary: "#4f4f4f",
-        neutralTertiaryAlt: "#6d6d6d",
-        neutralTertiary: "#c8c8c8",
-        neutralSecondary: "#d0d0d0",
-        neutralSecondaryAlt: "#d2d0ce",
-        neutralPrimaryAlt: "#dadada",
-        neutralPrimary: "#ffffff",
-        neutralDark: "#f4f4f4",
-        black: "#f8f8f8",
-        white: "#1f1f1f",
-        themePrimary: "#3a96dd",
-        themeLighterAlt: "#020609",
-        themeLighter: "#091823",
-        themeLight: "#112d43",
-        themeTertiary: "#235a85",
-        themeSecondary: "#3385c3",
-        themeDarkAlt: "#4ba0e1",
-        themeDark: "#65aee6",
-        themeDarker: "#8ac2ec",
-        accent: "#3a96dd",
-    },
-}
 
 export function getFontFamilyForLocale(locale: string): string {
     switch (locale) {
@@ -54,25 +18,13 @@ export function getFontFamilyForLocale(locale: string): string {
             return '"Segoe UI", "Source Han Sans Regular", sans-serif'
     }
 }
-export function setThemeDefaultFont(locale: string) {
-    const fontFamily = getFontFamilyForLocale(locale)
-    lightTheme.defaultFontStyle.fontFamily = fontFamily
-    darkTheme.defaultFontStyle.fontFamily = fontFamily
-    applyThemeSettings()
-}
+
 export function setThemeSettings(theme: ThemeSettings) {
     window.settings.setThemeSettings(theme)
-    applyThemeSettings()
 }
 export function getThemeSettings(): ThemeSettings {
     return window.settings.getThemeSettings()
 }
-export function applyThemeSettings() {
-    loadTheme(window.settings.shouldUseDarkColors() ? darkTheme : lightTheme)
-}
-window.settings.addThemeUpdateListener(shouldDark => {
-    loadTheme(shouldDark ? darkTheme : lightTheme)
-})
 
 export function getCurrentLocale() {
     let locale = window.settings.getCurrentLocale()

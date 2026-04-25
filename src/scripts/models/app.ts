@@ -32,7 +32,7 @@ import {
     selectAllArticles,
     showItemFromId,
 } from "./page"
-import { getCurrentLocale, setThemeDefaultFont } from "../settings"
+import { getCurrentLocale } from "../settings"
 import locales from "../i18n/_locales"
 import { SYNC_SERVICE, ServiceActionTypes } from "./service"
 
@@ -371,7 +371,6 @@ export interface InitIntlAction {
 }
 export const initIntlDone = (locale: string): InitIntlAction => {
     document.documentElement.lang = locale
-    setThemeDefaultFont(locale)
     return {
         type: INIT_INTL,
         locale: locale,

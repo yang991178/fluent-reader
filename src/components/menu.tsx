@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useMemo, useCallback } from "react"
+import { useMemo, useCallback, useEffect, useRef } from "react"
 import intl from "react-intl-universal"
 import { SourceGroup, ViewType } from "../schema-types"
 import { RSSSource } from "../scripts/models/source"
@@ -22,6 +22,7 @@ import {
     TreeOpenChangeData,
     useSubtreeContext_unstable,
 } from "@fluentui/react-components"
+import { useFocusFinders } from "@fluentui/react-tabster"
 import {
     Checkmark16Regular,
     DocumentOnePageMultiple16Regular,
@@ -140,6 +141,7 @@ const useMenuClasses = makeStyles({
 export const Menu: React.FC = () => {
     const dispatch = useAppDispatch()
     const menuClasses = useMenuClasses()
+    const { findFirstFocusable } = useFocusFinders()
     const isWideScreen = useIsWideScreen()
     const isDarwin = globalThis.utils.platform === "darwin"
     const isBlurred = useIsBlurred()
@@ -220,6 +222,15 @@ export const Menu: React.FC = () => {
         [sources]
     )
 
+    const treeRef = useRef<HTMLDivElement>(null)
+    const previousDisplayRef = useRef(display)
+    useEffect(() => {
+        if (display && !previousDisplayRef.current) {
+            findFirstFocusable(treeRef.current)?.focus()
+        }
+        previousDisplayRef.current = display
+    }, [display])
+
     const renderSourceItem = (s: RSSSource) => {
         const key = "s-" + s.sid
         return (
@@ -291,9 +302,12 @@ export const Menu: React.FC = () => {
                     </FlatButtonGroup>
                     <div className={menuClasses.navWrapper}>
                         <Tree
+                            ref={treeRef}
                             className={menuClasses.tree}
                             size="small"
-                            appearance="subtle-alpha">
+                            appearance="subtle-alpha"
+                            openItems={openItems}
+                            onOpenChange={handleOpenChange}>
                             <MenuTreeItem
                                 value="search"
                                 label={intl.get("search")}
@@ -325,18 +339,11 @@ export const Menu: React.FC = () => {
                                     handleAllArticles(selected !== ALL)
                                 }
                             />
-                        </Tree>
-                        {groups.length > 0 && (
-                            <p className={menuClasses.subsHeader}>
-                                {intl.get("menu.subscriptions")}
-                            </p>
-                        )}
-                        <Tree
-                            className={menuClasses.tree}
-                            size="small"
-                            appearance="subtle-alpha"
-                            openItems={openItems}
-                            onOpenChange={handleOpenChange}>
+                            {groups.length > 0 && (
+                                <p className={menuClasses.subsHeader}>
+                                    {intl.get("menu.subscriptions")}
+                                </p>
+                            )}
                             {groups
                                 .filter(g => g.sids.length > 0)
                                 .map(g => {

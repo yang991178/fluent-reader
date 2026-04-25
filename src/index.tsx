@@ -3,13 +3,11 @@ import * as ReactDOM from "react-dom"
 import { Provider } from "react-redux"
 import { initializeIcons } from "@fluentui/react/lib/Icons"
 import Root from "./components/root"
-import { applyThemeSettings } from "./scripts/settings"
 import { initApp, openTextMenu } from "./scripts/models/app"
 import { rootStore } from "./scripts/reducer"
 
 window.settings.setProxy()
 
-applyThemeSettings()
 initializeIcons("icons/")
 
 rootStore.dispatch(initApp())

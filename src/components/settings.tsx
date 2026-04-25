@@ -4,7 +4,7 @@ import intl from "react-intl-universal"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { AnimationClassNames } from "@fluentui/react/lib/Styling"
 import AboutTab from "./settings/about"
-import { Pivot, PivotItem, Spinner, FocusTrapZone } from "@fluentui/react"
+import { Pivot, PivotItem, FocusTrapZone } from "@fluentui/react"
 import SourcesTabContainer from "../containers/settings/sources-container"
 import GroupsTabContainer from "../containers/settings/groups-container"
 import AppTabContainer from "../containers/settings/app-container"
@@ -13,7 +13,7 @@ import ServiceTabContainer from "../containers/settings/service-container"
 import { initTouchBarWithTexts } from "../scripts/utils"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
 import { exitSettings } from "../scripts/models/app"
-import { makeStyles } from "@fluentui/react-components"
+import { makeStyles, Spinner } from "@fluentui/react-components"
 import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 
@@ -79,6 +79,8 @@ const Settings: React.FC = () => {
                             className="loading">
                             <Spinner
                                 label={intl.get("settings.fetching")}
+                                labelPosition="below"
+                                size="tiny"
                                 tabIndex={0}
                             />
                         </FocusTrapZone>
