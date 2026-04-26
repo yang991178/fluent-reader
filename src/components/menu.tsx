@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useMemo, useCallback, useEffect, useRef } from "react"
+import { useMemo, useCallback, useEffect, useRef, useState } from "react"
 import intl from "react-intl-universal"
 import { SourceGroup, ViewType } from "../schema-types"
 import { RSSSource } from "../scripts/models/source"
@@ -15,6 +15,7 @@ import {
 import {
     makeStyles,
     mergeClasses,
+    ToggleButton,
     tokens,
     Tree,
     TreeItem,
@@ -26,6 +27,7 @@ import { useFocusFinders } from "@fluentui/react-tabster"
 import {
     Checkmark16Regular,
     DocumentOnePageMultiple16Regular,
+    Filter12Filled,
     Search16Regular,
 } from "@fluentui/react-icons"
 import { FlatButton } from "./utils/FlatButton"
@@ -33,6 +35,7 @@ import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 import { useIsWideScreen } from "./utils/hooks/useIsWideScreen"
 import { useIsBlurred } from "./utils/hooks/useIsBlurred"
 import { Icon } from "@fluentui/react"
+import { StackShim } from "@fluentui/react-migration-v8-v9"
 
 const useMenuClasses = makeStyles({
     menuBtn: {
@@ -118,13 +121,15 @@ const useMenuClasses = makeStyles({
         paddingTop: 0,
         paddingBottom: 0,
     },
-    subsHeader: {
-        fontSize: "12px",
-        color: tokens.colorNeutralForeground4,
+    subsHeaderStack: {
         marginTop: "16px",
         marginBottom: "4px",
         marginLeft: "8px",
         marginRight: "8px",
+    },
+    subsHeader: {
+        fontSize: "12px",
+        color: tokens.colorNeutralForeground4,
         userSelect: "none",
     },
     favicon: {
@@ -211,6 +216,10 @@ export const Menu: React.FC = () => {
             }
         },
         []
+    )
+
+    const [isUnreadSourcesOnly, setIsUnreadSourcesOnly] = useState(() =>
+        globalThis.settings.getUnreadSourcesOnly()
     )
 
     const totalUnread = useMemo(
@@ -340,12 +349,45 @@ export const Menu: React.FC = () => {
                                 }
                             />
                             {groups.length > 0 && (
-                                <p className={menuClasses.subsHeader}>
-                                    {intl.get("menu.subscriptions")}
-                                </p>
+                                <StackShim
+                                    horizontal
+                                    horizontalAlign="space-between"
+                                    verticalAlign="center"
+                                    className={menuClasses.subsHeaderStack}>
+                                    <span className={menuClasses.subsHeader}>
+                                        {intl.get("menu.subscriptions")}
+                                    </span>
+                                    <ToggleButton
+                                        aria-label={
+                                            isUnreadSourcesOnly
+                                                ? intl.get("context.unreadOnly")
+                                                : intl.get("allArticles")
+                                        }
+                                        checked={isUnreadSourcesOnly}
+                                        onClick={() => {
+                                            setIsUnreadSourcesOnly(value => {
+                                                globalThis.settings.setUnreadSourcesOnly(
+                                                    !value
+                                                )
+                                                return !value
+                                            })
+                                        }}
+                                        size="small"
+                                        appearance="subtle"
+                                        icon={<Filter12Filled />}>
+                                        {isUnreadSourcesOnly &&
+                                            intl.get("context.unreadOnly")}
+                                    </ToggleButton>
+                                </StackShim>
                             )}
                             {groups
-                                .filter(g => g.sids.length > 0)
+                                .filter(g => {
+                                    if (g.sids.length === 0) return false
+                                    if (!isUnreadSourcesOnly) return true
+                                    return g.sids.some(
+                                        sid => sources[sid]?.unreadCount > 0
+                                    )
+                                })
                                 .map(g => {
                                     if (g.isMultiple) {
                                         const groupSources = g.sids.map(
@@ -357,6 +399,12 @@ export const Menu: React.FC = () => {
                                         const groupUnread = groupSources
                                             .map(s => s.unreadCount)
                                             .reduce((a, b) => a + b, 0)
+                                        const visibleGroupSources =
+                                            isUnreadSourcesOnly
+                                                ? groupSources.filter(
+                                                      s => s.unreadCount > 0
+                                                  )
+                                                : groupSources
                                         return (
                                             <MenuTreeItem
                                                 key={groupKey}
@@ -378,7 +426,7 @@ export const Menu: React.FC = () => {
                                                     )
                                                 }>
                                                 <Tree>
-                                                    {groupSources.map(
+                                                    {visibleGroupSources.map(
                                                         renderSourceItem
                                                     )}
                                                 </Tree>

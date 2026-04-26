@@ -1,5 +1,6 @@
 import * as React from "react"
 import {
+    createFocusOutlineStyle,
     makeStyles,
     mergeClasses,
     shorthands,
@@ -7,6 +8,12 @@ import {
 
 const useStyles = makeStyles({
     root: {
+        ...createFocusOutlineStyle({
+            style: {
+                outlineOffset: "-2px",
+            },
+        }),
+        "position": "relative",
         "display": "inline-block",
         "width": "48px",
         "height": "32px",

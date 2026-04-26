@@ -1,5 +1,9 @@
 import * as React from "react"
-import { makeStyles, mergeClasses } from "@fluentui/react-components"
+import {
+    makeStyles,
+    mergeClasses,
+    useArrowNavigationGroup,
+} from "@fluentui/react-components"
 
 const useStyles = makeStyles({
     root: {
@@ -19,8 +23,11 @@ export const FlatButtonGroup: React.FC<FlatButtonGroupProps> = ({
     styleClass,
 }) => {
     const classes = useStyles()
+    const focusAttrs = useArrowNavigationGroup({ axis: "horizontal" })
 
     return (
-        <div className={mergeClasses(classes.root, styleClass)}>{children}</div>
+        <div className={mergeClasses(classes.root, styleClass)} {...focusAttrs}>
+            {children}
+        </div>
     )
 }
