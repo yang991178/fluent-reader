@@ -20,7 +20,7 @@ export const customLightTheme: Theme = {
 
 export const customDarkTheme: Theme = {
     ...webDarkTheme,
-    colorNeutralBackground5: "#1f1f1f",
+    colorNeutralBackground1: "#1f1f1f",
     colorSubtleBackgroundLightAlphaHover: "#fff1",
     colorSubtleBackgroundLightAlphaPressed: "#fff1",
 }
