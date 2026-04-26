@@ -373,7 +373,7 @@ export const Menu: React.FC = () => {
                                             })
                                         }}
                                         size="small"
-                                        appearance="subtle"
+                                        appearance="transparent"
                                         icon={<Filter12Filled />}>
                                         {isUnreadSourcesOnly &&
                                             intl.get("context.unreadOnly")}
