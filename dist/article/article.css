@@ -21,15 +21,15 @@ body.vertical {
 
 :root {
     --gray: #484644;
-    --primary: #0078d4;
-    --primary-alt: #004578;
+    --primary: #0f6cbd;
+    --primary-alt: #115ea3;
 }
 @media (prefers-color-scheme: dark) {
     :root {
         color: #f8f8f8;
         --gray: #a19f9d;
-        --primary: #4ba0e1;
-        --primary-alt: #65aee6;
+        --primary: #479ef5;
+        --primary-alt: #62abf5;
     }
 }
 
