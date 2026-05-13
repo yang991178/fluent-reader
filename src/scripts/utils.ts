@@ -97,8 +97,19 @@ export const domParser = new DOMParser()
 
 export async function fetchFavicon(url: string) {
     try {
-        url = url.split("/").slice(0, 3).join("/")
-        let result = await fetch(url, { credentials: "omit" })
+        // rss image logo
+        const feed = await parseRSS(url)
+        if (feed && feed.image) {
+            return feed.image.url
+        }
+        // website logo
+        const icoUrl = url.split("/").slice(0, 3).join("/") + "/favicon.ico"
+        if (await validateFavicon(icoUrl)) {
+            return icoUrl
+        }
+        // html link logo
+        const baseUrl = url.split("/").slice(0, 3).join("/")
+        let result = await fetch(baseUrl, { credentials: "omit" })
         if (result.ok) {
             let html = await result.text()
             let dom = domParser.parseFromString(html, "text/html")
@@ -110,16 +121,12 @@ export async function fetchFavicon(url: string) {
                     link.hasAttribute("href")
                 ) {
                     let href = link.getAttribute("href")
-                    let parsedUrl = Url.parse(url)
+                    let parsedUrl = Url.parse(baseUrl)
                     if (href.startsWith("//")) return parsedUrl.protocol + href
-                    else if (href.startsWith("/")) return url + href
+                    else if (href.startsWith("/")) return baseUrl + href
                     else return href
                 }
             }
-        }
-        url = url + "/favicon.ico"
-        if (await validateFavicon(url)) {
-            return url
         } else {
             return null
         }
