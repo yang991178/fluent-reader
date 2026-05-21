@@ -15,7 +15,8 @@
 }
 .article-container {
     position: fixed;
-    z-index: 5;
+    z-index: 6;
+    will-change: opacity;
     left: 0;
     top: 0;
     width: 100%;
@@ -31,9 +32,6 @@
     animation-duration: 0.5s;
     animation-timing-function: var(--transition-timing);
     animation-fill-mode: both;
-}
-.article-container {
-    z-index: 6;
 }
 
 .settings-container {

@@ -81,6 +81,20 @@ export interface TouchBarTexts {
     notifications: string
 }
 
+export type RuleTarget =
+    | { type: "source"; sid: number }
+    | { type: "group"; gid: number }
+    | { type: "all" }
+
+export interface StoredRule {
+    id: string
+    target: RuleTarget
+    filter: number
+    search: string
+    match: boolean
+    actions: string[]
+}
+
 export type SchemaTypes = {
     version: string
     theme: ThemeSettings
@@ -97,5 +111,7 @@ export type SchemaTypes = {
     serviceConfigs: ServiceConfigs
     filterType: number
     listViewConfigs: ViewConfigs
-    useNeDB: boolean
+    menuUnreadSourcesOnly: boolean
+    sourceRules: StoredRule[]
+    dbVersion: string
 }

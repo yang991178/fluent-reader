@@ -1,8 +1,5 @@
-import * as db from "./db"
 import locales from "./i18n/_locales"
 import { ThemeSettings } from "../schema-types"
-import intl from "react-intl-universal"
-import { SourceTextDirection } from "./models/source"
 
 export function getFontFamilyForLocale(locale: string): string {
     switch (locale) {
@@ -34,76 +31,9 @@ export function getCurrentLocale() {
 }
 
 export async function exportAll() {
-    const filters = [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
-    const write = await window.utils.showSaveDialog(
-        filters,
-        "*/Fluent_Reader_Backup.frdata"
-    )
-    if (write) {
-        let output = window.settings.getAll()
-        output["lovefield"] = {
-            sources: await db.sourcesDB.select().from(db.sources).exec(),
-            items: await db.itemsDB.select().from(db.items).exec(),
-        }
-        write(JSON.stringify(output), intl.get("settings.writeError"))
-    }
+    await window.db.exportAll()
 }
 
-export async function importAll() {
-    const filters = [{ name: intl.get("app.frData"), extensions: ["frdata"] }]
-    let data = await window.utils.showOpenDialog(filters)
-    if (!data) return true
-    let confirmed = await window.utils.showMessageBox(
-        intl.get("app.restore"),
-        intl.get("app.confirmImport"),
-        intl.get("confirm"),
-        intl.get("cancel"),
-        true,
-        "warning"
-    )
-    if (!confirmed) return true
-    let configs = JSON.parse(data)
-    await db.sourcesDB.delete().from(db.sources).exec()
-    await db.itemsDB.delete().from(db.items).exec()
-    if (configs.nedb) {
-        let openRequest = window.indexedDB.open("NeDB")
-        configs.useNeDB = true
-        openRequest.onsuccess = () => {
-            let db = openRequest.result
-            let objectStore = db
-                .transaction("nedbdata", "readwrite")
-                .objectStore("nedbdata")
-            let requests = Object.entries(configs.nedb).map(([key, value]) => {
-                return objectStore.put(value, key)
-            })
-            let promises = requests.map(
-                req =>
-                    new Promise<void>((resolve, reject) => {
-                        req.onsuccess = () => resolve()
-                        req.onerror = () => reject()
-                    })
-            )
-            Promise.all(promises).then(() => {
-                delete configs.nedb
-                window.settings.setAll(configs)
-            })
-        }
-    } else {
-        const sRows = configs.lovefield.sources.map(s => {
-            s.lastFetched = new Date(s.lastFetched)
-            if (!s.textDir) s.textDir = SourceTextDirection.LTR
-            if (!s.hidden) s.hidden = false
-            return db.sources.createRow(s)
-        })
-        const iRows = configs.lovefield.items.map(i => {
-            i.date = new Date(i.date)
-            i.fetchedDate = new Date(i.fetchedDate)
-            return db.items.createRow(i)
-        })
-        await db.sourcesDB.insert().into(db.sources).values(sRows).exec()
-        await db.itemsDB.insert().into(db.items).values(iRows).exec()
-        delete configs.lovefield
-        window.settings.setAll(configs)
-    }
-    return false
+export async function importAll(): Promise<boolean> {
+    return await window.db.importAll()
 }

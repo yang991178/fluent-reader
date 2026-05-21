@@ -130,14 +130,6 @@ ipcMain.handle("set-font", (_, font: string) => {
     store.set(FONT_STORE_KEY, font)
 })
 
-ipcMain.on("get-all-settings", event => {
-    let output = {}
-    for (let [key, value] of store) {
-        output[key] = value
-    }
-    event.returnValue = output
-})
-
 const FETCH_INTEVAL_STORE_KEY = "fetchInterval"
 ipcMain.on("get-fetch-interval", event => {
     event.returnValue = store.get(FETCH_INTEVAL_STORE_KEY, 0)
@@ -197,12 +189,26 @@ ipcMain.handle(
     }
 )
 
-const NEDB_STATUS_STORE_KEY = "useNeDB"
-ipcMain.on("get-nedb-status", event => {
-    event.returnValue = store.get(NEDB_STATUS_STORE_KEY, true)
+const SOURCE_RULES_STORE_KEY = "sourceRules"
+ipcMain.on("get-source-rules", event => {
+    event.returnValue = store.get(
+        SOURCE_RULES_STORE_KEY as keyof SchemaTypes,
+        []
+    )
 })
-ipcMain.handle("set-nedb-status", (_, flag: boolean) => {
-    store.set(NEDB_STATUS_STORE_KEY, flag)
+ipcMain.handle("set-source-rules", (_, rules) => {
+    store.set(SOURCE_RULES_STORE_KEY as keyof SchemaTypes, rules)
+})
+
+const DB_VERSION_STORE_KEY = "dbVersion"
+ipcMain.on("get-db-version", event => {
+    event.returnValue = store.get(
+        DB_VERSION_STORE_KEY as keyof SchemaTypes,
+        null
+    )
+})
+ipcMain.handle("set-db-version", (_, version: string) => {
+    store.set(DB_VERSION_STORE_KEY as keyof SchemaTypes, version)
 })
 
 const UNREAD_SOURCES_ONLY_STORE_KEY = "menuUnreadSourcesOnly"
