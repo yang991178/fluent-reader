@@ -5,6 +5,7 @@ import {
     SearchEngines,
     ServiceConfigs,
     ViewConfigs,
+    StoredRule,
 } from "../schema-types"
 import { ipcRenderer } from "electron"
 
@@ -117,11 +118,18 @@ const settingsBridge = {
         ipcRenderer.invoke("set-view-configs", view, configs)
     },
 
-    getNeDBStatus: (): boolean => {
-        return ipcRenderer.sendSync("get-nedb-status")
+    getSourceRules: (): StoredRule[] => {
+        return ipcRenderer.sendSync("get-source-rules")
     },
-    setNeDBStatus: (flag: boolean) => {
-        ipcRenderer.invoke("set-nedb-status", flag)
+    setSourceRules: (rules: StoredRule[]): Promise<void> => {
+        return ipcRenderer.invoke("set-source-rules", rules)
+    },
+
+    getDBVersion: (): string | null => {
+        return ipcRenderer.sendSync("get-db-version")
+    },
+    setDBVersion: (version: string): Promise<void> => {
+        return ipcRenderer.invoke("set-db-version", version)
     },
 
     getUnreadSourcesOnly: (): boolean => {
@@ -129,14 +137,6 @@ const settingsBridge = {
     },
     setUnreadSourcesOnly: (flag: boolean) => {
         ipcRenderer.invoke("set-unread-sources-only", flag)
-    },
-
-    getAll: () => {
-        return ipcRenderer.sendSync("get-all-settings") as Object
-    },
-
-    setAll: configs => {
-        ipcRenderer.invoke("import-all-settings", configs)
     },
 }
 

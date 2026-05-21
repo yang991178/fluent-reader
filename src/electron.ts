@@ -1,8 +1,9 @@
-import { app, ipcMain, Menu, nativeTheme } from "electron"
-import { ThemeSettings, SchemaTypes } from "./schema-types"
+import { app, Menu, nativeTheme } from "electron"
+import { ThemeSettings } from "./schema-types"
 import { store } from "./main/settings"
 import performUpdate from "./main/update-scripts"
 import { WindowManager } from "./main/window"
+import { initDB } from "./main/db"
 
 if (!process.mas) {
     const locked = app.requestSingleInstanceLock()
@@ -105,6 +106,11 @@ if (process.platform === "darwin") {
 
 const winManager = new WindowManager()
 
+initDB(store, winManager, () => {
+    restarting = true
+    winManager.mainWindow.close()
+})
+
 app.on("window-all-closed", () => {
     if (winManager.hasWindow()) {
         winManager.mainWindow.webContents.session.clearStorageData({
@@ -118,21 +124,4 @@ app.on("window-all-closed", () => {
     } else {
         app.quit()
     }
-})
-
-ipcMain.handle("import-all-settings", (_, configs: SchemaTypes) => {
-    restarting = true
-    store.clear()
-    for (let [key, value] of Object.entries(configs)) {
-        // @ts-ignore
-        store.set(key, value)
-    }
-    performUpdate(store)
-    nativeTheme.themeSource = store.get("theme", ThemeSettings.Default)
-    setTimeout(
-        () => {
-            winManager.mainWindow.close()
-        },
-        process.platform === "darwin" ? 1000 : 0
-    ) // Why ???
 })

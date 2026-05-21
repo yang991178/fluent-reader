@@ -8,6 +8,9 @@ module.exports = [
         mode: "production",
         entry: "./src/electron.ts",
         target: "electron-main",
+        externals: {
+            "better-sqlite3": "commonjs better-sqlite3",
+        },
         module: {
             rules: [
                 {
@@ -90,6 +93,7 @@ module.exports = [
         plugins: [
             new NodePolyfillPlugin({
                 additionalAliases: ["process"],
+                excludeAliases: ["Buffer"],
             }),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",

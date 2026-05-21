@@ -1,5 +1,5 @@
-import * as db from "../db"
-import lf from "lovefield"
+import { database, itemsTable } from "../db"
+import { and, eq, inArray, desc, sql } from "drizzle-orm"
 import {
     SourceActionTypes,
     INIT_SOURCES,
@@ -45,32 +45,6 @@ export class FeedFilter {
         }
         this.type = type
         this.search = search
-    }
-
-    static toPredicates(filter: FeedFilter) {
-        let type = filter.type
-        const predicates = new Array<lf.Predicate>()
-        if (!(type & FilterType.ShowRead))
-            predicates.push(db.items.hasRead.eq(false))
-        if (!(type & FilterType.ShowNotStarred))
-            predicates.push(db.items.starred.eq(true))
-        if (!(type & FilterType.ShowHidden))
-            predicates.push(db.items.hidden.eq(false))
-        if (filter.search !== "") {
-            const flags = type & FilterType.CaseInsensitive ? "i" : ""
-            const regex = RegExp(filter.search, flags)
-            if (type & FilterType.FullSearch) {
-                predicates.push(
-                    lf.op.or(
-                        db.items.title.match(regex),
-                        db.items.snippet.match(regex)
-                    )
-                )
-            } else {
-                predicates.push(db.items.title.match(regex))
-            }
-        }
-        return predicates
     }
 
     static testItem(filter: FeedFilter, item: RSSItem) {
@@ -119,16 +93,57 @@ export class RSSFeed {
     }
 
     static async loadFeed(feed: RSSFeed, skip = 0): Promise<RSSItem[]> {
-        const predicates = FeedFilter.toPredicates(feed.filter)
-        predicates.push(db.items.source.in(feed.sids))
-        return (await db.itemsDB
+        if (feed.sids.length === 0) return []
+        const filter = feed.filter
+        const type = filter.type
+        const conditions = [inArray(itemsTable.source, feed.sids)]
+        if (!(type & FilterType.ShowRead))
+            conditions.push(eq(itemsTable.hasRead, false))
+        if (!(type & FilterType.ShowNotStarred))
+            conditions.push(eq(itemsTable.starred, true))
+        if (!(type & FilterType.ShowHidden))
+            conditions.push(eq(itemsTable.hidden, false))
+        if (filter.search !== "") {
+            const pattern = filter.search
+            if (type & FilterType.FullSearch) {
+                if (type & FilterType.CaseInsensitive) {
+                    conditions.push(
+                        sql`(regexpi(${pattern}, ${itemsTable.title}) OR regexpi(${pattern}, ${itemsTable.snippet}))`
+                    )
+                } else {
+                    conditions.push(
+                        sql`(regexp(${pattern}, ${itemsTable.title}) OR regexp(${pattern}, ${itemsTable.snippet}))`
+                    )
+                }
+            } else if (type & FilterType.CreatorSearch) {
+                if (type & FilterType.CaseInsensitive) {
+                    conditions.push(
+                        sql`regexpi(${pattern}, ${itemsTable.creator})`
+                    )
+                } else {
+                    conditions.push(
+                        sql`regexp(${pattern}, ${itemsTable.creator})`
+                    )
+                }
+            } else {
+                if (type & FilterType.CaseInsensitive) {
+                    conditions.push(
+                        sql`regexpi(${pattern}, ${itemsTable.title})`
+                    )
+                } else {
+                    conditions.push(
+                        sql`regexp(${pattern}, ${itemsTable.title})`
+                    )
+                }
+            }
+        }
+        return (await database
             .select()
-            .from(db.items)
-            .where(lf.op.and.apply(null, predicates))
-            .orderBy(db.items.date, lf.Order.DESC)
-            .skip(skip)
-            .limit(LOAD_QUANTITY)
-            .exec()) as RSSItem[]
+            .from(itemsTable)
+            .where(and(...conditions))
+            .orderBy(desc(itemsTable.date))
+            .offset(skip)
+            .limit(LOAD_QUANTITY)) as unknown as RSSItem[]
     }
 }
 

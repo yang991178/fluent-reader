@@ -1,6 +1,6 @@
 import intl from "react-intl-universal"
-import * as db from "../../db"
-import lf from "lovefield"
+import { database, itemsTable } from "../../db"
+import { and, eq, inArray, isNotNull, lte, gte } from "drizzle-orm"
 import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
@@ -307,19 +307,19 @@ export const minifluxServiceHooks: ServiceHooks = {
         const configs = state.service as MinifluxConfigs
 
         if (date) {
-            const predicates: lf.Predicate[] = [
-                db.items.source.in(sids),
-                db.items.hasRead.eq(false),
-                db.items.serviceRef.isNotNull(),
-                before ? db.items.date.lte(date) : db.items.date.gte(date),
+            const conditions = [
+                inArray(itemsTable.source, sids),
+                eq(itemsTable.hasRead, false),
+                isNotNull(itemsTable.serviceRef),
+                before
+                    ? lte(itemsTable.date, date)
+                    : gte(itemsTable.date, date),
             ]
-            const query = lf.op.and.apply(null, predicates)
-            const rows = await db.itemsDB
-                .select(db.items.serviceRef)
-                .from(db.items)
-                .where(query)
-                .exec()
-            const refs = rows.map(row => Number(row["serviceRef"]))
+            const rows = await database
+                .select({ serviceRef: itemsTable.serviceRef })
+                .from(itemsTable)
+                .where(and(...conditions))
+            const refs = rows.map(row => Number(row.serviceRef))
             if (refs.length === 0) return
             const body = JSON.stringify({
                 entry_ids: refs,

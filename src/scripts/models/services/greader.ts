@@ -1,6 +1,6 @@
 import intl from "react-intl-universal"
-import * as db from "../../db"
-import lf from "lovefield"
+import { database, itemsTable } from "../../db"
+import { and, eq, inArray, isNotNull, lte, gte } from "drizzle-orm"
 import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
@@ -238,7 +238,7 @@ export const gReaderServiceHooks: ServiceHooks = {
                 }
             }
             const parsedItems = new Array<RSSItem>()
-            items.map(i => {
+            items.forEach(i => {
                 const source = fidMap.get(i.origin.streamId)
                 if (source === undefined) return
                 const dom = domParser.parseFromString(
@@ -328,23 +328,23 @@ export const gReaderServiceHooks: ServiceHooks = {
         const state = getState()
         const configs = state.service as GReaderConfigs
         if (date) {
-            const predicates: lf.Predicate[] = [
-                db.items.source.in(sids),
-                db.items.hasRead.eq(false),
-                db.items.serviceRef.isNotNull(),
+            const conditions = [
+                inArray(itemsTable.source, sids),
+                eq(itemsTable.hasRead, false),
+                isNotNull(itemsTable.serviceRef),
             ]
             if (date) {
-                predicates.push(
-                    before ? db.items.date.lte(date) : db.items.date.gte(date)
+                conditions.push(
+                    before
+                        ? lte(itemsTable.date, date)
+                        : gte(itemsTable.date, date)
                 )
             }
-            const query = lf.op.and.apply(null, predicates)
-            const rows = await db.itemsDB
-                .select(db.items.serviceRef)
-                .from(db.items)
-                .where(query)
-                .exec()
-            const refs = rows.map(row => row["serviceRef"]).join("&i=")
+            const rows = await database
+                .select({ serviceRef: itemsTable.serviceRef })
+                .from(itemsTable)
+                .where(and(...conditions))
+            const refs = rows.map(row => row.serviceRef).join("&i=")
             if (refs) {
                 editTag(getState().service as GReaderConfigs, refs, READ_TAG)
             }
