@@ -17,6 +17,7 @@ import pt_BR from "./pt-BR.json"
 import fi_FI from "./fi-FI.json"
 import ko from "./ko.json"
 import pt_PT from "./pt-PT.json"
+import sk from "./sk.json"
 
 const locales = {
     "en-US": en_US,
@@ -38,6 +39,7 @@ const locales = {
     "fi-FI": fi_FI,
     "ko": ko,
     "pt-PT": pt_PT,
+    "sk-SK": sk,
 }
 
 export default locales
