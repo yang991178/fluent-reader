@@ -424,9 +424,21 @@ export function toggleHidden(item: RSSItem): AppThunk {
     }
 }
 
+function isEditableKeyboardTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) return false
+    const tag = target.tagName
+    return (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        target.isContentEditable
+    )
+}
+
 export function itemShortcuts(item: RSSItem, e: KeyboardEvent): AppThunk {
     return dispatch => {
         if (e.metaKey) return
+        if (isEditableKeyboardTarget(e.target)) return
         switch (e.key) {
             case "m":
             case "M":

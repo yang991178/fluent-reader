@@ -213,6 +213,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
 
     keyDownHandler = (input: Electron.Input) => {
         if (input.type === "keyDown") {
+            // When the original webpage is loaded, letter shortcuts collide with
+            // form typing (e.g. email fields). Keep only Escape/arrows there.
+            const webpageMode = this.state.loadWebpage
             switch (input.key) {
                 case "Escape":
                     this.props.dismiss()
@@ -223,17 +226,21 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     break
                 case "l":
                 case "L":
+                    if (webpageMode) break
                     this.toggleWebpage()
                     break
                 case "w":
                 case "W":
+                    if (webpageMode) break
                     this.toggleFull()
                     break
                 case "H":
                 case "h":
+                    if (webpageMode) break
                     if (!input.meta) this.props.toggleHidden(this.props.item)
                     break
                 default:
+                    if (webpageMode && input.key.length === 1) break
                     const keyboardEvent = new KeyboardEvent("keydown", {
                         code: input.code,
                         key: input.key,
