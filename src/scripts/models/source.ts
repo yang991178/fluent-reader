@@ -514,9 +514,11 @@ export function sourceReducer(
                 ...state,
                 [action.item.source]: {
                     ...state[action.item.source],
-                    unreadCount:
+                    unreadCount: Math.max(
+                        0,
                         state[action.item.source].unreadCount +
-                        (action.type === MARK_UNREAD ? 1 : -1),
+                            (action.type === MARK_UNREAD ? 1 : -1)
+                    ),
                 } as RSSSource,
             }
         case MARK_ALL_READ: {
