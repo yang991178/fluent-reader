@@ -174,6 +174,22 @@ const utilsBridge = {
     initFontList: (): Promise<Array<string>> => {
         return ipcRenderer.invoke("init-font-list")
     },
+
+    fetchRSS: (url: string): Promise<string> => {
+        return ipcRenderer.invoke("fetch-rss", url)
+    },
+
+    fetchFaviconHTML: (url: string): Promise<string | null> => {
+        return ipcRenderer.invoke("fetch-favicon-html", url)
+    },
+
+    validateFavicon: (url: string): Promise<boolean> => {
+        return ipcRenderer.invoke("validate-favicon", url)
+    },
+
+    fetchArticleHTML: (url: string): Promise<ArrayBuffer> => {
+        return ipcRenderer.invoke("fetch-article-html", url)
+    }
 }
 
 declare global {

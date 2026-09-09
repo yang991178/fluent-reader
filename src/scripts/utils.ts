@@ -74,22 +74,18 @@ export async function decodeFetchResponse(response: Response, isHTML = false) {
 }
 
 export async function parseRSS(url: string) {
-    let result: Response
+    let xml: string
+
     try {
-        result = await fetch(url, { credentials: "omit" })
+        xml = await window.utils.fetchRSS(url)
     } catch {
         throw new Error(intl.get("log.networkError"))
     }
-    if (result && result.ok) {
-        try {
-            return await rssParser.parseString(
-                await decodeFetchResponse(result)
-            )
-        } catch {
-            throw new Error(intl.get("log.parseError"))
-        }
-    } else {
-        throw new Error(result.status + " " + result.statusText)
+
+    try {
+        return await rssParser.parseString(xml)
+    } catch {
+        throw new Error(intl.get("log.parseError"))
     }
 }
 
@@ -98,11 +94,11 @@ export const domParser = new DOMParser()
 export async function fetchFavicon(url: string) {
     try {
         url = url.split("/").slice(0, 3).join("/")
-        let result = await fetch(url, { credentials: "omit" })
-        if (result.ok) {
-            let html = await result.text()
+        let html = await window.utils.fetchFaviconHTML(url)
+        if (html) {
             let dom = domParser.parseFromString(html, "text/html")
             let links = dom.getElementsByTagName("link")
+
             for (let link of links) {
                 let rel = link.getAttribute("rel")
                 if (
@@ -111,15 +107,17 @@ export async function fetchFavicon(url: string) {
                 ) {
                     let href = link.getAttribute("href")
                     let parsedUrl = Url.parse(url)
+
                     if (href.startsWith("//")) return parsedUrl.protocol + href
                     else if (href.startsWith("/")) return url + href
                     else return href
                 }
             }
         }
-        url = url + "/favicon.ico"
-        if (await validateFavicon(url)) {
-            return url
+
+        const fallback = url + "/favicon.ico"
+        if (await validateFavicon(fallback)) {
+            return fallback
         } else {
             return null
         }
@@ -129,19 +127,7 @@ export async function fetchFavicon(url: string) {
 }
 
 export async function validateFavicon(url: string) {
-    let flag = false
-    try {
-        const result = await fetch(url, { credentials: "omit" })
-        if (
-            result.status == 200 &&
-            result.headers.has("Content-Type") &&
-            result.headers.get("Content-Type").startsWith("image")
-        ) {
-            flag = true
-        }
-    } finally {
-        return flag
-    }
+    return window.utils.validateFavicon(url)
 }
 
 export function htmlDecode(input: string) {
