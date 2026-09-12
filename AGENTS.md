@@ -1,10 +1,10 @@
-# Copilot Instructions — Fluent Reader
+# Fluent Reader
 
 ## Overview
 
 Fluent Reader is a **modern desktop RSS reader** built with **Electron + React + Redux + TypeScript**. It targets Windows, macOS (including Mac App Store), and Linux. The UI uses Microsoft's **Fluent UI (v7)** component library. Article and source data is stored in a **SQLite** database (via **better-sqlite3** in the main process, accessed from the renderer via **drizzle-orm** sqlite-proxy). Settings are persisted with **electron-store**. Articles are parsed with **Mercury Parser** and fetched via **rss-parser**.
 
-The repository is ~80 TypeScript/TSX source files under `src/`. There is no test suite. There is no ESLint — formatting is handled solely by **Prettier**.
+The repository is ~80 TypeScript/TSX source files under `src/`. There is no ESLint — formatting is handled solely by **Prettier**.
 
 ## Build & Validate
 
@@ -63,13 +63,17 @@ To auto-fix formatting:
 npm run format
 ```
 
-**Always run `npx prettier --check .` after making changes** to ensure code style compliance. The Prettier config is in `.prettierrc.yml`: 4-space tabs, no semicolons, JSX bracket on same line, arrow parens avoided, consistent quote props. `.prettierignore` excludes `dist/`, `bin/`, `node_modules/`, HTML, Markdown, and most JSON (except `src/**/*.json`).
+The Prettier config is in `.prettierrc.yml`: 4-space tabs, no semicolons, JSX bracket on same line, arrow parens avoided, consistent quote props. `.prettierignore` excludes `dist/`, `bin/`, `node_modules/`, HTML, Markdown, and most JSON (except `src/**/*.json`).
 
 ### Tests
 
-There is **no test suite** in this project. Validation consists of:
-1. `npm run build` — must compile without errors.
-2. `npx prettier --check .` — must pass with no formatting violations.
+A private suite of E2E tests is available for project maintainers. Run the suite from the repository root:
+
+```bash
+npm --prefix tests/e2e test
+```
+
+See `tests/README.md` for test setup details.
 
 ### Packaging (not needed for typical changes)
 
@@ -158,5 +162,7 @@ After any code change, always run:
 npm install && npm run build && npx prettier --check .
 ```
 All three must succeed. If the build fails, fix TypeScript errors. If prettier fails, run `npm run format` then verify.
+
+Run the E2E test suite if available at the end of sessions to check for regressions, and update the test suite to cover any new features built.
 
 Trust these instructions. Only search the codebase if information here is incomplete or found to be incorrect.

@@ -11,3 +11,6 @@ bin/*
 *.md
 *.json
 !src/**/*.json
+
+# Optional private suite owns its formatting configuration.
+tests/e2e

@@ -1,0 +1,3 @@
+[submodule "tests/e2e"]
+	path = tests/e2e
+	url = https://github.com/yang991178/fluent-reader-tests.git
