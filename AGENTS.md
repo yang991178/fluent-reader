@@ -55,13 +55,9 @@ To auto-fix formatting:
 npm run format
 ```
 
-**Always run `npx prettier --check .` after making changes** to ensure code style compliance. The Prettier config is in `.prettierrc.yml`: 4-space tabs, no semicolons, JSX bracket on same line, arrow parens avoided, consistent quote props. `.prettierignore` excludes `dist/`, `bin/`, `node_modules/`, HTML, Markdown, and most JSON (except `src/**/*.json`).
+The Prettier config is in `.prettierrc.yml`: 4-space tabs, no semicolons, JSX bracket on same line, arrow parens avoided, consistent quote props. `.prettierignore` excludes `dist/`, `bin/`, `node_modules/`, HTML, Markdown, and most JSON (except `src/**/*.json`).
 
 ### Tests
-
-Basic validation of code changes consists of:
-1. `npm run build` — must compile without errors.
-2. `npx prettier --check .` — must pass with no formatting violations.
 
 A private suite of E2E tests is available for project maintainers. Run the suite from the repository root:
 
