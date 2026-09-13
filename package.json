@@ -7,7 +7,7 @@
     "build": "webpack --config ./webpack.config.js",
     "electron": "electron ./dist/electron.js",
     "start": "npm run build && npm run electron",
-    "format": "prettier --write .",
+    "format": "prettier --write --list-different .",
     "drizzle:generate": "drizzle-kit generate",
     "postinstall": "electron-builder install-app-deps",
     "package-win": "electron-builder -w appx:x64 && electron-builder -w appx:ia32 && electron-builder -w appx:arm64",

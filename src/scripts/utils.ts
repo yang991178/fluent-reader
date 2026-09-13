@@ -35,7 +35,11 @@ const rssParser = new Parser({
     },
 })
 type extractGeneric<Type> = Type extends Parser<infer _, infer U> ? U : never
-export type MyParserItem = extractGeneric<typeof rssParser> & Parser.Item
+export type MyParserItem = extractGeneric<typeof rssParser> &
+    Parser.Item & {
+        // rss-parser emits this for Atom entries but omits it from Parser.Item.
+        author?: string
+    }
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
 const XML_ENCODING_RE = /^<\?xml.+encoding="(.+?)".*?\?>/i
