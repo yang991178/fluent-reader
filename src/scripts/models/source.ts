@@ -234,14 +234,12 @@ export function initSources(): AppThunk<Promise<void>> {
         dispatch(initSourcesRequest())
         await init()
         const sourcesData = await database.select().from(sourcesTable)
-        const storedRules = globalThis.settings.getSourceRules()
+        const storedRules = globalThis.settings.getAllRules()
         const state: SourceState = {}
         for (const source of sourcesData) {
             const rssSource = source as unknown as RSSSource
             rssSource.unreadCount = 0
-            const sourceRules = storedRules.filter(
-                r => r.target.type === "source" && r.target.sid === source.sid
-            )
+            const sourceRules = storedRules[`source:${source.sid}`] || []
             if (sourceRules.length > 0) {
                 rssSource.rules = sourceRules.map(r => SourceRule.fromStored(r))
             }
@@ -306,9 +304,16 @@ export function insertSource(source: RSSSource): AppThunk<Promise<RSSSource>> {
                     })
                     resolve(source)
                 } catch (err) {
+                    // Drizzle wraps the original IPC rejection in its cause.
+                    let cause = err
+                    while (
+                        cause instanceof Error &&
+                        cause.cause instanceof Error
+                    )
+                        cause = cause.cause
                     if (
-                        err instanceof Error &&
-                        err.message.includes(
+                        cause instanceof Error &&
+                        cause.message.includes(
                             "UNIQUE constraint failed: sources.url"
                         )
                     ) {
@@ -404,6 +409,10 @@ export function deleteSource(
     return async (dispatch, getState) => {
         if (!batch) dispatch(saveSettings())
         try {
+            await window.settings.setRulesForTarget(
+                { type: "source", sid: source.sid },
+                []
+            )
             await database
                 .delete(itemsTable)
                 .where(eq(itemsTable.source, source.sid))

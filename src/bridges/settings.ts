@@ -6,6 +6,8 @@ import {
     ServiceConfigs,
     ViewConfigs,
     StoredRule,
+    StoredRules,
+    RuleTarget,
 } from "../schema-types"
 import { ipcRenderer } from "electron"
 
@@ -118,11 +120,19 @@ const settingsBridge = {
         ipcRenderer.invoke("set-view-configs", view, configs)
     },
 
-    getSourceRules: (): StoredRule[] => {
-        return ipcRenderer.sendSync("get-source-rules")
+    getAllRules: (): StoredRules => {
+        return ipcRenderer.sendSync("get-all-rules")
     },
-    setSourceRules: (rules: StoredRule[]): Promise<void> => {
-        return ipcRenderer.invoke("set-source-rules", rules)
+    setRulesForTarget: (
+        target: RuleTarget,
+        rules: StoredRule[]
+    ): Promise<void> => {
+        return ipcRenderer.invoke("set-rules-for-target", target, rules)
+    },
+    migrateLovefieldRules: (
+        sources: Record<string, unknown>[]
+    ): Promise<void> => {
+        return ipcRenderer.invoke("migrate-lovefield-rules", sources)
     },
 
     getDBVersion: (): string | null => {

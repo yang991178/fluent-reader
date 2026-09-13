@@ -232,10 +232,10 @@ function byteLength(str: string) {
 }
 
 export async function calculateItemSize(): Promise<number> {
-    const result = await database.get<{ size: number }>(
+    const result = await database.get<[number]>(
         sql`SELECT page_count * page_size AS size FROM pragma_page_count(), pragma_page_size()`
     )
-    return result?.size ?? 0
+    return result?.[0] ?? 0
 }
 
 export function validateRegex(regex: string, flags = ""): RegExp {

@@ -1,6 +1,6 @@
 import { FeedFilter, FilterType } from "./feed"
 import { RSSItem } from "./item"
-import type { StoredRule, RuleTarget } from "../../schema-types"
+import type { StoredRule } from "../../schema-types"
 
 export const enum ItemAction {
     Read = "r",
@@ -70,14 +70,8 @@ export class SourceRule {
         )
     }
 
-    static toStored(
-        rule: SourceRule,
-        target: RuleTarget,
-        id: string
-    ): StoredRule {
+    static toStored(rule: SourceRule): StoredRule {
         return {
-            id,
-            target,
             filter: rule.filter.type,
             search: rule.filter.search,
             match: rule.match,

@@ -87,13 +87,14 @@ export type RuleTarget =
     | { type: "all" }
 
 export interface StoredRule {
-    id: string
-    target: RuleTarget
     filter: number
     search: string
     match: boolean
     actions: string[]
 }
+
+export type RuleTargetKey = "all" | `source:${number}` | `group:${number}`
+export type StoredRules = Partial<Record<RuleTargetKey, StoredRule[]>>
 
 export type SchemaTypes = {
     version: string
@@ -112,6 +113,6 @@ export type SchemaTypes = {
     filterType: number
     listViewConfigs: ViewConfigs
     menuUnreadSourcesOnly: boolean
-    sourceRules: StoredRule[]
+    sourceRules: StoredRules
     dbVersion: string
 }
