@@ -8,9 +8,14 @@ import {
     SyncService,
     ServiceConfigs,
     ViewConfigs,
+    RuleTarget,
+    RuleTargetKey,
+    StoredRule,
+    StoredRules,
 } from "../schema-types"
 import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
+import { transformLovefieldRules } from "./utils"
 
 export const store = new Store<SchemaTypes>()
 
@@ -190,15 +195,39 @@ ipcMain.handle(
 )
 
 const SOURCE_RULES_STORE_KEY = "sourceRules"
-ipcMain.on("get-source-rules", event => {
-    event.returnValue = store.get(
-        SOURCE_RULES_STORE_KEY as keyof SchemaTypes,
-        []
-    )
+
+function getRuleTargetKey(target: RuleTarget): RuleTargetKey {
+    switch (target.type) {
+        case "source":
+            return `source:${target.sid}`
+        case "group":
+            return `group:${target.gid}`
+        case "all":
+            return "all"
+    }
+}
+
+ipcMain.on("get-all-rules", event => {
+    event.returnValue = store.get(SOURCE_RULES_STORE_KEY, {})
 })
-ipcMain.handle("set-source-rules", (_, rules) => {
-    store.set(SOURCE_RULES_STORE_KEY as keyof SchemaTypes, rules)
-})
+ipcMain.handle(
+    "set-rules-for-target",
+    (_, target: RuleTarget, rules: StoredRule[]) => {
+        const key = getRuleTargetKey(target)
+        // Keep the read and write together in main so independent targets cannot
+        // overwrite each other using stale renderer snapshots.
+        const allRules = store.get(SOURCE_RULES_STORE_KEY, {})
+        if (rules.length > 0) allRules[key] = rules
+        else delete allRules[key]
+        store.set(SOURCE_RULES_STORE_KEY, allRules)
+    }
+)
+ipcMain.handle(
+    "migrate-lovefield-rules",
+    (_, sources: Record<string, unknown>[]) => {
+        store.set(SOURCE_RULES_STORE_KEY, transformLovefieldRules(sources))
+    }
+)
 
 const DB_VERSION_STORE_KEY = "dbVersion"
 ipcMain.on("get-db-version", event => {

@@ -319,11 +319,11 @@ const markUnreadDone = (item: RSSItem): ItemActionTypes => ({
     item: item,
 })
 
-export function markRead(item: RSSItem): AppThunk {
-    return (dispatch, getState) => {
+export function markRead(item: RSSItem): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
         item = getState().items[item._id]
         if (!item.hasRead) {
-            database
+            await database
                 .update(itemsTable)
                 .set({ hasRead: true })
                 .where(eq(itemsTable._id, item._id))
@@ -383,11 +383,11 @@ export function markAllRead(
     }
 }
 
-export function markUnread(item: RSSItem): AppThunk {
-    return (dispatch, getState) => {
+export function markUnread(item: RSSItem): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
         item = getState().items[item._id]
         if (item.hasRead) {
-            database
+            await database
                 .update(itemsTable)
                 .set({ hasRead: false })
                 .where(eq(itemsTable._id, item._id))
@@ -404,9 +404,9 @@ const toggleStarredDone = (item: RSSItem): ItemActionTypes => ({
     item: item,
 })
 
-export function toggleStarred(item: RSSItem): AppThunk {
-    return dispatch => {
-        database
+export function toggleStarred(item: RSSItem): AppThunk<Promise<void>> {
+    return async dispatch => {
+        await database
             .update(itemsTable)
             .set({ starred: !item.starred })
             .where(eq(itemsTable._id, item._id))
@@ -424,9 +424,9 @@ const toggleHiddenDone = (item: RSSItem): ItemActionTypes => ({
     item: item,
 })
 
-export function toggleHidden(item: RSSItem): AppThunk {
-    return dispatch => {
-        database
+export function toggleHidden(item: RSSItem): AppThunk<Promise<void>> {
+    return async dispatch => {
+        await database
             .update(itemsTable)
             .set({ hidden: !item.hidden })
             .where(eq(itemsTable._id, item._id))

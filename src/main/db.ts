@@ -1,16 +1,17 @@
 import Database from "better-sqlite3"
 import { drizzle } from "drizzle-orm/better-sqlite3"
 import { migrate } from "drizzle-orm/better-sqlite3/migrator"
-import { ipcMain, app, dialog, nativeTheme } from "electron"
+import { ipcMain, dialog, nativeTheme } from "electron"
 import * as fs from "node:fs"
 import * as path from "node:path"
 import type Store from "electron-store"
-import type { SchemaTypes, StoredRule } from "../schema-types"
+import type { SchemaTypes, StoredRules } from "../schema-types"
 import { ThemeSettings } from "../schema-types"
 import { sourcesTable, itemsTable } from "../db/schema"
 import * as schema from "../db/schema"
 import { WindowManager } from "./window"
 import performUpdate from "./update-scripts"
+import { transformLovefieldRules } from "./utils"
 
 let sqlite: Database.Database
 let db: ReturnType<typeof drizzle>
@@ -24,9 +25,7 @@ function toDrizzleResult(
     if (!rows) return []
     const convertValue = (v: unknown) => (typeof v === "bigint" ? Number(v) : v)
     if (Array.isArray(rows)) {
-        return rows.map(row =>
-            Object.values(row).map(convertValue)
-        )
+        return rows.map(row => Object.values(row).map(convertValue))
     } else {
         return Object.values(rows).map(convertValue)
     }
@@ -72,6 +71,8 @@ async function handleImportAll(): Promise<boolean> {
     try {
         const data = fs.readFileSync(openResult.filePaths[0], "utf-8")
         configs = JSON.parse(data)
+        if (!configs || typeof configs !== "object" || Array.isArray(configs))
+            throw new Error("Unrecognized backup format.")
     } catch (err) {
         dialog.showErrorBox("Import Error", String(err))
         return true
@@ -92,7 +93,7 @@ async function handleImportAll(): Promise<boolean> {
 
     let typedSources: InsertSource[] = []
     let typedItems: InsertItem[] = []
-    let storedRules: StoredRule[] = []
+    let storedRules: StoredRules = {}
 
     const mapSource = (s: Record<string, unknown>): InsertSource => ({
         sid: s.sid as number,
@@ -125,53 +126,43 @@ async function handleImportAll(): Promise<boolean> {
         serviceRef: (i.serviceRef as string) || null,
     })
 
-    if (configs.sqlite) {
-        const sqliteData = configs.sqlite as {
-            sources?: Record<string, unknown>[]
-            items?: Record<string, unknown>[]
-        }
-        typedSources = (sqliteData.sources || []).map(mapSource)
-        typedItems = (sqliteData.items || []).map(mapItem)
-        storedRules = (configs.sourceRules as StoredRule[]) || []
-    } else if (configs.lovefield) {
-        const lfData = configs.lovefield as {
-            sources?: Record<string, unknown>[]
-            items?: Record<string, unknown>[]
-        }
-        const rawSources = lfData.sources || []
-        typedSources = rawSources.map(mapSource)
-        typedItems = (lfData.items || []).map(mapItem)
-
-        for (const source of rawSources) {
-            const rules = source.rules as Record<string, unknown>[] | undefined
-            if (rules && Array.isArray(rules)) {
-                rules.forEach((rule, idx) => {
-                    const filter = rule.filter as Record<string, unknown>
-                    const actions = rule.actions as Record<string, boolean>
-                    storedRules.push({
-                        id: `${source.sid as number}-${idx}`,
-                        target: { type: "source", sid: source.sid as number },
-                        filter: (filter?.type as number) ?? 0,
-                        search: (filter?.search as string) ?? "",
-                        match: rule.match as boolean,
-                        actions: Object.entries(actions || {}).map(
-                            ([t, f]) => `${t}-${f}`
-                        ),
-                    })
-                })
-            }
-        }
-    } else {
-        dialog.showErrorBox("Import Error", "Unrecognized backup format.")
-        return true
-    }
-
     try {
+        if (configs.sqlite) {
+            const sqliteData = configs.sqlite as {
+                sources?: Record<string, unknown>[]
+                items?: Record<string, unknown>[]
+            }
+            typedSources = (sqliteData.sources || []).map(mapSource)
+            typedItems = (sqliteData.items || []).map(mapItem)
+            storedRules = (configs.sourceRules as StoredRules) || {}
+        } else if (configs.lovefield) {
+            const lfData = configs.lovefield as {
+                sources?: Record<string, unknown>[]
+                items?: Record<string, unknown>[]
+            }
+            const rawSources = lfData.sources || []
+            typedSources = rawSources.map(mapSource)
+            typedItems = (lfData.items || []).map(mapItem)
+
+            storedRules = transformLovefieldRules(rawSources)
+        } else {
+            dialog.showErrorBox("Import Error", "Unrecognized backup format.")
+            return true
+        }
+
         db.transaction(tx => {
-            tx.delete(itemsTable)
-            tx.delete(sourcesTable)
-            if (typedSources.length > 0) tx.insert(sourcesTable).values(typedSources)
-            if (typedItems.length > 0) tx.insert(itemsTable).values(typedItems)
+            tx.delete(itemsTable).run()
+            tx.delete(sourcesTable).run()
+            for (let i = 0; i < typedSources.length; i += 50) {
+                tx.insert(sourcesTable)
+                    .values(typedSources.slice(i, i + 50))
+                    .run()
+            }
+            for (let i = 0; i < typedItems.length; i += 50) {
+                tx.insert(itemsTable)
+                    .values(typedItems.slice(i, i + 50))
+                    .run()
+            }
         })
     } catch (err) {
         dialog.showErrorBox("Import Error", String(err))
@@ -187,7 +178,7 @@ async function handleImportAll(): Promise<boolean> {
         )
     }
     storeRef.set("dbVersion" as keyof SchemaTypes, "sqlite")
-    storeRef.set("sourceRules" as keyof SchemaTypes, storedRules)
+    storeRef.set("sourceRules", storedRules)
 
     performUpdate(storeRef)
     nativeTheme.themeSource = storeRef.get("theme", ThemeSettings.Default)
@@ -235,14 +226,8 @@ export function initDB(
 
     db = drizzle(sqlite, { schema })
 
-    const migrationsFolder = app.isPackaged
-        ? path.join(
-              process.resourcesPath,
-              "app.asar.unpacked",
-              "dist",
-              "drizzle"
-          )
-        : path.join(__dirname, "drizzle")
+    // Electron's fs APIs can read migrations directly from app.asar.
+    const migrationsFolder = path.join(__dirname, "drizzle")
 
     migrate(db, { migrationsFolder })
 
