@@ -42,7 +42,7 @@ export class RSSItem {
     serviceRef?: string
 
     constructor(item: MyParserItem, source: RSSSource) {
-        for (let field of ["title", "link", "creator"]) {
+        for (let field of ["title", "link", "creator", "author"]) {
             const content = item[field]
             if (content && typeof content !== "string") delete item[field]
         }
@@ -51,7 +51,7 @@ export class RSSItem {
         this.link = item.link || ""
         this.fetchedDate = new Date()
         this.date = new Date(item.isoDate ?? item.pubDate ?? this.fetchedDate)
-        this.creator = item.creator
+        this.creator = item.creator || item.author
         this.hasRead = false
         this.starred = false
         this.hidden = false

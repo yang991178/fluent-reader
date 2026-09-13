@@ -6,6 +6,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 module.exports = [
     {
         mode: "production",
+        stats: "minimal",
         entry: "./src/electron.ts",
         target: "electron-main",
         externals: {
@@ -34,6 +35,7 @@ module.exports = [
     },
     {
         mode: "production",
+        stats: "minimal",
         entry: "./src/preload.ts",
         target: "electron-preload",
         module: {
@@ -55,6 +57,7 @@ module.exports = [
     },
     {
         mode: "production",
+        stats: "minimal",
         entry: "./src/index.tsx",
         target: "web",
         devtool: "source-map",

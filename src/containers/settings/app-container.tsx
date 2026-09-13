@@ -5,7 +5,7 @@ import {
     setupAutoFetch,
 } from "../../scripts/models/app"
 import { database, itemsTable } from "../../scripts/db"
-import { lt } from "drizzle-orm"
+import { lt, sql } from "drizzle-orm"
 import AppTab from "../../components/settings/app"
 import { importAll } from "../../scripts/settings"
 import { updateUnreadCounts } from "../../scripts/models/source"
@@ -25,6 +25,8 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
         let date = new Date()
         date.setTime(date.getTime() - days * 86400000)
         await database.delete(itemsTable).where(lt(itemsTable.date, date))
+        // DELETE leaves reusable pages allocated; explicit cleanup should release them.
+        await database.run(sql`VACUUM`)
         await dispatch(updateUnreadCounts())
         dispatch(saveSettings())
     },
