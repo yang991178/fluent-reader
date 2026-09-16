@@ -79,9 +79,13 @@ const utilsBridge = {
         callback: (pos: [number, number], text: string, url: string) => any
     ) => {
         ipcRenderer.removeAllListeners("webview-context-menu")
-        ipcRenderer.on("webview-context-menu", (_, pos, text, url) => {
+        const listener = (_, pos, text, url) => {
             callback(pos, text, url)
-        })
+        }
+        ipcRenderer.on("webview-context-menu", listener)
+        return () => {
+            ipcRenderer.removeListener("webview-context-menu", listener)
+        }
     },
     imageCallback: (type: ImageCallbackTypes) => {
         ipcRenderer.invoke("image-callback", type)
@@ -89,16 +93,24 @@ const utilsBridge = {
 
     addWebviewKeydownListener: (callback: (event: Electron.Input) => any) => {
         ipcRenderer.removeAllListeners("webview-keydown")
-        ipcRenderer.on("webview-keydown", (_, input) => {
+        const listener = (_, input) => {
             callback(input)
-        })
+        }
+        ipcRenderer.on("webview-keydown", listener)
+        return () => {
+            ipcRenderer.removeListener("webview-keydown", listener)
+        }
     },
 
     addWebviewErrorListener: (callback: (reason: string) => any) => {
         ipcRenderer.removeAllListeners("webview-error")
-        ipcRenderer.on("webview-error", (_, reason) => {
+        const listener = (_, reason) => {
             callback(reason)
-        })
+        }
+        ipcRenderer.on("webview-error", listener)
+        return () => {
+            ipcRenderer.removeListener("webview-error", listener)
+        }
     },
 
     writeClipboard: (text: string) => {
