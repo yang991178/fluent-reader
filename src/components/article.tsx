@@ -1,7 +1,14 @@
 import * as React from "react"
 import intl from "react-intl-universal"
 import { renderToString } from "react-dom/server"
-import { RSSItem } from "../scripts/models/item"
+import { useCallback, useEffect, useLayoutEffect, useState } from "react"
+import {
+    markRead,
+    markUnread,
+    toggleStarred,
+    toggleHidden,
+    itemShortcuts,
+} from "../scripts/models/item"
 import {
     Stack,
     CommandBarButton,
@@ -13,228 +20,93 @@ import {
 } from "@fluentui/react"
 import {
     RSSSource,
-    SourceOpenTarget,
+    updateSource,
     SourceTextDirection,
 } from "../scripts/models/source"
 import { shareSubmenu } from "./context-menu"
-import { platformCtrl, decodeFetchResponse } from "../scripts/utils"
+import { platformCtrl } from "../scripts/utils"
 import { Spinner } from "@fluentui/react-components"
+import { useAppDispatch, useAppSelector } from "../scripts/reducer"
+import { dismissItem, showOffsetItem } from "../scripts/models/page"
+import {
+    openTextMenu,
+    openImageMenu,
+    closeContextMenu,
+} from "../scripts/models/app"
+import { useArticleView } from "./utils/hooks/useArticleView"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-type ArticleProps = {
-    item: RSSItem
-    source: RSSSource
-    locale: string
-    shortcuts: (item: RSSItem, e: KeyboardEvent) => void
-    dismiss: () => void
-    offsetItem: (offset: number) => void
-    toggleHasRead: (item: RSSItem) => void
-    toggleStarred: (item: RSSItem) => void
-    toggleHidden: (item: RSSItem) => void
-    textMenu: (position: [number, number], text: string, url: string) => void
-    imageMenu: (position: [number, number]) => void
-    dismissContextMenu: () => void
-    updateSourceTextDirection: (
-        source: RSSSource,
-        direction: SourceTextDirection
-    ) => void
-}
+type ArticleProps = Readonly<{
+    itemId: number
+}>
 
-type ArticleState = {
-    fontFamily: string
-    fontSize: number
-    loadWebpage: boolean
-    loadFull: boolean
-    fullContent: string
-    loaded: boolean
-    error: boolean
-    errorDescription: string
-}
+function Article({ itemId }: ArticleProps) {
+    const dispatch = useAppDispatch()
+    const item = useAppSelector(state => state.items[itemId])
+    const source = useAppSelector(state => state.sources[item.source])
+    const locale = useAppSelector(state => state.app.locale)
+    const [fontFamily, setFontFamily] = useState(() =>
+        window.settings.getFont()
+    )
+    const [fontSize, setFontSize] = useState(() =>
+        window.settings.getFontSize()
+    )
+    const {
+        webview,
+        webviewKey,
+        showWebview,
+        loadWebpage,
+        loadFull,
+        fullContent,
+        loaded,
+        error,
+        toggleWebpage,
+        toggleFull,
+        reload,
+    } = useArticleView(item, source.openTarget)
 
-class Article extends React.Component<ArticleProps, ArticleState> {
-    webview: Electron.WebviewTag
+    const dismiss = () => dispatch(dismissItem())
+    const handleToggleHidden = useCallback(() => {
+        if (!item.hidden) dispatch(dismissItem())
+        if (!item.hasRead && !item.hidden) dispatch(markRead(item))
+        dispatch(toggleHidden(item))
+    }, [dispatch, item])
 
-    constructor(props: ArticleProps) {
-        super(props)
-        this.state = {
-            fontFamily: window.settings.getFont(),
-            fontSize: window.settings.getFontSize(),
-            loadWebpage: props.source.openTarget === SourceOpenTarget.Webpage,
-            loadFull: props.source.openTarget === SourceOpenTarget.FullContent,
-            fullContent: "",
-            loaded: false,
-            error: false,
-            errorDescription: "",
-        }
-        window.utils.addWebviewContextListener(this.contextMenuHandler)
-        window.utils.addWebviewKeydownListener(this.keyDownHandler)
-        window.utils.addWebviewErrorListener(this.webviewError)
-        if (props.source.openTarget === SourceOpenTarget.FullContent)
-            this.loadFull()
-    }
+    useEffect(() => {
+        return window.utils.addWebviewContextListener((pos, text, url) => {
+            if (!pos) dispatch(closeContextMenu())
+            else if (text || url) dispatch(openTextMenu(pos, text, url))
+            else dispatch(openImageMenu(pos))
+        })
+    }, [dispatch])
 
-    setFontSize = (size: number) => {
-        window.settings.setFontSize(size)
-        this.setState({ fontSize: size })
-    }
-    setFont = (font: string) => {
-        window.settings.setFont(font)
-        this.setState({ fontFamily: font })
-    }
-
-    fontSizeMenuProps = (): IContextualMenuProps => ({
-        items: FONT_SIZE_OPTIONS.map(size => ({
-            key: String(size),
-            text: String(size),
-            canCheck: true,
-            checked: size === this.state.fontSize,
-            onClick: () => this.setFontSize(size),
-        })),
-    })
-
-    fontFamilyMenuProps = (): IContextualMenuProps => ({
-        items: window.fontList.map((font, idx) => ({
-            key: String(idx),
-            text: font === "" ? intl.get("default") : font,
-            canCheck: true,
-            checked: this.state.fontFamily === font,
-            onClick: () => this.setFont(font),
-        })),
-    })
-
-    updateTextDirection = (direction: SourceTextDirection) => {
-        this.props.updateSourceTextDirection(this.props.source, direction)
-    }
-
-    directionMenuProps = (): IContextualMenuProps => ({
-        items: [
-            {
-                key: "LTR",
-                text: intl.get("article.LTR"),
-                iconProps: { iconName: "Forward" },
-                canCheck: true,
-                checked: this.props.source.textDir === SourceTextDirection.LTR,
-                onClick: () =>
-                    this.updateTextDirection(SourceTextDirection.LTR),
-            },
-            {
-                key: "RTL",
-                text: intl.get("article.RTL"),
-                iconProps: { iconName: "Back" },
-                canCheck: true,
-                checked: this.props.source.textDir === SourceTextDirection.RTL,
-                onClick: () =>
-                    this.updateTextDirection(SourceTextDirection.RTL),
-            },
-            {
-                key: "Vertical",
-                text: intl.get("article.Vertical"),
-                iconProps: { iconName: "Down" },
-                canCheck: true,
-                checked:
-                    this.props.source.textDir === SourceTextDirection.Vertical,
-                onClick: () =>
-                    this.updateTextDirection(SourceTextDirection.Vertical),
-            },
-        ],
-    })
-
-    moreMenuProps = (): IContextualMenuProps => ({
-        items: [
-            {
-                key: "openInBrowser",
-                text: intl.get("openExternal"),
-                iconProps: { iconName: "NavigateExternalInline" },
-                onClick: e => {
-                    window.utils.openExternal(
-                        this.props.item.link,
-                        platformCtrl(e)
-                    )
-                },
-            },
-            {
-                key: "copyURL",
-                text: intl.get("context.copyURL"),
-                iconProps: { iconName: "Link" },
-                onClick: () => {
-                    window.utils.writeClipboard(this.props.item.link)
-                },
-            },
-            {
-                key: "toggleHidden",
-                text: this.props.item.hidden
-                    ? intl.get("article.unhide")
-                    : intl.get("article.hide"),
-                iconProps: {
-                    iconName: this.props.item.hidden ? "View" : "Hide3",
-                },
-                onClick: () => {
-                    this.props.toggleHidden(this.props.item)
-                },
-            },
-            {
-                key: "fontMenu",
-                text: intl.get("article.font"),
-                iconProps: { iconName: "Font" },
-                disabled: this.state.loadWebpage,
-                subMenuProps: this.fontFamilyMenuProps(),
-            },
-            {
-                key: "fontSizeMenu",
-                text: intl.get("article.fontSize"),
-                iconProps: { iconName: "FontSize" },
-                disabled: this.state.loadWebpage,
-                subMenuProps: this.fontSizeMenuProps(),
-            },
-            {
-                key: "directionMenu",
-                text: intl.get("article.textDir"),
-                iconProps: { iconName: "ChangeEntitlements" },
-                disabled: this.state.loadWebpage,
-                subMenuProps: this.directionMenuProps(),
-            },
-            {
-                key: "divider_1",
-                itemType: ContextualMenuItemType.Divider,
-            },
-            ...shareSubmenu(this.props.item),
-        ],
-    })
-
-    contextMenuHandler = (pos: [number, number], text: string, url: string) => {
-        if (pos) {
-            if (text || url) this.props.textMenu(pos, text, url)
-            else this.props.imageMenu(pos)
-        } else {
-            this.props.dismissContextMenu()
-        }
-    }
-
-    keyDownHandler = (input: Electron.Input) => {
-        if (input.type === "keyDown") {
+    // A key arriving immediately after navigation must use the committed item.
+    useLayoutEffect(() => {
+        return window.utils.addWebviewKeydownListener(input => {
+            if (input.type !== "keyDown") return
             switch (input.key) {
                 case "Escape":
-                    this.props.dismiss()
+                    dispatch(dismissItem())
                     break
                 case "ArrowLeft":
                 case "ArrowRight":
-                    this.props.offsetItem(input.key === "ArrowLeft" ? -1 : 1)
+                    dispatch(showOffsetItem(input.key === "ArrowLeft" ? -1 : 1))
                     break
                 case "l":
                 case "L":
-                    this.toggleWebpage()
+                    toggleWebpage()
                     break
                 case "w":
                 case "W":
-                    this.toggleFull()
+                    toggleFull()
                     break
-                case "H":
                 case "h":
-                    if (!input.meta) this.props.toggleHidden(this.props.item)
+                case "H":
+                    if (!input.meta) handleToggleHidden()
                     break
-                default:
-                    const keyboardEvent = new KeyboardEvent("keydown", {
+                default: {
+                    const event = new KeyboardEvent("keydown", {
                         code: input.code,
                         key: input.key,
                         shiftKey: input.shift,
@@ -244,137 +116,159 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         repeat: input.isAutoRepeat,
                         bubbles: true,
                     })
-                    this.props.shortcuts(this.props.item, keyboardEvent)
-                    document.dispatchEvent(keyboardEvent)
+                    dispatch(itemShortcuts(item, event))
+                    document.dispatchEvent(event)
                     break
+                }
             }
-        }
+        })
+    }, [dispatch, item, toggleWebpage, toggleFull, handleToggleHidden])
+
+    const updateFontSize = (size: number) => {
+        window.settings.setFontSize(size)
+        setFontSize(size)
+    }
+    const updateFont = (font: string) => {
+        window.settings.setFont(font)
+        setFontFamily(font)
     }
 
-    webviewLoaded = () => {
-        this.setState({ loaded: true })
-    }
-    webviewError = (reason: string) => {
-        this.setState({ error: true, errorDescription: reason })
-    }
-    webviewReload = () => {
-        if (this.webview) {
-            this.setState({ loaded: false, error: false })
-            this.webview.reload()
-        } else if (this.state.loadFull) {
-            this.loadFull()
-        }
+    const fontSizeMenuProps = (): IContextualMenuProps => ({
+        items: FONT_SIZE_OPTIONS.map(size => ({
+            key: String(size),
+            text: String(size),
+            canCheck: true,
+            checked: size === fontSize,
+            onClick: () => updateFontSize(size),
+        })),
+    })
+
+    const fontFamilyMenuProps = (): IContextualMenuProps => ({
+        items: window.fontList.map((font, idx) => ({
+            key: String(idx),
+            text: font === "" ? intl.get("default") : font,
+            canCheck: true,
+            checked: fontFamily === font,
+            onClick: () => updateFont(font),
+        })),
+    })
+
+    const updateTextDirection = (direction: SourceTextDirection) => {
+        dispatch(updateSource({ ...source, textDir: direction } as RSSSource))
     }
 
-    componentDidMount = () => {
-        let webview = document.getElementById("article") as Electron.WebviewTag
-        if (webview != this.webview) {
-            this.webview = webview
-            if (webview) {
-                webview.focus()
-                this.setState({ loaded: false, error: false })
-                webview.addEventListener("did-stop-loading", this.webviewLoaded)
-                let card = document.querySelector(
-                    `#refocus div[data-iid="${this.props.item._id}"]`
-                ) as HTMLElement
-                // @ts-ignore
-                if (card) card.scrollIntoViewIfNeeded()
-            }
-        }
-    }
-    componentDidUpdate = (prevProps: ArticleProps) => {
-        if (prevProps.item._id != this.props.item._id) {
-            this.setState({
-                loadWebpage:
-                    this.props.source.openTarget === SourceOpenTarget.Webpage,
-                loadFull:
-                    this.props.source.openTarget ===
-                    SourceOpenTarget.FullContent,
-            })
-            if (this.props.source.openTarget === SourceOpenTarget.FullContent)
-                this.loadFull()
-        }
-        this.componentDidMount()
-    }
+    const directionMenuProps = (): IContextualMenuProps => ({
+        items: [
+            {
+                key: "LTR",
+                text: intl.get("article.LTR"),
+                iconProps: { iconName: "Forward" },
+                canCheck: true,
+                checked: source.textDir === SourceTextDirection.LTR,
+                onClick: () => updateTextDirection(SourceTextDirection.LTR),
+            },
+            {
+                key: "RTL",
+                text: intl.get("article.RTL"),
+                iconProps: { iconName: "Back" },
+                canCheck: true,
+                checked: source.textDir === SourceTextDirection.RTL,
+                onClick: () => updateTextDirection(SourceTextDirection.RTL),
+            },
+            {
+                key: "Vertical",
+                text: intl.get("article.Vertical"),
+                iconProps: { iconName: "Down" },
+                canCheck: true,
+                checked: source.textDir === SourceTextDirection.Vertical,
+                onClick: () =>
+                    updateTextDirection(SourceTextDirection.Vertical),
+            },
+        ],
+    })
 
-    componentWillUnmount = () => {
-        let refocus = document.querySelector(
-            `#refocus div[data-iid="${this.props.item._id}"]`
-        ) as HTMLElement
-        if (refocus) refocus.focus()
-    }
+    const moreMenuProps = (): IContextualMenuProps => ({
+        items: [
+            {
+                key: "openInBrowser",
+                text: intl.get("openExternal"),
+                iconProps: { iconName: "NavigateExternalInline" },
+                onClick: e => {
+                    window.utils.openExternal(item.link, platformCtrl(e))
+                },
+            },
+            {
+                key: "copyURL",
+                text: intl.get("context.copyURL"),
+                iconProps: { iconName: "Link" },
+                onClick: () => {
+                    window.utils.writeClipboard(item.link)
+                },
+            },
+            {
+                key: "toggleHidden",
+                text: item.hidden
+                    ? intl.get("article.unhide")
+                    : intl.get("article.hide"),
+                iconProps: {
+                    iconName: item.hidden ? "View" : "Hide3",
+                },
+                onClick: () => {
+                    handleToggleHidden()
+                },
+            },
+            {
+                key: "fontMenu",
+                text: intl.get("article.font"),
+                iconProps: { iconName: "Font" },
+                disabled: loadWebpage,
+                subMenuProps: fontFamilyMenuProps(),
+            },
+            {
+                key: "fontSizeMenu",
+                text: intl.get("article.fontSize"),
+                iconProps: { iconName: "FontSize" },
+                disabled: loadWebpage,
+                subMenuProps: fontSizeMenuProps(),
+            },
+            {
+                key: "directionMenu",
+                text: intl.get("article.textDir"),
+                iconProps: { iconName: "ChangeEntitlements" },
+                disabled: loadWebpage,
+                subMenuProps: directionMenuProps(),
+            },
+            {
+                key: "divider_1",
+                itemType: ContextualMenuItemType.Divider,
+            },
+            ...shareSubmenu(item),
+        ],
+    })
 
-    toggleWebpage = () => {
-        if (this.state.loadWebpage) {
-            this.setState({ loadWebpage: false })
-        } else if (
-            this.props.item.link.startsWith("https://") ||
-            this.props.item.link.startsWith("http://")
-        ) {
-            this.setState({ loadWebpage: true, loadFull: false })
-        }
-    }
-
-    toggleFull = () => {
-        if (this.state.loadFull) {
-            this.setState({ loadFull: false })
-        } else if (
-            this.props.item.link.startsWith("https://") ||
-            this.props.item.link.startsWith("http://")
-        ) {
-            this.setState({ loadFull: true, loadWebpage: false })
-            this.loadFull()
-        }
-    }
-    loadFull = async () => {
-        this.setState({ fullContent: "", loaded: false, error: false })
-        const link = this.props.item.link
-        try {
-            const result = await fetch(link)
-            if (!result || !result.ok) throw new Error()
-            const html = await decodeFetchResponse(result, true)
-            if (link === this.props.item.link) {
-                this.setState({ fullContent: html })
-            }
-        } catch {
-            if (link === this.props.item.link) {
-                this.setState({
-                    loaded: true,
-                    error: true,
-                    errorDescription: "MERCURY_PARSER_FAILURE",
-                })
-            }
-        }
-    }
-
-    articleView = () => {
-        const a = encodeURIComponent(
-            this.state.loadFull
-                ? this.state.fullContent
-                : this.props.item.content
-        )
+    const articleView = () => {
+        const a = encodeURIComponent(loadFull ? fullContent : item.content)
         const h = encodeURIComponent(
             renderToString(
                 <>
-                    <p className="title">{this.props.item.title}</p>
+                    <p className="title">{item.title}</p>
                     <p className="date">
-                        {this.props.item.date.toLocaleString(
-                            this.props.locale,
-                            { hour12: !this.props.locale.startsWith("zh") }
-                        )}
+                        {item.date.toLocaleString(locale, {
+                            hour12: !locale.startsWith("zh"),
+                        })}
                     </p>
                     <article></article>
                 </>
             )
         )
         return `article/article.html?a=${a}&h=${h}&f=${encodeURIComponent(
-            this.state.fontFamily
-        )}&s=${this.state.fontSize}&d=${this.props.source.textDir}&u=${
-            this.props.item.link
-        }&m=${this.state.loadFull ? 1 : 0}`
+            fontFamily
+        )}&s=${fontSize}&d=${source.textDir}&u=${item.link}&m=${
+            loadFull ? 1 : 0
+        }`
     }
 
-    render = () => (
+    return (
         <FocusZone className="article">
             <Stack horizontal style={{ height: 36 }}>
                 <span style={{ width: 96 }}></span>
@@ -385,32 +279,30 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                     tokens={{ childrenGap: 12 }}>
                     <Stack.Item grow>
                         <span className="source-name">
-                            {this.state.loaded ? (
-                                this.props.source.iconurl && (
+                            {loaded ? (
+                                source.iconurl && (
                                     <img
                                         className="favicon"
-                                        src={this.props.source.iconurl}
+                                        src={source.iconurl}
                                     />
                                 )
                             ) : (
                                 <Spinner size="extra-tiny" />
                             )}
-                            {this.props.source.name}
-                            {this.props.item.creator && (
-                                <span className="creator">
-                                    {this.props.item.creator}
-                                </span>
+                            {source.name}
+                            {item.creator && (
+                                <span className="creator">{item.creator}</span>
                             )}
                         </span>
                     </Stack.Item>
                     <CommandBarButton
                         title={
-                            this.props.item.hasRead
+                            item.hasRead
                                 ? intl.get("article.markUnread")
                                 : intl.get("article.markRead")
                         }
                         iconProps={
-                            this.props.item.hasRead
+                            item.hasRead
                                 ? { iconName: "StatusCircleRing" }
                                 : {
                                       iconName: "RadioBtnOn",
@@ -421,71 +313,64 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                                   }
                         }
                         onClick={() =>
-                            this.props.toggleHasRead(this.props.item)
+                            dispatch(
+                                item.hasRead ? markUnread(item) : markRead(item)
+                            )
                         }
                     />
                     <CommandBarButton
                         title={
-                            this.props.item.starred
+                            item.starred
                                 ? intl.get("article.unstar")
                                 : intl.get("article.star")
                         }
                         iconProps={{
-                            iconName: this.props.item.starred
+                            iconName: item.starred
                                 ? "FavoriteStarFill"
                                 : "FavoriteStar",
                         }}
-                        onClick={() =>
-                            this.props.toggleStarred(this.props.item)
-                        }
+                        onClick={() => dispatch(toggleStarred(item))}
                     />
                     <CommandBarButton
                         title={intl.get("article.loadFull")}
-                        className={this.state.loadFull ? "active" : ""}
+                        className={loadFull ? "active" : ""}
                         iconProps={{ iconName: "RawSource" }}
-                        onClick={this.toggleFull}
+                        onClick={toggleFull}
                     />
                     <CommandBarButton
                         title={intl.get("article.loadWebpage")}
-                        className={this.state.loadWebpage ? "active" : ""}
+                        className={loadWebpage ? "active" : ""}
                         iconProps={{ iconName: "Globe" }}
-                        onClick={this.toggleWebpage}
+                        onClick={toggleWebpage}
                     />
                     <CommandBarButton
                         title={intl.get("more")}
                         iconProps={{ iconName: "More" }}
                         menuIconProps={{ style: { display: "none" } }}
-                        menuProps={this.moreMenuProps()}
+                        menuProps={moreMenuProps()}
                     />
                 </Stack>
                 <Stack horizontal horizontalAlign="end" style={{ width: 112 }}>
                     <CommandBarButton
                         title={intl.get("close")}
                         iconProps={{ iconName: "BackToWindow" }}
-                        onClick={this.props.dismiss}
+                        onClick={dismiss}
                     />
                 </Stack>
             </Stack>
-            {(!this.state.loadFull || this.state.fullContent) && (
+            {showWebview && (
                 <webview
                     id="article"
-                    className={this.state.error ? "error" : ""}
-                    key={
-                        this.props.item._id +
-                        (this.state.loadWebpage ? "_" : "") +
-                        (this.state.loadFull ? "__" : "")
-                    }
-                    src={
-                        this.state.loadWebpage
-                            ? this.props.item.link
-                            : this.articleView()
-                    }
+                    className={error ? "error" : ""}
+                    ref={webview}
+                    key={webviewKey}
+                    src={loadWebpage ? item.link : articleView()}
                     allowpopups={"true" as unknown as boolean}
                     webpreferences="contextIsolation,disableDialogs,autoplayPolicy=document-user-activation-required"
-                    partition={this.state.loadWebpage ? "sandbox" : undefined}
+                    partition={loadWebpage ? "sandbox" : undefined}
                 />
             )}
-            {this.state.error && (
+            {error && (
                 <Stack
                     className="error-prompt"
                     verticalAlign="center"
@@ -498,14 +383,12 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                         tokens={{ childrenGap: 7 }}>
                         <small>{intl.get("article.error")}</small>
                         <small>
-                            <Link onClick={this.webviewReload}>
+                            <Link onClick={reload}>
                                 {intl.get("article.reload")}
                             </Link>
                         </small>
                     </Stack>
-                    <span style={{ fontSize: 11 }}>
-                        {this.state.errorDescription}
-                    </span>
+                    <span style={{ fontSize: 11 }}>{error}</span>
                 </Stack>
             )}
         </FocusZone>

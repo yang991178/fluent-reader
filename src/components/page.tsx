@@ -2,7 +2,7 @@ import * as React from "react"
 import { useCallback } from "react"
 import { Feed } from "./feeds/feed"
 import { Icon, FocusTrapZone } from "@fluentui/react"
-import ArticleContainer from "../containers/article-container"
+import Article from "./article"
 import { ViewType } from "../schema-types"
 import ArticleSearch from "./utils/article-search"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
@@ -75,7 +75,7 @@ const Page: React.FC = () => {
                     </div>
                     {itemId ? (
                         <div className="side-article-wrapper">
-                            <ArticleContainer itemId={itemId} />
+                            <Article itemId={itemId} />
                         </div>
                     ) : (
                         <div className="side-logo-wrapper">
@@ -116,7 +116,7 @@ const Page: React.FC = () => {
                     <div
                         className="article-wrapper"
                         onClick={e => e.stopPropagation()}>
-                        <ArticleContainer itemId={itemId} />
+                        <Article itemId={itemId} />
                     </div>
                     {itemFromFeed && (
                         <>

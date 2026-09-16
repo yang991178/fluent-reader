@@ -5,6 +5,16 @@ import { ImageCallbackTypes, StoredRules, TouchBarTexts } from "../schema-types"
 import { initMainTouchBar } from "./touchbar"
 import * as fontList from "font-list"
 
+const webviewInputFocused = `(() => {
+    let element = document.activeElement
+    while (element?.shadowRoot?.activeElement) {
+        element = element.shadowRoot.activeElement
+    }
+    return !!element && (
+        element.matches("input, textarea, select, iframe, frame") || element.isContentEditable
+    )
+})()`
+
 export function setUtilsListeners(manager: WindowManager) {
     async function openExternal(url: string, background = false) {
         if (url.startsWith("https://") || url.startsWith("http://")) {
@@ -231,10 +241,34 @@ export function setUtilsListeners(manager: WindowManager) {
                         })
                 }
             })
-            contents.on("before-input-event", (_, input) => {
-                if (manager.hasWindow()) {
-                    let contents = manager.mainWindow.webContents
-                    contents.send("webview-keydown", input)
+            contents.on("before-input-event", async (_, input) => {
+                if (input.type !== "keyDown" || !manager.hasWindow()) return
+                const mainWindow = manager.mainWindow
+                const url = contents.getURL()
+                if (url.startsWith("https://") || url.startsWith("http://")) {
+                    // Inspect the guest's focused frame, including iframe editors.
+                    // Leave the original key event alone so typing works normally.
+                    // Electron can report no focused frame for a focused webview.
+                    // An iframe host in the fallback document keeps its own keys.
+                    const frame = contents.focusedFrame || contents.mainFrame
+                    try {
+                        const inputFocused = await frame.executeJavaScript(
+                            webviewInputFocused
+                        )
+                        if (
+                            inputFocused ||
+                            contents.isDestroyed() ||
+                            frame.isDestroyed() ||
+                            contents.getURL() !== url
+                        )
+                            return
+                    } catch {
+                        // The frame may disappear while navigating or closing.
+                        return
+                    }
+                }
+                if (manager.hasWindow() && manager.mainWindow === mainWindow) {
+                    mainWindow.webContents.send("webview-keydown", input)
                 }
             })
         }
