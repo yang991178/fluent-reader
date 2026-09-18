@@ -6,7 +6,7 @@ import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
 import { RSSItem } from "../item"
-import { domParser, htmlDecode } from "../../utils"
+import { parseHTML, htmlDecode } from "../../utils"
 import { SourceRule } from "../rule"
 
 const ALL_TAG = "user/-/state/com.google/reading-list"
@@ -241,10 +241,7 @@ export const gReaderServiceHooks: ServiceHooks = {
             items.map(i => {
                 const source = fidMap.get(i.origin.streamId)
                 if (source === undefined) return
-                const dom = domParser.parseFromString(
-                    i.summary.content,
-                    "text/html"
-                )
+                const dom = parseHTML(i.summary.content)
                 if (
                     configs.type == SyncService.Inoreader &&
                     configs.removeInoreaderAd !== false

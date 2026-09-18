@@ -47,7 +47,7 @@ export async function decodeFetchResponse(response: Response, isHTML = false) {
     let content = new TextDecoder(charset).decode(buffer)
     if (charset === undefined) {
         if (isHTML) {
-            const dom = domParser.parseFromString(content, "text/html")
+            const dom = parseHTML(content)
             charset = dom
                 .querySelector("meta[charset]")
                 ?.getAttribute("charset")
@@ -95,13 +95,36 @@ export async function parseRSS(url: string) {
 
 export const domParser = new DOMParser()
 
+/**
+ * Chromium terminates the renderer process outright when an element named
+ * `<geolocation>` is created, so parsing article HTML that contains one takes the
+ * whole window down with it - the app shows an empty frame and no error.
+ *
+ * Feeds writing about the proposed `<geolocation>` HTML element deliver the name
+ * entity-escaped (`&lt;geolocation&gt;`), so it survives into `contentSnippet` as
+ * literal text and then reaches the parser as a real tag. Because items are
+ * persisted, the crash repeats on every launch and the app never recovers on its
+ * own; the user has to delete the article database.
+ *
+ * Neutralising the tag name is enough. The zero-width space keeps the text
+ * visually identical wherever it is later displayed.
+ */
+const FATAL_TAG_RE = /(<\s*\/?\s*)geolocation(?![a-zA-Z0-9-])/gi
+
+export function parseHTML(input: string): Document {
+    return domParser.parseFromString(
+        input.replace(FATAL_TAG_RE, "$1geo\u200Blocation"),
+        "text/html"
+    )
+}
+
 export async function fetchFavicon(url: string) {
     try {
         url = url.split("/").slice(0, 3).join("/")
         let result = await fetch(url, { credentials: "omit" })
         if (result.ok) {
             let html = await result.text()
-            let dom = domParser.parseFromString(html, "text/html")
+            let dom = parseHTML(html)
             let links = dom.getElementsByTagName("link")
             for (let link of links) {
                 let rel = link.getAttribute("rel")
@@ -145,7 +168,7 @@ export async function validateFavicon(url: string) {
 }
 
 export function htmlDecode(input: string) {
-    var doc = domParser.parseFromString(input, "text/html")
+    var doc = parseHTML(input)
     return doc.documentElement.textContent
 }
 

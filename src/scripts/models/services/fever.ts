@@ -3,7 +3,7 @@ import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
-import { htmlDecode, domParser } from "../../utils"
+import { htmlDecode, parseHTML } from "../../utils"
 import { RSSItem } from "../item"
 import { SourceRule } from "../rule"
 
@@ -139,7 +139,7 @@ export const feverServiceHooks: ServiceHooks = {
                     serviceRef: String(i.id),
                 } as RSSItem
                 // Try to get the thumbnail of the item
-                let dom = domParser.parseFromString(item.content, "text/html")
+                let dom = parseHTML(item.content)
                 let baseEl = dom.createElement("base")
                 baseEl.setAttribute(
                     "href",
