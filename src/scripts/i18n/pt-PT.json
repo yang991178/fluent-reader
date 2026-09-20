@@ -64,6 +64,8 @@
         "star": "Marcar como favorito",
         "unstar": "Remover marcação",
         "fontSize": "Tamanho da fonte",
+        "translate": "Traduzir artigo",
+        "showOriginal": "Mostrar original",
         "loadWebpage": "Carregar página web",
         "loadFull": "Carregar todo o conteúdo",
         "notify": "Notificar se atualizado em segundo plano",
