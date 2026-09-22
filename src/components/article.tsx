@@ -221,6 +221,10 @@ class Article extends React.Component<ArticleProps, ArticleState> {
                 case "ArrowRight":
                     this.props.offsetItem(input.key === "ArrowLeft" ? -1 : 1)
                     break
+                case "k":
+                case "j":
+                    this.props.offsetItem(input.key === "j" ? -1 : 1)
+                    break
                 case "l":
                 case "L":
                     this.toggleWebpage()
