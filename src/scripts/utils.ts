@@ -29,6 +29,7 @@ const rssParser = new Parser({
             "image",
             ["content:encoded", "fullContent"],
             ["media:content", "mediaContent", { keepArray: true }],
+            ["media:group", "videoMeta", { keepArray: false }],
         ],
     },
 })
