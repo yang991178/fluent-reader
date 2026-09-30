@@ -34,7 +34,17 @@ const rssParser = new Parser({
     },
 })
 type extractGeneric<Type> = Type extends Parser<infer _, infer U> ? U : never
-export type MyParserItem = extractGeneric<typeof rssParser> & Parser.Item
+export type MyParserItem = extractGeneric<typeof rssParser> &
+    Parser.Item & {
+        videoMeta?: {
+            "media:thumbnail"?: { $?: { url?: string } }[]
+            "media:description"?: string[]
+            "media:community"?: {
+                "media:statistics"?: { $?: { views?: string } }[]
+                "media:starRating"?: { $?: { count?: string } }[]
+            }[]
+        }
+    }
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
 const XML_ENCODING_RE = /^<\?xml.+encoding="(.+?)".*?\?>/i

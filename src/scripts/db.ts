@@ -22,7 +22,7 @@ sdbSchema
     .addNullable(["iconurl", "serviceRef", "rules"])
     .addIndex("idxURL", ["url"], true)
 
-const idbSchema = lf.schema.create("itemsDB", 1)
+const idbSchema = lf.schema.create("itemsDB", 2)
 idbSchema
     .createTable("items")
     .addColumn("_id", lf.Type.INTEGER)
@@ -41,7 +41,8 @@ idbSchema
     .addColumn("hidden", lf.Type.BOOLEAN)
     .addColumn("notify", lf.Type.BOOLEAN)
     .addColumn("serviceRef", lf.Type.STRING)
-    .addNullable(["thumb", "creator", "serviceRef"])
+    .addColumn("youtubeMeta", lf.Type.OBJECT)
+    .addNullable(["thumb", "creator", "serviceRef", "youtubeMeta"])
     .addIndex("idxDate", ["date"], false, lf.Order.DESC)
     .addIndex("idxService", ["serviceRef"], false)
 
@@ -60,10 +61,17 @@ async function onUpgradeSourceDB(rawDb: lf.raw.BackStore) {
     }
 }
 
+async function onUpgradeItemDB(rawDb: lf.raw.BackStore) {
+    const version = rawDb.getVersion()
+    if (version < 2) {
+        await rawDb.addTableColumn("items", "youtubeMeta", null)
+    }
+}
+
 export async function init() {
     sourcesDB = await sdbSchema.connect({ onUpgrade: onUpgradeSourceDB })
     sources = sourcesDB.getSchema().table("sources")
-    itemsDB = await idbSchema.connect()
+    itemsDB = await idbSchema.connect({ onUpgrade: onUpgradeItemDB })
     items = itemsDB.getSchema().table("items")
     if (window.settings.getNeDBStatus()) {
         await migrateNeDB()
