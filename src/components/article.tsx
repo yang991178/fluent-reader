@@ -362,15 +362,23 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         if (isYouTube) {
             const { views, likes } = item.youtubeMeta
             const statParts = [
-                views !== undefined ? `${htmlEscape(views)} views` : null,
-                likes !== undefined ? `${htmlEscape(likes)} likes` : null,
+                views !== undefined
+                    ? `<span>${htmlEscape(views)} views</span>`
+                    : null,
+                likes !== undefined
+                    ? `<span>${htmlEscape(likes)} likes</span>`
+                    : null,
             ].filter(Boolean)
             const statsHtml =
                 statParts.length > 0
-                    ? `<p><em>${statParts.join(" · ")}</em></p>`
+                    ? `<div style="display: flex; justify-content: space-between; margin-bottom: 16px;">${statParts
+                          .map(part => `<em>${part}</em>`)
+                          .join(
+                              ""
+                          )}</div><hr style="border: none; border-top: 2px solid #e0e0e0; margin: 16px 0;">`
                     : ""
             const descHtml = item.snippet
-                ? `<p>${htmlEscape(item.snippet)}</p>`
+                ? `<p>${htmlEscape(item.snippet).replace(/\n/g, "<br>")}</p>`
                 : ""
             const thumbHtml = item.thumb
                 ? `<a href="${htmlEscape(
