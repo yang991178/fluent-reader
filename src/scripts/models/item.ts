@@ -40,6 +40,10 @@ export class RSSItem {
     hidden: boolean
     notify: boolean
     serviceRef?: string
+    youtubeMeta?: {
+        views?: string
+        likes?: string
+    }
 
     constructor(item: MyParserItem, source: RSSSource) {
         for (let field of ["title", "link", "creator"]) {
@@ -92,6 +96,29 @@ export class RSSItem {
             dom.head.append(baseEl)
             let img = dom.querySelector("img")
             if (img && img.src) item.thumb = img.src
+        }
+        if (parsed.videoMeta) {
+            const videoMeta = parsed.videoMeta as {
+                "media:thumbnail"?: { $?: { url?: string } }[]
+                "media:description"?: string[]
+                "media:community"?: {
+                    "media:statistics"?: { $?: { views?: string } }[]
+                    "media:starRating"?: { $?: { count?: string } }[]
+                }[]
+            }
+            const ytThumb = videoMeta["media:thumbnail"]?.[0]?.$?.url
+            if (ytThumb && !item.thumb) {
+                item.thumb = ytThumb
+            }
+            const ytDesc = videoMeta["media:description"]?.[0]
+            if (ytDesc && !item.snippet) {
+                item.snippet = ytDesc
+            }
+            const community = videoMeta["media:community"]?.[0]
+            item.youtubeMeta = {
+                views: community?.["media:statistics"]?.[0]?.$?.views,
+                likes: community?.["media:starRating"]?.[0]?.$?.count,
+            }
         }
         if (
             item.thumb &&

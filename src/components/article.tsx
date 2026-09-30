@@ -22,6 +22,13 @@ import { Spinner } from "@fluentui/react-components"
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
+/** Escapes a plain-text string so it is safe to insert into an HTML context. */
+function htmlEscape(text: string): string {
+    const div = document.createElement("div")
+    div.appendChild(document.createTextNode(text))
+    return div.innerHTML
+}
+
 type ArticleProps = {
     item: RSSItem
     source: RSSSource
@@ -348,20 +355,57 @@ class Article extends React.Component<ArticleProps, ArticleState> {
     }
 
     articleView = () => {
-        const a = encodeURIComponent(
-            this.state.loadFull
+        const { item } = this.props
+        const isYouTube = item.youtubeMeta != null
+
+        let articleContent: string
+        if (isYouTube) {
+            const { views, likes } = item.youtubeMeta
+            const statParts = [
+                views !== undefined
+                    ? `<span>${htmlEscape(views)} views</span>`
+                    : null,
+                likes !== undefined
+                    ? `<span>${htmlEscape(likes)} likes</span>`
+                    : null,
+            ].filter(Boolean)
+            const statsHtml =
+                statParts.length > 0
+                    ? `<div style="display: flex; justify-content: space-between; margin-bottom: 16px;">${statParts
+                          .map(part => `<em>${part}</em>`)
+                          .join(
+                              ""
+                          )}</div><hr style="border: none; border-top: 2px solid #e0e0e0; margin: 16px 0;">`
+                    : ""
+            const descHtml = item.snippet
+                ? `<p>${htmlEscape(item.snippet).replace(/\n/g, "<br>")}</p>`
+                : ""
+            const thumbHtml = item.thumb
+                ? `<a href="${htmlEscape(
+                      item.link
+                  )}" style="display: block; width: 100%;"><img src="${htmlEscape(
+                      item.thumb
+                  )}" alt="YouTube thumbnail" style="width: 100%; height: auto; display: block;"></a>`
+                : ""
+            const linkHtml = `<p><a href="${htmlEscape(
+                item.link
+            )}" style="display: inline-block; padding: 8px 16px; background: #ff0000; color: white; text-decoration: none; border-radius: 4px; margin-top: 16px;">Watch on YouTube</a></p>`
+            articleContent = `${thumbHtml}${statsHtml}${descHtml}${linkHtml}`
+        } else {
+            articleContent = this.state.loadFull
                 ? this.state.fullContent
-                : this.props.item.content
-        )
+                : item.content
+        }
+
+        const a = encodeURIComponent(articleContent)
         const h = encodeURIComponent(
             renderToString(
                 <>
-                    <p className="title">{this.props.item.title}</p>
+                    <p className="title">{item.title}</p>
                     <p className="date">
-                        {this.props.item.date.toLocaleString(
-                            this.props.locale,
-                            { hour12: !this.props.locale.startsWith("zh") }
-                        )}
+                        {item.date.toLocaleString(this.props.locale, {
+                            hour12: !this.props.locale.startsWith("zh"),
+                        })}
                     </p>
                     <article></article>
                 </>
@@ -370,7 +414,7 @@ class Article extends React.Component<ArticleProps, ArticleState> {
         return `article/article.html?a=${a}&h=${h}&f=${encodeURIComponent(
             this.state.fontFamily
         )}&s=${this.state.fontSize}&d=${this.props.source.textDir}&u=${
-            this.props.item.link
+            item.link
         }&m=${this.state.loadFull ? 1 : 0}`
     }
 
