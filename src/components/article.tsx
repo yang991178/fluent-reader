@@ -383,9 +383,9 @@ class Article extends React.Component<ArticleProps, ArticleState> {
             const thumbHtml = item.thumb
                 ? `<a href="${htmlEscape(
                       item.link
-                  )}" style="display: block; margin: 16px 0;"><img src="${htmlEscape(
+                  )}" style="display: block; width: 100%;"><img src="${htmlEscape(
                       item.thumb
-                  )}" alt="YouTube thumbnail" style="max-width: 100%; height: auto; border-radius: 8px;"></a>`
+                  )}" alt="YouTube thumbnail" style="width: 100%; height: auto; display: block;"></a>`
                 : ""
             const linkHtml = `<p><a href="${htmlEscape(
                 item.link
