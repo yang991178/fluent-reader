@@ -174,11 +174,9 @@
     "rules": {
         "intro": "Automatické označování článků nebo odesílání oznámení pomocí regulárních výrazů.",
         "help": "Zjistit více",
-        "source": "Zdroj",
-        "selectSource": "Vybrat zdroj",
+        "target": "Cíl",
+        "selectTarget": "Vyberte cíl",
         "new": "Nové pravidlo",
-        "if": "Pokud",
-        "then": "Poté",
         "title": "Titulek",
         "content": "Obsah",
         "fullSearch": "Titulek nebo obsah",
@@ -189,8 +187,14 @@
         "badRegex": "Nesprávný pravidelný výraz.",
         "action": "Akce",
         "selectAction": "Vybrat akce",
-        "hint": "Pravidla se použijí v pořadí. Tažením myši můžete změnit pořadí.",
-        "test": "Testovací pravidla"
+        "hint": "Pravidla se použijí na nově načtené články: všechny články → skupina → zdroj. Provádějí se shora dolů; pozdější akce mají přednost. Pořadí změňte přetažením. Testy zahrnují pravidla širších cílů.",
+        "test": "Testovací pravidla",
+        "searchField": "Pole hledání",
+        "matchCondition": "Podmínka shody",
+        "save": "Uložit pravidlo",
+        "selectAll": "Vybrat všechna pravidla",
+        "selectRule": "Vybrat pravidlo",
+        "saveError": "Pravidla se nepodařilo uložit. Zkuste to znovu."
     },
     "service": {
         "intro": "Synchronizace mezi zařízeními pomocí služeb RSS.",

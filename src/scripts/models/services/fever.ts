@@ -5,7 +5,7 @@ import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
 import { htmlDecode, domParser } from "../../utils"
 import { RSSItem } from "../item"
-import { SourceRule } from "../rule"
+import { ArticleRule, getRulesForTarget } from "../rule"
 
 export interface FeverConfigs extends ServiceConfigs {
     type: SyncService.Fever
@@ -157,12 +157,26 @@ export const feverServiceHooks: ServiceHooks = {
                     if (a && /, image\/generic$/.test(a.innerText) && a.href)
                         item.thumb = a.href
                 }
-                // Apply rules and sync back to the service
-                if (source.rules) SourceRule.applyAll(source.rules, item)
+                // Rule writebacks are best effort and must not block fetching.
+                ArticleRule.applyAll(
+                    getRulesForTarget(state.rules, state.groups, {
+                        type: "source",
+                        sid: source.sid,
+                    }),
+                    item
+                )
                 if (Boolean(i.is_read) !== item.hasRead)
-                    markItem(configs, item, item.hasRead ? "read" : "unread")
+                    void markItem(
+                        configs,
+                        item,
+                        item.hasRead ? "read" : "unread"
+                    ).catch(() => {})
                 if (Boolean(i.is_saved) !== Boolean(item.starred))
-                    markItem(configs, item, item.starred ? "saved" : "unsaved")
+                    void markItem(
+                        configs,
+                        item,
+                        item.starred ? "saved" : "unsaved"
+                    ).catch(() => {})
                 return item
             })
             return [parsedItems, configs]

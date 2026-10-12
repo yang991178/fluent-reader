@@ -167,11 +167,9 @@
     "rules": {
         "intro": "Yazıları otomatik olarak işaretle yada düzenli ifadeler (regex) ile bildirimler gönder.",
         "help": "Daha fazla bilgi edin",
-        "source": "Kaynak",
-        "selectSource": "Kaynak Seçin",
+        "target": "Hedef",
+        "selectTarget": "Bir hedef seçin",
         "new": "Yeni kural",
-        "if": "Eğer",
-        "then": "Sonra",
         "title": "Başlık",
         "content": "İçerik",
         "fullSearch": "Başlık veya İçerik",
@@ -182,8 +180,14 @@
         "badRegex": "Geçersiz düzenli ifade (Regex).",
         "action": "Eylemler",
         "selectAction": "Eylemleri Seçin",
-        "hint": "Kurallar sırayla uygulanacaktır. Yeniden sıralamak için sürükleyip bırakın.",
-        "test": "Test Et"
+        "hint": "Kurallar yeni alınan makalelere uygulanır: tüm makaleler → grup → kaynak. Yukarıdan aşağıya çalışırlar; sonraki eylemler önceliklidir. Sıralamak için sürükleyin. Testler daha geniş hedeflerin kurallarını içerir.",
+        "test": "Test Et",
+        "searchField": "Arama alanı",
+        "matchCondition": "Eşleşme koşulu",
+        "save": "Kuralı kaydet",
+        "selectAll": "Tüm kuralları seç",
+        "selectRule": "Kuralı seç",
+        "saveError": "Kurallar kaydedilemedi. Lütfen tekrar deneyin."
     },
     "service": {
         "intro": "RSS hizmetleriyle cihazlar arasında senkronize edin.",

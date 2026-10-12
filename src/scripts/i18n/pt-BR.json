@@ -167,11 +167,9 @@
     "rules": {
         "intro": "Marcar artigos automaticamente ou enviar notificações com base em regras de expressões regulares.",
         "help": "Saiba mais",
-        "source": "Fonte",
-        "selectSource": "Selecionar uma fonte",
+        "target": "Destino",
+        "selectTarget": "Selecione um destino",
         "new": "Nova regra",
-        "if": "Se",
-        "then": "Então",
         "title": "Título",
         "content": "Conteúdo",
         "fullSearch": "Título ou conteúdo",
@@ -182,8 +180,14 @@
         "badRegex": "Expressão regular inválida.",
         "action": "Ações",
         "selectAction": "Selecionar ações",
-        "hint": "As regras serão aplicadas em ordem. Arraste e solte para reorganizar.",
-        "test": "Testar regras"
+        "hint": "As regras se aplicam aos artigos recém-obtidos: todos os artigos → grupo → fonte. São executadas de cima para baixo; ações posteriores têm prioridade. Arraste para reordenar. Os testes incluem regras de destinos mais amplos.",
+        "test": "Testar regras",
+        "searchField": "Campo de pesquisa",
+        "matchCondition": "Condição de correspondência",
+        "save": "Salvar regra",
+        "selectAll": "Selecionar todas as regras",
+        "selectRule": "Selecionar regra",
+        "saveError": "Não foi possível salvar as regras. Tente novamente."
     },
     "service": {
         "intro": "Sincronização entre dispositivos com serviços RSS.",

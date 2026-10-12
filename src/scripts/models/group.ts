@@ -10,6 +10,7 @@ import {
 import { SourceGroup } from "../../schema-types"
 import { ActionStatus, AppThunk, domParser } from "../utils"
 import { saveSettings } from "./app"
+import { updateRulesForTarget } from "./rule"
 import {
     fetchItemsIntermediate,
     fetchItemsRequest,
@@ -31,19 +32,19 @@ interface CreateSourceGroupAction {
 
 interface AddSourceToGroupAction {
     type: typeof ADD_SOURCE_TO_GROUP
-    groupIndex: number
+    gid: number
     sid: number
 }
 
 interface RemoveSourceFromGroupAction {
     type: typeof REMOVE_SOURCE_FROM_GROUP
-    groupIndex: number
+    gid: number
     sids: number[]
+    groups: SourceGroup[]
 }
 
 interface UpdateSourceGroupAction {
     type: typeof UPDATE_SOURCE_GROUP
-    groupIndex: number
     group: SourceGroup
 }
 
@@ -54,12 +55,13 @@ interface ReorderSourceGroupsAction {
 
 interface DeleteSourceGroupAction {
     type: typeof DELETE_SOURCE_GROUP
-    groupIndex: number
+    gid: number
+    groups: SourceGroup[]
 }
 
 interface ToggleGroupExpansionAction {
     type: typeof TOGGLE_GROUP_EXPANSION
-    groupIndex: number
+    gid: number
 }
 
 export type SourceGroupActionTypes =
@@ -86,74 +88,103 @@ export function createSourceGroup(name: string): AppThunk<number> {
         for (let i = 0; i < groups.length; i += 1) {
             const g = groups[i]
             if (g.isMultiple && g.name === name) {
-                return i
+                return g.gid
             }
         }
-        let group = new SourceGroup([], name)
+        const group = new SourceGroup(
+            window.settings.allocateGroupId(),
+            [],
+            name
+        )
         dispatch(createSourceGroupDone(group))
         groups = getState().groups
         window.settings.saveGroups(groups)
-        return groups.length - 1
+        return group.gid
     }
 }
 
 function addSourceToGroupDone(
-    groupIndex: number,
+    gid: number,
     sid: number
 ): SourceGroupActionTypes {
     return {
         type: ADD_SOURCE_TO_GROUP,
-        groupIndex: groupIndex,
+        gid: gid,
         sid: sid,
     }
 }
 
-export function addSourceToGroup(groupIndex: number, sid: number): AppThunk {
+export function addSourceToGroup(gid: number, sid: number): AppThunk {
     return (dispatch, getState) => {
-        dispatch(addSourceToGroupDone(groupIndex, sid))
+        dispatch(addSourceToGroupDone(gid, sid))
         window.settings.saveGroups(getState().groups)
     }
 }
 
 function removeSourceFromGroupDone(
-    groupIndex: number,
+    gid: number,
     sids: number[]
 ): SourceGroupActionTypes {
     return {
         type: REMOVE_SOURCE_FROM_GROUP,
-        groupIndex: groupIndex,
+        gid: gid,
         sids: sids,
+        groups: sids.map(
+            sid => new SourceGroup(window.settings.allocateGroupId(), [sid])
+        ),
     }
 }
 
-export function removeSourceFromGroup(
-    groupIndex: number,
-    sids: number[]
-): AppThunk {
+export function removeSourceFromGroup(gid: number, sids: number[]): AppThunk {
     return (dispatch, getState) => {
-        dispatch(removeSourceFromGroupDone(groupIndex, sids))
+        const group = getState().groups.find(g => g.gid === gid)
+        if (!group?.isMultiple) return
+        dispatch(
+            removeSourceFromGroupDone(
+                gid,
+                sids.filter(sid => group.sids.includes(sid))
+            )
+        )
         window.settings.saveGroups(getState().groups)
     }
 }
 
-function deleteSourceGroupDone(groupIndex: number): SourceGroupActionTypes {
+function deleteSourceGroupDone(group: SourceGroup): SourceGroupActionTypes {
     return {
         type: DELETE_SOURCE_GROUP,
-        groupIndex: groupIndex,
+        gid: group.gid,
+        groups: group.sids.map(
+            sid => new SourceGroup(window.settings.allocateGroupId(), [sid])
+        ),
     }
 }
 
-export function deleteSourceGroup(groupIndex: number): AppThunk {
-    return (dispatch, getState) => {
-        dispatch(deleteSourceGroupDone(groupIndex))
-        window.settings.saveGroups(getState().groups)
+export function deleteSourceGroup(gid: number): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        const group = getState().groups.find(g => g.gid === gid)
+        if (!group?.isMultiple) return
+        dispatch(saveSettings())
+        try {
+            await dispatch(
+                updateRulesForTarget({ type: "group", gid: group.gid }, [])
+            )
+            const current = getState().groups.find(g => g.gid === gid)
+            if (current) dispatch(deleteSourceGroupDone(current))
+            await window.settings.saveGroups(getState().groups)
+        } catch (err) {
+            window.utils.showErrorBox(
+                intl.get("settings.writeError"),
+                String(err)
+            )
+        } finally {
+            dispatch(saveSettings())
+        }
     }
 }
 
 function updateSourceGroupDone(group: SourceGroup): SourceGroupActionTypes {
     return {
         type: UPDATE_SOURCE_GROUP,
-        groupIndex: group.index,
         group: group,
     }
 }
@@ -181,11 +212,11 @@ export function reorderSourceGroups(groups: SourceGroup[]): AppThunk {
     }
 }
 
-export function toggleGroupExpansion(groupIndex: number): AppThunk {
+export function toggleGroupExpansion(gid: number): AppThunk {
     return (dispatch, getState) => {
         dispatch({
             type: TOGGLE_GROUP_EXPANSION,
-            groupIndex: groupIndex,
+            gid: gid,
         })
         window.settings.saveGroups(getState().groups)
     }
@@ -210,7 +241,9 @@ export function fixBrokenGroups(sources: SourceState): AppThunk {
             .filter(group => group.isMultiple || group.sids.length > 0)
         if (isBroken || sids.size > 0) {
             for (let sid of sids) {
-                newGroups.push(new SourceGroup([sid]))
+                newGroups.push(
+                    new SourceGroup(window.settings.allocateGroupId(), [sid])
+                )
             }
             dispatch(reorderSourceGroups(newGroups))
         }
@@ -374,7 +407,7 @@ export function groupReducer(
         case ADD_SOURCE:
             switch (action.status) {
                 case ActionStatus.Success:
-                    return [...state, new SourceGroup([action.source.sid])]
+                    return [...state, action.group]
                 default:
                     return state
             }
@@ -392,11 +425,13 @@ export function groupReducer(
         case CREATE_SOURCE_GROUP:
             return [...state, action.group]
         case ADD_SOURCE_TO_GROUP:
+            if (!state.some(g => g.isMultiple && g.gid === action.gid))
+                return state
             return state
-                .map((g, i) => ({
+                .map(g => ({
                     ...g,
                     sids:
-                        i == action.groupIndex
+                        g.gid === action.gid
                             ? [
                                   ...g.sids.filter(sid => sid !== action.sid),
                                   action.sid,
@@ -405,36 +440,32 @@ export function groupReducer(
                 }))
                 .filter(g => g.isMultiple || g.sids.length > 0)
         case REMOVE_SOURCE_FROM_GROUP:
-            return [
-                ...state.slice(0, action.groupIndex),
-                {
-                    ...state[action.groupIndex],
-                    sids: state[action.groupIndex].sids.filter(
-                        sid => !action.sids.includes(sid)
-                    ),
-                },
-                ...action.sids.map(sid => new SourceGroup([sid])),
-                ...state.slice(action.groupIndex + 1),
-            ]
+            return state.flatMap(group =>
+                group.gid === action.gid
+                    ? [
+                          {
+                              ...group,
+                              sids: group.sids.filter(
+                                  sid => !action.sids.includes(sid)
+                              ),
+                          },
+                          ...action.groups,
+                      ]
+                    : [group]
+            )
         case UPDATE_SOURCE_GROUP:
-            return [
-                ...state.slice(0, action.groupIndex),
-                action.group,
-                ...state.slice(action.groupIndex + 1),
-            ]
+            return state.map(group =>
+                group.gid === action.group.gid ? action.group : group
+            )
         case REORDER_SOURCE_GROUPS:
             return action.groups
         case DELETE_SOURCE_GROUP:
-            return [
-                ...state.slice(0, action.groupIndex),
-                ...state[action.groupIndex].sids.map(
-                    sid => new SourceGroup([sid])
-                ),
-                ...state.slice(action.groupIndex + 1),
-            ]
+            return state.flatMap(group =>
+                group.gid === action.gid ? action.groups : [group]
+            )
         case TOGGLE_GROUP_EXPANSION:
-            return state.map((g, i) =>
-                i == action.groupIndex
+            return state.map(g =>
+                g.gid === action.gid
                     ? {
                           ...g,
                           expanded: !g.expanded,

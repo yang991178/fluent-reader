@@ -7,7 +7,7 @@ import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
 import { RSSItem } from "../item"
 import { domParser, htmlDecode } from "../../utils"
-import { SourceRule } from "../rule"
+import { ArticleRule, getRulesForTarget } from "../rule"
 
 const ALL_TAG = "user/-/state/com.google/reading-list"
 const READ_TAG = "user/-/state/com.google/read"
@@ -291,26 +291,30 @@ export const gReaderServiceHooks: ServiceHooks = {
                     )
                         item.starred = true
                 }
-                // Apply rules and sync back to the service
-                if (source.rules) {
-                    const hasRead = item.hasRead
-                    const starred = item.starred
-                    SourceRule.applyAll(source.rules, item)
-                    if (item.hasRead !== hasRead)
-                        editTag(
-                            configs,
-                            item.serviceRef,
-                            READ_TAG,
-                            item.hasRead
-                        )
-                    if (item.starred !== starred)
-                        editTag(
-                            configs,
-                            item.serviceRef,
-                            STAR_TAG,
-                            item.starred
-                        )
-                }
+                // Rule writebacks are best effort and must not block fetching.
+                const hasRead = item.hasRead
+                const starred = item.starred
+                ArticleRule.applyAll(
+                    getRulesForTarget(state.rules, state.groups, {
+                        type: "source",
+                        sid: source.sid,
+                    }),
+                    item
+                )
+                if (item.hasRead !== hasRead)
+                    void editTag(
+                        configs,
+                        item.serviceRef,
+                        READ_TAG,
+                        item.hasRead
+                    ).catch(() => {})
+                if (item.starred !== starred)
+                    void editTag(
+                        configs,
+                        item.serviceRef,
+                        STAR_TAG,
+                        item.starred
+                    ).catch(() => {})
                 parsedItems.push(item)
             })
             if (parsedItems.length > 0) {

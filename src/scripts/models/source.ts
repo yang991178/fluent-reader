@@ -1,3 +1,4 @@
+import { SourceGroup } from "../../schema-types"
 import intl from "react-intl-universal"
 import { eq, and, max, count } from "drizzle-orm"
 import { database, sourcesTable, itemsTable, init } from "../db"
@@ -18,7 +19,12 @@ import {
     MARK_ALL_READ,
 } from "./item"
 import { saveSettings } from "./app"
-import { SourceRule } from "./rule"
+import {
+    ArticleRule,
+    getRulesForTarget,
+    initRules,
+    updateRulesForTarget,
+} from "./rule"
 import { fixBrokenGroups } from "./group"
 
 export const enum SourceOpenTarget {
@@ -44,7 +50,6 @@ export class RSSSource {
     lastFetched: Date
     serviceRef?: string
     fetchFrequency: number // in minutes
-    rules?: SourceRule[]
     textDir: SourceTextDirection
     hidden: boolean
 
@@ -69,7 +74,8 @@ export class RSSSource {
 
     private static async checkItem(
         source: RSSSource,
-        item: MyParserItem
+        item: MyParserItem,
+        rules: ArticleRule[]
     ): Promise<RSSItem> {
         let i = new RSSItem(item, source)
         const existing = await database
@@ -85,7 +91,7 @@ export class RSSSource {
             .limit(1)
         if (existing.length === 0) {
             RSSItem.parseContent(i, item)
-            if (source.rules) SourceRule.applyAll(source.rules, i)
+            ArticleRule.applyAll(rules, i)
             return i
         } else {
             return null
@@ -94,12 +100,13 @@ export class RSSSource {
 
     static checkItems(
         source: RSSSource,
-        items: MyParserItem[]
+        items: MyParserItem[],
+        rules: ArticleRule[]
     ): Promise<RSSItem[]> {
         return new Promise<RSSItem[]>((resolve, reject) => {
             let p = new Array<Promise<RSSItem>>()
             for (let item of items) {
-                p.push(this.checkItem(source, item))
+                p.push(this.checkItem(source, item, rules))
             }
             Promise.all(p)
                 .then(values => {
@@ -111,9 +118,9 @@ export class RSSSource {
         })
     }
 
-    static async fetchItems(source: RSSSource) {
+    static async fetchItems(source: RSSSource, rules: ArticleRule[]) {
         let feed = await parseRSS(source.url)
-        return await this.checkItems(source, feed.items)
+        return await this.checkItems(source, feed.items, rules)
     }
 }
 
@@ -141,6 +148,7 @@ interface AddSourceAction {
     status: ActionStatus
     batch: boolean
     source?: RSSSource
+    group?: SourceGroup
     err?
 }
 
@@ -234,15 +242,11 @@ export function initSources(): AppThunk<Promise<void>> {
         dispatch(initSourcesRequest())
         await init()
         const sourcesData = await database.select().from(sourcesTable)
-        const storedRules = globalThis.settings.getAllRules()
+        dispatch(initRules())
         const state: SourceState = {}
         for (const source of sourcesData) {
             const rssSource = source as unknown as RSSSource
             rssSource.unreadCount = 0
-            const sourceRules = storedRules[`source:${source.sid}`] || []
-            if (sourceRules.length > 0) {
-                rssSource.rules = sourceRules.map(r => SourceRule.fromStored(r))
-            }
             state[source.sid] = rssSource
         }
         await unreadCount(state)
@@ -268,6 +272,7 @@ export function addSourceSuccess(
         batch: batch,
         status: ActionStatus.Success,
         source: source,
+        group: new SourceGroup(window.settings.allocateGroupId(), [source.sid]),
     }
 }
 
@@ -340,12 +345,22 @@ export function addSource(
             try {
                 const feed = await RSSSource.fetchMetaData(source)
                 const inserted = await dispatch(insertSource(source))
-                inserted.unreadCount = feed.items.length
+                const state = getState()
+                const items = await RSSSource.checkItems(
+                    inserted,
+                    feed.items,
+                    getRulesForTarget(state.rules, state.groups, {
+                        type: "source",
+                        sid: inserted.sid,
+                    })
+                )
+                await insertItems(items)
+                inserted.unreadCount = items.filter(
+                    item => !item.hasRead
+                ).length
                 dispatch(addSourceSuccess(inserted, batch))
                 window.settings.saveGroups(getState().groups)
                 dispatch(updateFavicon([inserted.sid]))
-                const items = await RSSSource.checkItems(inserted, feed.items)
-                await insertItems(items)
                 return inserted.sid
             } catch (e) {
                 dispatch(addSourceFailure(e, batch))
@@ -409,9 +424,8 @@ export function deleteSource(
     return async (dispatch, getState) => {
         if (!batch) dispatch(saveSettings())
         try {
-            await window.settings.setRulesForTarget(
-                { type: "source", sid: source.sid },
-                []
+            await dispatch(
+                updateRulesForTarget({ type: "source", sid: source.sid }, [])
             )
             await database
                 .delete(itemsTable)

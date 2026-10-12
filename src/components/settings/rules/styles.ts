@@ -1,0 +1,62 @@
+import { makeStyles, tokens } from "@fluentui/react-components"
+
+export const useStyles = makeStyles({
+    root: { display: "flex", flexDirection: "column", gap: "16px" },
+    row: { display: "flex", gap: "8px", alignItems: "flex-start" },
+    grow: { flex: 1, minWidth: 0 },
+    dropdown: { width: "100%", minWidth: 0 },
+    targetValue: { display: "flex", alignItems: "center", minWidth: 0 },
+    targetLabel: {
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+    },
+    search: { width: "160px", flexShrink: 0 },
+    match: { width: "150px", flexShrink: 0 },
+    toolbar: { display: "flex", alignItems: "center", gap: "8px" },
+    toolbarButton: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        width: "auto",
+        height: "32px",
+        paddingLeft: "8px",
+        paddingRight: "8px",
+        fontSize: "14px",
+    },
+    delete: { color: tokens.colorPaletteRedForeground1 },
+    grid: { maxHeight: "400px", overflowY: "auto" },
+    ruleRow: { cursor: "grab" },
+    hint: {
+        fontSize: tokens.fontSizeBase200,
+        color: tokens.colorNeutralForeground3,
+    },
+    intro: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "16px",
+        marginTop: "64px",
+    },
+    icons: {
+        display: "flex",
+        gap: "12px",
+        color: tokens.colorNeutralForeground2,
+    },
+    icon: {
+        width: "16px",
+        height: "16px",
+        flexShrink: 0,
+        marginRight: "8px",
+        verticalAlign: "middle",
+    },
+    fieldset: {
+        border: 0,
+        padding: 0,
+        margin: 0,
+        minWidth: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+    },
+})

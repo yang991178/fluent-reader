@@ -9,9 +9,8 @@ import {
     ServiceConfigs,
     ViewConfigs,
     RuleTarget,
-    RuleTargetKey,
     StoredRule,
-    StoredRules,
+    getRuleTargetKey,
 } from "../schema-types"
 import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
@@ -20,11 +19,55 @@ import { transformLovefieldRules } from "./utils"
 export const store = new Store<SchemaTypes>()
 
 const GROUPS_STORE_KEY = "sourceGroups"
+function nextGroupId(): number {
+    const ids = store.get(GROUPS_STORE_KEY, []).map(group => group.gid)
+    for (const key of Object.keys(store.get("sourceRules", {}))) {
+        if (key.startsWith("group:")) ids.push(Number(key.slice(6)))
+    }
+    return Math.max(
+        store.get("nextGroupId", 0),
+        ...ids
+            .filter(id => Number.isSafeInteger(id) && id >= 0)
+            .map(id => id + 1)
+    )
+}
+
+function allocateGroupId(): number {
+    const gid = nextGroupId()
+    store.set("nextGroupId", gid + 1)
+    return gid
+}
+
+ipcMain.on("allocate-group-id", event => {
+    event.returnValue = allocateGroupId()
+})
 ipcMain.handle("set-groups", (_, groups: SourceGroup[]) => {
     store.set(GROUPS_STORE_KEY, groups)
 })
 ipcMain.on("get-groups", event => {
-    event.returnValue = store.get(GROUPS_STORE_KEY, [])
+    const nextId = nextGroupId()
+    if (store.get("nextGroupId", 0) < nextId) store.set("nextGroupId", nextId)
+    const groups = store.get(GROUPS_STORE_KEY, [])
+    const ids = new Set<number>()
+    let changed = false
+    for (const group of groups) {
+        if (
+            !Number.isSafeInteger(group.gid) ||
+            group.gid < 0 ||
+            ids.has(group.gid)
+        ) {
+            group.gid = allocateGroupId()
+            changed = true
+        }
+        // Older renderers persisted the transient display index on some groups.
+        if ("index" in group) {
+            delete group.index
+            changed = true
+        }
+        ids.add(group.gid)
+    }
+    if (changed) store.set(GROUPS_STORE_KEY, groups)
+    event.returnValue = groups
 })
 
 const MENU_STORE_KEY = "menuOn"
@@ -195,17 +238,6 @@ ipcMain.handle(
 )
 
 const SOURCE_RULES_STORE_KEY = "sourceRules"
-
-function getRuleTargetKey(target: RuleTarget): RuleTargetKey {
-    switch (target.type) {
-        case "source":
-            return `source:${target.sid}`
-        case "group":
-            return `group:${target.gid}`
-        case "all":
-            return "all"
-    }
-}
 
 ipcMain.on("get-all-rules", event => {
     event.returnValue = store.get(SOURCE_RULES_STORE_KEY, {})

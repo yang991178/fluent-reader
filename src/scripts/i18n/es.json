@@ -135,11 +135,9 @@
         "groupHint": "Doble clic sobre un grupo para modificar las fuentes. Arrastrar y soltar para reordenar."
     },
     "rules": {
-        "source": "Fuente",
-        "selectSource": "Seleccionar una fuente",
+        "target": "Destino",
+        "selectTarget": "Seleccionar un destino",
         "new": "Nueva regla",
-        "if": "Si",
-        "then": "Luego",
         "title": "Título",
         "content": "Contenido",
         "fullSearch": "Título o contenido",
@@ -149,8 +147,14 @@
         "badRegex": "Expresión regular no válida.",
         "action": "Acciones",
         "selectAction": "Seleccionar acciones",
-        "hint": "Las reglas se aplicarán en orden. Arrastrar y soltar para reordenar.",
-        "test": "Probar reglas"
+        "hint": "Las reglas se aplican a artículos recién obtenidos: todos los artículos → grupo → fuente. Se ejecutan de arriba abajo; las acciones posteriores tienen prioridad. Arrastra para cambiar el orden. Las pruebas incluyen reglas de destinos más amplios.",
+        "test": "Probar reglas",
+        "searchField": "Campo de búsqueda",
+        "matchCondition": "Condición de coincidencia",
+        "save": "Guardar regla",
+        "selectAll": "Seleccionar todas las reglas",
+        "selectRule": "Seleccionar regla",
+        "saveError": "No se pudieron guardar las reglas. Inténtalo de nuevo."
     },
     "app": {
         "cleanup": "Limpiar",

@@ -29,9 +29,9 @@ type GroupsTabProps = {
     serviceOn: boolean
     createGroup: (name: string) => void
     updateGroup: (group: SourceGroup) => void
-    addToGroup: (groupIndex: number, sid: number) => void
-    deleteGroup: (groupIndex: number) => void
-    removeFromGroup: (groupIndex: number, sids: number[]) => void
+    addToGroup: (gid: number, sid: number) => void
+    deleteGroup: (gid: number) => void
+    removeFromGroup: (gid: number, sids: number[]) => void
     reorderGroups: (groups: SourceGroup[]) => void
     importGroups: () => Promise<void>
 }
@@ -40,7 +40,7 @@ type GroupsTabState = {
     [formName: string]: any
     selectedGroup: SourceGroup
     selectedSources: RSSSource[]
-    dropdownIndex: number
+    dropdownGid: number
     manageGroup: boolean
 }
 
@@ -61,13 +61,13 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
             newGroupName: "",
             selectedGroup: null,
             selectedSources: null,
-            dropdownIndex: null,
+            dropdownGid: null,
             manageGroup: false,
         }
         this.groupDragDropEvents = this.getGroupDragDropEvents()
         this.sourcesDragDropEvents = this.getSourcesDragDropEvents()
         this.groupSelection = new Selection({
-            getKey: g => (g as SourceGroup).index,
+            getKey: g => (g as SourceGroup).gid,
             onSelectionChanged: () => {
                 let g = this.groupSelection.getSelectedCount()
                     ? (this.groupSelection.getSelection()[0] as SourceGroup)
@@ -184,8 +184,8 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
             ? (this.groupSelection.getSelection()[0] as SourceGroup)
             : this.groupDraggedItem!
 
-        let insertIndex = item.index
-        let groups = this.props.groups.filter(g => g.index != draggedItem.index)
+        let insertIndex = this.props.groups.findIndex(g => g.gid === item.gid)
+        let groups = this.props.groups.filter(g => g.gid != draggedItem.gid)
 
         groups.splice(insertIndex, 0, draggedItem)
         this.groupSelection.setAllSelected(false)
@@ -245,7 +245,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
         this.props.groups
             .filter(g => g.isMultiple)
             .map(g => ({
-                key: g.index,
+                key: g.gid,
                 text: g.name,
             }))
 
@@ -276,23 +276,23 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
 
     addToGroup = () => {
         this.props.addToGroup(
-            this.state.dropdownIndex,
+            this.state.dropdownGid,
             this.state.selectedGroup.sids[0]
         )
     }
 
     removeFromGroup = () => {
         this.props.removeFromGroup(
-            this.state.selectedGroup.index,
+            this.state.selectedGroup.gid,
             this.state.selectedSources.map(s => s.sid)
         )
         this.setState({ selectedSources: null })
     }
 
     deleteGroup = () => {
-        this.props.deleteGroup(this.state.selectedGroup.index)
-        this.groupSelection.setIndexSelected(
-            this.state.selectedGroup.index,
+        this.props.deleteGroup(this.state.selectedGroup.gid)
+        this.groupSelection.setKeySelected(
+            String(this.state.selectedGroup.gid),
             false,
             false
         )
@@ -306,7 +306,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
     }
 
     dropdownChange = (_, item: IDropdownOption) => {
-        this.setState({ dropdownIndex: item ? Number(item.key) : null })
+        this.setState({ dropdownGid: item ? Number(item.key) : null })
     }
 
     render = () => (
@@ -450,7 +450,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                                     </Stack.Item>
                                     <Stack.Item>
                                         <DangerButton
-                                            key={this.state.selectedGroup.index}
+                                            key={this.state.selectedGroup.gid}
                                             onClick={this.deleteGroup}
                                             text={intl.get(
                                                 "groups.deleteGroup"
@@ -470,9 +470,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                                             placeholder={intl.get(
                                                 "groups.chooseGroup"
                                             )}
-                                            selectedKey={
-                                                this.state.dropdownIndex
-                                            }
+                                            selectedKey={this.state.dropdownGid}
                                             options={this.dropdownOptions()}
                                             onChange={this.dropdownChange}
                                         />
@@ -480,8 +478,7 @@ class GroupsTab extends React.Component<GroupsTabProps, GroupsTabState> {
                                     <Stack.Item>
                                         <DefaultButton
                                             disabled={
-                                                this.state.dropdownIndex ===
-                                                null
+                                                this.state.dropdownGid === null
                                             }
                                             onClick={this.addToGroup}
                                             text={intl.get("groups.addToGroup")}

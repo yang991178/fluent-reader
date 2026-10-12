@@ -172,11 +172,9 @@
     "rules": {
         "intro": "通過正規表示式自動標記文章或推送通知",
         "help": "瞭解更多",
-        "source": "訂閱源",
-        "selectSource": "選擇一個訂閱源",
+        "target": "目標",
+        "selectTarget": "選擇一個目標",
         "new": "新建規則",
-        "if": "若",
-        "then": "則",
         "title": "標題",
         "content": "正文",
         "fullSearch": "標題或正文",
@@ -187,8 +185,14 @@
         "badRegex": "正規表示式非法",
         "action": "行為",
         "selectAction": "選擇行為",
-        "hint": "規則將按順序執行，拖拽以排序",
-        "test": "測試規則"
+        "hint": "規則僅套用於新取得的文章，順序為：全部文章 → 群組 → 訂閱源。規則由上而下執行，後續操作優先，可拖曳排序。測試包含較大範圍的目標規則。",
+        "test": "測試規則",
+        "searchField": "搜尋範圍",
+        "matchCondition": "比對條件",
+        "save": "儲存規則",
+        "selectAll": "選取全部規則",
+        "selectRule": "選取規則",
+        "saveError": "無法儲存規則，請重試。"
     },
     "service": {
         "intro": "通過 RSS 服務跨裝置保持同步",

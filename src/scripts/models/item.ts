@@ -1,3 +1,4 @@
+import { getRulesForTarget } from "./rule"
 import { eq, and, inArray, lte, gte } from "drizzle-orm"
 import { database, itemsTable } from "../db"
 import intl from "react-intl-universal"
@@ -252,7 +253,14 @@ export function fetchItems(
                           .map(sid => sourcesState[sid])
                           .filter(s => !s.serviceRef)
             for (let source of sources) {
-                let promise = RSSSource.fetchItems(source)
+                const state = getState()
+                let promise = RSSSource.fetchItems(
+                    source,
+                    getRulesForTarget(state.rules, state.groups, {
+                        type: "source",
+                        sid: source.sid,
+                    })
+                )
                 promise.then(() =>
                     dispatch(
                         updateSource({ ...source, lastFetched: new Date() })

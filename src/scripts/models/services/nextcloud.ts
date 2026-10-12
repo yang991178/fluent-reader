@@ -7,7 +7,7 @@ import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
 import { domParser } from "../../utils"
 import { RSSItem } from "../item"
-import { SourceRule } from "../rule"
+import { ArticleRule, getRulesForTarget } from "../rule"
 
 export interface NextcloudConfigs extends ServiceConfigs {
     type: SyncService.Nextcloud
@@ -212,22 +212,28 @@ export const nextcloudServiceHooks: ServiceHooks = {
                     let img = dom.querySelector("img")
                     if (img && img.src) item.thumb = img.src
                 }
-                // Apply rules and sync back to the service
-                if (source.rules) SourceRule.applyAll(source.rules, item)
+                // Rule writebacks are best effort and must not block fetching.
+                ArticleRule.applyAll(
+                    getRulesForTarget(state.rules, state.groups, {
+                        type: "source",
+                        sid: source.sid,
+                    }),
+                    item
+                )
                 if (unreadItem && item.hasRead)
-                    markItems(
+                    void markItems(
                         configs,
                         item.hasRead ? "read" : "unread",
                         "POST",
                         [i.id]
-                    )
+                    ).catch(() => {})
                 if (starredItem !== Boolean(item.starred))
-                    markItems(
+                    void markItems(
                         configs,
                         item.starred ? "star" : "unstar",
                         "POST",
                         [i.id]
-                    )
+                    ).catch(() => {})
 
                 parsedItems.push(item)
             })

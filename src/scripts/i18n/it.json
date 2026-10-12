@@ -167,11 +167,9 @@
     "rules": {
         "intro": "automaticamentente seleziona articoli o manda notifiche tramite Regex",
         "help": "Per saperne di più",
-        "source": "Fonte",
-        "selectSource": "Seleziona una fonte",
+        "target": "Destinazione",
+        "selectTarget": "Seleziona una destinazione",
         "new": "Nuova Regola",
-        "if": "Se",
-        "then": "Allora",
         "title": "Titolo",
         "content": "Contenuto",
         "fullSearch": "Titolo o Contenuto",
@@ -182,8 +180,14 @@
         "badRegex": "Espressione Regolare Invalida",
         "action": "Azioni",
         "selectAction": "Seleziona azioni",
-        "hint": "Le regole verranno applicate sequenzialmente, Clicca e trascina per riordinare",
-        "test": "Prova le regole"
+        "hint": "Le regole si applicano agli articoli appena recuperati: tutti gli articoli → gruppo → fonte. Vengono eseguite dall’alto in basso; le azioni successive hanno la precedenza. Trascina per riordinare. I test includono le regole delle destinazioni più ampie.",
+        "test": "Prova le regole",
+        "searchField": "Campo di ricerca",
+        "matchCondition": "Condizione di corrispondenza",
+        "save": "Salva regola",
+        "selectAll": "Seleziona tutte le regole",
+        "selectRule": "Seleziona regola",
+        "saveError": "Impossibile salvare le regole. Riprova."
     },
     "service": {
         "intro": "Sincronizza attraverso i dispositivi i servizi RSS",

@@ -167,11 +167,9 @@
     "rules": {
         "intro": "Markeer artikelen automatisch of verstuur meldingen met reguliere uitdrukkingen.",
         "help": "Meer informatie",
-        "source": "Bron",
-        "selectSource": "Kies een bron",
+        "target": "Doel",
+        "selectTarget": "Selecteer een doel",
         "new": "Nieuwe regel",
-        "if": "Als",
-        "then": "Dan",
         "title": "Titel",
         "content": "Inhoud",
         "fullSearch": "Titel of inhoud",
@@ -182,8 +180,14 @@
         "badRegex": "Ongeldige reguliere uitdrukking.",
         "action": "Acties",
         "selectAction": "Kies acties",
-        "hint": "Regels worden op volgorde toegepast. Versleep om anders te rangschikken.",
-        "test": "Regels testen"
+        "hint": "Regels gelden voor nieuw opgehaalde artikelen: alle artikelen → groep → bron. Ze worden van boven naar beneden uitgevoerd; latere acties hebben voorrang. Sleep om de volgorde te wijzigen. Tests omvatten regels van bredere doelen.",
+        "test": "Regels testen",
+        "searchField": "Zoekveld",
+        "matchCondition": "Overeenkomstvoorwaarde",
+        "save": "Regel opslaan",
+        "selectAll": "Alle regels selecteren",
+        "selectRule": "Regel selecteren",
+        "saveError": "De regels konden niet worden opgeslagen. Probeer het opnieuw."
     },
     "service": {
         "intro": "Synchroniseer tussen apparaten middels rss-diensten.",
