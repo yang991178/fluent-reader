@@ -7,7 +7,7 @@ import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
 import { domParser } from "../../utils"
 import { RSSItem } from "../item"
-import { SourceRule } from "../rule"
+import { ArticleRule, getRulesForTarget } from "../rule"
 
 export interface FeedbinConfigs extends ServiceConfigs {
     type: SyncService.Feedbin
@@ -198,22 +198,28 @@ export const feedbinServiceHooks: ServiceHooks = {
                     let img = dom.querySelector("img")
                     if (img && img.src) item.thumb = img.src
                 }
-                // Apply rules and sync back to the service
-                if (source.rules) SourceRule.applyAll(source.rules, item)
+                // Rule writebacks are best effort and must not block fetching.
+                ArticleRule.applyAll(
+                    getRulesForTarget(state.rules, state.groups, {
+                        type: "source",
+                        sid: source.sid,
+                    }),
+                    item
+                )
                 if (unread.has(i.id) === item.hasRead)
-                    markItems(
+                    void markItems(
                         configs,
                         "unread",
                         item.hasRead ? "DELETE" : "POST",
                         [i.id]
-                    )
+                    ).catch(() => {})
                 if (starred.has(i.id) !== Boolean(item.starred))
-                    markItems(
+                    void markItems(
                         configs,
                         "starred",
                         item.starred ? "POST" : "DELETE",
                         [i.id]
-                    )
+                    ).catch(() => {})
                 parsedItems.push(item)
             })
             return [parsedItems, configs]

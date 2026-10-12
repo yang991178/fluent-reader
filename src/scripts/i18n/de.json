@@ -167,11 +167,9 @@
     "rules": {
         "intro": "Artikel automatisch markieren oder Benachrichtigungen senden mit Hilfe regulärer Ausdrücke.",
         "help": "Mehr erfahren",
-        "source": "Feed",
-        "selectSource": "Wähle einen Feed aus",
+        "target": "Ziel",
+        "selectTarget": "Ziel auswählen",
         "new": "Neue Regel",
-        "if": "Wenn",
-        "then": "Dann",
         "title": "Titel",
         "content": "Inhalt",
         "fullSearch": "Titel oder Inhalt",
@@ -182,8 +180,14 @@
         "badRegex": "Ungültiger regulärer Ausdruck.",
         "action": "Aktionen",
         "selectAction": "Aktionen wählen",
-        "hint": "Die Regeln werden in Reihenfolge verarbeitet. Drag & Drop zum Sortieren.",
-        "test": "Regeln testen"
+        "hint": "Regeln gelten für neu abgerufene Artikel: alle Artikel → Gruppe → Quelle. Sie werden von oben nach unten ausgeführt; spätere Aktionen haben Vorrang. Zum Sortieren ziehen und ablegen. Tests berücksichtigen Regeln übergeordneter Ziele.",
+        "test": "Regeln testen",
+        "searchField": "Suchfeld",
+        "matchCondition": "Übereinstimmungsbedingung",
+        "save": "Regel speichern",
+        "selectAll": "Alle Regeln auswählen",
+        "selectRule": "Regel auswählen",
+        "saveError": "Regeln konnten nicht gespeichert werden. Bitte erneut versuchen."
     },
     "service": {
         "intro": "Mit RSS-Server über mehrere Geräte hinweg synchronisieren.",

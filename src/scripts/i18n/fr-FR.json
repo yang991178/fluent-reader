@@ -167,11 +167,9 @@
     "rules": {
         "intro": "Marquez automatiquement les articles ou envoyez des notifications avec des expressions régulières.",
         "help": "En savoir plus",
-        "source": "Source",
-        "selectSource": "Sélectionner une source",
+        "target": "Cible",
+        "selectTarget": "Sélectionner une cible",
         "new": "Nouvelle règle",
-        "if": "Si",
-        "then": "Alors",
         "title": "Titre",
         "content": "Contenu",
         "fullSearch": "Titre ou contenu",
@@ -182,8 +180,14 @@
         "badRegex": "Expression régulière invalide.",
         "action": "Actions",
         "selectAction": "Sélectionner action",
-        "hint": "Les règles seront appliquées dans l'ordre. Glisser-déposer pour réorganiser.",
-        "test": "Tester les règles"
+        "hint": "Les règles s’appliquent aux nouveaux articles récupérés : tous les articles → groupe → source. Elles s’exécutent de haut en bas ; les actions suivantes ont priorité. Glissez pour réordonner. Les tests incluent les règles des cibles plus larges.",
+        "test": "Tester les règles",
+        "searchField": "Champ de recherche",
+        "matchCondition": "Condition de correspondance",
+        "save": "Enregistrer la règle",
+        "selectAll": "Sélectionner toutes les règles",
+        "selectRule": "Sélectionner la règle",
+        "saveError": "Impossible d’enregistrer les règles. Veuillez réessayer."
     },
     "service": {
         "intro": "Synchronisation entre les appareils avec des services RSS.",

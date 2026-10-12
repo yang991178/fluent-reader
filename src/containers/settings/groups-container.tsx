@@ -23,7 +23,7 @@ const mapStateToProps = createSelector(
     [getSources, getGroups, getServiceOn],
     (sources, groups, serviceOn) => ({
         sources: sources,
-        groups: groups.map((g, i) => ({ ...g, index: i })),
+        groups: groups,
         serviceOn: serviceOn,
         key: groups.length,
     })
@@ -32,12 +32,11 @@ const mapStateToProps = createSelector(
 const mapDispatchToProps = (dispatch: AppDispatch) => ({
     createGroup: (name: string) => dispatch(createSourceGroup(name)),
     updateGroup: (group: SourceGroup) => dispatch(updateSourceGroup(group)),
-    addToGroup: (groupIndex: number, sid: number) =>
-        dispatch(addSourceToGroup(groupIndex, sid)),
-    deleteGroup: (groupIndex: number) =>
-        dispatch(deleteSourceGroup(groupIndex)),
-    removeFromGroup: (groupIndex: number, sids: number[]) =>
-        dispatch(removeSourceFromGroup(groupIndex, sids)),
+    addToGroup: (gid: number, sid: number) =>
+        dispatch(addSourceToGroup(gid, sid)),
+    deleteGroup: (gid: number) => dispatch(deleteSourceGroup(gid)),
+    removeFromGroup: (gid: number, sids: number[]) =>
+        dispatch(removeSourceFromGroup(gid, sids)),
     reorderGroups: (groups: SourceGroup[]) =>
         dispatch(reorderSourceGroups(groups)),
     importGroups: () => dispatch(importGroups()),

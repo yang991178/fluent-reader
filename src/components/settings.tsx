@@ -8,7 +8,7 @@ import { Pivot, PivotItem, FocusTrapZone } from "@fluentui/react"
 import SourcesTabContainer from "../containers/settings/sources-container"
 import GroupsTabContainer from "../containers/settings/groups-container"
 import AppTabContainer from "../containers/settings/app-container"
-import RulesTabContainer from "../containers/settings/rules-container"
+import RulesTab from "./settings/rules"
 import ServiceTabContainer from "../containers/settings/service-container"
 import { initTouchBarWithTexts } from "../scripts/utils"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
@@ -99,7 +99,7 @@ const Settings: React.FC = () => {
                         <PivotItem
                             headerText={intl.get("settings.rules")}
                             itemIcon="FilterSettings">
-                            <RulesTabContainer />
+                            <RulesTab />
                         </PivotItem>
                         <PivotItem
                             headerText={intl.get("settings.service")}

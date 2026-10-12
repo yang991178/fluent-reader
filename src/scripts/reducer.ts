@@ -8,6 +8,7 @@ import { appReducer } from "./models/app"
 import { groupReducer } from "./models/group"
 import { pageReducer } from "./models/page"
 import { serviceReducer } from "./models/service"
+import { ruleReducer } from "./models/rule"
 import { AppDispatch } from "./utils"
 import {
     TypedUseSelectorHook,
@@ -18,6 +19,7 @@ import {
 
 export const rootReducer = combineReducers({
     sources: sourceReducer,
+    rules: ruleReducer,
     items: itemReducer,
     feeds: feedReducer,
     groups: groupReducer,

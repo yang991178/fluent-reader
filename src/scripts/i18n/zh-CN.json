@@ -172,11 +172,9 @@
     "rules": {
         "intro": "通过正则表达式自动标记文章或推送通知",
         "help": "了解更多",
-        "source": "订阅源",
-        "selectSource": "选择一个订阅源",
+        "target": "目标",
+        "selectTarget": "选择一个目标",
         "new": "新建规则",
-        "if": "若",
-        "then": "则",
         "title": "标题",
         "content": "正文",
         "fullSearch": "标题或正文",
@@ -187,8 +185,14 @@
         "badRegex": "正则表达式非法",
         "action": "行为",
         "selectAction": "选择行为",
-        "hint": "规则将按顺序执行，拖拽以排序",
-        "test": "测试规则"
+        "hint": "规则仅应用于新获取的文章，顺序为：全部文章 → 分组 → 订阅源。规则从上到下执行，后续操作优先，可拖拽排序。测试包含更大范围的目标规则。",
+        "test": "测试规则",
+        "searchField": "搜索范围",
+        "matchCondition": "匹配条件",
+        "save": "保存规则",
+        "selectAll": "选择全部规则",
+        "selectRule": "选择规则",
+        "saveError": "无法保存规则，请重试。"
     },
     "service": {
         "intro": "通过 RSS 服务跨设备保持同步",

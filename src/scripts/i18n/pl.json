@@ -174,11 +174,9 @@
     "rules": {
         "intro": "Automatycznie oznaczaj wpisy lub wysyłaj powiadomienia w oparciu o wyrażenia regularne.",
         "help": "Dowiedz się więcej",
-        "source": "Źródło",
-        "selectSource": "Wybierz źródło",
+        "target": "Cel",
+        "selectTarget": "Wybierz cel",
         "new": "Nowa reguła",
-        "if": "Jeśli",
-        "then": "Wówczas",
         "title": "Tytuł",
         "content": "Zawartość",
         "fullSearch": "Tytuł lub zawartość",
@@ -189,8 +187,14 @@
         "badRegex": "Niepoprawne wyrażenie regularne.",
         "action": "Akcje",
         "selectAction": "Wybierz akcje",
-        "hint": "Reguły będą stosowane w tej kolejności. Przeciągnij by ją zmienić.",
-        "test": "Przetesuj regułę"
+        "hint": "Reguły dotyczą nowo pobranych artykułów: wszystkie artykuły → grupa → źródło. Są wykonywane od góry do dołu; późniejsze działania mają pierwszeństwo. Przeciągnij, aby zmienić kolejność. Testy obejmują reguły szerszych celów.",
+        "test": "Przetesuj regułę",
+        "searchField": "Pole wyszukiwania",
+        "matchCondition": "Warunek dopasowania",
+        "save": "Zapisz regułę",
+        "selectAll": "Wybierz wszystkie reguły",
+        "selectRule": "Wybierz regułę",
+        "saveError": "Nie udało się zapisać reguł. Spróbuj ponownie."
     },
     "service": {
         "intro": "Synchronizuj urządzenia z pomocą usług RSS.",

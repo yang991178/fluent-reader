@@ -27,15 +27,15 @@ export interface ServiceHooks {
     updateSources?: () => AppThunk<Promise<[RSSSource[], Map<string, string>]>>
     fetchItems?: () => AppThunk<Promise<[RSSItem[], ServiceConfigs]>>
     syncItems?: () => AppThunk<Promise<[Set<string>, Set<string>]>>
-    markRead?: (item: RSSItem) => AppThunk
-    markUnread?: (item: RSSItem) => AppThunk
+    markRead?: (item: RSSItem) => AppThunk<Promise<void>>
+    markUnread?: (item: RSSItem) => AppThunk<Promise<void>>
     markAllRead?: (
         sids?: number[],
         date?: Date,
         before?: boolean
     ) => AppThunk<Promise<void>>
-    star?: (item: RSSItem) => AppThunk
-    unstar?: (item: RSSItem) => AppThunk
+    star?: (item: RSSItem) => AppThunk<Promise<void>>
+    unstar?: (item: RSSItem) => AppThunk<Promise<void>>
 }
 
 export function getServiceHooksFromType(type: SyncService): ServiceHooks {

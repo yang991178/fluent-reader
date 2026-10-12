@@ -167,11 +167,9 @@
     "rules": {
         "intro": "Markera artiklar automatiskt eller avisera med regular expressions.",
         "help": "Läs mer",
-        "source": "Källa",
-        "selectSource": "Välj en källa",
+        "target": "Mål",
+        "selectTarget": "Välj ett mål",
         "new": "Ny regel",
-        "if": "Om",
-        "then": "Då",
         "title": "Titel",
         "content": "Innehåll",
         "fullSearch": "Titel eller innehåll",
@@ -182,8 +180,14 @@
         "badRegex": "Ogiltigt regular expression.",
         "action": "Åtgärder",
         "selectAction": "Välj åtgärder",
-        "hint": "Regler kommer att tillämpas i ordning. Dra och släpp för att ändra ordningen.",
-        "test": "Testa regler"
+        "hint": "Regler gäller för nyligen hämtade artiklar: alla artiklar → grupp → källa. De körs uppifrån och ned; senare åtgärder har företräde. Dra för att ändra ordningen. Tester inkluderar regler för bredare mål.",
+        "test": "Testa regler",
+        "searchField": "Sökfält",
+        "matchCondition": "Matchningsvillkor",
+        "save": "Spara regel",
+        "selectAll": "Välj alla regler",
+        "selectRule": "Välj regel",
+        "saveError": "Det gick inte att spara reglerna. Försök igen."
     },
     "service": {
         "intro": "Synkronisera mellan enheter med RSS-tjänster.",

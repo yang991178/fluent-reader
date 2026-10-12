@@ -157,11 +157,7 @@ export const Menu: React.FC = () => {
     const display = useAppSelector(s => s.app.menu)
     const selected = useAppSelector(s => s.app.menuKey)
     const sources = useAppSelector(s => s.sources)
-    const rawGroups = useAppSelector(s => s.groups)
-    const groups = useMemo(
-        () => rawGroups.map((g, i) => ({ ...g, index: i })),
-        [rawGroups]
-    )
+    const groups = useAppSelector(s => s.groups)
     const searchOn = useAppSelector(s => s.page.searchOn)
     const itemOn = useAppSelector(
         s => s.page.itemId !== null && s.page.viewType !== ViewType.List
@@ -172,7 +168,7 @@ export const Menu: React.FC = () => {
             new Set(
                 groups
                     .filter(g => g.isMultiple && g.expanded)
-                    .map(g => "g-" + g.index)
+                    .map(g => "g-" + g.gid)
             ),
         [groups]
     )
@@ -210,8 +206,8 @@ export const Menu: React.FC = () => {
             ) {
                 const value = String(data.value)
                 if (value.startsWith("g-")) {
-                    const index = Number.parseInt(value.split("-")[1])
-                    dispatch(toggleGroupExpansion(index))
+                    const gid = Number.parseInt(value.slice(2))
+                    dispatch(toggleGroupExpansion(gid))
                 }
             }
         },
@@ -393,7 +389,7 @@ export const Menu: React.FC = () => {
                                         const groupSources = g.sids.map(
                                             sid => sources[sid]
                                         )
-                                        const groupKey = "g-" + g.index
+                                        const groupKey = "g-" + g.gid
                                         const isGroupSelected =
                                             selected === groupKey
                                         const groupUnread = groupSources

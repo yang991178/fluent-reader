@@ -7,7 +7,7 @@ import { createSourceGroup } from "../group"
 import { RSSSource } from "../source"
 import { domParser, htmlDecode } from "../../utils"
 import { RSSItem } from "../item"
-import { SourceRule } from "../rule"
+import { ArticleRule, getRulesForTarget } from "../rule"
 
 // miniflux service configs
 export interface MinifluxConfigs extends ServiceConfigs {
@@ -132,7 +132,7 @@ export const minifluxServiceHooks: ServiceHooks = {
     // NOTE: miniflux endpoint /entries default order with "published at", and does not offer "created_at"
     //          but does offer id sort, directly correlated with "created". some feeds give strange published_at.
 
-    fetchItems: () => async (_, getState) => {
+    fetchItems: () => async (dispatch, getState) => {
         const state = getState()
         const configs = state.service as MinifluxConfigs
         const items: Entry[] = new Array()
@@ -181,7 +181,7 @@ export const minifluxServiceHooks: ServiceHooks = {
             }
         }
 
-        // map item objects to rssitem type while appling rules (if exist)
+        // Parse new articles; rule writebacks are best effort and never awaited.
         const parsedItems = items.map(item => {
             const source = sourceMap.get(item.feed.id.toString())
 
@@ -212,17 +212,25 @@ export const minifluxServiceHooks: ServiceHooks = {
             let img = dom.querySelector("img")
             if (img && img.src) parsedItem.thumb = img.src
 
-            if (source.rules) {
-                SourceRule.applyAll(source.rules, parsedItem)
-                if ((item.status === "read") !== parsedItem.hasRead)
+            ArticleRule.applyAll(
+                getRulesForTarget(state.rules, state.groups, {
+                    type: "source",
+                    sid: source.sid,
+                }),
+                parsedItem
+            )
+            if ((item.status === "read") !== parsedItem.hasRead)
+                void dispatch(
                     parsedItem.hasRead
                         ? minifluxServiceHooks.markRead(parsedItem)
                         : minifluxServiceHooks.markUnread(parsedItem)
-                if (item.starred !== parsedItem.starred)
+                ).catch(() => {})
+            if (item.starred !== parsedItem.starred)
+                void dispatch(
                     parsedItem.starred
                         ? minifluxServiceHooks.star(parsedItem)
                         : minifluxServiceHooks.unstar(parsedItem)
-            }
+                ).catch(() => {})
 
             return parsedItem
         })

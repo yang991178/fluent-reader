@@ -12,8 +12,11 @@ import {
 import { ipcRenderer } from "electron"
 
 const settingsBridge = {
+    allocateGroupId: (): number => {
+        return ipcRenderer.sendSync("allocate-group-id")
+    },
     saveGroups: (groups: SourceGroup[]) => {
-        ipcRenderer.invoke("set-groups", groups)
+        return ipcRenderer.invoke("set-groups", groups)
     },
     loadGroups: (): SourceGroup[] => {
         return ipcRenderer.sendSync("get-groups")

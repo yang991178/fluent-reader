@@ -174,11 +174,9 @@
     "rules": {
         "intro": "Automatically mark articles or send notifications with regular expressions.",
         "help": "Learn more",
-        "source": "Source",
-        "selectSource": "Select a source",
-        "new": "New Rule",
-        "if": "If",
-        "then": "Then",
+        "target": "Target",
+        "selectTarget": "Select a target",
+        "new": "New rule",
         "title": "Title",
         "content": "Content",
         "fullSearch": "Title or content",
@@ -189,8 +187,14 @@
         "badRegex": "Invalid regular expression.",
         "action": "Actions",
         "selectAction": "Select actions",
-        "hint": "Rules will be applied in order. Drag and drop to reorder.",
-        "test": "Test rules"
+        "hint": "Rules apply to newly fetched articles: all articles → group → source. Rules run from top to bottom; later actions take precedence. Drag and drop to reorder. Tests include rules from broader targets.",
+        "test": "Test rules",
+        "searchField": "Search field",
+        "matchCondition": "Match condition",
+        "save": "Save rule",
+        "selectAll": "Select all rules",
+        "selectRule": "Select rule",
+        "saveError": "Could not save rules. Please try again."
     },
     "service": {
         "intro": "Sync across devices with RSS services.",
