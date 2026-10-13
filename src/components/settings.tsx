@@ -6,7 +6,7 @@ import { AnimationClassNames } from "@fluentui/react/lib/Styling"
 import AboutTab from "./settings/about"
 import { Pivot, PivotItem, FocusTrapZone } from "@fluentui/react"
 import SourcesTabContainer from "../containers/settings/sources-container"
-import GroupsTabContainer from "../containers/settings/groups-container"
+import GroupsTab from "./settings/groups"
 import AppTabContainer from "../containers/settings/app-container"
 import RulesTab from "./settings/rules"
 import ServiceTabContainer from "../containers/settings/service-container"
@@ -94,7 +94,7 @@ const Settings: React.FC = () => {
                         <PivotItem
                             headerText={intl.get("settings.grouping")}
                             itemIcon="GroupList">
-                            <GroupsTabContainer />
+                            <GroupsTab />
                         </PivotItem>
                         <PivotItem
                             headerText={intl.get("settings.rules")}

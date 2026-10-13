@@ -7,13 +7,14 @@ import {
     Field,
     Input,
     Option,
+    OptionGroup,
     Text,
     ToggleButton,
 } from "@fluentui/react-components"
 import { ArticleRule, RuleActions } from "../../../scripts/models/rule"
 import { FilterType } from "../../../scripts/models/feed"
 import { validateRegex } from "../../../scripts/utils"
-import { actionKeyMap } from "./actions"
+import { actionGroups, actionKeyMap } from "./actions"
 import { useStyles } from "./styles"
 
 type RuleEditorProps = {
@@ -162,10 +163,14 @@ export function RuleEditor({
                                 : keys.filter(current => current !== key)
                         )
                     }}>
-                    {Object.entries(actionKeyMap).map(([key, text]) => (
-                        <Option key={key} value={key}>
-                            {intl.get(text)}
-                        </Option>
+                    {actionGroups.map(keys => (
+                        <OptionGroup key={keys[0]}>
+                            {keys.map(key => (
+                                <Option key={key} value={key}>
+                                    {intl.get(actionKeyMap[key])}
+                                </Option>
+                            ))}
+                        </OptionGroup>
                     ))}
                 </Dropdown>
             </Field>

@@ -34,7 +34,7 @@ mac:
         - pt_PT
         - cs
         - pl
-    minimumSystemVersion: 12.0.0
+    minimumSystemVersion: 13.0.0
 mas:
     entitlements: build/entitlements.mas.plist
     entitlementsInherit: build/entitlements.mas.inherit.plist

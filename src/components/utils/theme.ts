@@ -1,4 +1,5 @@
 import {
+    FieldState,
     LabelState,
     makeStyles,
     mergeClasses,
@@ -69,6 +70,11 @@ const useLabelStyles = makeStyles({
         userSelect: "none",
     },
 })
+const useFieldStyles = makeStyles({
+    label: {
+        fontWeight: tokens.fontWeightSemibold,
+    },
+})
 
 export const CUSTOM_STYLE_HOOKS: CustomStyleHooksContextValue_unstable = {
     useTreeItemLayoutStyles_unstable: (state: TreeItemLayoutState) => {
@@ -84,5 +90,14 @@ export const CUSTOM_STYLE_HOOKS: CustomStyleHooksContextValue_unstable = {
     useLabelStyles_unstable: (state: LabelState) => {
         const styles = useLabelStyles()
         state.root.className = mergeClasses(state.root.className, styles.root)
+    },
+    useFieldStyles_unstable: (state: FieldState) => {
+        const styles = useFieldStyles()
+        if (state.label != null) {
+            state.label.className = mergeClasses(
+                state.label.className,
+                styles.label
+            )
+        }
     },
 }

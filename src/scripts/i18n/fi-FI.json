@@ -92,6 +92,7 @@
         "deleteGroup": "Poista ryhmä",
         "deleteSource": "Poista ryhmästä",
         "editName": "Muokkaa nimeä",
+        "editGroup": "Muokkaa ryhmää",
         "enterName": "Anna nimi",
         "exist": "Tämä ryhmä on jo olemassa.",
         "exitGroup": "Takaisin ryhmiin",
@@ -101,6 +102,7 @@
         "selectedSource": "Valittu lähde",
         "source": "Lähde",
         "sourceHint": "Järjestä uudelleen vetämällä ja pudottamalla lähteitä.",
+        "selectAllSources": "Valitse kaikki lähteet",
         "type": "Tyyppi"
     },
     "icon": "Kuvake",
