@@ -18,6 +18,7 @@ import {
 import { ArticleRule, RuleActions } from "../../../scripts/models/rule"
 import { FlatButton } from "../../utils/FlatButton"
 import { FlatButtonGroup } from "../../utils/FlatButtonGroup"
+import { FlatButtonSeparator } from "../../utils/FlatButtonSeparator"
 import { actionKeyMap } from "./actions"
 import { useStyles } from "./styles"
 
@@ -85,6 +86,11 @@ export function RuleList({
                     <Add16Regular />
                     {intl.get("rules.new")}
                 </FlatButton>
+                {selected.size > 0 && (
+                    <FlatButtonSeparator
+                        styleClass={classes.toolbarSeparator}
+                    />
+                )}
                 {selected.size === 1 && (
                     <FlatButton
                         disabled={saving}

@@ -9,9 +9,9 @@
     "start": "npm run build && npm run electron",
     "format": "prettier --write --list-different .",
     "drizzle:generate": "drizzle-kit generate",
-    "postinstall": "electron-builder install-app-deps",
-    "package-win": "electron-builder -w appx:x64 && electron-builder -w appx:ia32 && electron-builder -w appx:arm64",
-    "package-win-ci": "electron-builder -w --x64 -p never && electron-builder -w --ia32 -p never",
+    "postinstall": "install-electron && electron-builder install-app-deps",
+    "package-win": "electron-builder -w appx:x64 && electron-builder -w appx:arm64",
+    "package-win-ci": "electron-builder -w --x64 -p never",
     "package-mac": "electron-builder --mac --universal",
     "package-mas": "bash build/resignAndPackage.sh",
     "package-linux": "electron-builder --linux --x64 -p never"
@@ -38,8 +38,8 @@
     "css-loader": "^7.1.4",
     "drizzle-kit": "^0.31.0",
     "drizzle-orm": "^0.45.2",
-    "electron": "^41.5.0",
-    "electron-builder": "^26.8.1",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "electron-react-devtools": "^0.5.3",
     "electron-store": "^11.0.0",
     "electron-window-state": "^5.0.3",
@@ -66,6 +66,6 @@
     "webpack-cli": "^7.0.2"
   },
   "dependencies": {
-    "better-sqlite3": "^12.10.0"
+    "better-sqlite3": "^13.0.3"
   }
 }

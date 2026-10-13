@@ -13,7 +13,7 @@ export const useStyles = makeStyles({
     },
     search: { width: "160px", flexShrink: 0 },
     match: { width: "150px", flexShrink: 0 },
-    toolbar: { display: "flex", alignItems: "center", gap: "8px" },
+    toolbar: { display: "flex", alignItems: "center" },
     toolbarButton: {
         display: "inline-flex",
         alignItems: "center",
@@ -24,6 +24,7 @@ export const useStyles = makeStyles({
         paddingRight: "8px",
         fontSize: "14px",
     },
+    toolbarSeparator: { fontSize: "16px", width: "16px" },
     delete: { color: tokens.colorPaletteRedForeground1 },
     grid: { maxHeight: "400px", overflowY: "auto" },
     ruleRow: { cursor: "grab" },

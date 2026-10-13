@@ -8,3 +8,10 @@ export const actionKeyMap = {
     "n-true": "article.notify",
     "n-false": "article.dontNotify",
 }
+
+export const actionGroups = [
+    ["r-true", "r-false"],
+    ["s-true", "s-false"],
+    ["h-true", "h-false"],
+    ["n-true", "n-false"],
+]
