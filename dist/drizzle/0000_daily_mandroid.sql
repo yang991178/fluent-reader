@@ -1,6 +1,7 @@
 CREATE TABLE `items` (
 	`_id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`source` integer NOT NULL,
+	`guid` text,
 	`title` text NOT NULL,
 	`link` text NOT NULL,
 	`date` integer NOT NULL,

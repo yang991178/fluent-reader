@@ -16,6 +16,7 @@ export const sourcesTable = sqliteTable("sources", {
 export const itemsTable = sqliteTable("items", {
     _id: integer("_id").primaryKey({ autoIncrement: true }),
     source: integer("source").notNull(),
+    guid: text("guid"),
     title: text("title").notNull(),
     link: text("link").notNull(),
     date: integer("date", { mode: "timestamp_ms" }).notNull(),
