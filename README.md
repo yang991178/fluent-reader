@@ -77,7 +77,7 @@ npm run package-win
 - [Redux](https://github.com/reduxjs/redux)
 - [Fluent UI](https://github.com/microsoft/fluentui)
 - [Lovefield](https://github.com/google/lovefield)
-- [Mercury Parser](https://github.com/postlight/mercury-parser)
+- [Mercury Parser](https://github.com/jocmp/mercury-parser)
 
 ### License
 
