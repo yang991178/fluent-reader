@@ -28,6 +28,7 @@ import {
 export class RSSItem {
     _id: number
     source: number
+    guid?: string
     title: string
     link: string
     date: Date
@@ -48,6 +49,11 @@ export class RSSItem {
             if (content && typeof content !== "string") delete item[field]
         }
         this.source = source.sid
+        if (!source.serviceRef) {
+            this.guid = [item.guid, item.id].find(
+                value => typeof value === "string" && value.trim().length > 0
+            )
+        }
         this.title = item.title || intl.get("article.untitled")
         this.link = item.link || ""
         this.fetchedDate = new Date()
@@ -201,6 +207,7 @@ export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     items.sort((a, b) => a.date.getTime() - b.date.getTime())
     const values = items.map(item => ({
         source: item.source,
+        guid: item.guid || null,
         title: item.title,
         link: item.link,
         date: item.date,

@@ -115,6 +115,13 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "guid": {
+          "name": "guid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},

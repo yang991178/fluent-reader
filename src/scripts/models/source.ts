@@ -1,6 +1,6 @@
 import { SourceGroup } from "../../schema-types"
 import intl from "react-intl-universal"
-import { eq, and, max, count } from "drizzle-orm"
+import { eq, and, or, isNull, max, count } from "drizzle-orm"
 import { database, sourcesTable, itemsTable, init } from "../db"
 import {
     fetchFavicon,
@@ -73,21 +73,26 @@ export class RSSSource {
     }
 
     private static async checkItem(
-        source: RSSSource,
+        i: RSSItem,
         item: MyParserItem,
         rules: ArticleRule[]
     ): Promise<RSSItem> {
-        let i = new RSSItem(item, source)
+        const legacyMatch = and(
+            eq(itemsTable.title, i.title),
+            eq(itemsTable.date, i.date)
+        )
+        // Migrated articles have no GUID. Use the old match when either side
+        // lacks an identifier, but distinguish different known GUIDs.
+        const identityMatch = i.guid
+            ? or(
+                  eq(itemsTable.guid, i.guid),
+                  and(isNull(itemsTable.guid), legacyMatch)
+              )
+            : legacyMatch
         const existing = await database
             .select({ _id: itemsTable._id })
             .from(itemsTable)
-            .where(
-                and(
-                    eq(itemsTable.source, i.source),
-                    eq(itemsTable.title, i.title),
-                    eq(itemsTable.date, i.date)
-                )
-            )
+            .where(and(eq(itemsTable.source, i.source), identityMatch))
             .limit(1)
         if (existing.length === 0) {
             RSSItem.parseContent(i, item)
@@ -98,24 +103,23 @@ export class RSSSource {
         }
     }
 
-    static checkItems(
+    static async checkItems(
         source: RSSSource,
         items: MyParserItem[],
         rules: ArticleRule[]
     ): Promise<RSSItem[]> {
-        return new Promise<RSSItem[]>((resolve, reject) => {
-            let p = new Array<Promise<RSSItem>>()
-            for (let item of items) {
-                p.push(this.checkItem(source, item, rules))
+        const seenGuids = new Set<string>()
+        const pending: Promise<RSSItem>[] = []
+        for (const item of items) {
+            const parsed = new RSSItem(item, source)
+            // Database checks cannot see other pending inserts in this batch.
+            if (parsed.guid) {
+                if (seenGuids.has(parsed.guid)) continue
+                seenGuids.add(parsed.guid)
             }
-            Promise.all(p)
-                .then(values => {
-                    resolve(values.filter(v => v != null))
-                })
-                .catch(e => {
-                    reject(e)
-                })
-        })
+            pending.push(this.checkItem(parsed, item, rules))
+        }
+        return (await Promise.all(pending)).filter(item => item != null)
     }
 
     static async fetchItems(source: RSSSource, rules: ArticleRule[]) {

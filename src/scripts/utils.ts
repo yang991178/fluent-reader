@@ -39,6 +39,7 @@ export type MyParserItem = extractGeneric<typeof rssParser> &
     Parser.Item & {
         // rss-parser emits this for Atom entries but omits it from Parser.Item.
         author?: string
+        id?: string
     }
 
 const CHARSET_RE = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i

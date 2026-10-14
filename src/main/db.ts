@@ -111,6 +111,7 @@ async function handleImportAll(): Promise<boolean> {
     const mapItem = (i: Record<string, unknown>): InsertItem => ({
         _id: i._id as number,
         source: i.source as number,
+        guid: typeof i.guid === "string" && i.guid.trim() ? i.guid : null,
         title: (i.title as string) || "",
         link: (i.link as string) || "",
         date: new Date(normDateToMs(i.date)),
