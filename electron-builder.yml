@@ -8,6 +8,14 @@ files:
 directories:
     output: "./bin/${platform}/${arch}/"
 mac:
+    files:
+        - "./dist/**/*"
+        - "!./dist/fontlist"
+        - "!**/*.js.map"
+        - "!node_modules/better-sqlite3/prebuilds/linux*.node"
+        - "!node_modules/better-sqlite3/prebuilds/win32-*.node"
+    # Both builds contain both prebuilds; better-sqlite3 selects process.arch.
+    x64ArchFiles: "Contents/Resources/app.asar.unpacked/node_modules/better-sqlite3/prebuilds/darwin-*.node"
     minimumSystemVersion: 13.0.0
     darkModeSupport: true
     hardenedRuntime: true
