@@ -572,7 +572,8 @@ export function itemReducer(
         case SYNC_LOCAL_ITEMS: {
             let nextState = { ...state }
             for (let item of Object.values(state)) {
-                if (item.hasOwnProperty("serviceRef")) {
+                // Local SQLite rows also have serviceRef, with a null value.
+                if (item.serviceRef) {
                     const nextItem = { ...item }
                     nextItem.hasRead = !action.unreadIds.has(item.serviceRef)
                     nextItem.starred = action.starredIds.has(item.serviceRef)
