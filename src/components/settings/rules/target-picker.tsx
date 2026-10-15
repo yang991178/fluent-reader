@@ -82,7 +82,7 @@ export function RuleTargetPicker({
                     <Option value="all">{intl.get("allArticles")}</Option>
                 </OptionGroup>
                 {namedGroups.length > 0 && (
-                    <OptionGroup label={intl.get("settings.grouping")}>
+                    <OptionGroup label={intl.get("groups.group")}>
                         {namedGroups.map(group => (
                             <Option
                                 key={group.gid}
@@ -93,7 +93,7 @@ export function RuleTargetPicker({
                     </OptionGroup>
                 )}
                 {Object.keys(sources).length > 0 && (
-                    <OptionGroup label={intl.get("settings.sources")}>
+                    <OptionGroup label={intl.get("groups.source")}>
                         {Object.values(sources).map(source => (
                             <Option
                                 key={source.sid}
