@@ -1,8 +1,10 @@
 import {
+    ButtonState,
     FieldState,
     LabelState,
     makeStyles,
     mergeClasses,
+    MessageBarState,
     Theme,
     tokens,
     TreeItemLayoutState,
@@ -65,6 +67,28 @@ const useTreeItemLayoutStyles = makeStyles({
         paddingRight: tokens.spacingHorizontalS,
     },
 })
+const useButtonStyles = makeStyles({
+    root: {
+        "cursor": "default",
+        // Fluent injects its hover styles after our extracted stylesheet.
+        "&.fui-Button, &.fui-ToggleButton": {
+            ":hover": {
+                cursor: "default",
+            },
+            ":hover:active": {
+                cursor: "default",
+            },
+            ":active:focus-visible": {
+                cursor: "default",
+            },
+        },
+    },
+})
+const useMessageBarStyles = makeStyles({
+    root: {
+        userSelect: "none",
+    },
+})
 const useLabelStyles = makeStyles({
     root: {
         userSelect: "none",
@@ -76,7 +100,18 @@ const useFieldStyles = makeStyles({
     },
 })
 
+function useButtonStylesOverride(state: ButtonState) {
+    const styles = useButtonStyles()
+    state.root.className = mergeClasses(state.root.className, styles.root)
+}
+
 export const CUSTOM_STYLE_HOOKS: CustomStyleHooksContextValue_unstable = {
+    useButtonStyles_unstable: useButtonStylesOverride,
+    useToggleButtonStyles_unstable: useButtonStylesOverride,
+    useMessageBarStyles_unstable: (state: MessageBarState) => {
+        const styles = useMessageBarStyles()
+        state.root.className = mergeClasses(state.root.className, styles.root)
+    },
     useTreeItemLayoutStyles_unstable: (state: TreeItemLayoutState) => {
         const styles = useTreeItemLayoutStyles()
         state.root.className = mergeClasses(state.root.className, styles.root)
