@@ -392,22 +392,30 @@ export function initIntl(): AppThunk<Promise<void>> {
     }
 }
 
-export function initApp(): AppThunk {
-    return dispatch => {
+export function initApp(): AppThunk<Promise<void>> {
+    return async dispatch => {
         document.body.classList.add(window.utils.platform)
-        dispatch(initIntl())
-            .then(async () => {
-                if (window.utils.platform === "darwin") initTouchBarWithTexts()
-                await dispatch(initSources())
-            })
-            .then(() => dispatch(initFeeds()))
-            .then(async () => {
-                dispatch(selectAllArticles())
-                await dispatch(fetchItems())
-            })
-            .then(() => {
-                dispatch(updateFavicon())
-            })
+        await dispatch(initIntl())
+        if (window.utils.platform === "darwin") initTouchBarWithTexts()
+        try {
+            await dispatch(initSources())
+        } catch (err) {
+            console.error("Failed to initialize sources:", err)
+            const details =
+                err instanceof Error && err.cause
+                    ? String(err.cause)
+                    : String(err)
+            await window.utils.showErrorBox(
+                "An error has occurred during update. Please report this error on GitHub.",
+                `${details}\n\nYour existing data has been preserved. Restart Fluent Reader to retry.`
+            )
+            window.utils.closeWindow()
+            return
+        }
+        await dispatch(initFeeds())
+        dispatch(selectAllArticles())
+        await dispatch(fetchItems())
+        dispatch(updateFavicon())
     }
 }
 

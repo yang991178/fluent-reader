@@ -12,6 +12,7 @@ import * as schema from "../db/schema"
 import { WindowManager } from "./window"
 import performUpdate from "./update-scripts"
 import { transformLovefieldRules } from "./utils"
+import { getValidDate } from "../scripts/date"
 
 let sqlite: Database.Database
 let db: ReturnType<typeof drizzle>
@@ -51,12 +52,6 @@ async function handleExportAll() {
     }
 }
 
-function normDateToMs(v: unknown): number {
-    if (typeof v === "number") return v
-    if (v instanceof Date) return v.getTime()
-    return new Date(v as string).getTime()
-}
-
 async function handleImportAll(): Promise<boolean> {
     if (!managerRef.hasWindow()) return true
     const openResult = await dialog.showOpenDialog(managerRef.mainWindow, {
@@ -94,6 +89,7 @@ async function handleImportAll(): Promise<boolean> {
     let typedSources: InsertSource[] = []
     let typedItems: InsertItem[] = []
     let storedRules: StoredRules = {}
+    const restoreDate = new Date()
 
     const mapSource = (s: Record<string, unknown>): InsertSource => ({
         sid: s.sid as number,
@@ -101,31 +97,34 @@ async function handleImportAll(): Promise<boolean> {
         iconurl: (s.iconurl as string) || null,
         name: s.name as string,
         openTarget: (s.openTarget as number) || 0,
-        lastFetched: new Date(normDateToMs(s.lastFetched)),
+        lastFetched: getValidDate(s.lastFetched, new Date(0)),
         serviceRef: (s.serviceRef as string) || null,
         fetchFrequency: (s.fetchFrequency as number) || 0,
         textDir: (s.textDir as number) || 0,
         hidden: Boolean(s.hidden),
     })
 
-    const mapItem = (i: Record<string, unknown>): InsertItem => ({
-        _id: i._id as number,
-        source: i.source as number,
-        guid: typeof i.guid === "string" && i.guid.trim() ? i.guid : null,
-        title: (i.title as string) || "",
-        link: (i.link as string) || "",
-        date: new Date(normDateToMs(i.date)),
-        fetchedDate: new Date(normDateToMs(i.fetchedDate)),
-        thumb: (i.thumb as string) || null,
-        content: (i.content as string) || "",
-        snippet: (i.snippet as string) || "",
-        creator: (i.creator as string) || null,
-        hasRead: Boolean(i.hasRead),
-        starred: Boolean(i.starred),
-        hidden: Boolean(i.hidden),
-        notify: Boolean(i.notify),
-        serviceRef: (i.serviceRef as string) || null,
-    })
+    const mapItem = (i: Record<string, unknown>): InsertItem => {
+        const fetchedDate = getValidDate(i.fetchedDate, i.date, restoreDate)
+        return {
+            _id: i._id as number,
+            source: i.source as number,
+            guid: typeof i.guid === "string" && i.guid.trim() ? i.guid : null,
+            title: (i.title as string) || "",
+            link: (i.link as string) || "",
+            date: getValidDate(i.date, fetchedDate),
+            fetchedDate,
+            thumb: (i.thumb as string) || null,
+            content: (i.content as string) || "",
+            snippet: (i.snippet as string) || "",
+            creator: (i.creator as string) || null,
+            hasRead: Boolean(i.hasRead),
+            starred: Boolean(i.starred),
+            hidden: Boolean(i.hidden),
+            notify: Boolean(i.notify),
+            serviceRef: (i.serviceRef as string) || null,
+        }
+    }
 
     try {
         if (configs.sqlite) {
