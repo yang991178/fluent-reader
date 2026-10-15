@@ -4,13 +4,36 @@ on:
     release:
         types:
             - published
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: Existing release tag to build
+                required: true
+                type: string
+
+permissions:
+    contents: write
 
 jobs:
     release-linux:
         runs-on: ubuntu-latest
+        env:
+            RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ env.RELEASE_TAG }}
+
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: "24"
+                  package-manager-cache: false
+
+            - name: Verify release exists
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" > /dev/null
 
             - name: Build and package the app
               run: |
@@ -18,22 +41,11 @@ jobs:
                   npm run build
                   npm run package-linux
 
-            - name: Get app version
-              id: package-version
-              uses: martinbeentjes/npm-get-version-action@master
-
-            - name: Get release
-              id: get_release
-              uses: bruceadams/get-release@v1.2.0
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
             - name: Upload AppImage to release assets
-              uses: actions/upload-release-asset@v1
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.get_release.outputs.upload_url }}
-                  asset_path: ./bin/linux/x64/Fluent Reader-${{ steps.package-version.outputs.current-version }}.AppImage
-                  asset_name: Fluent.Reader.${{ steps.package-version.outputs.current-version }}.AppImage
-                  asset_content_type: application/octet-stream
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  version="$(node -p "require('./package.json').version")"
+                  asset_path="$RUNNER_TEMP/Fluent.Reader.$version.AppImage"
+                  cp "./bin/linux/x64/Fluent Reader-$version.AppImage" "$asset_path"
+                  gh release upload "$RELEASE_TAG" "$asset_path" --repo "$GITHUB_REPOSITORY" --clobber
