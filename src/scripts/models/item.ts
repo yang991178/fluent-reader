@@ -1,6 +1,7 @@
 import { getRulesForTarget } from "./rule"
 import { eq, and, inArray, lte, gte } from "drizzle-orm"
 import { database, itemsTable } from "../db"
+import { getValidDate } from "../date"
 import intl from "react-intl-universal"
 import type { MyParserItem } from "../utils"
 import {
@@ -57,7 +58,7 @@ export class RSSItem {
         this.title = item.title || intl.get("article.untitled")
         this.link = item.link || ""
         this.fetchedDate = new Date()
-        this.date = new Date(item.isoDate ?? item.pubDate ?? this.fetchedDate)
+        this.date = getValidDate(item.isoDate, item.pubDate, this.fetchedDate)
         this.creator = item.creator || item.author
         this.hasRead = false
         this.starred = false
@@ -204,6 +205,11 @@ export function fetchItemsIntermediate(): ItemActionTypes {
 
 export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     if (items.length === 0) return []
+    // Service integrations construct articles without going through RSSItem.
+    for (const item of items) {
+        item.fetchedDate = getValidDate(item.fetchedDate, item.date)
+        item.date = getValidDate(item.date, item.fetchedDate)
+    }
     items.sort((a, b) => a.date.getTime() - b.date.getTime())
     const values = items.map(item => ({
         source: item.source,

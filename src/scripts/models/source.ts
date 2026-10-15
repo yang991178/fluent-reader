@@ -2,6 +2,7 @@ import { SourceGroup } from "../../schema-types"
 import intl from "react-intl-universal"
 import { eq, and, or, isNull, max, count } from "drizzle-orm"
 import { database, sourcesTable, itemsTable, init } from "../db"
+import { findValidDate } from "../date"
 import {
     fetchFavicon,
     ActionStatus,
@@ -75,13 +76,15 @@ export class RSSSource {
     private static async checkItem(
         i: RSSItem,
         item: MyParserItem,
-        rules: ArticleRule[]
+        rules: ArticleRule[],
+        hasPublicationDate: boolean
     ): Promise<RSSItem> {
         const legacyMatch = and(
             eq(itemsTable.title, i.title),
-            eq(itemsTable.date, i.date)
+            eq(itemsTable.link, i.link),
+            hasPublicationDate ? eq(itemsTable.date, i.date) : undefined
         )
-        // Migrated articles have no GUID. Use the old match when either side
+        // Migrated articles have no GUID. Use the fallback match when either side
         // lacks an identifier, but distinguish different known GUIDs.
         const identityMatch = i.guid
             ? or(
@@ -109,15 +112,34 @@ export class RSSSource {
         rules: ArticleRule[]
     ): Promise<RSSItem[]> {
         const seenGuids = new Set<string>()
+        const seenFallbacks = new Map<string, Set<number>>()
         const pending: Promise<RSSItem>[] = []
         for (const item of items) {
+            // A display date synthesized from fetch time is not a stable identity.
+            const hasPublicationDate =
+                findValidDate(item.isoDate, item.pubDate) !== undefined
             const parsed = new RSSItem(item, source)
             // Database checks cannot see other pending inserts in this batch.
             if (parsed.guid) {
                 if (seenGuids.has(parsed.guid)) continue
                 seenGuids.add(parsed.guid)
+            } else {
+                const identity = JSON.stringify([parsed.title, parsed.link])
+                const dates = seenFallbacks.get(identity)
+                if (dates) {
+                    if (!hasPublicationDate || dates.has(parsed.date.getTime()))
+                        continue
+                    dates.add(parsed.date.getTime())
+                } else {
+                    seenFallbacks.set(
+                        identity,
+                        new Set([parsed.date.getTime()])
+                    )
+                }
             }
-            pending.push(this.checkItem(parsed, item, rules))
+            pending.push(
+                this.checkItem(parsed, item, rules, hasPublicationDate)
+            )
         }
         return (await Promise.all(pending)).filter(item => item != null)
     }

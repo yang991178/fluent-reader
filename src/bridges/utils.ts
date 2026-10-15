@@ -18,7 +18,7 @@ const utilsBridge = {
     },
 
     showErrorBox: (title: string, content: string, copy?: string) => {
-        ipcRenderer.invoke("show-error-box", title, content, copy)
+        return ipcRenderer.invoke("show-error-box", title, content, copy)
     },
 
     showMessageBox: async (
