@@ -101,6 +101,20 @@ export class RSSItem {
             let img = dom.querySelector("img")
             if (img && img.src) item.thumb = img.src
         }
+        if (parsed.videoMeta) {
+            const videoMeta = parsed.videoMeta as {
+                "media:thumbnail"?: { $?: { url?: string } }[]
+                "media:description"?: string[]
+            }
+            const ytThumb = videoMeta["media:thumbnail"]?.[0]?.$?.url
+            if (ytThumb && !item.thumb) {
+                item.thumb = ytThumb
+            }
+            const ytDesc = videoMeta["media:description"]?.[0]
+            if (ytDesc && !item.snippet) {
+                item.snippet = ytDesc
+            }
+        }
         if (
             item.thumb &&
             !item.thumb.startsWith("https://") &&
