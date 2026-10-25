@@ -1,7 +1,7 @@
 import * as React from "react"
 import { useMemo, useCallback, useEffect, useRef, useState } from "react"
 import intl from "react-intl-universal"
-import { SourceGroup, ViewType } from "../schema-types"
+import { SourceGroup } from "../schema-types"
 import { RSSSource } from "../scripts/models/source"
 import { ALL, initFeeds } from "../scripts/models/feed"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
@@ -34,6 +34,7 @@ import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 import { useIsWideScreen } from "./utils/hooks/useIsWideScreen"
 import { useIsBlurred } from "./utils/hooks/useIsBlurred"
+import { useArticleOverlayOpen } from "./utils/hooks/useArticleOverlayOpen"
 import { Icon } from "@fluentui/react"
 import { StackShim } from "@fluentui/react-migration-v8-v9"
 
@@ -65,6 +66,9 @@ const useMenuClasses = makeStyles({
     },
     menuContainerShow: {
         pointerEvents: "unset",
+    },
+    menuArticleBlurred: {
+        filter: "var(--blur)",
     },
     menuInner: {
         "position": "absolute",
@@ -159,9 +163,7 @@ export const Menu: React.FC = () => {
     const sources = useAppSelector(s => s.sources)
     const groups = useAppSelector(s => s.groups)
     const searchOn = useAppSelector(s => s.page.searchOn)
-    const itemOn = useAppSelector(
-        s => s.page.itemId !== null && s.page.viewType !== ViewType.List
-    )
+    const articleOverlayOpen = useArticleOverlayOpen()
 
     const openItems = useMemo(
         () =>
@@ -267,7 +269,8 @@ export const Menu: React.FC = () => {
             <div
                 className={mergeClasses(
                     menuClasses.menuContainer,
-                    display && menuClasses.menuContainerShow
+                    display && menuClasses.menuContainerShow,
+                    articleOverlayOpen && menuClasses.menuArticleBlurred
                 )}
                 onClick={handleToggleMenu}>
                 <div
@@ -275,7 +278,9 @@ export const Menu: React.FC = () => {
                         menuClasses.menuInner,
                         display && menuClasses.menuInnerShow,
                         isDarwin && menuClasses.menuInnerDarwin,
-                        isDarwin && itemOn && menuClasses.menuInnerItemOnDarwin
+                        isDarwin &&
+                            articleOverlayOpen &&
+                            menuClasses.menuInnerItemOnDarwin
                     )}
                     onClick={e => e.stopPropagation()}>
                     <FlatButtonGroup

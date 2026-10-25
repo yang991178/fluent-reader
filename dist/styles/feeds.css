@@ -7,6 +7,7 @@
     }
 }
 .article-wrapper {
+    position: relative;
     margin: 32px auto 0;
     width: 860px;
     height: calc(100% - 50px);
@@ -15,7 +16,7 @@
         0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
     border-radius: 5px;
     overflow: hidden;
-    animation-name: slideUp20;
+    animation-name: fade, slideUp20;
 }
 .article {
     height: 100%;

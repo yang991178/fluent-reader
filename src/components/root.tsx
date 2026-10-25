@@ -13,17 +13,23 @@ import { ThemeProvider } from "@fluentui/react"
 import { CUSTOM_STYLE_HOOKS, createAppTheme } from "./utils/theme"
 import { CustomStyleHooksProvider_unstable as CustomStyleHooksProvider } from "@fluentui/react-shared-contexts"
 import { getFontFamilyForLocale } from "../scripts/settings"
+import { useArticleOverlayOpen } from "./utils/hooks/useArticleOverlayOpen"
 
 const useClasses = makeStyles({
     root: {
         background: "none",
         height: "100%",
     },
+    articleBackground: {
+        // Directly blurred backgrounds fade to transparency at the window edges.
+        backgroundColor: "var(--neutralLighterAlt)",
+    },
 })
 
 const Root: React.FC = () => {
     const dispatch = useAppDispatch()
     const locale = useAppSelector(s => s.app.locale)
+    const articleOverlayOpen = useArticleOverlayOpen()
 
     const classes = useClasses()
     const [isDarkMode, setIsDarkMode] = useState(() =>
@@ -51,6 +57,11 @@ const Root: React.FC = () => {
                         <div
                             id="root"
                             key={locale}
+                            className={
+                                articleOverlayOpen
+                                    ? classes.articleBackground
+                                    : undefined
+                            }
                             onMouseDown={() => dispatch(closeContextMenu())}>
                             <Nav />
                             <Page />

@@ -11,14 +11,34 @@ import { ContextMenuType } from "../scripts/models/app"
 import { makeStyles, mergeClasses } from "@fluentui/react-components"
 import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
+import { useArticleOverlayOpen } from "./utils/hooks/useArticleOverlayOpen"
 
 const usePageClasses = makeStyles({
+    articleScrim: {
+        position: "absolute",
+        inset: 0,
+        zIndex: -1,
+        pointerEvents: "none",
+        backgroundColor: "#0008",
+        animationName: "fade",
+        animationDuration: "0.5s",
+        animationTimingFunction: "var(--transition-timing)",
+        animationFillMode: "backwards",
+    },
+    feedBlurred: {
+        // Keep the article's guest surface outside the filtered background.
+        filter: "var(--blur)",
+    },
     articleBtn: {
         color: "#fff",
     },
     articleGroup: {
         position: "absolute",
         top: "calc(50% - 32px)",
+        animationName: "fade",
+        animationDuration: "0.5s",
+        animationTimingFunction: "var(--transition-timing)",
+        animationFillMode: "backwards",
     },
     articleGroupPrev: {
         left: "calc(50% - 486px)",
@@ -41,6 +61,7 @@ const Page: React.FC = () => {
     const itemId = useAppSelector(s => s.page.itemId)
     const itemFromFeed = useAppSelector(s => s.page.itemFromFeed)
     const viewType = useAppSelector(s => s.page.viewType)
+    const articleOverlayOpen = useArticleOverlayOpen()
 
     const handleDismissItem = useCallback(() => dispatch(dismissItem()), [])
     const handleOffsetItem = useCallback(
@@ -97,7 +118,13 @@ const Page: React.FC = () => {
     ) : (
         <>
             {settingsOn ? null : (
-                <div key="card" className={"main" + (menuOn ? " menu-on" : "")}>
+                <div
+                    key="card"
+                    className={mergeClasses(
+                        "main",
+                        menuOn && "menu-on",
+                        articleOverlayOpen && pageClasses.feedBlurred
+                    )}>
                     <ArticleSearch />
                     <Feed
                         viewType={viewType}
@@ -106,13 +133,18 @@ const Page: React.FC = () => {
                     />
                 </div>
             )}
-            {!!itemId && (
+            {articleOverlayOpen && (
                 <FocusTrapZone
                     disabled={contextOn}
                     ignoreExternalFocusing={true}
                     isClickableOutsideFocusTrap={true}
                     className="article-container"
                     onClick={handleDismissItem}>
+                    {/* Fade the scrim separately from the article's guest surface. */}
+                    <div
+                        aria-hidden="true"
+                        className={pageClasses.articleScrim}
+                    />
                     <div
                         className="article-wrapper"
                         onClick={e => e.stopPropagation()}>

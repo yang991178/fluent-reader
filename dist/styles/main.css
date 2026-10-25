@@ -16,22 +16,15 @@
 .article-container {
     position: fixed;
     z-index: 6;
-    will-change: opacity;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
 }
-.article-container {
-    backdrop-filter: var(--blur);
-    animation-name: fade;
-    background-color: #0008;
-}
-.article-container,
 .article-wrapper {
     animation-duration: 0.5s;
     animation-timing-function: var(--transition-timing);
-    animation-fill-mode: both;
+    animation-fill-mode: backwards;
 }
 
 .settings-container {
