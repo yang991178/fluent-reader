@@ -19,17 +19,28 @@ import {
     openMarkAllMenu,
 } from "../scripts/models/app"
 import { toggleSearch } from "../scripts/models/page"
-import { ViewType, WindowStateListenerType } from "../schema-types"
+import { WindowStateListenerType } from "../schema-types"
 import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 import { FlatButtonSeparator } from "./utils/FlatButtonSeparator"
 import { useIsWideScreen } from "./utils/hooks/useIsWideScreen"
+import { useArticleOverlayOpen } from "./utils/hooks/useArticleOverlayOpen"
 import {
     AppWindowFocusChangeEvent,
     useIsBlurred,
 } from "./utils/hooks/useIsBlurred"
 
 const useClasses = makeStyles({
+    nav: {
+        display: "flex",
+    },
+    navContent: {
+        flexGrow: 1,
+        minWidth: 0,
+    },
+    windowControls: {
+        flexShrink: 0,
+    },
     progress: {
         position: "fixed",
         top: 0,
@@ -41,6 +52,11 @@ const useClasses = makeStyles({
     },
     navBlurred: {
         "--black": "var(--neutralSecondaryAlt)",
+    },
+    navContentBlurred: {
+        position: "relative",
+        zIndex: 1,
+        filter: "var(--blur)",
     },
     navBtn: {
         height: "var(--navHeight)",
@@ -70,10 +86,7 @@ const Nav: React.FC = () => {
     const classes = useClasses()
     const dispatch = useDispatch()
     const state = useSelector((state: RootState) => state.app)
-    const itemShown = useSelector(
-        (state: RootState) =>
-            state.page.itemId && state.page.viewType !== ViewType.List
-    )
+    const articleOverlayOpen = useArticleOverlayOpen()
     const [maximized, setMaximized] = useState(globalThis.utils.isMaximized())
     const isWideScreen = useIsWideScreen()
     const isBlurred = useIsBlurred()
@@ -152,20 +165,20 @@ const Nav: React.FC = () => {
                         markAllDirect()
                         break
                     case "F7":
-                        if (!itemShown) logs()
+                        if (!articleOverlayOpen) logs()
                         break
                     case "F8":
-                        if (!itemShown) views()
+                        if (!articleOverlayOpen) views()
                         break
                     case "F9":
-                        if (!itemShown) settings()
+                        if (!articleOverlayOpen) settings()
                         break
                 }
             }
         },
         [
             state.settings.display,
-            itemShown,
+            articleOverlayOpen,
             menu,
             search,
             fetch,
@@ -210,15 +223,6 @@ const Nav: React.FC = () => {
 
     const isFetching = !canFetch()
 
-    const getClassNames = () => {
-        const classNames = new Array<string>()
-        if (state.settings.display) classNames.push("hide-btns")
-        if (state.menu) classNames.push("menu-on")
-        if (itemShown) classNames.push("item-on")
-        if (isBlurred) classNames.push(classes.navBlurred)
-        return classNames.join(" ")
-    }
-
     const getProgress = () => {
         return state.fetchingTotal > 0
             ? state.fetchingProgress / state.fetchingTotal
@@ -227,133 +231,152 @@ const Nav: React.FC = () => {
 
     const isNonNavButtonShown = !state.settings.display
     const menuOn = state.menu
-    const systemItemOnClass = itemShown ? classes.navBtnSystemItemOn : undefined
+    const systemItemOnClass = articleOverlayOpen
+        ? classes.navBtnSystemItemOn
+        : undefined
     const firstGroupClass = mergeClasses(
         isDarwin && !isFullscreen ? classes.navGroupFirst : undefined
     )
 
     return (
-        <nav className={getClassNames()}>
-            {(!isWideScreen || !menuOn) && isNonNavButtonShown && (
-                <FlatButtonGroup styleClass={firstGroupClass}>
+        <nav
+            className={mergeClasses(
+                classes.nav,
+                state.settings.display && "hide-btns",
+                state.menu && "menu-on",
+                articleOverlayOpen && "item-on",
+                isBlurred && classes.navBlurred
+            )}>
+            <div
+                className={mergeClasses(
+                    classes.navContent,
+                    articleOverlayOpen && classes.navContentBlurred
+                )}>
+                {(!isWideScreen || !menuOn) && isNonNavButtonShown && (
+                    <FlatButtonGroup styleClass={firstGroupClass}>
+                        <FlatButton
+                            styleClass={classes.navBtn}
+                            title={intl.get("nav.menu")}
+                            onClick={menu}>
+                            <Icon
+                                iconName={
+                                    isDarwin ? "SidePanel" : "GlobalNavButton"
+                                }
+                            />
+                        </FlatButton>
+                    </FlatButtonGroup>
+                )}
+                <span className="title">{state.title}</span>
+                <FlatButtonGroup styleClass={classes.navGroupRight}>
+                    {isNonNavButtonShown && (
+                        <>
+                            <FlatButton
+                                styleClass={classes.navBtn}
+                                fetching={isFetching}
+                                disabled={isFetching}
+                                onClick={fetch}
+                                title={intl.get("nav.refresh")}>
+                                <Icon iconName="Refresh" />
+                            </FlatButton>
+                            <FlatButton
+                                styleClass={classes.navBtn}
+                                id="mark-all-toggle"
+                                onClick={markAll}
+                                title={intl.get("nav.markAllRead")}
+                                onMouseDown={e => {
+                                    if (
+                                        state.contextMenu.event ===
+                                        "#mark-all-toggle"
+                                    )
+                                        e.stopPropagation()
+                                }}>
+                                <Icon iconName="InboxCheck" />
+                            </FlatButton>
+                            <FlatButton
+                                styleClass={classes.navBtn}
+                                id="log-toggle"
+                                title={intl.get("nav.notifications")}
+                                onClick={logs}>
+                                {state.logMenu.notify ? (
+                                    <Icon iconName="RingerSolid" />
+                                ) : (
+                                    <Icon iconName="Ringer" />
+                                )}
+                            </FlatButton>
+                            <FlatButton
+                                styleClass={classes.navBtn}
+                                id="view-toggle"
+                                title={intl.get("nav.view")}
+                                onClick={views}
+                                onMouseDown={e => {
+                                    if (
+                                        state.contextMenu.event ===
+                                        "#view-toggle"
+                                    )
+                                        e.stopPropagation()
+                                }}>
+                                <Icon iconName="View" />
+                            </FlatButton>
+                            <FlatButton
+                                styleClass={classes.navBtn}
+                                title={intl.get("nav.settings")}
+                                onClick={settings}>
+                                <Icon iconName="Settings" />
+                            </FlatButton>
+                        </>
+                    )}
+                </FlatButtonGroup>
+            </div>
+            {/* Window controls must remain sharp and above the article overlay. */}
+            {!isDarwin && (
+                <FlatButtonGroup styleClass={classes.windowControls}>
+                    <FlatButtonSeparator />
                     <FlatButton
-                        styleClass={classes.navBtn}
-                        title={intl.get("nav.menu")}
-                        onClick={menu}>
-                        <Icon
-                            iconName={
-                                isDarwin ? "SidePanel" : "GlobalNavButton"
-                            }
-                        />
+                        variant="system"
+                        styleClass={mergeClasses(
+                            classes.navBtn,
+                            classes.navBtnSystem,
+                            classes.navBtnMinimize,
+                            systemItemOnClass
+                        )}
+                        title={intl.get("nav.minimize")}
+                        onClick={minimize}>
+                        <Icon iconName="Remove" />
+                    </FlatButton>
+                    <FlatButton
+                        variant="system"
+                        styleClass={mergeClasses(
+                            classes.navBtn,
+                            classes.navBtnSystem,
+                            systemItemOnClass
+                        )}
+                        title={intl.get("nav.maximize")}
+                        onClick={maximize}>
+                        {maximized ? (
+                            <Icon
+                                iconName="ChromeRestore"
+                                style={{ fontSize: 11 }}
+                            />
+                        ) : (
+                            <Icon
+                                iconName="Checkbox"
+                                style={{ fontSize: 10 }}
+                            />
+                        )}
+                    </FlatButton>
+                    <FlatButton
+                        variant="close"
+                        styleClass={mergeClasses(
+                            classes.navBtn,
+                            classes.navBtnSystem,
+                            systemItemOnClass
+                        )}
+                        title={intl.get("close")}
+                        onClick={close}>
+                        <Icon iconName="Cancel" />
                     </FlatButton>
                 </FlatButtonGroup>
             )}
-            <span className="title">{state.title}</span>
-            <FlatButtonGroup styleClass={classes.navGroupRight}>
-                {isNonNavButtonShown && (
-                    <>
-                        <FlatButton
-                            styleClass={classes.navBtn}
-                            fetching={isFetching}
-                            disabled={isFetching}
-                            onClick={fetch}
-                            title={intl.get("nav.refresh")}>
-                            <Icon iconName="Refresh" />
-                        </FlatButton>
-                        <FlatButton
-                            styleClass={classes.navBtn}
-                            id="mark-all-toggle"
-                            onClick={markAll}
-                            title={intl.get("nav.markAllRead")}
-                            onMouseDown={e => {
-                                if (
-                                    state.contextMenu.event ===
-                                    "#mark-all-toggle"
-                                )
-                                    e.stopPropagation()
-                            }}>
-                            <Icon iconName="InboxCheck" />
-                        </FlatButton>
-                        <FlatButton
-                            styleClass={classes.navBtn}
-                            id="log-toggle"
-                            title={intl.get("nav.notifications")}
-                            onClick={logs}>
-                            {state.logMenu.notify ? (
-                                <Icon iconName="RingerSolid" />
-                            ) : (
-                                <Icon iconName="Ringer" />
-                            )}
-                        </FlatButton>
-                        <FlatButton
-                            styleClass={classes.navBtn}
-                            id="view-toggle"
-                            title={intl.get("nav.view")}
-                            onClick={views}
-                            onMouseDown={e => {
-                                if (state.contextMenu.event === "#view-toggle")
-                                    e.stopPropagation()
-                            }}>
-                            <Icon iconName="View" />
-                        </FlatButton>
-                        <FlatButton
-                            styleClass={classes.navBtn}
-                            title={intl.get("nav.settings")}
-                            onClick={settings}>
-                            <Icon iconName="Settings" />
-                        </FlatButton>
-                    </>
-                )}
-                {!isDarwin && (
-                    <>
-                        {!isDarwin && <FlatButtonSeparator />}
-                        <FlatButton
-                            variant="system"
-                            styleClass={mergeClasses(
-                                classes.navBtn,
-                                classes.navBtnSystem,
-                                classes.navBtnMinimize,
-                                systemItemOnClass
-                            )}
-                            title={intl.get("nav.minimize")}
-                            onClick={minimize}>
-                            <Icon iconName="Remove" />
-                        </FlatButton>
-                        <FlatButton
-                            variant="system"
-                            styleClass={mergeClasses(
-                                classes.navBtn,
-                                classes.navBtnSystem,
-                                systemItemOnClass
-                            )}
-                            title={intl.get("nav.maximize")}
-                            onClick={maximize}>
-                            {maximized ? (
-                                <Icon
-                                    iconName="ChromeRestore"
-                                    style={{ fontSize: 11 }}
-                                />
-                            ) : (
-                                <Icon
-                                    iconName="Checkbox"
-                                    style={{ fontSize: 10 }}
-                                />
-                            )}
-                        </FlatButton>
-                        <FlatButton
-                            variant="close"
-                            styleClass={mergeClasses(
-                                classes.navBtn,
-                                classes.navBtnSystem,
-                                systemItemOnClass
-                            )}
-                            title={intl.get("close")}
-                            onClick={close}>
-                            <Icon iconName="Cancel" />
-                        </FlatButton>
-                    </>
-                )}
-            </FlatButtonGroup>
             {isFetching && (
                 <ProgressBar
                     className={classes.progress}
