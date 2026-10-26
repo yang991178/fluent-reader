@@ -10,6 +10,10 @@ export const database = drizzle(
         const rows = await globalThis.db.execute(sql, params, method)
         return { rows: rows as unknown[][] }
     },
+    async queries => {
+        const results = await globalThis.db.batch(queries)
+        return results.map(rows => ({ rows: rows as unknown[][] }))
+    },
     { schema: { sourcesTable, itemsTable } }
 )
 

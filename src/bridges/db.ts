@@ -1,5 +1,11 @@
 import { ipcRenderer } from "electron"
 
+export type DatabaseQuery = {
+    sql: string
+    params: unknown[]
+    method: "run" | "all" | "values" | "get"
+}
+
 const dbBridge = {
     execute: (
         sql: string,
@@ -7,6 +13,9 @@ const dbBridge = {
         method: string
     ): Promise<unknown[]> =>
         ipcRenderer.invoke("db:execute", sql, params, method),
+
+    batch: (queries: DatabaseQuery[]): Promise<unknown[][]> =>
+        ipcRenderer.invoke("db:batch", queries),
 
     exportAll: (): Promise<void> => ipcRenderer.invoke("db-export-all"),
 
