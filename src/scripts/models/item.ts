@@ -228,10 +228,19 @@ export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
         notify: item.notify,
         serviceRef: item.serviceRef || null,
     }))
-    return (await database
-        .insert(itemsTable)
-        .values(values)
-        .returning()) as unknown as RSSItem[]
+    // Bound SQL parameters and query construction even for large refreshes.
+    const queries = []
+    for (let i = 0; i < values.length; i += 50) {
+        queries.push(
+            database
+                .insert(itemsTable)
+                .values(values.slice(i, i + 50))
+                .returning()
+        )
+    }
+    const [first, ...rest] = queries
+    const results = await database.batch([first, ...rest])
+    return results.flat() as unknown as RSSItem[]
 }
 
 export function fetchItems(
@@ -274,13 +283,9 @@ export function fetchItems(
                         sid: source.sid,
                     })
                 )
-                promise.then(() =>
-                    dispatch(
-                        updateSource({ ...source, lastFetched: new Date() })
-                    )
+                promises.push(
+                    promise.finally(() => dispatch(fetchItemsIntermediate()))
                 )
-                promise.finally(() => dispatch(fetchItemsIntermediate()))
-                promises.push(promise)
             }
             dispatch(fetchItemsRequest(promises.length))
             const results = await Promise.allSettled(promises)
@@ -294,7 +299,30 @@ export function fetchItems(
                     }
                 })
                 insertItems(items)
-                    .then(inserted => {
+                    .then(async inserted => {
+                        const updates: Promise<void>[] = []
+                        for (let i = 0; i < results.length; i++) {
+                            if (results[i].status === "fulfilled") {
+                                const source =
+                                    getState().sources[sources[i].sid]
+                                if (source) {
+                                    updates.push(
+                                        dispatch(
+                                            updateSource({
+                                                ...source,
+                                                lastFetched: new Date(),
+                                            })
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                        for (const update of await Promise.allSettled(
+                            updates
+                        )) {
+                            if (update.status === "rejected")
+                                console.log(update.reason)
+                        }
                         dispatch(
                             fetchItemsSuccess(
                                 inserted.reverse(),
@@ -318,9 +346,11 @@ export function fetchItems(
                     })
                     .catch(err => {
                         dispatch(fetchItemsSuccess([], getState().items))
+                        const cause =
+                            err instanceof Error && err.cause ? err.cause : err
                         window.utils.showErrorBox(
                             "A database error has occurred.",
-                            String(err)
+                            String(cause).slice(0, 2000)
                         )
                         console.log(err)
                         reject(err)

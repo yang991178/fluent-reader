@@ -13,6 +13,7 @@ import { WindowManager } from "./window"
 import performUpdate from "./update-scripts"
 import { transformLovefieldRules } from "./utils"
 import { getValidDate } from "../scripts/date"
+import type { DatabaseQuery } from "../bridges/db"
 
 let sqlite: Database.Database
 let db: ReturnType<typeof drizzle>
@@ -231,6 +232,14 @@ export function initDB(
 
     migrate(db, { migrationsFolder })
 
+    const executeQuery = ({ sql, params, method }: DatabaseQuery) => {
+        const stmt = sqlite.prepare(sql)
+        const result = stmt[method](...params) as
+            | Record<string, unknown>
+            | Record<string, unknown>[]
+        return toDrizzleResult(result)
+    }
+
     ipcMain.handle(
         "db:execute",
         (
@@ -240,17 +249,26 @@ export function initDB(
             method: "run" | "all" | "values" | "get"
         ) => {
             try {
-                const stmt = sqlite.prepare(sql)
-                const result = stmt[method](...params) as
-                    | Record<string, unknown>
-                    | Record<string, unknown>[]
-                return toDrizzleResult(result)
+                return executeQuery({ sql, params, method })
             } catch (err) {
                 console.error("db:execute error:", err)
                 throw err
             }
         }
     )
+
+    // Keep the entire batch atomic without interleaving other renderer queries.
+    const executeBatch = sqlite.transaction((queries: DatabaseQuery[]) =>
+        queries.map(executeQuery)
+    )
+    ipcMain.handle("db:batch", (_, queries: DatabaseQuery[]) => {
+        try {
+            return executeBatch(queries)
+        } catch (err) {
+            console.error("db:batch error:", err)
+            throw err
+        }
+    })
 
     ipcMain.handle("db-export-all", handleExportAll)
     ipcMain.handle("db-import-all", handleImportAll)
