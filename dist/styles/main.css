@@ -13,20 +13,6 @@
         opacity: 1;
     }
 }
-.article-container {
-    position: fixed;
-    z-index: 6;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-}
-.article-wrapper {
-    animation-duration: 0.5s;
-    animation-timing-function: var(--transition-timing);
-    animation-fill-mode: backwards;
-}
-
 .settings-container {
     position: fixed;
     z-index: 7;
@@ -132,58 +118,6 @@ img.favicon.dropdown {
     width: 72px;
 }
 
-.main {
-    margin-top: calc(-1 * var(--navHeight));
-    height: 100%;
-    overflow: hidden;
-    background-color: var(--neutralLighterAlt);
-}
-.main::before {
-    content: "";
-    display: block;
-    position: relative;
-    top: var(--navHeight);
-    left: 0;
-    width: calc(100% - 16px);
-    height: var(--navHeight);
-    margin-bottom: calc(-1 * var(--navHeight));
-    background: linear-gradient(var(--neutralLighterAlt), #faf9f800);
-    z-index: 1;
-}
-.article-search {
-    z-index: 4;
-    position: absolute;
-    top: 0;
-    left: 36px;
-    width: 100%;
-    max-width: calc(100% - 484px);
-    margin: 4px 16px;
-    border: none;
-    -webkit-app-region: none;
-    height: calc(var(--navHeight) - 4px);
-    box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132),
-        0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
-}
-body.darwin.not-fullscreen .article-search {
-    left: 108px;
-    max-width: calc(100% - 384px);
-}
-.list-main .article-search {
-    max-width: 294px;
-    margin: 4px 10px;
-}
-body.darwin .list-main .article-search {
-    max-width: 314px;
-    left: 0;
-    top: var(--navHeight);
-    margin: 0 10px;
-}
-.main,
-.list-main {
-    transition: margin-left var(--transition-timing) 0.367s;
-    margin-left: 0;
-}
-
 @media (min-width: 1440px) {
     #root > nav.menu-on {
         padding-left: 296px;
@@ -191,25 +125,5 @@ body.darwin .list-main .article-search {
     #root > nav.menu-on span.title,
     body.darwin #root > nav.menu-on span.title {
         max-width: 300px;
-    }
-    .main.menu-on,
-    .list-main.menu-on {
-        margin-left: 280px;
-    }
-    .menu-on .article-search {
-        left: 280px;
-        max-width: calc(100% - 728px);
-    }
-    body.darwin .menu-on .article-search {
-        left: 280px;
-        max-width: calc(100% - 556px);
-    }
-    .list-main.menu-on .article-search {
-        left: 0;
-        width: 330px;
-    }
-    body.darwin .list-main.menu-on .article-search {
-        left: 0;
-        top: 4px;
     }
 }

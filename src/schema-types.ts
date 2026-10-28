@@ -27,6 +27,11 @@ export const enum ViewType {
     Customized,
 }
 
+export const ARTICLE_OVERLAY_MIN_WIDTH = 860
+export const LIST_VIEW_MIN_WIDTH = 350
+// Preserve the article space at the existing 992px minimum window width.
+export const LIST_ARTICLE_MIN_WIDTH = 992 - LIST_VIEW_MIN_WIDTH
+
 export const enum ViewConfigs {
     ShowCover = 1 << 0,
     ShowSnippet = 1 << 1,
@@ -119,6 +124,8 @@ export type SchemaTypes = {
     nextGroupId: number
     fontSize: number
     fontFamily: string
+    articleOverlayWidth: number
+    listViewWidth: number
     menuOn: boolean
     fetchInterval: number
     searchEngine: SearchEngines

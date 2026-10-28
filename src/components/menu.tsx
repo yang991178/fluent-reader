@@ -50,6 +50,9 @@ const useMenuClasses = makeStyles({
         display: "flex",
         flexDirection: "row-reverse",
     },
+    menuHeader: {
+        height: "var(--navHeight)",
+    },
     menuContainer: {
         "position": "fixed",
         "zIndex": 5,
@@ -283,33 +286,39 @@ export const Menu: React.FC = () => {
                             menuClasses.menuInnerItemOnDarwin
                     )}
                     onClick={e => e.stopPropagation()}>
-                    <FlatButtonGroup
-                        styleClass={
-                            isDarwin ? menuClasses.menuGroupDarwin : undefined
-                        }>
-                        <FlatButton
-                            styleClass={mergeClasses(
-                                menuClasses.menuBtn,
-                                isBlurred
-                                    ? menuClasses.menuBtnBlurred
-                                    : undefined
-                            )}
-                            title={intl.get("menu.close")}
-                            ariaLabel={intl.get("menu.close")}
-                            onClick={handleToggleMenu}>
-                            {isWideScreen ? (
-                                <Icon
-                                    iconName={
-                                        isDarwin
-                                            ? "SidePanel"
-                                            : "GlobalNavButton"
-                                    }
-                                />
-                            ) : (
-                                <Icon iconName="Back" />
-                            )}
-                        </FlatButton>
-                    </FlatButtonGroup>
+                    <div className={menuClasses.menuHeader}>
+                        {display && (
+                            <FlatButtonGroup
+                                styleClass={
+                                    isDarwin
+                                        ? menuClasses.menuGroupDarwin
+                                        : undefined
+                                }>
+                                <FlatButton
+                                    styleClass={mergeClasses(
+                                        menuClasses.menuBtn,
+                                        isBlurred
+                                            ? menuClasses.menuBtnBlurred
+                                            : undefined
+                                    )}
+                                    title={intl.get("menu.close")}
+                                    ariaLabel={intl.get("menu.close")}
+                                    onClick={handleToggleMenu}>
+                                    {isWideScreen ? (
+                                        <Icon
+                                            iconName={
+                                                isDarwin
+                                                    ? "SidePanel"
+                                                    : "GlobalNavButton"
+                                            }
+                                        />
+                                    ) : (
+                                        <Icon iconName="Back" />
+                                    )}
+                                </FlatButton>
+                            </FlatButtonGroup>
+                        )}
+                    </div>
                     <div className={menuClasses.navWrapper}>
                         <Tree
                             ref={treeRef}

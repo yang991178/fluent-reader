@@ -34,14 +34,84 @@ import {
     closeContextMenu,
 } from "../scripts/models/app"
 import { useArticleView } from "./utils/hooks/useArticleView"
+import { makeStyles, mergeClasses, shorthands } from "@griffel/react"
+
+const useStyles = makeStyles({
+    root: {
+        "height": "100%",
+        "minWidth": 0,
+        "userSelect": "none",
+        "& i.ms-Icon": { color: "var(--neutralDarker)" },
+    },
+    side: {
+        display: "flex",
+        flexDirection: "column-reverse",
+    },
+    toolbar: {
+        height: "36px",
+        flexShrink: 0,
+    },
+    sideToolbar: {
+        borderTop: "1px solid var(--neutralQuaternaryAlt)",
+    },
+    spacer: { width: "96px" },
+    closeGroup: { width: "112px" },
+    actions: {
+        minWidth: 0,
+        color: "var(--black)",
+        borderBottom: "1px solid var(--neutralQuaternaryAlt)",
+    },
+    sideActions: { borderBottomStyle: "none" },
+    source: {
+        minWidth: 0,
+        flexBasis: 0,
+    },
+    sourceName: {
+        lineHeight: "35px",
+        userSelect: "none",
+        maxWidth: "320px",
+        width: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        display: "inline-block",
+    },
+    sourceIcon: {
+        "verticalAlign": "middle",
+        "margin": "8px 8px 11px 0",
+        "&.fui-Spinner": { display: "inline-flex" },
+    },
+    creator: {
+        "color": "var(--neutralSecondaryAlt)",
+        "userSelect": "text",
+        "::before": {
+            display: "inline-block",
+            content: '"/"',
+            margin: "0 6px",
+        },
+    },
+    content: {
+        width: "100%",
+        height: "calc(100% - 36px)",
+        ...shorthands.borderStyle("none"),
+        color: "var(--black)",
+    },
+    hidden: { display: "none" },
+    unreadIcon: { fontSize: "14px", textAlign: "center" },
+    menuIcon: { display: "none" },
+    errorIcon: { fontSize: "32px" },
+    errorCode: { fontSize: "11px" },
+})
 
 const FONT_SIZE_OPTIONS = [12, 13, 14, 15, 16, 17, 18, 19, 20]
 
 type ArticleProps = Readonly<{
     itemId: number
+    side?: boolean
 }>
 
-function Article({ itemId }: ArticleProps) {
+function Article({ itemId, side = false }: ArticleProps) {
+    const classes = useStyles()
     const dispatch = useAppDispatch()
     const item = useAppSelector(state => state.items[itemId])
     const source = useAppSelector(state => state.sources[item.source])
@@ -269,29 +339,51 @@ function Article({ itemId }: ArticleProps) {
     }
 
     return (
-        <FocusZone className="article">
-            <Stack horizontal style={{ height: 36 }}>
-                <span style={{ width: 96 }}></span>
+        <FocusZone
+            className={mergeClasses(
+                "article",
+                classes.root,
+                side && classes.side
+            )}>
+            <Stack
+                horizontal
+                className={mergeClasses(
+                    classes.toolbar,
+                    side && classes.sideToolbar
+                )}>
+                <span className={classes.spacer}></span>
                 <Stack
-                    className="actions"
+                    className={mergeClasses(
+                        "actions",
+                        classes.actions,
+                        side && classes.sideActions
+                    )}
                     grow
                     horizontal
                     tokens={{ childrenGap: 12 }}>
-                    <Stack.Item grow>
-                        <span className="source-name">
+                    <Stack.Item grow className={classes.source}>
+                        <span className={classes.sourceName}>
                             {loaded ? (
                                 source.iconurl && (
                                     <img
-                                        className="favicon"
+                                        className={mergeClasses(
+                                            "favicon",
+                                            classes.sourceIcon
+                                        )}
                                         src={source.iconurl}
                                     />
                                 )
                             ) : (
-                                <Spinner size="extra-tiny" />
+                                <Spinner
+                                    size="extra-tiny"
+                                    className={classes.sourceIcon}
+                                />
                             )}
                             {source.name}
                             {item.creator && (
-                                <span className="creator">{item.creator}</span>
+                                <span className={classes.creator}>
+                                    {item.creator}
+                                </span>
                             )}
                         </span>
                     </Stack.Item>
@@ -306,10 +398,7 @@ function Article({ itemId }: ArticleProps) {
                                 ? { iconName: "StatusCircleRing" }
                                 : {
                                       iconName: "RadioBtnOn",
-                                      style: {
-                                          fontSize: 14,
-                                          textAlign: "center",
-                                      },
+                                      className: classes.unreadIcon,
                                   }
                         }
                         onClick={() =>
@@ -346,11 +435,14 @@ function Article({ itemId }: ArticleProps) {
                     <CommandBarButton
                         title={intl.get("more")}
                         iconProps={{ iconName: "More" }}
-                        menuIconProps={{ style: { display: "none" } }}
+                        menuIconProps={{ className: classes.menuIcon }}
                         menuProps={moreMenuProps()}
                     />
                 </Stack>
-                <Stack horizontal horizontalAlign="end" style={{ width: 112 }}>
+                <Stack
+                    horizontal
+                    horizontalAlign="end"
+                    className={classes.closeGroup}>
                     <CommandBarButton
                         title={intl.get("close")}
                         iconProps={{ iconName: "BackToWindow" }}
@@ -361,7 +453,10 @@ function Article({ itemId }: ArticleProps) {
             {showWebview && (
                 <webview
                     id="article"
-                    className={error ? "error" : ""}
+                    className={mergeClasses(
+                        classes.content,
+                        error && classes.hidden
+                    )}
                     ref={webview}
                     key={webviewKey}
                     src={loadWebpage ? item.link : articleView()}
@@ -372,11 +467,14 @@ function Article({ itemId }: ArticleProps) {
             )}
             {error && (
                 <Stack
-                    className="error-prompt"
+                    className={mergeClasses("error-prompt", classes.content)}
                     verticalAlign="center"
                     horizontalAlign="center"
                     tokens={{ childrenGap: 12 }}>
-                    <Icon iconName="HeartBroken" style={{ fontSize: 32 }} />
+                    <Icon
+                        iconName="HeartBroken"
+                        className={classes.errorIcon}
+                    />
                     <Stack
                         horizontal
                         horizontalAlign="center"
@@ -388,7 +486,7 @@ function Article({ itemId }: ArticleProps) {
                             </Link>
                         </small>
                     </Stack>
-                    <span style={{ fontSize: 11 }}>{error}</span>
+                    <span className={classes.errorCode}>{error}</span>
                 </Stack>
             )}
         </FocusZone>
