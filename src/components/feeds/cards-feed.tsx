@@ -3,11 +3,17 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import intl from "react-intl-universal"
 import { FeedProps } from "./feed"
 import DefaultCard from "../cards/default-card"
-import { PrimaryButton, FocusZone } from "office-ui-fabric-react"
 import { RSSItem } from "../../scripts/models/item"
-import { List, AnimationClassNames } from "@fluentui/react"
+import {
+    PrimaryButton,
+    FocusZone,
+    List,
+    AnimationClassNames,
+} from "@fluentui/react"
+import { useFeedTabStop } from "../utils/hooks/useFeedTabStop"
 
 const CardsFeed: React.FC<FeedProps> = props => {
+    const { elementRef, onPagesUpdated } = useFeedTabStop()
     const [width, setWidth] = useState(window.innerWidth)
     const [height, setHeight] = useState(window.innerHeight)
     const observerRef = useRef<ResizeObserver>(null)
@@ -79,6 +85,7 @@ const CardsFeed: React.FC<FeedProps> = props => {
     return (
         props.feed.loaded && (
             <FocusZone
+                elementRef={elementRef}
                 as="div"
                 id="refocus"
                 className="cards-feed-container"
@@ -88,6 +95,7 @@ const CardsFeed: React.FC<FeedProps> = props => {
                     className={AnimationClassNames.slideUpIn10}
                     items={flexFixItems()}
                     onRenderCell={onRenderItem}
+                    onPagesUpdated={onPagesUpdated}
                     getItemCountForPage={getItemCountForPage}
                     getPageHeight={getPageHeight}
                     ignoreScrollingState

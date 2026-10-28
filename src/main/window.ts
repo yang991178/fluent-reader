@@ -1,4 +1,3 @@
-import windowStateKeeper from "electron-window-state"
 import { BrowserWindow, nativeTheme, app } from "electron"
 import * as path from "node:path"
 import { setThemeListener } from "./settings"
@@ -6,7 +5,6 @@ import { setUtilsListeners } from "./utils"
 
 export class WindowManager {
     mainWindow: BrowserWindow = null
-    private mainWindowState: windowStateKeeper.State
 
     constructor() {
         this.init()
@@ -14,10 +12,6 @@ export class WindowManager {
 
     private init = () => {
         app.on("ready", () => {
-            this.mainWindowState = windowStateKeeper({
-                defaultWidth: 1200,
-                defaultHeight: 700,
-            })
             this.setListeners()
             this.createWindow()
         })
@@ -43,6 +37,8 @@ export class WindowManager {
     createWindow = () => {
         if (!this.hasWindow()) {
             this.mainWindow = new BrowserWindow({
+                name: "main",
+                windowStatePersistence: true,
                 title: "Fluent Reader",
                 backgroundColor:
                     process.platform === "darwin"
@@ -51,10 +47,8 @@ export class WindowManager {
                         ? "#282828"
                         : "#faf9f8",
                 vibrancy: "sidebar",
-                x: this.mainWindowState.x,
-                y: this.mainWindowState.y,
-                width: this.mainWindowState.width,
-                height: this.mainWindowState.height,
+                width: 1200,
+                height: 700,
                 minWidth: 992,
                 minHeight: 600,
                 frame: process.platform === "darwin",
@@ -71,7 +65,6 @@ export class WindowManager {
                     ),
                 },
             })
-            this.mainWindowState.manage(this.mainWindow)
             this.mainWindow.on("ready-to-show", () => {
                 this.mainWindow.show()
                 this.mainWindow.focus()

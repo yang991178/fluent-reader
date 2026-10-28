@@ -6,16 +6,18 @@ import {
     FocusZone,
     FocusZoneDirection,
     List,
-} from "office-ui-fabric-react"
+    AnimationClassNames,
+} from "@fluentui/react"
 import { RSSItem } from "../../scripts/models/item"
-import { AnimationClassNames } from "@fluentui/react"
 import { ViewType } from "../../schema-types"
 import ListCard from "../cards/list-card"
 import MagazineCard from "../cards/magazine-card"
 import CompactCard from "../cards/compact-card"
 import { Card } from "../cards/card"
+import { useFeedTabStop } from "../utils/hooks/useFeedTabStop"
 
 const ListFeed: React.FC<FeedProps> = props => {
+    const { elementRef, onPagesUpdated } = useFeedTabStop()
     const onRenderItem = (item: RSSItem) => {
         const cardProps = {
             feedId: props.feed._id,
@@ -73,6 +75,7 @@ const ListFeed: React.FC<FeedProps> = props => {
     return (
         props.feed.loaded && (
             <FocusZone
+                elementRef={elementRef}
                 as="div"
                 id="refocus"
                 direction={FocusZoneDirection.vertical}
@@ -83,6 +86,7 @@ const ListFeed: React.FC<FeedProps> = props => {
                     className={AnimationClassNames.slideUpIn10}
                     items={props.items}
                     onRenderCell={onRenderItem}
+                    onPagesUpdated={onPagesUpdated}
                     ignoreScrollingState
                     usePageCache
                 />
