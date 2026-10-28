@@ -1,10 +1,9 @@
 import * as React from "react"
 import { useState, useEffect, useCallback } from "react"
 import intl from "react-intl-universal"
-import { useSelector, useDispatch } from "react-redux"
 import { Icon } from "@fluentui/react/lib/Icon"
 import { IObjectWithKey } from "@fluentui/react"
-import { RootState } from "../scripts/reducer"
+import { useAppDispatch, useAppSelector } from "../scripts/reducer"
 import { fetchItems, markAllRead } from "../scripts/models/item"
 import {
     makeStyles,
@@ -84,8 +83,8 @@ const useClasses = makeStyles({
 
 const Nav: React.FC = () => {
     const classes = useClasses()
-    const dispatch = useDispatch()
-    const state = useSelector((state: RootState) => state.app)
+    const dispatch = useAppDispatch()
+    const state = useAppSelector(state => state.app)
     const articleOverlayOpen = useArticleOverlayOpen()
     const [maximized, setMaximized] = useState(globalThis.utils.isMaximized())
     const isWideScreen = useIsWideScreen()

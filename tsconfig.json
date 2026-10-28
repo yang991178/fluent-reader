@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "jsx": "react",
+      "jsx": "react-jsx",
       "resolveJsonModule": true,
       "esModuleInterop": true,
       "target": "ESNext",

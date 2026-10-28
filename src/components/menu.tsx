@@ -114,11 +114,6 @@ const useMenuClasses = makeStyles({
             background: "none",
         },
     },
-    menuInnerItemOnDarwin: {
-        "@media (min-width: 1440px)": {
-            backgroundColor: "var(--neutralLight)",
-        },
-    },
     navWrapper: {
         maxHeight: "calc(100% - var(--navHeight))",
         overflowX: "hidden",
@@ -280,10 +275,7 @@ export const Menu: React.FC = () => {
                     className={mergeClasses(
                         menuClasses.menuInner,
                         display && menuClasses.menuInnerShow,
-                        isDarwin && menuClasses.menuInnerDarwin,
-                        isDarwin &&
-                            articleOverlayOpen &&
-                            menuClasses.menuInnerItemOnDarwin
+                        isDarwin && menuClasses.menuInnerDarwin
                     )}
                     onClick={e => e.stopPropagation()}>
                     <div className={menuClasses.menuHeader}>
@@ -482,6 +474,12 @@ const useTreeItemClasses = makeStyles({
         color: tokens.colorNeutralForeground1,
         fontWeight: tokens.fontWeightSemibold,
     },
+    label: {
+        minWidth: 0,
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+    },
     unreadCount: {
         color: tokens.colorNeutralForeground3,
         marginLeft: "auto",
@@ -546,6 +544,7 @@ const MenuTreeItem: React.FC<MenuTreeItemProps> = ({
                     isSelected && c.selectedItem
                 )}
                 iconBefore={icon}
+                main={{ className: c.label }}
                 aside={resolvedAside}>
                 <span className={isSelected ? c.selectedItemText : undefined}>
                     {label}

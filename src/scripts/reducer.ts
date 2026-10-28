@@ -1,5 +1,5 @@
 import { applyMiddleware, combineReducers, createStore } from "redux"
-import thunkMiddleware from "redux-thunk"
+import { thunk as thunkMiddleware } from "redux-thunk"
 
 import { sourceReducer } from "./models/source"
 import { itemReducer } from "./models/item"
@@ -30,6 +30,7 @@ export const rootReducer = combineReducers({
 
 export const rootStore = createStore(
     rootReducer,
+    undefined,
     applyMiddleware<AppDispatch, RootState>(thunkMiddleware)
 )
 

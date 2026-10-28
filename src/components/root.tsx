@@ -7,7 +7,11 @@ import Settings from "./settings"
 import { useAppDispatch, useAppSelector } from "../scripts/reducer"
 import { ContextMenu } from "./context-menu"
 import LogMenu from "./log-menu"
-import { FluentProvider, makeStyles } from "@fluentui/react-components"
+import {
+    FluentProvider,
+    makeStyles,
+    mergeClasses,
+} from "@fluentui/react-components"
 import { useEffect, useMemo, useState } from "react"
 import { ThemeProvider } from "@fluentui/react"
 import { CUSTOM_STYLE_HOOKS, createAppTheme } from "./utils/theme"
@@ -23,6 +27,16 @@ const useClasses = makeStyles({
     articleBackground: {
         // Directly blurred backgrounds fade to transparency at the window edges.
         backgroundColor: "var(--neutralLighterAlt)",
+    },
+    articleBackgroundDarwin: {
+        // Fade the opaque backing in with the article scrim.
+        animationName: {
+            from: { backgroundColor: "transparent" },
+            to: { backgroundColor: "var(--neutralLighterAlt)" },
+        },
+        animationDuration: "0.5s",
+        animationTimingFunction: "var(--transition-timing)",
+        animationFillMode: "backwards",
     },
 })
 
@@ -59,7 +73,12 @@ const Root: React.FC = () => {
                             key={locale}
                             className={
                                 articleOverlayOpen
-                                    ? classes.articleBackground
+                                    ? mergeClasses(
+                                          classes.articleBackground,
+                                          globalThis.utils.platform ===
+                                              "darwin" &&
+                                              classes.articleBackgroundDarwin
+                                      )
                                     : undefined
                             }
                             onMouseDown={() => dispatch(closeContextMenu())}>
