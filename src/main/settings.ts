@@ -11,6 +11,8 @@ import {
     RuleTarget,
     StoredRule,
     getRuleTargetKey,
+    ARTICLE_OVERLAY_MIN_WIDTH,
+    LIST_VIEW_MIN_WIDTH,
 } from "../schema-types"
 import { ipcMain, session, nativeTheme, app } from "electron"
 import { WindowManager } from "./window"
@@ -177,6 +179,23 @@ ipcMain.on("get-font", event => {
 ipcMain.handle("set-font", (_, font: string) => {
     store.set(FONT_STORE_KEY, font)
 })
+
+for (const [key, channel, minimum] of [
+    ["articleOverlayWidth", "article-overlay-width", ARTICLE_OVERLAY_MIN_WIDTH],
+    ["listViewWidth", "list-view-width", LIST_VIEW_MIN_WIDTH],
+] as const) {
+    ipcMain.on(`get-${channel}`, event => {
+        const width = store.get(key, minimum)
+        event.returnValue = Number.isFinite(width)
+            ? Math.max(minimum, Math.round(width))
+            : minimum
+    })
+    ipcMain.handle(`set-${channel}`, (_, width: number) => {
+        if (Number.isFinite(width) && width >= minimum) {
+            store.set(key, Math.round(width))
+        }
+    })
+}
 
 const FETCH_INTEVAL_STORE_KEY = "fetchInterval"
 ipcMain.on("get-fetch-interval", event => {

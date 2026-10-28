@@ -88,6 +88,20 @@ const settingsBridge = {
         ipcRenderer.invoke("set-font", font)
     },
 
+    getArticleOverlayWidth: (): number => {
+        return ipcRenderer.sendSync("get-article-overlay-width")
+    },
+    setArticleOverlayWidth: (width: number): Promise<void> => {
+        return ipcRenderer.invoke("set-article-overlay-width", width)
+    },
+
+    getListViewWidth: (): number => {
+        return ipcRenderer.sendSync("get-list-view-width")
+    },
+    setListViewWidth: (width: number): Promise<void> => {
+        return ipcRenderer.invoke("set-list-view-width", width)
+    },
+
     getFetchInterval: (): number => {
         return ipcRenderer.sendSync("get-fetch-interval")
     },
