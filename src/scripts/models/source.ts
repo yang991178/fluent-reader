@@ -95,7 +95,13 @@ export class RSSSource {
         const existing = await database
             .select({ _id: itemsTable._id })
             .from(itemsTable)
-            .where(and(eq(itemsTable.source, i.source), identityMatch))
+            .where(
+                and(
+                    eq(itemsTable.source, i.source),
+                    isNull(itemsTable.serviceRef),
+                    identityMatch
+                )
+            )
             .limit(1)
         if (existing.length === 0) {
             RSSItem.parseContent(i, item)

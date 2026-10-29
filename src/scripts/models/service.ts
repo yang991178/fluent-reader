@@ -259,8 +259,10 @@ function fetchItems(
                 }
                 if (inserted.length > 0) window.utils.requestAttention()
             }
-            dispatch(saveServiceConfigs(configs))
         }
+        // Hooks return candidate cursor values without mutating active state.
+        // Publish them only after persistence succeeds, including empty batches.
+        dispatch(saveServiceConfigs(configs))
     }
 }
 

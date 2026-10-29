@@ -1,6 +1,6 @@
 import intl from "react-intl-universal"
-import { database, itemsTable } from "../../db"
-import { and, eq, inArray, isNotNull, lte, gte } from "drizzle-orm"
+import { database, itemsTable, itemsInSources } from "../../db"
+import { and, eq, isNotNull, lte, gte } from "drizzle-orm"
 import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
@@ -126,7 +126,7 @@ export const nextcloudServiceHooks: ServiceHooks = {
 
     fetchItems: () => async (_, getState) => {
         const state = getState()
-        const configs = state.service as NextcloudConfigs
+        const configs = { ...state.service } as NextcloudConfigs
         let items = new Array()
         configs.lastModified = configs.lastModified || 0
         configs.lastId = configs.lastId || 0
@@ -200,6 +200,7 @@ export const nextcloudServiceHooks: ServiceHooks = {
                     notify: false,
                     serviceRef: String(i.id),
                 } as RSSItem
+                RSSItem.normalize(item)
                 if (i.enclosureLink) {
                     item.thumb = i.enclosureLink
                 } else {
@@ -247,7 +248,7 @@ export const nextcloudServiceHooks: ServiceHooks = {
         const state = getState()
         const configs = state.service as NextcloudConfigs
         const conditions = [
-            inArray(itemsTable.source, sids),
+            itemsInSources(sids),
             eq(itemsTable.hasRead, false),
             isNotNull(itemsTable.serviceRef),
         ]
