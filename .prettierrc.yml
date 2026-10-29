@@ -1,4 +1,5 @@
 tabWidth: 4
+endOfLine: auto
 semi: false
 jsxBracketSameLine: true
 arrowParens: "avoid"

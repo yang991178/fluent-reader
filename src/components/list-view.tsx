@@ -23,7 +23,8 @@ const useStyles = makeStyles({
         marginTop: "calc(-1 * var(--navHeight))",
         marginLeft: 0,
         transition: "margin-left var(--transition-timing) 0.367s",
-        overflow: "hidden",
+        // Focus must not scroll the layout when decorative shadows overflow it.
+        overflow: "clip",
         backgroundColor: "var(--colorNeutralBackground1)",
     },
     menuOpen: {

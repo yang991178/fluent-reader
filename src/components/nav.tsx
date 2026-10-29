@@ -324,12 +324,12 @@ const Nav: React.FC = () => {
                             </FlatButton>
                         </>
                     )}
+                    {!isDarwin && <FlatButtonSeparator />}
                 </FlatButtonGroup>
             </div>
             {/* Window controls must remain sharp and above the article overlay. */}
             {!isDarwin && (
                 <FlatButtonGroup styleClass={classes.windowControls}>
-                    <FlatButtonSeparator />
                     <FlatButton
                         variant="system"
                         styleClass={mergeClasses(
