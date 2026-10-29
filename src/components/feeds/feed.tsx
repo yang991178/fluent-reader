@@ -20,7 +20,7 @@ export type FeedProps = {
     shortcuts: (item: RSSItem, e: KeyboardEvent) => void
     markRead: (item: RSSItem) => void
     contextMenu: (feedId: string, item: RSSItem, e) => void
-    loadMore: (feed: RSSFeed) => void
+    loadMore: (feed: RSSFeed) => Promise<void>
     showItem: (fid: string, item: RSSItem) => void
 }
 
@@ -53,9 +53,10 @@ export const Feed: React.FC<FeedOwnProps> = ({ feedId, viewType }) => {
         (fid: string, item: RSSItem, e) => dispatch(openItemMenu(item, fid, e)),
         []
     )
-    const handleLoadMore = useCallback((f: RSSFeed) => {
-        dispatch(loadMore(f))
-    }, [])
+    const handleLoadMore = useCallback(
+        (f: RSSFeed) => dispatch(loadMore(f)),
+        []
+    )
     const handleShowItem = useCallback(
         (fid: string, item: RSSItem) => dispatch(showItem(fid, item)),
         []

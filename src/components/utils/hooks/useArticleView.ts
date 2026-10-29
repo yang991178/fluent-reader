@@ -32,6 +32,7 @@ function articleCard(itemId: number) {
 export function useArticleView(item: RSSItem, openTarget: SourceOpenTarget) {
     const itemId = item._id
     const [view, setView] = useState(() => initialView(itemId, openTarget))
+    const articleRef = useRef<HTMLElement>(null)
     const webview = useRef<Electron.WebviewTag>(null)
     const refocusItemId = useRef(itemId)
 
@@ -48,13 +49,18 @@ export function useArticleView(item: RSSItem, openTarget: SourceOpenTarget) {
         refocusItemId.current = itemId
     }, [itemId])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+        // React suppresses focus events during layout cleanup. Restore after the
+        // commit so FocusZone also tracks the card for the next arrow key.
         return () => articleCard(refocusItemId.current)?.focus()
     }, [])
 
     useLayoutEffect(() => {
         const node = webview.current
-        if (!node) return
+        if (!node) {
+            articleRef.current?.focus({ preventScroll: true })
+            return
+        }
 
         const onLoaded = () => setView(view => ({ ...view, loaded: true }))
         node.addEventListener("did-stop-loading", onLoaded)
@@ -146,6 +152,7 @@ export function useArticleView(item: RSSItem, openTarget: SourceOpenTarget) {
     }
 
     return {
+        articleRef,
         webview,
         webviewKey: `${itemId}_${view.mode}`,
         showWebview,

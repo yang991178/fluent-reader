@@ -160,6 +160,7 @@ export function ListView({
                 </div>
                 <ResizeHandle
                     label="Resize article list"
+                    cursor="col-resize"
                     {...handleProps}
                     styleClass={classes.resizeHandle}
                 />

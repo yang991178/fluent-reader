@@ -21,6 +21,9 @@ const useStyles = makeStyles({
         zIndex: 1000,
         cursor: "ew-resize",
     },
+    columnCursor: {
+        cursor: "col-resize",
+    },
 })
 
 type ResizeHandleProps = Readonly<{
@@ -29,6 +32,7 @@ type ResizeHandleProps = Readonly<{
     minWidth: number
     maxWidth: number
     multiplier?: number
+    cursor?: "ew-resize" | "col-resize"
     onResize: (width: number) => void
     onResizeEnd: (width: number | null) => void
     styleClass?: string
@@ -40,6 +44,7 @@ export function ResizeHandle({
     minWidth,
     maxWidth,
     multiplier = 1,
+    cursor = "ew-resize",
     onResize,
     onResizeEnd,
     styleClass,
@@ -81,12 +86,19 @@ export function ResizeHandle({
             {resizing && (
                 <div
                     aria-hidden="true"
-                    className={classes.shield}
+                    className={mergeClasses(
+                        classes.shield,
+                        cursor === "col-resize" && classes.columnCursor
+                    )}
                     onClick={event => event.stopPropagation()}
                 />
             )}
             <div
-                className={mergeClasses(classes.handle, styleClass)}
+                className={mergeClasses(
+                    classes.handle,
+                    cursor === "col-resize" && classes.columnCursor,
+                    styleClass
+                )}
                 role="separator"
                 aria-label={label}
                 aria-orientation="vertical"
