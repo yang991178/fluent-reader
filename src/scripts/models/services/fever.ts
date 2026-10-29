@@ -86,7 +86,7 @@ export const feverServiceHooks: ServiceHooks = {
 
     fetchItems: () => async (_, getState) => {
         const state = getState()
-        const configs = state.service as FeverConfigs
+        const configs = { ...state.service } as FeverConfigs
         const items = new Array()
         configs.lastId = configs.lastId || 0
         let min = configs.useInt32 ? 2147483647 : Number.MAX_SAFE_INTEGER
@@ -138,6 +138,7 @@ export const feverServiceHooks: ServiceHooks = {
                     notify: false,
                     serviceRef: String(i.id),
                 } as RSSItem
+                RSSItem.normalize(item)
                 // Try to get the thumbnail of the item
                 let dom = domParser.parseFromString(item.content, "text/html")
                 let baseEl = dom.createElement("base")

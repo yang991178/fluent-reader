@@ -1,6 +1,6 @@
 import { getRulesForTarget } from "./rule"
-import { eq, and, inArray, lte, gte } from "drizzle-orm"
-import { database, itemsTable } from "../db"
+import { eq, and, lte, gte } from "drizzle-orm"
+import { database, itemsTable, itemsInSources } from "../db"
 import { getValidDate } from "../date"
 import intl from "react-intl-universal"
 import type { MyParserItem } from "../utils"
@@ -43,6 +43,21 @@ export class RSSItem {
     hidden: boolean
     notify: boolean
     serviceRef?: string
+
+    static normalize(item: RSSItem) {
+        item.title =
+            typeof item.title === "string" && item.title
+                ? item.title
+                : intl.get("article.untitled")
+        for (const field of ["link", "content", "snippet"] as const) {
+            if (typeof item[field] !== "string") item[field] = ""
+        }
+        for (const field of ["thumb", "creator", "guid"] as const) {
+            if (typeof item[field] !== "string") delete item[field]
+        }
+        item.fetchedDate = getValidDate(item.fetchedDate, item.date)
+        item.date = getValidDate(item.date, item.fetchedDate)
+    }
 
     constructor(item: MyParserItem, source: RSSSource) {
         for (let field of ["title", "link", "creator", "author"]) {
@@ -207,8 +222,7 @@ export async function insertItems(items: RSSItem[]): Promise<RSSItem[]> {
     if (items.length === 0) return []
     // Service integrations construct articles without going through RSSItem.
     for (const item of items) {
-        item.fetchedDate = getValidDate(item.fetchedDate, item.date)
-        item.date = getValidDate(item.date, item.fetchedDate)
+        RSSItem.normalize(item)
     }
     items.sort((a, b) => a.date.getTime() - b.date.getTime())
     const values = items.map(item => ({
@@ -404,10 +418,7 @@ export function markAllRead(
             before
         )
         if (action) await dispatch(action)
-        const conditions = [
-            inArray(itemsTable.source, sids),
-            eq(itemsTable.hasRead, false),
-        ]
+        const conditions = [itemsInSources(sids), eq(itemsTable.hasRead, false)]
         if (date) {
             conditions.push(
                 before ? lte(itemsTable.date, date) : gte(itemsTable.date, date)

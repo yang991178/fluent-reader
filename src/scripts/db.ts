@@ -1,9 +1,24 @@
 import lf from "lovefield"
 import { drizzle } from "drizzle-orm/sqlite-proxy"
+import { inArray, sql } from "drizzle-orm"
+import type { BatchItem } from "drizzle-orm/batch"
 import { sourcesTable, itemsTable } from "../db/schema"
 import { getValidDate } from "./date"
 
 export { itemsTable, sourcesTable } from "../db/schema"
+
+export function itemsInSources(sids: number[]) {
+    // Keep ordinary selections index-friendly and bound large selections to one
+    // parameter, leaving room for filters and pagination in the same statement.
+    return inArray(
+        itemsTable.source,
+        sids.length <= 500
+            ? sids
+            : sql`(SELECT CAST(value AS INTEGER) FROM json_each(${JSON.stringify(
+                  sids
+              )}))`
+    )
+}
 
 export const database = drizzle(
     async (sql, params, method) => {
@@ -115,18 +130,21 @@ export async function init() {
             }
         })
 
-        // Roll back failed batches. Conflict handling also recovers old partial
-        // migrations and a crash between the commit and saving dbVersion.
-        await database.transaction(async tx => {
-            for (let i = 0; i < sourcesForDB.length; i += MIGRATION_BATCH) {
-                await tx
+        // Send the entire migration as one atomic main-process batch so other
+        // renderer queries cannot join its transaction between IPC calls.
+        const queries: BatchItem<"sqlite">[] = []
+        for (let i = 0; i < sourcesForDB.length; i += MIGRATION_BATCH) {
+            queries.push(
+                database
                     .insert(sourcesTable)
                     .values(sourcesForDB.slice(i, i + MIGRATION_BATCH))
                     .onConflictDoNothing({ target: sourcesTable.sid })
-            }
-            for (let i = 0; i < itemsData.length; i += MIGRATION_BATCH) {
-                const chunk = itemsData.slice(i, i + MIGRATION_BATCH)
-                await tx
+            )
+        }
+        for (let i = 0; i < itemsData.length; i += MIGRATION_BATCH) {
+            const chunk = itemsData.slice(i, i + MIGRATION_BATCH)
+            queries.push(
+                database
                     .insert(itemsTable)
                     .values(
                         chunk.map(item => {
@@ -156,8 +174,12 @@ export async function init() {
                         })
                     )
                     .onConflictDoNothing({ target: itemsTable._id })
-            }
-        })
+            )
+        }
+        // Conflict handling also recovers old partial migrations and a crash
+        // between the commit and saving dbVersion.
+        const [first, ...rest] = queries
+        if (first) await database.batch([first, ...rest])
 
         await globalThis.settings.migrateLovefieldRules(sourcesData)
         await globalThis.settings.setDBVersion("sqlite")

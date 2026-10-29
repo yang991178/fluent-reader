@@ -1,6 +1,6 @@
 import intl from "react-intl-universal"
-import { database, itemsTable } from "../../db"
-import { and, eq, inArray, isNotNull, lte, gte } from "drizzle-orm"
+import { database, itemsTable, itemsInSources } from "../../db"
+import { and, eq, isNotNull, lte, gte } from "drizzle-orm"
 import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
@@ -200,7 +200,7 @@ export const gReaderServiceHooks: ServiceHooks = {
 
     fetchItems: () => async (_, getState) => {
         const state = getState()
-        const configs = state.service as GReaderConfigs
+        const configs = { ...state.service } as GReaderConfigs
         const items = new Array()
         let fetchedItems: any[]
         let continuation: string
@@ -272,6 +272,7 @@ export const gReaderServiceHooks: ServiceHooks = {
                     notify: false,
                     serviceRef: i.id,
                 } as RSSItem
+                RSSItem.normalize(item)
                 const baseEl = dom.createElement("base")
                 baseEl.setAttribute(
                     "href",
@@ -333,7 +334,7 @@ export const gReaderServiceHooks: ServiceHooks = {
         const configs = state.service as GReaderConfigs
         if (date) {
             const conditions = [
-                inArray(itemsTable.source, sids),
+                itemsInSources(sids),
                 eq(itemsTable.hasRead, false),
                 isNotNull(itemsTable.serviceRef),
             ]

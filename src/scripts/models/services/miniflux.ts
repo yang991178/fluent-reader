@@ -1,6 +1,6 @@
 import intl from "react-intl-universal"
-import { database, itemsTable } from "../../db"
-import { and, eq, inArray, isNotNull, lte, gte } from "drizzle-orm"
+import { database, itemsTable, itemsInSources } from "../../db"
+import { and, eq, isNotNull, lte, gte } from "drizzle-orm"
 import { ServiceHooks } from "../service"
 import { ServiceConfigs, SyncService } from "../../../schema-types"
 import { createSourceGroup } from "../group"
@@ -134,7 +134,7 @@ export const minifluxServiceHooks: ServiceHooks = {
 
     fetchItems: () => async (dispatch, getState) => {
         const state = getState()
-        const configs = state.service as MinifluxConfigs
+        const configs = { ...state.service } as MinifluxConfigs
         const items: Entry[] = new Array()
         let entriesResponse: Entries
 
@@ -200,6 +200,7 @@ export const minifluxServiceHooks: ServiceHooks = {
                 notify: false,
                 serviceRef: String(item.id),
             } as RSSItem
+            RSSItem.normalize(parsedItem)
 
             // Try to get the thumbnail of the item
             let dom = domParser.parseFromString(item.content, "text/html")
@@ -316,7 +317,7 @@ export const minifluxServiceHooks: ServiceHooks = {
 
         if (date) {
             const conditions = [
-                inArray(itemsTable.source, sids),
+                itemsInSources(sids),
                 eq(itemsTable.hasRead, false),
                 isNotNull(itemsTable.serviceRef),
                 before

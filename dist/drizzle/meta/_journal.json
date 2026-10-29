@@ -8,6 +8,13 @@
       "when": 1779317487879,
       "tag": "0000_daily_mandroid",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793299496420,
+      "tag": "0001_brief_spitfire",
+      "breakpoints": true
     }
   ]
 }
