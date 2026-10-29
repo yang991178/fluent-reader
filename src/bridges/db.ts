@@ -6,6 +6,13 @@ export type DatabaseQuery = {
     method: "run" | "all" | "values" | "get"
 }
 
+export type RestoreDialogTexts = {
+    title: string
+    message: string
+    confirm: string
+    cancel: string
+}
+
 const dbBridge = {
     execute: (
         sql: string,
@@ -19,7 +26,8 @@ const dbBridge = {
 
     exportAll: (): Promise<void> => ipcRenderer.invoke("db-export-all"),
 
-    importAll: (): Promise<boolean> => ipcRenderer.invoke("db-import-all"),
+    importAll: (texts: RestoreDialogTexts): Promise<boolean> =>
+        ipcRenderer.invoke("db-import-all", texts),
 }
 
 declare global {

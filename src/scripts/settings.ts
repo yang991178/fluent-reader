@@ -1,5 +1,6 @@
 import locales from "./i18n/_locales"
 import { ThemeSettings } from "../schema-types"
+import intl from "react-intl-universal"
 
 export function getFontFamilyForLocale(locale: string): string {
     switch (locale) {
@@ -35,5 +36,10 @@ export async function exportAll() {
 }
 
 export async function importAll(): Promise<boolean> {
-    return await window.db.importAll()
+    return await window.db.importAll({
+        title: intl.get("app.restore"),
+        message: intl.get("app.confirmImport"),
+        confirm: intl.get("app.restore"),
+        cancel: intl.get("cancel"),
+    })
 }

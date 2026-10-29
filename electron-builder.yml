@@ -45,6 +45,7 @@ mac:
         - pt_PT
         - cs
         - pl
+        - sk
 win:
     target:
         - nsis
@@ -73,6 +74,7 @@ appx:
         - pt-PT
         - cs
         - pl
+        - sk
     showNameOnTiles: true
     setBuildNumber: true
 nsis:

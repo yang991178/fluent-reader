@@ -13,7 +13,7 @@ import { WindowManager } from "./window"
 import performUpdate from "./update-scripts"
 import { transformLovefieldRules } from "./utils"
 import { getValidDate } from "../scripts/date"
-import type { DatabaseQuery } from "../bridges/db"
+import type { DatabaseQuery, RestoreDialogTexts } from "../bridges/db"
 
 let sqlite: Database.Database
 let db: ReturnType<typeof drizzle>
@@ -53,7 +53,7 @@ async function handleExportAll() {
     }
 }
 
-async function handleImportAll(): Promise<boolean> {
+async function handleImportAll(texts: RestoreDialogTexts): Promise<boolean> {
     if (!managerRef.hasWindow()) return true
     const openResult = await dialog.showOpenDialog(managerRef.mainWindow, {
         filters: [
@@ -76,9 +76,10 @@ async function handleImportAll(): Promise<boolean> {
 
     const confirmed = await dialog.showMessageBox(managerRef.mainWindow, {
         type: "warning",
-        message: "Restore from backup",
-        detail: "This will overwrite all current data. Continue?",
-        buttons: ["Cancel", "Restore"],
+        title: texts.title,
+        message: texts.title,
+        detail: texts.message,
+        buttons: [texts.cancel, texts.confirm],
         defaultId: 0,
         cancelId: 0,
     })
@@ -271,5 +272,7 @@ export function initDB(
     })
 
     ipcMain.handle("db-export-all", handleExportAll)
-    ipcMain.handle("db-import-all", handleImportAll)
+    ipcMain.handle("db-import-all", (_, texts: RestoreDialogTexts) =>
+        handleImportAll(texts)
+    )
 }
