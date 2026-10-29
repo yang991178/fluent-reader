@@ -5,6 +5,7 @@ import {
     makeStyles,
     mergeClasses,
     MessageBarState,
+    OptionState,
     Theme,
     tokens,
     TreeItemLayoutState,
@@ -89,6 +90,9 @@ const useMessageBarStyles = makeStyles({
         userSelect: "none",
     },
 })
+const useOptionStyles = makeStyles({
+    root: { cursor: "default" },
+})
 const useLabelStyles = makeStyles({
     root: {
         userSelect: "none",
@@ -108,6 +112,10 @@ function useButtonStylesOverride(state: ButtonState) {
 export const CUSTOM_STYLE_HOOKS: CustomStyleHooksContextValue_unstable = {
     useButtonStyles_unstable: useButtonStylesOverride,
     useToggleButtonStyles_unstable: useButtonStylesOverride,
+    useOptionStyles_unstable: (state: OptionState) => {
+        const styles = useOptionStyles()
+        state.root.className = mergeClasses(state.root.className, styles.root)
+    },
     useMessageBarStyles_unstable: (state: MessageBarState) => {
         const styles = useMessageBarStyles()
         state.root.className = mergeClasses(state.root.className, styles.root)

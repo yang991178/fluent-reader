@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useEffect, useState } from "react"
 import intl from "react-intl-universal"
 import {
     urlTest,
@@ -13,17 +14,19 @@ import {
     exportAll,
 } from "../../scripts/settings"
 import {
-    Stack,
-    Label,
-    Toggle,
-    TextField,
-    DefaultButton,
+    Button,
     Dropdown,
-    IDropdownOption,
-    PrimaryButton,
-} from "@fluentui/react"
-import { RadioGroup, Radio } from "@fluentui/react-components"
-import DangerButton from "../utils/danger-button"
+    Field,
+    Input,
+    Option,
+    RadioGroup,
+    Radio,
+    Switch,
+    Text,
+    tokens,
+} from "@fluentui/react-components"
+import { makeStyles, mergeClasses } from "@griffel/react"
+import { DangerButton } from "../utils/DangerButton"
 
 type AppTabProps = {
     setLanguage: (option: string) => void
@@ -32,302 +35,308 @@ type AppTabProps = {
     importAll: () => Promise<void>
 }
 
-type AppTabState = {
-    pacStatus: boolean
-    pacUrl: string
-    themeSettings: ThemeSettings
-    itemSize: string
-    cacheSize: string
-    deleteIndex: string
-}
+const useStyles = makeStyles({
+    root: { display: "flex", flexDirection: "column", gap: "16px" },
+    row: { display: "flex", gap: "8px", alignItems: "flex-start" },
+    section: { display: "flex", flexDirection: "column", gap: "4px" },
+    grow: { flex: 1, minWidth: 0 },
+    dropdown: { width: "200px", minWidth: 0 },
+    cleanup: { width: "100%", minWidth: 0 },
+    proxy: { gridTemplateColumns: "1fr auto", alignItems: "center" },
+    hint: { color: tokens.colorNeutralForeground3 },
+})
 
-class AppTab extends React.Component<AppTabProps, AppTabState> {
-    constructor(props) {
-        super(props)
-        this.state = {
-            pacStatus: window.settings.getProxyStatus(),
-            pacUrl: window.settings.getProxy(),
-            themeSettings: getThemeSettings(),
-            itemSize: null,
-            cacheSize: null,
-            deleteIndex: null,
-        }
-        this.getItemSize()
-        this.getCacheSize()
-    }
+function AppTab({
+    setLanguage,
+    setFetchInterval,
+    deleteArticles,
+    importAll,
+}: AppTabProps) {
+    const classes = useStyles()
+    const [locale, setLocale] = useState(() =>
+        window.settings.getLocaleSettings()
+    )
+    const [theme, setTheme] = useState(getThemeSettings)
+    const [fetchInterval, setSelectedFetchInterval] = useState(() =>
+        String(window.settings.getFetchInterval())
+    )
+    const [searchEngine, setSearchEngine] = useState(() =>
+        window.settings.getSearchEngine()
+    )
+    const [pacStatus, setPacStatus] = useState(() =>
+        window.settings.getProxyStatus()
+    )
+    const [pacUrl, setPacUrl] = useState(() => window.settings.getProxy())
+    const [itemSize, setItemSize] = useState<string>(null)
+    const [cacheSize, setCacheSize] = useState<string>(null)
+    const [deleteIndex, setDeleteIndex] = useState<string>(null)
 
-    getCacheSize = () => {
-        window.utils.getCacheSize().then(size => {
-            this.setState({ cacheSize: byteToMB(size) })
-        })
-    }
-    getItemSize = () => {
+    useEffect(() => {
+        let active = true
         calculateItemSize().then(size => {
-            this.setState({ itemSize: byteToMB(size) })
+            if (active) setItemSize(byteToMB(size))
         })
-    }
-
-    clearCache = () => {
-        window.utils.clearCache().then(() => {
-            this.getCacheSize()
+        window.utils.getCacheSize().then(size => {
+            if (active) setCacheSize(byteToMB(size))
         })
-    }
+        return () => {
+            active = false
+        }
+    }, [])
 
-    fetchIntervalOptions = (): IDropdownOption[] => [
-        { key: 0, text: intl.get("app.never") },
-        { key: 10, text: intl.get("time.minute", { m: 10 }) },
-        { key: 15, text: intl.get("time.minute", { m: 15 }) },
-        { key: 20, text: intl.get("time.minute", { m: 20 }) },
-        { key: 30, text: intl.get("time.minute", { m: 30 }) },
-        { key: 45, text: intl.get("time.minute", { m: 45 }) },
-        { key: 60, text: intl.get("time.hour", { h: 1 }) },
+    const languageOptions = [
+        { value: "default", text: intl.get("followSystem") },
+        { value: "de", text: "Deutsch" },
+        { value: "en-US", text: "English" },
+        { value: "es", text: "Español" },
+        { value: "cs", text: "Čeština" },
+        { value: "fr-FR", text: "Français" },
+        { value: "it", text: "Italiano" },
+        { value: "nl", text: "Nederlands" },
+        { value: "pt-BR", text: "Português do Brasil" },
+        { value: "pt-PT", text: "Português de Portugal" },
+        { value: "sk-SK", text: "Slovenčina" },
+        { value: "fi-FI", text: "Suomi" },
+        { value: "sv", text: "Svenska" },
+        { value: "tr", text: "Türkçe" },
+        { value: "uk", text: "Українська" },
+        { value: "ru", text: "Русский" },
+        { value: "ko", text: "한글" },
+        { value: "ja", text: "日本語" },
+        { value: "zh-CN", text: "中文（简体）" },
+        { value: "zh-TW", text: "中文（繁體）" },
     ]
-    onFetchIntervalChanged = (item: IDropdownOption) => {
-        this.props.setFetchInterval(item.key as number)
-    }
-
-    searchEngineOptions = (): IDropdownOption[] =>
-        [
-            SearchEngines.Google,
-            SearchEngines.Bing,
-            SearchEngines.Baidu,
-            SearchEngines.DuckDuckGo,
-        ].map(engine => ({
-            key: engine,
-            text: getSearchEngineName(engine),
-        }))
-    onSearchEngineChanged = (item: IDropdownOption) => {
-        window.settings.setSearchEngine(item.key as number)
-    }
-
-    deleteOptions = (): IDropdownOption[] => [
-        { key: "7", text: intl.get("app.daysAgo", { days: 7 }) },
-        { key: "14", text: intl.get("app.daysAgo", { days: 14 }) },
-        { key: "21", text: intl.get("app.daysAgo", { days: 21 }) },
-        { key: "28", text: intl.get("app.daysAgo", { days: 28 }) },
-        { key: "0", text: intl.get("app.deleteAll") },
+    const fetchIntervalOptions = [0, 10, 15, 20, 30, 45, 60].map(minutes => ({
+        value: String(minutes),
+        text:
+            minutes === 0
+                ? intl.get("app.never")
+                : minutes === 60
+                ? intl.get("time.hour", { h: 1 })
+                : intl.get("time.minute", { m: minutes }),
+    }))
+    const searchEngineOptions = [
+        SearchEngines.Google,
+        SearchEngines.Bing,
+        SearchEngines.Baidu,
+        SearchEngines.DuckDuckGo,
     ]
+    const deleteOptions = [7, 14, 21, 28, 0].map(days => ({
+        value: String(days),
+        text: days
+            ? intl.get("app.daysAgo", { days })
+            : intl.get("app.deleteAll"),
+    }))
+    const validPacUrl = urlTest(pacUrl)
+    const pacError = pacUrl && !validPacUrl ? intl.get("app.badUrl") : ""
 
-    deleteChange = (_, item: IDropdownOption) => {
-        this.setState({ deleteIndex: item ? String(item.key) : null })
-    }
-
-    confirmDelete = () => {
-        this.setState({ itemSize: null })
-        this.props
-            .deleteArticles(parseInt(this.state.deleteIndex))
-            .then(() => this.getItemSize())
-    }
-
-    languageOptions = (): IDropdownOption[] => [
-        { key: "default", text: intl.get("followSystem") },
-        { key: "de", text: "Deutsch" },
-        { key: "en-US", text: "English" },
-        { key: "es", text: "Español" },
-        { key: "cs", text: "Čeština" },
-        { key: "fr-FR", text: "Français" },
-        { key: "it", text: "Italiano" },
-        { key: "nl", text: "Nederlands" },
-        { key: "pt-BR", text: "Português do Brasil" },
-        { key: "pt-PT", text: "Português de Portugal" },
-        { key: "fi-FI", text: "Suomi" },
-        { key: "sv", text: "Svenska" },
-        { key: "tr", text: "Türkçe" },
-        { key: "uk", text: "Українська" },
-        { key: "ru", text: "Русский" },
-        { key: "ko", text: "한글" },
-        { key: "ja", text: "日本語" },
-        { key: "zh-CN", text: "中文（简体）" },
-        { key: "zh-TW", text: "中文（繁體）" },
-    ]
-
-    toggleStatus = () => {
+    function toggleProxy() {
         window.settings.toggleProxyStatus()
-        this.setState({
-            pacStatus: window.settings.getProxyStatus(),
-            pacUrl: window.settings.getProxy(),
-        })
+        setPacStatus(window.settings.getProxyStatus())
+        setPacUrl(window.settings.getProxy())
     }
 
-    handleInputChange = event => {
-        const name: string = event.target.name
-        // @ts-ignore
-        this.setState({ [name]: event.target.value.trim() })
-    }
-
-    setUrl = (event: React.FormEvent) => {
+    function setProxy(event: React.FormEvent) {
         event.preventDefault()
-        if (urlTest(this.state.pacUrl))
-            window.settings.setProxy(this.state.pacUrl)
+        if (validPacUrl) window.settings.setProxy(pacUrl)
     }
 
-    onThemeChange = (
-        _: React.ChangeEvent<HTMLInputElement>,
-        data: { value: string }
-    ) => {
-        setThemeSettings(data.value as ThemeSettings)
-        this.setState({ themeSettings: data.value as ThemeSettings })
+    async function confirmDelete() {
+        if (itemSize === null || deleteIndex === null) return
+        setItemSize(null)
+        await deleteArticles(Number(deleteIndex))
+        setItemSize(byteToMB(await calculateItemSize()))
     }
 
-    render = () => (
-        <div className="tab-body">
-            <Label>{intl.get("app.language")}</Label>
-            <Stack horizontal>
-                <Stack.Item>
-                    <Dropdown
-                        defaultSelectedKey={window.settings.getLocaleSettings()}
-                        options={this.languageOptions()}
-                        onChanged={option =>
-                            this.props.setLanguage(String(option.key))
-                        }
-                        style={{ width: 200 }}
-                    />
-                </Stack.Item>
-            </Stack>
+    async function clearCache() {
+        await window.utils.clearCache()
+        setCacheSize(byteToMB(await window.utils.getCacheSize()))
+    }
 
-            <Label>{intl.get("app.theme")}</Label>
-            <RadioGroup
-                value={this.state.themeSettings}
-                onChange={this.onThemeChange}>
-                <Radio
-                    value={ThemeSettings.Default}
-                    label={intl.get("followSystem")}
-                />
-                <Radio
-                    value={ThemeSettings.Light}
-                    label={intl.get("app.lightTheme")}
-                />
-                <Radio
-                    value={ThemeSettings.Dark}
-                    label={intl.get("app.darkTheme")}
-                />
-            </RadioGroup>
+    return (
+        <div className={mergeClasses("tab-body", classes.root)}>
+            <Field label={intl.get("app.language")}>
+                <Dropdown
+                    inlinePopup
+                    className={classes.dropdown}
+                    selectedOptions={[locale]}
+                    value={
+                        languageOptions.find(option => option.value === locale)
+                            ?.text || ""
+                    }
+                    onOptionSelect={(_, data) => {
+                        if (!data.optionValue) return
+                        setLocale(data.optionValue)
+                        setLanguage(data.optionValue)
+                    }}>
+                    {languageOptions.map(option => (
+                        <Option key={option.value} value={option.value}>
+                            {option.text}
+                        </Option>
+                    ))}
+                </Dropdown>
+            </Field>
 
-            <Label>{intl.get("app.fetchInterval")}</Label>
-            <Stack horizontal>
-                <Stack.Item>
-                    <Dropdown
-                        defaultSelectedKey={window.settings.getFetchInterval()}
-                        options={this.fetchIntervalOptions()}
-                        onChanged={this.onFetchIntervalChanged}
-                        style={{ width: 200 }}
+            <Field label={intl.get("app.theme")}>
+                <RadioGroup
+                    value={theme}
+                    onChange={(_, data) => {
+                        const value = data.value as ThemeSettings
+                        setThemeSettings(value)
+                        setTheme(value)
+                    }}>
+                    <Radio
+                        value={ThemeSettings.Default}
+                        label={intl.get("followSystem")}
                     />
-                </Stack.Item>
-            </Stack>
+                    <Radio
+                        value={ThemeSettings.Light}
+                        label={intl.get("app.lightTheme")}
+                    />
+                    <Radio
+                        value={ThemeSettings.Dark}
+                        label={intl.get("app.darkTheme")}
+                    />
+                </RadioGroup>
+            </Field>
 
-            <Label>{intl.get("searchEngine.name")}</Label>
-            <Stack horizontal>
-                <Stack.Item>
-                    <Dropdown
-                        defaultSelectedKey={window.settings.getSearchEngine()}
-                        options={this.searchEngineOptions()}
-                        onChanged={this.onSearchEngineChanged}
-                        style={{ width: 200 }}
-                    />
-                </Stack.Item>
-            </Stack>
+            <Field label={intl.get("app.fetchInterval")}>
+                <Dropdown
+                    inlinePopup
+                    className={classes.dropdown}
+                    selectedOptions={[fetchInterval]}
+                    value={
+                        fetchIntervalOptions.find(
+                            option => option.value === fetchInterval
+                        )?.text || ""
+                    }
+                    onOptionSelect={(_, data) => {
+                        if (!data.optionValue) return
+                        setSelectedFetchInterval(data.optionValue)
+                        setFetchInterval(Number(data.optionValue))
+                    }}>
+                    {fetchIntervalOptions.map(option => (
+                        <Option key={option.value} value={option.value}>
+                            {option.text}
+                        </Option>
+                    ))}
+                </Dropdown>
+            </Field>
 
-            <Stack horizontal verticalAlign="baseline">
-                <Stack.Item grow>
-                    <Label>{intl.get("app.enableProxy")}</Label>
-                </Stack.Item>
-                <Stack.Item>
-                    <Toggle
-                        checked={this.state.pacStatus}
-                        onChange={this.toggleStatus}
-                    />
-                </Stack.Item>
-            </Stack>
-            {this.state.pacStatus && (
-                <form onSubmit={this.setUrl}>
-                    <Stack horizontal>
-                        <Stack.Item grow>
-                            <TextField
+            <Field label={intl.get("searchEngine.name")}>
+                <Dropdown
+                    inlinePopup
+                    className={classes.dropdown}
+                    selectedOptions={[String(searchEngine)]}
+                    value={getSearchEngineName(searchEngine)}
+                    onOptionSelect={(_, data) => {
+                        if (!data.optionValue) return
+                        const value = Number(data.optionValue)
+                        setSearchEngine(value)
+                        window.settings.setSearchEngine(value)
+                    }}>
+                    {searchEngineOptions.map(engine => (
+                        <Option key={engine} value={String(engine)}>
+                            {getSearchEngineName(engine)}
+                        </Option>
+                    ))}
+                </Dropdown>
+            </Field>
+
+            <Field
+                className={classes.proxy}
+                orientation="horizontal"
+                label={intl.get("app.enableProxy")}>
+                <Switch checked={pacStatus} onChange={toggleProxy} />
+            </Field>
+            {pacStatus && (
+                <form onSubmit={setProxy}>
+                    <Field
+                        validationState={pacError ? "error" : "none"}
+                        validationMessage={pacError}
+                        hint={intl.get("app.pacHint")}>
+                        <div className={classes.row}>
+                            <Input
                                 required
-                                onGetErrorMessage={v =>
-                                    urlTest(v.trim())
-                                        ? ""
-                                        : intl.get("app.badUrl")
-                                }
+                                className={classes.grow}
+                                aria-label={intl.get("app.pac")}
                                 placeholder={intl.get("app.pac")}
                                 name="pacUrl"
-                                onChange={this.handleInputChange}
-                                value={this.state.pacUrl}
+                                value={pacUrl}
+                                onChange={(_, data) =>
+                                    setPacUrl(data.value.trim())
+                                }
                             />
-                        </Stack.Item>
-                        <Stack.Item>
-                            <DefaultButton
-                                disabled={!urlTest(this.state.pacUrl)}
-                                type="sumbit"
-                                text={intl.get("app.setPac")}
-                            />
-                        </Stack.Item>
-                    </Stack>
-                    <span className="settings-hint up">
-                        {intl.get("app.pacHint")}
-                    </span>
+                            <Button disabled={!validPacUrl} type="submit">
+                                {intl.get("app.setPac")}
+                            </Button>
+                        </div>
+                    </Field>
                 </form>
             )}
 
-            <Label>{intl.get("app.cleanup")}</Label>
-            <Stack horizontal>
-                <Stack.Item grow>
+            <Field
+                label={intl.get("app.cleanup")}
+                hint={
+                    itemSize
+                        ? intl.get("app.itemSize", { size: itemSize })
+                        : intl.get("app.calculatingSize")
+                }>
+                <div className={classes.row}>
                     <Dropdown
+                        inlinePopup
+                        className={mergeClasses(classes.grow, classes.cleanup)}
                         placeholder={intl.get("app.deleteChoices")}
-                        options={this.deleteOptions()}
-                        selectedKey={this.state.deleteIndex}
-                        onChange={this.deleteChange}
-                    />
-                </Stack.Item>
-                <Stack.Item>
+                        selectedOptions={
+                            deleteIndex === null ? [] : [deleteIndex]
+                        }
+                        value={
+                            deleteOptions.find(
+                                option => option.value === deleteIndex
+                            )?.text || ""
+                        }
+                        onOptionSelect={(_, data) =>
+                            setDeleteIndex(data.optionValue ?? null)
+                        }>
+                        {deleteOptions.map(option => (
+                            <Option key={option.value} value={option.value}>
+                                {option.text}
+                            </Option>
+                        ))}
+                    </Dropdown>
                     <DangerButton
-                        disabled={
-                            this.state.itemSize === null ||
-                            this.state.deleteIndex === null
-                        }
+                        disabled={itemSize === null || deleteIndex === null}
                         text={intl.get("app.confirmDelete")}
-                        onClick={this.confirmDelete}
+                        onClick={confirmDelete}
                     />
-                </Stack.Item>
-            </Stack>
-            <span className="settings-hint up">
-                {this.state.itemSize
-                    ? intl.get("app.itemSize", { size: this.state.itemSize })
-                    : intl.get("app.calculatingSize")}
-            </span>
-            <Stack horizontal>
-                <Stack.Item>
-                    <DefaultButton
-                        text={intl.get("app.cache")}
-                        disabled={
-                            this.state.cacheSize === null ||
-                            this.state.cacheSize === "0MB"
-                        }
-                        onClick={this.clearCache}
-                    />
-                </Stack.Item>
-            </Stack>
-            <span className="settings-hint up">
-                {this.state.cacheSize
-                    ? intl.get("app.cacheSize", { size: this.state.cacheSize })
-                    : intl.get("app.calculatingSize")}
-            </span>
+                </div>
+            </Field>
+            <div className={classes.section}>
+                <div className={classes.row}>
+                    <Button
+                        disabled={cacheSize === null || cacheSize === "0MB"}
+                        onClick={clearCache}>
+                        {intl.get("app.cache")}
+                    </Button>
+                </div>
+                <Text size={200} className={classes.hint}>
+                    {cacheSize
+                        ? intl.get("app.cacheSize", { size: cacheSize })
+                        : intl.get("app.calculatingSize")}
+                </Text>
+            </div>
 
-            <Label>{intl.get("app.data")}</Label>
-            <Stack horizontal>
-                <Stack.Item>
-                    <PrimaryButton
-                        onClick={exportAll}
-                        text={intl.get("app.backup")}
-                    />
-                </Stack.Item>
-                <Stack.Item>
-                    <DefaultButton
-                        onClick={this.props.importAll}
-                        text={intl.get("app.restore")}
-                    />
-                </Stack.Item>
-            </Stack>
+            <div className={classes.section}>
+                <Text weight="semibold">{intl.get("app.data")}</Text>
+                <div className={classes.row}>
+                    <Button appearance="primary" onClick={exportAll}>
+                        {intl.get("app.backup")}
+                    </Button>
+                    <Button onClick={importAll}>
+                        {intl.get("app.restore")}
+                    </Button>
+                </div>
+            </div>
         </div>
     )
 }

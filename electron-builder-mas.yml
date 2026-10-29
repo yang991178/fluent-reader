@@ -1,5 +1,5 @@
 appId: me.hyliu.fluent-reader-mas
-buildVersion: 34
+buildVersion: 35
 productName: Fluent Reader
 copyright: Copyright © 2020 Haoyuan Liu
 files:
@@ -42,6 +42,7 @@ mac:
         - pt_PT
         - cs
         - pl
+        - sk
     minimumSystemVersion: 13.0.0
 mas:
     identity: "Haoyuan Liu (P2CG8QD3BP)"

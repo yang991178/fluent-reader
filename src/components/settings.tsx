@@ -18,6 +18,7 @@ import { FlatButton } from "./utils/FlatButton"
 import { FlatButtonGroup } from "./utils/FlatButtonGroup"
 
 const useSettingsClasses = makeStyles({
+    pivot: { height: "100%" },
     settingsGroup: {
         position: "absolute",
         top: "70px",
@@ -85,7 +86,7 @@ const Settings: React.FC = () => {
                             />
                         </FocusTrapZone>
                     )}
-                    <Pivot>
+                    <Pivot className={settingsClasses.pivot}>
                         <PivotItem
                             headerText={intl.get("settings.sources")}
                             itemIcon="Source">
