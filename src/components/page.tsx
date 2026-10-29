@@ -6,7 +6,11 @@ import Article from "./article"
 import { ViewType } from "../schema-types"
 import ArticleSearch from "./utils/article-search"
 import { useAppSelector, useAppDispatch } from "../scripts/reducer"
-import { dismissItem, showOffsetItem } from "../scripts/models/page"
+import {
+    canShowOffsetItem,
+    dismissItem,
+    showOffsetItem,
+} from "../scripts/models/page"
 import { ContextMenuType } from "../scripts/models/app"
 import { makeStyles, mergeClasses } from "@griffel/react"
 import { FlatButton } from "./utils/FlatButton"
@@ -89,7 +93,9 @@ const usePageClasses = makeStyles({
         right: "calc(50% - var(--article-overlay-width) / 2 - 4px)",
     },
     articleBtn: {
-        color: "#fff",
+        ":enabled": {
+            color: "#fff",
+        },
     },
     articleGroup: {
         position: "absolute",
@@ -119,6 +125,8 @@ const Page: React.FC = () => {
     )
     const itemId = useAppSelector(s => s.page.itemId)
     const itemFromFeed = useAppSelector(s => s.page.itemFromFeed)
+    const hasPrevious = useAppSelector(s => canShowOffsetItem(s, -1))
+    const hasNext = useAppSelector(s => canShowOffsetItem(s, 1))
     const viewType = useAppSelector(s => s.page.viewType)
     const articleOverlayOpen = useArticleOverlayOpen()
     const articleWidth = useArticleOverlayWidth()
@@ -169,6 +177,13 @@ const Page: React.FC = () => {
             {articleOverlayOpen && (
                 <FocusTrapZone
                     disabled={contextOn}
+                    firstFocusableTarget={root => {
+                        const webview =
+                            root.querySelector<HTMLElement>("webview")
+                        return webview?.getClientRects().length
+                            ? webview
+                            : root.querySelector<HTMLElement>(".article")
+                    }}
                     ignoreExternalFocusing={true}
                     isClickableOutsideFocusTrap={true}
                     className={mergeClasses(
@@ -218,6 +233,7 @@ const Page: React.FC = () => {
                                 <FlatButton
                                     styleClass={pageClasses.articleBtn}
                                     ariaLabel="Previous article"
+                                    disabled={!hasPrevious}
                                     onClick={prevItem}>
                                     <Icon iconName="Back" />
                                 </FlatButton>
@@ -230,6 +246,7 @@ const Page: React.FC = () => {
                                 <FlatButton
                                     styleClass={pageClasses.articleBtn}
                                     ariaLabel="Next article"
+                                    disabled={!hasNext}
                                     onClick={nextItem}>
                                     <Icon iconName="Forward" />
                                 </FlatButton>

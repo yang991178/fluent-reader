@@ -13,6 +13,7 @@ import { RSSItem, markRead } from "./item"
 import { SourceActionTypes, DELETE_SOURCE } from "./source"
 import { toggleMenu } from "./app"
 import { ViewType, ViewConfigs } from "../../schema-types"
+import { RootState } from "../reducer"
 
 export const SELECT_PAGE = "SELECT_PAGE"
 export const SWITCH_VIEW = "SWITCH_VIEW"
@@ -174,48 +175,61 @@ export const toggleSearch = (): AppThunk => {
     }
 }
 
-export function showOffsetItem(offset: number): AppThunk {
-    return (dispatch, getState) => {
-        let state = getState()
-        if (!state.page.itemFromFeed) return
-        let [itemId, feedId] = [state.page.itemId, state.page.feedId]
-        let feed = state.feeds[feedId]
-        let iids = feed.iids
-        let itemIndex = iids.indexOf(itemId)
-        let newIndex = itemIndex + offset
-        if (itemIndex < 0) {
-            let item = state.items[itemId]
-            let prevs = feed.iids
-                .map(
-                    (id, index) => [state.items[id], index] as [RSSItem, number]
-                )
-                .filter(([i, _]) => i.date > item.date)
-            if (prevs.length > 0) {
-                let prev = prevs[0]
-                for (let j = 1; j < prevs.length; j += 1) {
-                    if (prevs[j][0].date < prev[0].date) prev = prevs[j]
-                }
-                newIndex = prev[1] + offset + (offset < 0 ? 1 : 0)
-            } else {
-                newIndex = offset - 1
-            }
+function getOffsetItemIndex(state: RootState, offset: number): number | null {
+    const { itemId, feedId, itemFromFeed } = state.page
+    const feed = state.feeds[feedId]
+    if (!itemFromFeed || !feed || !state.items[itemId]) return null
+    const itemIndex = feed.iids.indexOf(itemId)
+    if (itemIndex >= 0) return itemIndex + offset
+
+    const item = state.items[itemId]
+    const prevs = feed.iids
+        .map((id, index) => [state.items[id], index] as [RSSItem, number])
+        .filter(([i, _]) => i.date > item.date)
+    if (prevs.length === 0) return offset - 1
+    let prev = prevs[0]
+    for (let j = 1; j < prevs.length; j += 1) {
+        if (prevs[j][0].date < prev[0].date) prev = prevs[j]
+    }
+    return prev[1] + offset + (offset < 0 ? 1 : 0)
+}
+
+export function canShowOffsetItem(state: RootState, offset: number): boolean {
+    const index = getOffsetItemIndex(state, offset)
+    if (index === null || index < 0) return false
+    const feed = state.feeds[state.page.feedId]
+    return index < feed.iids.length || (!feed.allLoaded && !feed.loading)
+}
+
+export function showOffsetItem(offset: number): AppThunk<Promise<void>> {
+    return async (dispatch, getState) => {
+        const state = getState()
+        if (!canShowOffsetItem(state, offset)) return
+        const feedId = state.page.feedId
+        const feed = state.feeds[feedId]
+        const index = getOffsetItemIndex(state, offset)
+        if (index < feed.iids.length) {
+            const item = state.items[feed.iids[index]]
+            dispatch(markRead(item))
+            dispatch(showItem(feedId, item))
+            return
         }
-        if (newIndex >= 0) {
-            if (newIndex < iids.length) {
-                let item = state.items[iids[newIndex]]
-                dispatch(markRead(item))
-                dispatch(showItem(feedId, item))
-                return
-            } else if (!feed.allLoaded) {
-                dispatch(loadMore(feed))
-                    .then(() => {
-                        dispatch(showOffsetItem(offset))
-                    })
-                    .catch(() => dispatch(dismissItem()))
-                return
-            }
+
+        try {
+            await dispatch(loadMore(feed))
+        } catch {
+            return
         }
-        dispatch(dismissItem())
+        const nextState = getState()
+        const nextFeed = nextState.feeds[feedId]
+        // An exhausted/failed page or a changed selection must keep the current article.
+        if (
+            nextState.page !== state.page ||
+            nextFeed?.filter !== feed.filter ||
+            nextFeed.iids.length <= feed.iids.length
+        )
+            return
+        dispatch(showOffsetItem(offset))
     }
 }
 

@@ -123,6 +123,7 @@ function Article({ itemId, side = false }: ArticleProps) {
         window.settings.getFontSize()
     )
     const {
+        articleRef,
         webview,
         webviewKey,
         showWebview,
@@ -137,6 +138,16 @@ function Article({ itemId, side = false }: ArticleProps) {
     } = useArticleView(item, source.openTarget)
 
     const dismiss = () => dispatch(dismissItem())
+    const handleNavigationKey = useCallback(
+        (key: string) => {
+            if (key === "Escape") dispatch(dismissItem())
+            else if (key === "ArrowLeft" || key === "ArrowRight")
+                dispatch(showOffsetItem(key === "ArrowLeft" ? -1 : 1))
+            else return false
+            return true
+        },
+        [dispatch]
+    )
     const handleToggleHidden = useCallback(() => {
         if (!item.hidden) dispatch(dismissItem())
         if (!item.hasRead && !item.hidden) dispatch(markRead(item))
@@ -154,15 +165,9 @@ function Article({ itemId, side = false }: ArticleProps) {
     // A key arriving immediately after navigation must use the committed item.
     useLayoutEffect(() => {
         return window.utils.addWebviewKeydownListener(input => {
-            if (input.type !== "keyDown") return
+            if (input.type !== "keyDown" || handleNavigationKey(input.key))
+                return
             switch (input.key) {
-                case "Escape":
-                    dispatch(dismissItem())
-                    break
-                case "ArrowLeft":
-                case "ArrowRight":
-                    dispatch(showOffsetItem(input.key === "ArrowLeft" ? -1 : 1))
-                    break
                 case "l":
                 case "L":
                     toggleWebpage()
@@ -192,7 +197,14 @@ function Article({ itemId, side = false }: ArticleProps) {
                 }
             }
         })
-    }, [dispatch, item, toggleWebpage, toggleFull, handleToggleHidden])
+    }, [
+        dispatch,
+        item,
+        toggleWebpage,
+        toggleFull,
+        handleToggleHidden,
+        handleNavigationKey,
+    ])
 
     const updateFontSize = (size: number) => {
         window.settings.setFontSize(size)
@@ -340,6 +352,28 @@ function Article({ itemId, side = false }: ArticleProps) {
 
     return (
         <FocusZone
+            elementRef={articleRef}
+            tabIndex={-1}
+            allowFocusRoot
+            preventFocusRestoration
+            onKeyDown={event => {
+                if (event.target !== event.currentTarget) return
+                // Keep content navigation on the pending article, not the toolbar.
+                if (
+                    handleNavigationKey(event.key) ||
+                    [
+                        "ArrowUp",
+                        "ArrowDown",
+                        "PageUp",
+                        "PageDown",
+                        "Home",
+                        "End",
+                    ].includes(event.key)
+                ) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+            }}
             className={mergeClasses(
                 "article",
                 classes.root,
