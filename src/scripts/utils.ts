@@ -161,6 +161,51 @@ export const urlTest = (s: string) =>
         s
     )
 
+const videoUrl = /\.(webm|mp4|m4v|ogv|mov)(?:[?#]|$)/i
+
+// Only absolute addresses are usable here: a card has no base URL to resolve
+// relative paths against, unlike the article body itself.
+const absoluteUrl = (raw: string) => {
+    if (raw.startsWith("//")) return "https:" + raw
+    if (/^https?:\/\//i.test(raw)) return raw
+    return ""
+}
+
+/**
+ * Find the first playable video address in an article body. Feeds that publish
+ * "GIF as video" (reactor.cc and the like) embed a <video> with webm/mp4
+ * sources next to a still image, so the still image ends up as the thumbnail
+ * and the motion is lost. Returns an empty string when there is none.
+ */
+export function getItemVideoUrl(content: string) {
+    if (!content) return ""
+    let dom: Document
+    try {
+        dom = domParser.parseFromString(content, "text/html")
+    } catch {
+        return ""
+    }
+    for (let video of dom.getElementsByTagName("video")) {
+        let candidates = new Array<string>()
+        let own = video.getAttribute("src")
+        if (own) candidates.push(own)
+        for (let source of video.getElementsByTagName("source")) {
+            let src = source.getAttribute("src")
+            if (src) candidates.push(src)
+        }
+        for (let candidate of candidates) {
+            let url = absoluteUrl(candidate)
+            if (url && videoUrl.test(url)) return url
+        }
+        // A <video> without a recognisable extension is still worth trying.
+        if (candidates.length > 0) {
+            let url = absoluteUrl(candidates[0])
+            if (url) return url
+        }
+    }
+    return ""
+}
+
 export const getWindowBreakpoint = () => window.innerWidth >= 1440
 
 export const cutText = (s: string, length: number) => {
