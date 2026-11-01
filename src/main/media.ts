@@ -37,16 +37,20 @@ const registrableDomain = (host: string) => {
 }
 
 // Several feeds host media on a domain that rejects requests without a
-// Referer (reactor.cc answers 404), while media loaded from the file:// app
-// page sends none. Only media requests are considered, an existing Referer is
-// never replaced, and nothing but the registrable domain is sent.
+// Referer (reactor.cc answers 404, its image CDN answers 403), while anything
+// loaded from the file:// app page sends none. Both media and images are
+// considered, an existing Referer is never replaced, and nothing but the
+// registrable domain is sent.
 const addMediaReferer = (
     details: OnBeforeSendHeadersListenerDetails,
     callback: (response: BeforeSendResponse) => void
 ) => {
     let { requestHeaders, url, resourceType } = details
-    let isMedia = resourceType === "media" || videoExtension.test(url || "")
-    if (isMedia && !requestHeaders.Referer && !requestHeaders.referer) {
+    let needsReferer =
+        resourceType === "media" ||
+        resourceType === "image" ||
+        videoExtension.test(url || "")
+    if (needsReferer && !requestHeaders.Referer && !requestHeaders.referer) {
         try {
             requestHeaders.Referer =
                 "https://" + registrableDomain(new URL(url).hostname) + "/"
