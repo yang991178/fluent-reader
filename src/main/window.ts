@@ -2,6 +2,7 @@ import { BrowserWindow, nativeTheme, app } from "electron"
 import * as path from "node:path"
 import { setThemeListener } from "./settings"
 import { setUtilsListeners } from "./utils"
+import { setMediaRefererListeners } from "./media"
 
 export class WindowManager {
     mainWindow: BrowserWindow = null
@@ -12,6 +13,7 @@ export class WindowManager {
 
     private init = () => {
         app.on("ready", () => {
+            setMediaRefererListeners()
             this.setListeners()
             this.createWindow()
         })
