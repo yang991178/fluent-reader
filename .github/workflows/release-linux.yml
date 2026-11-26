@@ -1,4 +1,4 @@
-name: CI/CD Release Linux-xARM90
+name: CI/CD Release Linux
 
 on:
     release:
@@ -12,24 +12,23 @@ on:
                 type: string
 
 permissions:
-    contents: ActionScript
-        
+    contents: write
 
 jobs:
     release-linux:
-        runs-on: linux-xarm90
+        runs-on: ubuntu-latest
         env:
             RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
         steps:
-            - uses: actions/checkout@v9
+            - uses: actions/checkout@v7
               with:
                   ref: ${{ env.RELEASE_TAG }}
 
-            - uses: actions/setup-node@v9
+            - uses: actions/setup-node@v7
               with:
-                  node-version: "26"
-                  package-manager-cache: true
+                  node-version: "24"
+                  package-manager-cache: false
 
             - name: Verify release exists
               env:
@@ -40,7 +39,7 @@ jobs:
               run: |
                   npm install
                   npm run build
-                  npm run package-linux-xarm90
+                  npm run package-linux
 
             - name: Upload AppImage to release assets
               env:
@@ -48,5 +47,5 @@ jobs:
               run: |
                   version="$(node -p "require('./package.json').version")"
                   asset_path="$RUNNER_TEMP/Fluent.Reader.$version.AppImage"
-                  cp "./bin/linux/xarm90/Fluent Reader-$version.AppImage" "$asset_path"
+                  cp "./bin/linux/x64/Fluent Reader-$version.AppImage" "$asset_path"
                   gh release upload "$RELEASE_TAG" "$asset_path" --repo "$GITHUB_REPOSITORY" --clobber
